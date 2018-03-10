@@ -3,7 +3,7 @@ const app = express(); // creates an instance of an express application
 var nunjucks = require('nunjucks');
 var routes = require('./routes');
 var bodyParser = require('body-parser');
-
+var models = require('./models');
 
 // app.get('/', (req, res) => res.send('New Alloy Strength'))
 
@@ -16,4 +16,13 @@ nunjucks.configure('views', { noCache: true });
 app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
 app.use(bodyParser.json()); // would be for AJAX requests
 
-app.listen(3000, () => console.log('Alloy Strength on port ' + 3000))
+models.db.sync()
+.then(function () {
+    console.log('All tables created!');
+    app.listen(3000, function () {
+        console.log('Server is listening on port 3000!');
+    });
+})
+.catch(console.error.bind(console));
+
+// app.listen(3000, () => console.log('Alloy Strength on port ' + 3000))
