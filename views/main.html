@@ -1,0 +1,42 @@
+<style>
+table, th, td {
+    border: 1px solid black;
+}
+</style>
+
+
+
+<div style="font-size:20px; width:90%; margin:auto;">
+Exercise Types: 
+ {% for Type in ETypes %}
+  {{Type}}, 
+ {% endfor %}
+<table style="font-size:20px; margin-top:25px; width:100%;">
+  <tr>
+    <th>Pattern</th>
+    <th>Exercise</th> 
+    <th>Reps</th>
+    <th>Weight</th>
+    <th>RPE</th> 
+    <th>Tempo</th>
+  </tr>
+  <tr>
+    <td>Squat (Example)</td>
+    <td>Goblet Box Squat</td> 
+    <td>6</td>
+    <td>145 lbs</td>
+    <td>9</td> 
+    <td>3-3-3</td>
+  </tr>
+  <tr>  
+    <td>Eve</td>
+    <td>Jackson</td> 
+    <td>94</td>
+  </tr>
+</table>
+<br>
+<input type='submit' onclick="" value='SUBMIT' name="SubmitBtn" id='btn'></input>
+<input type='submit' onclick="" value='RESET' name="ResetBtn" id='btn'></input>
+<input type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>
+
+</div>
