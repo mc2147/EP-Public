@@ -6,15 +6,13 @@ var bodyParser = require('body-parser');
 var models = require('./models');
 
 // app.get('/', (req, res) => res.send('New Alloy Strength'))
-
+app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
+app.use(bodyParser.json()); // would be for AJAX requests
 app.use('/', routes);
 
 app.set('view engine', 'html'); // have res.render work with html files
 app.engine('html', nunjucks.render); // when giving html files to res.render, tell it to use nunjucks
 nunjucks.configure('views', { noCache: true });
-
-app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
-app.use(bodyParser.json()); // would be for AJAX requests
 
 models.db.sync()
 .then(function () {

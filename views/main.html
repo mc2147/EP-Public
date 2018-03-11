@@ -11,6 +11,9 @@ Exercise Types:
  {% for Type in ETypes %}
   {{Type}}, 
  {% endfor %}
+ <br>
+<form action="/" method="POST">
+
 <table style="font-size:20px; margin-top:25px; width:100%;">
   <tr>
     <th>Pattern</th>
@@ -20,23 +23,100 @@ Exercise Types:
     <th>RPE</th> 
     <th>Tempo</th>
   </tr>
-  <tr>
-    <td>Squat (Example)</td>
-    <td>Goblet Box Squat</td> 
-    <td>6</td>
-    <td>145 lbs</td>
-    <td>9</td> 
-    <td>3-3-3</td>
-  </tr>
-  <tr>  
-    <td>Eve</td>
-    <td>Jackson</td> 
-    <td>94</td>
-  </tr>
+  {% for P in Patterns %}
+        <tr>
+          <!-- Pattern Column -->
+          <td>{{P.type}} ({{P.number}})</td>
+          <!-- Exercise Name Column -->
+          <td>{{P.name}}</td> 
+          <!-- Reps Column -->
+          <td style="padding:0px; width:200px;">
+          {% for S in range(1, P.sets + 1) %}
+                <div style="border:solid 1px black;">
+                  Reps: {{P.reps}}
+                </div>
+          {% endfor %}
+          {% if P.alloy %}
+                <div style="border:solid 1px black; background-color:yellow;">                
+                  Reps: {{P.alloyreps}} +
+                  <input type="text" placeholder="Enter Reps" 
+                  name = "Alloy|W|{{S}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                </div>
+          {% endif   %}
+          </td>
+          <!-- Weight Column -->
+          <td style="padding:0px; width:200px;">
+          {% for S in range(1, P.sets + 1) %}
+                <div style="border:solid 1px black;">                
+                <!-- <input hidden name="inputCodes" value = "{{P.number}}|W|{{S}}" style="margin:0px; width:100%; height:100%;"> -->
+                145 lbs
+                <input type="text" placeholder="Enter Weight" 
+                name = "{{P.number}}|W|{{S}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                </div>
+          {% endfor %}
+          {% if P.alloy %}
+                <div style="border:solid 1px black; background-color:yellow;">                
+                <!-- <input hidden name="inputCodes" value = "{{P.number}}|W|{{S}}" style="margin:0px; width:100%; height:100%;"> -->
+                Alloy: 145 lbs
+                </div>
+          {% endif   %}
+          </td>
+          <!-- RPE Column -->
+          <td style= "width:200px; padding:0px;">
+          {% for S in range(1, P.sets + 1) %}
+            <div style="border:solid 1px black;">
+                RPE: {{P.RPE}}
+                <input type="text" placeholder="Enter RPE" 
+                name = "{{P.number}}|RPE|{{S}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+            </div>
+          {% endfor %}
+          {% if P.alloy %}
+                <div style="border:solid 1px black; background-color:yellow;">                
+                  RPE: 10
+                </div>
+          {% endif   %}
+          </td>
+          <!-- Tempo Column -->
+          <td style="padding:0px; width:200px;">
+          {% for S in range(1, P.sets + 1) %}
+                <div style="border:solid 1px black;">
+                <input type="text" value="1" 
+                name = "{{P.number}}|T1|{{S}}" style="margin:0px; width:30%; height:100%;">
+                <input type="text" value="2" 
+                name = "{{P.number}}|T2|{{S}}" style="margin:0px; width:30%; height:100%;">
+                <input type="text" value="3" 
+                name = "{{P.number}}|T3|{{S}}" style="margin:0px; width:30%; height:100%;">
+                </div>
+          {% endfor %}
+          {% if P.alloy %}
+                <div style="border:solid 1px black; background-color:yellow;">                
+                  &nbsp;
+                </div>
+          {% endif   %}
+          </td>
+        </tr>  
+      {% for S in range(0, P.sets) %}
+      {% endfor %}
+  {% endfor %}
 </table>
 <br>
-<input type='submit' onclick="" value='SUBMIT' name="SubmitBtn" id='btn'></input>
-<input type='submit' onclick="" value='RESET' name="ResetBtn" id='btn'></input>
-<input type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>
+        <label for="name_field">Name:</label>
+        <input name="name" type="text" id="name_field" value="{{name}}" />
+
+        <label for="text_field">Text:</label>
+        <input name="text" type="text" id="text_field" style="width: 350px;" />
+
+        <input type='submit' onclick="" value='SUBMIT' name="SubmitBtn" id='btn'></input>
+        <input type='submit' onclick="" value='RESET' name="ResetBtn" id='btn'></input>
+        <input type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>
+</form>
+ <b>User Max Stats:</b>
+ <br>
+  {% for P in Patterns %}
+    {{P.name}} {{P.UserMax}}
+    <br>
+    &nbsp; &nbsp; &nbsp; {{P.LastSet}}
+     <br>
+  {% endfor %} 
 
 </div>
