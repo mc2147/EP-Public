@@ -36,38 +36,73 @@ Exercise Types:
                   Reps: {{P.reps}}
                 </div>
           {% endfor %}
-          {% if P.alloy %}
-                <div style="border:solid 1px black; background-color:yellow;">                
+          {% if P.alloy %}            
+            <div style="border:solid 1px black; background-color:yellow;">                
+            {% if P.alloystatus.value == 2 %}            
                   Reps: {{P.alloyreps}} +
                   <input type="text" placeholder="Enter Reps" 
-                  name = "Alloy|W|{{S}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
-                </div>
-          {% endif   %}
+                  name = "{{P.number}}|W|Alloy" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+            {% elif P.alloystatus.value == 1 %}            
+                  {{P.alloyperformed}} PASS            
+            {% elif P.alloystatus.value == -1 %}            
+                  {{P.alloyperformed}} FAIL            
+            {% else %}
+                  Reps: {{P.alloyreps}} +
+            {% endif %}
+            </div>
+          {% endif %}
           </td>
           <!-- Weight Column -->
           <td style="padding:0px; width:200px;">
-          {% for S in range(1, P.sets + 1) %}
+          {% for S in P.CurrentSets %}
                 <div style="border:solid 1px black;">                
                 <!-- <input hidden name="inputCodes" value = "{{P.number}}|W|{{S}}" style="margin:0px; width:100%; height:100%;"> -->
-                145 lbs
-                <input type="text" placeholder="Enter Weight" 
-                name = "{{P.number}}|W|{{S}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                Weight:
+                {% if S.Filled %}
+                  
+                <!-- Testing -->
+                  {% if (P.alloystatus.value == 2) or (P.alloystatus.value == -1) or (P.alloystatus.value == 1) %} 
+                    {{S.Weight}} lbs            
+                  {% else %}
+                    <input type="text" placeholder="Enter Weight" value = "{{S.Weight}}"
+                    name = "{{P.number}}|W|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                  {% endif %}
+                {% else %}
+                  <input type="text" placeholder="Enter Weight" value = ""
+                  name = "{{P.number}}|W|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                {% endif %}
                 </div>
           {% endfor %}
           {% if P.alloy %}
                 <div style="border:solid 1px black; background-color:yellow;">                
                 <!-- <input hidden name="inputCodes" value = "{{P.number}}|W|{{S}}" style="margin:0px; width:100%; height:100%;"> -->
-                Alloy: 145 lbs
+                  <!-- {% if P.showalloy %} -->
+                    {{P.alloyweight}} 
+                  <!-- {% else %} -->
+                    Alloy Weight
+                  <!-- {% endif %} -->
                 </div>
-          {% endif   %}
+          {% endif %}
           </td>
           <!-- RPE Column -->
           <td style= "width:200px; padding:0px;">
-          {% for S in range(1, P.sets + 1) %}
+          {% for S in P.CurrentSets %}
             <div style="border:solid 1px black;">
+                <!-- RPE: {{P.RPE}} -->
+                {% if S.Filled %}
+                  {% if (P.alloystatus.value == 2) or (P.alloystatus.value == -1) or (P.alloystatus.value == 1) %} 
+                    &nbsp; &nbsp; {{S.RPE}}
+                  {% else %}
+
+                  RPE: {{P.RPE}}
+                      <input type="text" placeholder="Enter RPE" value = "{{S.RPE}}"
+                    name = "{{P.number}}|RPE|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                  {% endif %}
+                {% else %}
                 RPE: {{P.RPE}}
-                <input type="text" placeholder="Enter RPE" 
-                name = "{{P.number}}|RPE|{{S}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                  <input type="text" placeholder="Enter RPE" 
+                name = "{{P.number}}|RPE|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                {% endif %}
             </div>
           {% endfor %}
           {% if P.alloy %}
@@ -78,14 +113,14 @@ Exercise Types:
           </td>
           <!-- Tempo Column -->
           <td style="padding:0px; width:200px;">
-          {% for S in range(1, P.sets + 1) %}
+          {% for S in P.CurrentSets %}
                 <div style="border:solid 1px black;">
                 <input type="text" value="1" 
-                name = "{{P.number}}|T1|{{S}}" style="margin:0px; width:30%; height:100%;">
+                name = "{{P.number}}|T1|{{S.SetNum}}" style="margin:0px; width:30%; height:100%;">
                 <input type="text" value="2" 
-                name = "{{P.number}}|T2|{{S}}" style="margin:0px; width:30%; height:100%;">
+                name = "{{P.number}}|T2|{{S.SetNum}}" style="margin:0px; width:30%; height:100%;">
                 <input type="text" value="3" 
-                name = "{{P.number}}|T3|{{S}}" style="margin:0px; width:30%; height:100%;">
+                name = "{{P.number}}|T3|{{S.SetNum}}" style="margin:0px; width:30%; height:100%;">
                 </div>
           {% endfor %}
           {% if P.alloy %}
@@ -107,8 +142,11 @@ Exercise Types:
         <input name="text" type="text" id="text_field" style="width: 350px;" />
 
         <input type='submit' onclick="" value='SUBMIT' name="SubmitBtn" id='btn'></input>
+
         <input type='submit' onclick="" value='RESET' name="ResetBtn" id='btn'></input>
+
         <input type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>
+
 </form>
  <b>User Max Stats:</b>
  <br>

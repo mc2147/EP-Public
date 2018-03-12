@@ -23,7 +23,7 @@ function getMax(weight, reps, RPE) {
 function getWeight(max, reps, RPE) {
 	var Estimate = 0;
 	var Percentage = RPE_Dict[RPE][reps - 1];
-	Estimate = weight*Percentage/100;
+	Estimate = max*Percentage/100;
 	return Estimate - (Estimate % 5);
 }
 
@@ -36,52 +36,17 @@ Level_Groups = {
 	1: "1-5",
 	2: "6-10",
 	3: "11-15",
-	4: "16-25"
+	4: "16-25" 
 }
 
 WorkoutSample = {
-	Week: 1,
-	Day: 1,
-	LevelGroup:1,
-	NumSubWorkouts: 5,
+	Week: 1, Day: 1, LevelGroup:1, NumSubWorkouts: 5,
 	SubWorkouts: {
-		1: {
-			ExerciseType: "Squat",
-			Sets: 3,
-			Reps: 10,
-			RPE: 7,
-		},
-		2: {
-			ExerciseType: "UB Vert Push",
-			Sets: 4,
-			Reps: 6,
-			RPE: 7,	
-			Alloy: true,
-			AlloyReps: 8		
-		},
-		3: {
-			ExerciseType: "Hinge",
-			Sets: 3,
-			Reps: 12,
-			RPE: 7,
-			Deload: -1
-		},		
-		4: {
-			ExerciseType: "UB Hor Pull",
-			Sets: 3,
-			Reps: 12,
-			RPE: 7,
-			Deload: -1
-		}, 
-		5: {
-			ExerciseType: "Ant Chain",
-			Sets: 3,
-			Reps: null,
-			RPE: 7
-		}
-
-	}
-
+		1: {ExerciseType: "Squat", Sets: 3, Reps: 10, RPE: 7,},
+		2: {ExerciseType: "UB Vert Push", Sets: 4, Reps: 6, RPE: 7,	Alloy: true, AlloyReps: 8},
+		3: {ExerciseType: "Hinge", Sets: 3, Reps: 12, RPE: 7, Deload: -1},		
+		4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
+		5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}}
 }
 
 Exercise_Names = {
@@ -103,10 +68,13 @@ Exercise_Names = {
 	}
 }
 
+
 module.exports = {
 	Level_Groups,
 	WorkoutSample,
 	Exercise_Names,
 	Exercise_Types,
 	getMax,
+	getWeight,
 }
+
