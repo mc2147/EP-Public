@@ -7,6 +7,35 @@ table, th, td {
 
 
 <div style="font-size:20px; width:90%; margin:auto;">
+<!--  {% for Key, Val in ExerciseStats %}
+  {{Key}},{{Val}} <br>
+ {% endfor %}
+ --> 
+ <!-- <br> -->
+ <form action="/" method="POST">
+ Change Level Group:
+  <select name="selectLevelGroup">
+    <option value="1">1-5</option>
+    <option value="2">6-10</option>
+    <option value="3">11-15</option>
+    <option value="4">16-25</option>
+  </select> <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
+  <br>
+ Change Workout:
+  <select name="changeWorkoutSelect" style="margin-top:15px;">
+      <option value="{{selectedWeek}}|{{selectedDay}}" class="select-hr">Week {{selectedWeek}}: Day {{selectedDay}}</option>
+      <hr>
+    {% for W in WeekList %}
+      {% for D in DayList %}
+      {% if W != selectedWeek or D != selectedDay %}
+      <option value="{{W}}|{{D}}">Week {{W}}: Day {{D}}</option>
+      {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </select> 
+  <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Workout' name="changeWorkoutBtn" id='btn'></input>
+</form>
+
 Exercise Types: 
  {% for Type in ETypes %}
   {{Type}}, 
@@ -31,7 +60,7 @@ Exercise Types:
           <td>{{P.name}}</td> 
           <!-- Reps Column -->
           <td style="padding:0px; width:200px;">
-          {% for S in range(1, P.sets + 1) %}
+          {% for S in P.setList %} <!-- Used to be P.CurrentSets -->
                 <div style="border:solid 1px black;">
                   Reps: {{P.reps}}
                 </div>
@@ -54,7 +83,7 @@ Exercise Types:
           </td>
           <!-- Weight Column -->
           <td style="padding:0px; width:200px;">
-          {% for S in P.CurrentSets %}
+          {% for S in P.setList %} <!-- Used to be P.CurrentSets -->
                 <div style="border:solid 1px black;">                
                 <!-- <input hidden name="inputCodes" value = "{{P.number}}|W|{{S}}" style="margin:0px; width:100%; height:100%;"> -->
                 Weight:
@@ -68,32 +97,30 @@ Exercise Types:
                     name = "{{P.number}}|W|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
                   {% endif %}
                 {% else %}
-                  <input type="text" placeholder="Enter Weight" value = ""
-                  name = "{{P.number}}|W|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                    <input type="text" placeholder="Enter Weight" value = ""
+                    name = "{{P.number}}|W|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
                 {% endif %}
                 </div>
           {% endfor %}
           {% if P.alloy %}
                 <div style="border:solid 1px black; background-color:yellow;">                
-                <!-- <input hidden name="inputCodes" value = "{{P.number}}|W|{{S}}" style="margin:0px; width:100%; height:100%;"> -->
-                  <!-- {% if P.showalloy %} -->
-                    {{P.alloyweight}} 
-                  <!-- {% else %} -->
+                {% if (P.alloystatus.value == 2) or (P.alloystatus.value == -1) or (P.alloystatus.value == 1) %} 
+                    Alloy: {{P.alloyweight}} 
+                {% else %}
                     Alloy Weight
-                  <!-- {% endif %} -->
+                {% endif %}
                 </div>
           {% endif %}
           </td>
           <!-- RPE Column -->
           <td style= "width:200px; padding:0px;">
-          {% for S in P.CurrentSets %}
+          {% for S in P.setList %} <!-- Used to be P.CurrentSets -->
             <div style="border:solid 1px black;">
                 <!-- RPE: {{P.RPE}} -->
                 {% if S.Filled %}
                   {% if (P.alloystatus.value == 2) or (P.alloystatus.value == -1) or (P.alloystatus.value == 1) %} 
                     &nbsp; &nbsp; {{S.RPE}}
                   {% else %}
-
                   RPE: {{P.RPE}}
                       <input type="text" placeholder="Enter RPE" value = "{{S.RPE}}"
                     name = "{{P.number}}|RPE|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
@@ -113,14 +140,9 @@ Exercise Types:
           </td>
           <!-- Tempo Column -->
           <td style="padding:0px; width:200px;">
-          {% for S in P.CurrentSets %}
-                <div style="border:solid 1px black;">
-                <input type="text" value="1" 
-                name = "{{P.number}}|T1|{{S.SetNum}}" style="margin:0px; width:30%; height:100%;">
-                <input type="text" value="2" 
-                name = "{{P.number}}|T2|{{S.SetNum}}" style="margin:0px; width:30%; height:100%;">
-                <input type="text" value="3" 
-                name = "{{P.number}}|T3|{{S.SetNum}}" style="margin:0px; width:30%; height:100%;">
+          {% for S in P.setList %} <!-- Used to be P.CurrentSets -->
+                <div style="border:solid 1px black; padding-left:25%;">
+                    3/2/X
                 </div>
           {% endfor %}
           {% if P.alloy %}
@@ -135,26 +157,44 @@ Exercise Types:
   {% endfor %}
 </table>
 <br>
-        <label for="name_field">Name:</label>
-        <input name="name" type="text" id="name_field" value="{{name}}" />
+<div style="margin:auto; margin-left:40%;">
+        <input style="margin:auto;" type='submit' onclick="" value='SUBMIT' name="SubmitBtn" id='btn'></input>
 
-        <label for="text_field">Text:</label>
-        <input name="text" type="text" id="text_field" style="width: 350px;" />
+        <input style="margin:auto;" type='submit' onclick="" value='RESET' name="ResetBtn" id='btn'></input>
 
-        <input type='submit' onclick="" value='SUBMIT' name="SubmitBtn" id='btn'></input>
-
-        <input type='submit' onclick="" value='RESET' name="ResetBtn" id='btn'></input>
-
-        <input type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>
-
+        <input style="margin:auto;" type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>
+</div>
 </form>
- <b>User Max Stats:</b>
+
+<div style="width:45%; display:inline-block; vertical-align:top;">
+<b>Current Pattern Stats:</b>
  <br>
   {% for P in Patterns %}
-    {{P.name}} {{P.UserMax}}
+    {{P.name}} {{P.Max}}
     <br>
     &nbsp; &nbsp; &nbsp; {{P.LastSet}}
      <br>
   {% endfor %} 
+</div> 
+
+<div style="width:45%; display:inline-block;"> 
+<b>User Stats:</b>
+ <br>
+  {% for Key, Stat in UserStats %}
+    {{Key}} <b>|</b> {{Stat.Name}}, Max: {{Stat.Max}} lbs
+    , Alloy:
+    {% if Stat.Status.value == 1 %}
+    PASSED
+    {% elif Stat.Status.value == -1 %}            
+    FAILED
+    {% else %}
+    Unknown {{Stat.Status.value}}
+    {% endif %}
+    <br>
+    &nbsp; &nbsp; &nbsp; {{Stat.LastSet}}
+    <br>
+    <br>
+  {% endfor %} 
+</div>
 
 </div>

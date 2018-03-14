@@ -1,3 +1,4 @@
+
 RPE_Dict = {10: [100, 94, 91, 89, 86,84,82, 80,78,76,75,73,71,70,68,67,66,64,63,62,61,60,59,58,57],
 9.5: [97, 94, 91, 89, 86, 84, 82, 80, 78, 76, 75, 73, 71, 70, 68, 67, 66, 64, 63, 62, 61, 60, 59, 58, 57, 56],
 9: [97, 94, 91, 89, 86, 84, 82, 80, 78, 76, 75, 73, 71, 70, 68, 67, 66, 64, 63, 62, 61, 60, 59, 58, 57, 56],
@@ -68,6 +69,13 @@ Exercise_Names = {
 	}
 }
 
+Alloy = {
+	None: {value: 0, name: "None", code: "N", string: "None"},
+	Testing: {value: 2, name: "Test", code: "T", string: "Testing"},
+	Passed: {value: 1, name: "Passed", code: "P", string: "Passed"},
+	Failed: {value: -1, name: "Failed", code: "F", string: "Failed"},
+}
+
 
 module.exports = {
 	Level_Groups,
@@ -76,5 +84,6 @@ module.exports = {
 	Exercise_Types,
 	getMax,
 	getWeight,
+	Alloy,
 }
 

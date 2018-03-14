@@ -1,22 +1,28 @@
-// Day 3		S x R	RPE	A
-// Hinge		10, 8, 6, #	7,7.5,8,10	8+
-// UB Hor Push		10, 8, 6, #	7,7.5,8,10	8+
-// Vert Pull		12, 10, 8, #	7,7.5,8,10	10+
-// LB Uni Push	-1	3 x 8	7	
-// Iso 1		3 x 12	7	
-// Iso 2		3 x 12	7	
+// Day 3		R	RPE	Strength Stop
+// Hinge	-2	15	5	6
+// LB Uni Push	-2	15	5	6
+// Squat	-2	2 x 15	4-5	
+// Carry	-1	2 x :45		
+// Post Chain		2 x #	4-5		
 
-SampleWorkout_Group2 = {
-	Week: 3, Day: 3, LevelGroup: 2, NumSubWorkouts: 6,
+SampleWorkout_Group3 = {
+	Block: 1, Week: 4, Day: 3, LevelGroup: 3, NumSubWorkouts: 5,
 	SubWorkouts: {
-		1: {ExerciseType: "Hinge", Sets: 4, StaggeredReps: [10, 8, 6], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 8},
-		2: {ExerciseType: "UB Hor Push", Sets: 4, StaggeredReps: [10, 8, 6], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 8},
-		2: {ExerciseType: "Vert Pull", Sets: 4, StaggeredReps: [12, 10, 8], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 10},
-		4: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 8, RPE: 7, Deload: -1}, 
-		5: {ExerciseType: "Iso 1", Sets: 3, Reps: 12, RPE: 7}},
-		6: {ExerciseType: "Iso 2", Sets: 3, Reps: 12, RPE: 7}}
+		1: {ExerciseType: "Hinge", Sets: 1, Reps: 15, RPE: 5, Type: "stop", StrengthStop: 6, Deload: -2},
+		2: {ExerciseType: "LB Uni Push", Sets: 1, Reps: 15, RPE: 5, Type: "stop", StrengthStop: 6, Deload: -2},
+		2: {ExerciseType: "Squat",  Sets: 2, Reps: 15, RPE: "4-5", Deload: -2},
+		4: {ExerciseType: "Carry", Sets: 2, Seconds: 45, Deload: -1}, 
+		5: {ExerciseType: "PostChain", Sets: 3, Reps: null, RPE: "4-5"}},
 	}
 }
+
+// Day 3		R	RPE	Strength Stop
+// Hinge	-2	15	5	6
+// LB Uni Push	-2	15	5	6
+// Squat	-2	2 x 15	4-5	
+// Carry	-1	2 x :45		
+// Post Chain		2 x #	4-5	
+
 // WorkoutGroup1 = {
 // 	Week: {
 // 		1: {

@@ -1,22 +1,30 @@
-// Day 3		S x R	RPE	A
-// Hinge		10, 8, 6, #	7,7.5,8,10	8+
-// UB Hor Push		10, 8, 6, #	7,7.5,8,10	8+
-// Vert Pull		12, 10, 8, #	7,7.5,8,10	10+
-// LB Uni Push	-1	3 x 8	7	
-// Iso 1		3 x 12	7	
-// Iso 2		3 x 12	7	
+// Day 4		S x R	RPE	Strength Drop
+// UB Vert Push		3	9	10%
+// UB Hor Pull		6	9	10%
+// UB Hor Push	-1	4 x 6	8-9	
+// UB Vert Pull	-1	4 x 8	8-9	
+// Iso 2		2x 12	8	
+// Iso 4		2 x 12	8	
 
-SampleWorkout_Group2 = {
-	Week: 3, Day: 3, LevelGroup: 2, NumSubWorkouts: 6,
+SampleWorkout_Group4 = {
+	Block: 2, Week: 2, Day: 4, LevelGroup: 4, NumSubWorkouts: 6,
 	SubWorkouts: {
-		1: {ExerciseType: "Hinge", Sets: 4, StaggeredReps: [10, 8, 6], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 8},
-		2: {ExerciseType: "UB Hor Push", Sets: 4, StaggeredReps: [10, 8, 6], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 8},
-		2: {ExerciseType: "Vert Pull", Sets: 4, StaggeredReps: [12, 10, 8], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 10},
-		4: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 8, RPE: 7, Deload: -1}, 
-		5: {ExerciseType: "Iso 1", Sets: 3, Reps: 12, RPE: 7}},
-		6: {ExerciseType: "Iso 2", Sets: 3, Reps: 12, RPE: 7}}
+		1: {ExerciseType: "UB Vert Push", Sets: 3, Reps: null, RPE: 9, Type: "drop", DropValue: 10,},
+		2: {ExerciseType: "UB Hor Pull", Sets: 6, Reps: null, RPE: 9, Type: "drop", DropValue: 10,},
+		3: {ExerciseType: "UB Hor Push",  Sets: 4, Reps: 9, RPE: "8-9", Deload: -1},
+		4: {ExerciseType: "UB Vert Pull", Sets: 4, Reps: 8, RPE: "8-9", Deload: -1}, 
+		5: {ExerciseType: "Iso 2", Sets: 2, Reps: 12, RPE: 8}},
+		6: {ExerciseType: "Iso 4", Sets: 2, Reps: 12, RPE: 8}},
 	}
 }
+
+// Day 3		R	RPE	Strength Stop
+// Hinge	-2	15	5	6
+// LB Uni Push	-2	15	5	6
+// Squat	-2	2 x 15	4-5	
+// Carry	-1	2 x :45		
+// Post Chain		2 x #	4-5	
+
 // WorkoutGroup1 = {
 // 	Week: {
 // 		1: {
