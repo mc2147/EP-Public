@@ -15,20 +15,8 @@ var Alloy = globals.Alloy;
 Exercise_Types = ["UB Hor Push", "UB Vert Push", "UB Hor Pull",	"UB Vert Pull",	"Hinge", "Squat", "LB Uni Push", "Ant Chain", "Post Chain",
 "Carry", "Iso 1", "Iso 2", "Iso 3", "Iso 4"];
  
-// console.log("globals.WorkoutSample: " + globals.WorkoutSample.SubWorkouts);
 var SampleWorkout = globals.WorkoutSample;
 var SampleWorkout_New = Group1Workouts.Group1Workouts.Week[1].Day[1];
-// console.log("Old Sample Workout Patterns:");
-// console.log(SampleWorkout.SubWorkouts);
-// console.log("New Sample Workout Patterns:");
-// console.log(SampleWorkout_New.Patterns);
-
-// Loading All Group 1 Workouts 
-// console.log("Loading All Group 1 Workouts");
-// console.log(Group1Workouts.Group1Workouts.Week);
-
-// console.log("models/index.js: ");
-// console.log(Exercise_Types);
 
 const Exercise = db.define('Exercise', {
     name: {
@@ -250,6 +238,12 @@ var StatTemplate = {
     "Iso 2": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
     "Iso 3": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
     "Iso 4": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+    "Level Up": {
+        Status: Alloy.None, 
+        Squat: Alloy.None,
+        UBHorPush: Alloy.None,
+        Hinge: Alloy.None,
+    },
 };
 
 const User = db.define('User', {
@@ -272,15 +266,18 @@ const User = db.define('User', {
             //Shift workoutDates by 1 after current(?)
             //Reassign (completed) to all
     },
+    currentWorkout: {
+        type: Sequelize.JSON,  
+    },
     workoutDates: {
         type: Sequelize.ARRAY(Sequelize.DATE),
         //Same dates as with workouts, ID'd by workout # (per L Group, Block)
         //For easy indexing with workouts, finding closest date, etc.
     },
-    currentWorkoutID: {
-        type: Sequelize.INTEGER,
-        //To easily find current/next workout
-    },
+    // currentWorkoutID: {
+    //     type: Sequelize.INTEGER,
+    //     //To easily find current/next workout
+    // },
     startDate: {
         type: Sequelize.DATE,
     },
@@ -426,11 +423,16 @@ User.findOrCreate(
         // console.log("user created!! " + user);        
     }
     // console.log("user exists: " + user);
-    user.currentWorkoutID = 1;        
+    user.currentWorkout = {
+        ID: 1,
+        Week: 1,
+        Day: 1,
+        Patterns: []
+    };        
     user.stats = StatTemplate;
     user.stats["TestList"] = [1, 2, 3, 4, 5];
     user.workouts = {};
-    user.workouts["Current"] = {Patterns: []};
+    // user.workouts["Current"] = {Patterns: []};
     user.thisPatterns = [];
 //  Current
     user.workouts.thisPatterns = [];

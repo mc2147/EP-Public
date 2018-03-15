@@ -40,8 +40,9 @@ Exercise Types:
  {% for Type in ETypes %}
   {{Type}}, 
  {% endfor %}
- <br>
-<form action="/" method="POST">
+ <br><br>
+ <b>Workout Date: {{thisDate}}</b>
+<form action="/" method="POST" style="margin-top:0px;">
 
 <table style="font-size:20px; margin-top:25px; width:100%;">
   <tr>
@@ -166,7 +167,7 @@ Exercise Types:
 </div>
 </form>
 
-<div style="width:45%; display:inline-block; vertical-align:top;">
+<div style="width:30%; display:inline-block; vertical-align:top;">
 <b>Current Pattern Stats:</b>
  <br>
   {% for P in Patterns %}
@@ -177,8 +178,30 @@ Exercise Types:
   {% endfor %} 
 </div> 
 
-<div style="width:45%; display:inline-block;"> 
-<b>User Stats:</b>
+
+<div style="width:30%; display:inline-block;  vertical-align:top;"> 
+<b>Stat Summary:</b>
+ <br>
+ Alloy Status: 
+ <b>
+  {{levelUp.Status.value}},
+  {% if levelUp.Status.value == 0 or levelUp.Status.value == 2 %}
+    Testing/Unknown
+  {% elif levelUp.Status.value == 1 %}
+    PASSED
+  {% elif levelUp.Status.value == -1 %}
+    FAILED
+  {% endif %}
+
+</b> <br><br>
+ Squat Alloy: <b>{{levelUp.Squat.value}}</b> <br><br>
+ UB Hor Push (Bench) Status: <b>{{levelUp.UBHorPush.value}}</b> <br><br>
+ Hinge Status: <b>{{levelUp.Hinge.value}}</b> <br><br>
+ Other:<br><br>
+</div>
+
+<div style="width:30%; display:inline-block; vertical-align:top;"> 
+<b>All User Stats:</b>
  <br>
   {% for Key, Stat in UserStats %}
     {{Key}} <b>|</b> {{Stat.Name}}, Max: {{Stat.Max}} lbs
@@ -196,5 +219,4 @@ Exercise Types:
     <br>
   {% endfor %} 
 </div>
-
 </div>

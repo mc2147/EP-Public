@@ -2,6 +2,7 @@ var Promise = require("bluebird");
 var bodyParser = require('body-parser');
 var globals = require('../globals');
 var Group1Workouts = require('../WorkoutGroup1');
+var G1KeyCodes = Group1Workouts.G1KeyCodes;
 // var globalFunctions = require('../globalFunctions')
 
 var getMax = globals.getMax;
@@ -32,91 +33,76 @@ var Alloy = globals.Alloy;
 // }
 // await 
 // var thisUser;
-var userFound = false;
+
+// thisUser = user;
+// G_thisStats = thisUser.stats;
+// thisPatterns = thisUser.workouts.thisPatterns;
+// userFound = true;
+// Ref Dict
+function userRefDict(user) {
+	var output = {};
+	output["User"] = user;
+	output["Level"] = user.level;
+	output["Stats"] = user.stats;
+	output["Workouts"] = user.workouts;
+	output["thisWorkoutID"] = user.currentWorkout.ID;
+	output["thisWorkout"] = user.currentWorkout;
+	output["thisWorkoutDate"] = user.workoutDates[user.currentWorkout.ID - 1];
+	// output["thisWorkoutDate"] = user.workouts[user.currentWorkout.ID].Date;
+	output["thisPatterns"] = user.workouts.thisPatterns;
+	output["levelGroup"] = 1; //Manual for now
+	return output
+}
+// Referenced (global) information:
+	// thisUser.level
+	// thisUser's current workout
+	// thisUser's current workout ID
+	// thisUser's stats
+	// currentWorkoutID
+// Dictionary Refs:
+	// G_UserInfo["Level"];
+	// G_UserInfo["Stats"];
+	// G_UserInfo["thisPatterns"];
+
+	// G_UserInfo["thisWorkoutID"];
+	// G_UserInfo["thisWorkout"];
+
+	// G_UserInfo["Workouts"];
+
+function dateString(date) {
+	var MonthDict = {
+		1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June",
+		7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December",
+	}
+	var output = "";
+	var year = date.getFullYear();
+	var day = date.getDate();
+	var month = date.getMonth() + 1;
+	// var suffix = ""
+	output = year + ", " + MonthDict[month] + " " + day;
+	return output
+}
+
+var userFound = false; 
 var thisUser; 
 var thisPatterns;
 var G_thisStats;
+var G_UserInfo;
 
 User.findById(1).then(user => {
-	// console.log("USER FOUND!!! USER ID: " + user.id);
-	// console.log("User's stats: ");
-	// console.log(user.stats);
-	thisUser = user;
-	G_thisStats = thisUser.stats;
-	thisPatterns = thisUser.workouts.thisPatterns;
+	G_UserInfo = userRefDict(user);
+	thisUser = G_UserInfo["User"];
+	G_thisStats = G_UserInfo["Stats"];
+	thisPatterns = G_UserInfo["thisPatterns"];
+	console.log("Creating User Ref Dict: ");
 	userFound = true;
 });
 
-// How to store old workouts:
-	// Add patterns list to PastWorkouts dict, indexed by week/day
-		// {Week: , Day: , Completed : , Patterns : }
-	// Fill up PastWorkouts dict on workout generation
-		// 
-
-
-var UserStats = {
-	Level: 1,
-	AlloyPerformed: {
-		"UB Hor Push": 0, 
-		"UB Vert Push": 0, 
-		"UB Hor Pull": 0, 
-		"UB Vert Pull": 0, 
-		"Hinge": 0,
-		"Squat": 0, 
-		"LB Uni Push": 0, 
-		"Ant Chain": 0, 
-		"Post Chain": 0, 
-		"Carry": 0, 
-		"Iso 1": 0, 
-		"Iso 2": 0, 
-		"Iso 3": 0, 
-		"Iso 4": 0, 		
-	},
-	ExerciseStats: {
-		"UB Hor Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"UB Vert Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"UB Hor Pull": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"UB Vert Pull": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Hinge": {Status: Alloy.None, Max: 100, LastSet: ""},
-		"Squat": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"LB Uni Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Ant Chain": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Post Chain": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Carry": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 1": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 2": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 3": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 4": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-	},
-	CurrentSets: {
-		// Dictionary of lists of dictionaries
-	},
-	CurrentWorkout: {
-		Week: 1,
-		Day: 1,
-		LGroup: 1,
-		TemplateID: 1,
-	},
-	TemplateID: 1,
-}
-
-
-
-// NEXT: write user model, handle submitting exercises, changing weights, level up, etc.
-// add default handlers
-function workoutUpdate(RPE, Weight, Reps, subWorkout, alloy) {
-	var EType = subWorkout.exerciseType;
-	var oldMax = UserStats.ExerciseStats[EType].Max;
-	var newMax = globals.getMax(Weight, Reps, RPE);
-	UserStats.ExerciseStats[EType].Max = newMax;
-	if (alloy == Alloy.None) {
-		//Update Alloy Set
-	}
-	// UserStats
-	//Get next set ready
-	//Update user stats (max weight)
-	//Update user level	
-}
+	// How to store old workouts:
+		// Add patterns list to PastWorkouts dict, indexed by week/day
+			// {Week: , Day: , Completed : , Patterns : }
+		// Fill up PastWorkouts dict on workout generation
+			// 
 
 var selectedWeek = 1;
 var selectedDay = 1;
@@ -131,96 +117,62 @@ router.get('/', function(req, res
 		// Loading
 		render();
 	}
+	// G_UserInfo = userRefDict(thisUser);
+
 	console.log("ROUTE.GET STARTS ");
 	console.log("GLOBALS: ");
-	console.log("G_thisStats: ");
-	console.log(G_thisStats);
-	console.log("thisUser.stats: ")
-	console.log(thisUser.stats);
-	console.log("thisPatterns: " + thisPatterns.length);
-	// console.log(thisPatterns);
-	// console.log("User Stats from Router: ");
-	// console.log(thisUser.stats);
-	// console.log("User thisPatterns: ");
-	// console.log(thisUser.workouts.thisPatterns);
-	// console.log("User Patterns from Router: " + thisUser.workouts.Current.Patterns.length);
-	// console.log(thisUser.workouts.Current.Patterns);
-	// console.log(getWeight.toString());
+	console.log("G_UserInfo: ");
 
-	var TemplateID = UserStats.CurrentWorkout.TemplateID;
-	// models.SubWorkoutTemplate.destroy({
-	// 	where: {
-	// 		fk_workout: 1,
-	// 	}
-	// });
-	var obj1 = {a: 1, b: 2, c: 3};
+	var TemplateID = G_UserInfo["thisWorkoutID"];
+	var _Level = G_UserInfo["Level"];
+	var wDateIndex = G_UserInfo["thisWorkoutID"] - 1;
 
-	var obj2 = Object.assign({}, obj1);
-	obj2.d = 4;
-	console.log(obj1);
-	console.log(obj2);
-	console.log("User Level: " + UserLevel);
+	G_UserInfo["thisWorkoutDate"] = G_UserInfo["User"].workoutDates[wDateIndex];
+	// Make a refresh dictionary function later
+	var thisworkoutDate = G_UserInfo["Workouts"][TemplateID].Date;
+	console.log(G_UserInfo["thisWorkoutDate"]);
+	// console.log(G_UserInfo["User"].workoutDates);
+	// console.log(G_UserInfo["thisWorkoutID"]);
+	// console.log(G_UserInfo["User"].workoutDates[G_UserInfo["thisWorkoutID"]]);
+
+	// console.log(thisworkoutDate);
+	
 	var Patterns = [];
-	var _Level = UserStats.Level;
 
 	WorkoutTemplate.findOne({
 		where: {
-	        levelGroup: 1,
+	        levelGroup: G_UserInfo["levelGroup"],
 	        week: selectedWeek,
 	        day: selectedDay			
 		}
 	}).then(template => {
-		// console.log("\n");
-		// console.log("Workout Template Selected #: " + template.id + " levelGroup: " + template.levelGroup + " week: " + template.week + " day: " + template.day);
-		for (var K in template) {
-			// console.log("template Key: " + K);
-		}
-		// template.removeSubWorkouts();			
 		var SubWorkouts = template.getSubWorkouts().then(subs => {
-			// console.log("Subworkouts: ");
-			// console.log(subs);
 			subs.sort(function(a, b) {
 				return a.number - b.number
 			});
 			subs.forEach(elem => {
 				// Elem information
-				var SubWorkoutInstance = {};
-				SubWorkoutInstance = Object.assign({}, elem);
+				var patternInstance = {};
 				var N = elem.number;
 				var EType = elem.exerciseType;
-				console.log("Loading Sub for EType: " + EType);
-
-				SubWorkoutInstance.number = N;
-				SubWorkoutInstance.type = elem.exerciseType;
-				SubWorkoutInstance.reps = elem.reps;
-				SubWorkoutInstance.RPE = elem.RPE;
-				SubWorkoutInstance.alloy = elem.alloy;
 				var Sets = elem.sets;
-				// console.log("Sets: " + Sets);
-				if (SubWorkoutInstance.alloy) {
-					SubWorkoutInstance.alloyreps = elem.alloyreps;
+				// Adding info to patterInstance
+				patternInstance.number = N;
+				patternInstance.type = elem.exerciseType;
+				patternInstance.reps = elem.reps;
+				patternInstance.RPE = elem.RPE;
+				patternInstance.alloy = elem.alloy;
+				if (patternInstance.alloy) {
+					patternInstance.alloyreps = elem.alloyreps;
 					Sets -= 1;
 				}
-				SubWorkoutInstance.name = ENames[_Level][elem.exerciseType];	
-
-				// UserStat information
-				SubWorkoutInstance.alloystatus = UserStats.ExerciseStats[EType].Status;
-
-				SubWorkoutInstance.showalloy = (UserStats.ExerciseStats[EType].Status == Alloy.Testing); 
-				// ^^ This has to be updated live
-				SubWorkoutInstance.alloyperformed = UserStats.AlloyPerformed[EType];
-				// ^^ This has to be updated live too 
-
-				// console.log("Show Alloy: " + UserStats.ExerciseStats[EType].Status == Alloy.Testing);
-				var UserMax = UserStats.ExerciseStats[EType].Max;
-				SubWorkoutInstance.UserMax = UserMax;
-				SubWorkoutInstance.alloyweight = getWeight(UserMax, elem.alloyreps, 10);
-
-				SubWorkoutInstance.setList = [];
-
+				patternInstance.name = ENames[_Level][elem.exerciseType];	
+				patternInstance.setList = [];
+				patternInstance.sets = Sets;
+				// Adding setDicts to patterInstance.setList -> []
 				if (!thisUser.workouts.patternsLoaded) {
 					for (var i = 0; i < Sets; i ++) {
-						SubWorkoutInstance.setList.push({
+						patternInstance.setList.push({
 							SetNum: i + 1,
 							Weight: null,
 							RPE: null,
@@ -228,117 +180,50 @@ router.get('/', function(req, res
 							Filled: false,
 						});
 					}
-					thisPatterns.push(SubWorkoutInstance);
-					thisUser.save();
+					G_UserInfo["thisPatterns"].push(patternInstance);
+					G_UserInfo["User"].save();
 				}
-
-				// CurrentSets information
-				// Updating global current sets
-				if (!(EType in UserStats.CurrentSets)) { 
-				// UserStats.CurrentSets[EType] = ["test"];
-					UserStats.CurrentSets[EType] = [];
-					for (var i = 0; i < Sets; i ++) {
-						// console.log("pushing to set:  " + UserStats.CurrentSets[EType]);
-						UserStats.CurrentSets[EType].push({
-							SetNum: i + 1,
-							Weight: null,
-							RPE: null,
-							Tempo: [null, null, null],
-							Filled: false,
-						});
-						// console.log("pushing to set:  " + UserStats.CurrentSets[EType]);
-					}
-				}
-				// CurrentSets Information				
-				// console.log("Set List: " + UserStats.CurrentSets[EType]);
-				for (var K = 0; K < UserStats.CurrentSets[EType].length; K++) {
-					// console.log("Set Dictionary: " + UserStats.CurrentSets[EType][K].toString());
-				}
-
-				SubWorkoutInstance.sets = Sets;
-
-				SubWorkoutInstance.LastSet = UserStats.ExerciseStats[EType].LastSet;
-				// Referencing/pulling from global currentSets
-				SubWorkoutInstance.CurrentSets = UserStats.CurrentSets[EType];
-				// console.log("instance keys: " + Object.keys(SubWorkoutInstance));
-				// console.log(SubWorkoutInstance.exerciseType);
-				// console.log("	" + elem.description + " " + elem.number + " name: " + elem.name);
-				Patterns.push(SubWorkoutInstance);
-				// Patterns.N = SubWorkoutInstance;
-				// thisUser.workouts[]
+				// Some backwards referencing was going on here
 			});
 
-			// console.log("Patterns: " + Patterns);
+			// console.log("\nWATCH THIS!!! \n");
+			// console.log("thisUser.workouts.thisPatterns:");
+			// for (var P = 0; P < thisPatterns.length; P ++) {
+			// 	var _Pattern = thisPatterns[P];
+			// 	console.log("	" + thisPatterns[P].type + ", " + _Pattern.name + ", " 
+			// 	+ _Pattern.sets + " x " + _Pattern.reps + ", " + _Pattern.RPE + " RPE, " + (_Pattern.alloy ? "Alloy, " : "Regular, ")
+			// 	+ "Set List Count: " + _Pattern.setList.length);
+			// }
+			// console.log("\n");
 
-			UserStats.CurrentWorkout.Patterns = Patterns;
-			// thisUser.workouts.Current.Patterns = Patterns;
-			thisUser.workouts.patternsLoaded = true;
-			thisUser.save();
-			console.log("\nWATCH THIS!!! \n");
-			console.log("thisUser.workouts.thisPatterns:");
-			// console.log(thisUser.workouts.thisPatterns);
-			for (var P = 0; P < thisPatterns.length; P ++) {
-				var _Pattern = thisPatterns[P];
-				console.log("	" + thisPatterns[P].type + ", " + _Pattern.name + ", " 
-				+ _Pattern.sets + " x " + _Pattern.reps + ", " + _Pattern.RPE + " RPE, " + (_Pattern.alloy ? "Alloy, " : "Regular, ")
-				+ "Set List Count: " + _Pattern.setList.length);
-			}
-			console.log("\n");
-			// thisUser.save();
-			thisUser.save();
+			G_UserInfo["User"].workouts.patternsLoaded = true;
+			G_UserInfo["User"].save();
 			render();
 		});
 	});
-
-	for (var i = 1; i <= 25; i++) {
-		// console.log("I: " + i);
-		ETypes.forEach(function(elem) {
-			// console.log(elem);
-			var ExerciseData = [];
-			var ExerciseDict = {};
-			Exercise.findOrCreate({
-				where: {
-					name: elem,
-					level: i,
-				}
-			})
-			.then(result => {
-				ExerciseData = result;
-				// console.log("Result: " + ExerciseData[0].name + " " + !ExerciseData);
-				if (!ExerciseData[0]) {
-					// console.log("Exercise " + elem + ", " + i + " doesn't exist!");
-					const newExercise = Exercise.build({
-					  name: elem,
-					  level: i
-					})
-					newExercise.save().then(() => {
-						// console.log("Exercise Saved: " + elem + ", " + i);
-					}).catch(error => {
-					 	// console.log("Error saving: " + elem + ", " + i);
-					})
-				}	
-				else if (ExerciseData[0]) {
-					// console.log("Exercise Exists: " + ExerciseData[0].name + ", " + ExerciseData[0].level);
-				}
-			})
-			// console.log("test");
-			// console.log("ExerciseData: " + !ExerciseData[0]);
-			// console.log("Exercise Data: " + ExerciseData + " " + ExerciseData[0]);
-		});
-	}	
-
+	
 	function render() {
-		thisUser.save();
 		console.log("RENDER FUNCTION");
-		console.log("thisPatterns: " + thisPatterns.length);
+		// console.log("thisPatterns: " + thisPatterns.length);
+
+		console.log(G_UserInfo["thisWorkoutDate"]);
+		console.log(typeof G_UserInfo["thisWorkoutDate"]);
+
 		res.render('main', 
 		{
 			ETypes: globals.Exercise_Types,
 			// Patterns: UserStats.CurrentWorkout.Patterns,
 			// ExerciseStats: UserStats.ExerciseStats,			
-			Patterns: thisPatterns,
-			UserStats: G_thisStats,			
-			Test: 'Testing',
+			
+			thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
+
+			Patterns: G_UserInfo["thisPatterns"],
+			UserStats: G_UserInfo["Stats"],			
+			levelUp: G_UserInfo["Stats"]["Level Up"],
+			UBpressStat: G_UserInfo["Stats"]["Squat"],
+			squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
+			hingeStat: G_UserInfo["Stats"]["Hinge"],
+
 			TestDict: {Test1: "Test1", Test2: "Test2"},
 			selectedWeek,
 			selectedDay,
@@ -353,39 +238,48 @@ router.get('/', function(req, res
 router.post('/', function(req, res) {
 	var inputCodes = req.body["inputCodes"];
 	console.log("selectForm: " + req.body.selectForm);
-	// console.log("inputCodes: " + inputCodes);
-	// console.log(UserStats.CurrentWorkout.Patterns);
 
 	var outputs = {}	
 
-	// console.log("req.body.ResetBtn: " + req.body.ResetBtn);
-	// console.log("req.body.SubmitBtn: " + req.body.SubmitBtn);
-	
-	if (req.body.changeWorkoutBtn) {
-		var selectedWD = req.body.changeWorkoutSelect.split("|");
-		console.log(selectedWD);
-		var _W = parseInt(selectedWD[0]);
-		var _D = parseInt(selectedWD[1]);
-		selectedWeek = _W;
-		selectedDay = _D;
-		thisUser.workouts.patternsLoaded = false;
-		thisPatterns = [];
-		// var thisWeek = req.body.
+	// if (req.body.NextBtn) {
+	// 	var nextWorkoutID = G_UserInfo["thisWorkoutID"] + 1;
+	// 	console.log("NEXT WORKOUT ID: " + nextWorkoutID); 
+	// 	console.log("NEXT WORKOUT Week/Day: " + G1KeyCodes[nextWorkoutID].Week + ", " + G1KeyCodes[nextWorkoutID].Day); 
+	// }
+
+	if (req.body.changeWorkoutBtn || req.body.NextBtn) {
+		G_UserInfo["User"].workouts.patternsLoaded = false;
+		G_UserInfo["thisPatterns"] = [];
+		if (req.body.changeWorkoutBtn) {
+			var selectedWD = req.body.changeWorkoutSelect.split("|");
+			console.log(selectedWD);
+			var _W = parseInt(selectedWD[0]);
+			var _D = parseInt(selectedWD[1]);
+			selectedWeek = _W;
+			selectedDay = _D;
+		}
+		else if (req.body.NextBtn) {
+			var nextWorkoutID = G_UserInfo["thisWorkoutID"] + 1;
+			if (nextWorkoutID > 12) {
+				res.redirect('/');
+				// Test user here
+			}
+			G_UserInfo["thisWorkoutID"] = nextWorkoutID;
+			G_UserInfo["User"].save();
+			console.log("NEXT WORKOUT ID: " + nextWorkoutID); 
+			console.log("NEXT WORKOUT Week/Day: " + G1KeyCodes[nextWorkoutID].Week + ", " + G1KeyCodes[nextWorkoutID].Day); 
+			selectedWeek = G1KeyCodes[nextWorkoutID].Week;
+			selectedDay = G1KeyCodes[nextWorkoutID].Day;
+		}
+		res.redirect('/');
 	}
 
 	if(req.body.ResetBtn) {
-		reset();
+		// reset();
 		res.redirect('/');
-		// console.log("req.body.ResetBtn: " + req.body.ResetBtn);
-		// console.log("req.body.SubmitBtn: " + req.body.SubmitBtn);
 	}
-	// else if (req.body.SubmitBtn) {
-
-	// }
 
 	for (var K in req.body) {
-		// continue;
-		// console.log(req.body[K]);
 		var inputCode = K.split("|");
 		if (!K.includes("|") || !inputCode) {
 			continue;
@@ -395,60 +289,26 @@ router.post('/', function(req, res) {
 		var patternIndex = patternID - 1;
 		var setNum = parseInt(inputCode[2]);
 		var setIndex = setNum - 1;
-		// console.log(inputCode + " patternID: " + patternID);
-		// console.log(!UserStats.CurrentWorkout.Patterns[patternID - 1]);
-		// console.log(Patterns[patternID - 1].type);
 
-		var thisPattern = thisPatterns[patternIndex];
-		console.log("thisPatterns 361: " + thisPatterns.length + " " + patternIndex);	
-		// console.log(thisPatterns[patternIndex]);	
-		console.log("Pattern ID: " + patternID + " Pattern: " + thisPattern.sets + " " + thisPattern.name 
-		+ ", " + thisPattern.type + " setIndex: " + setIndex);
-
-		for (var i = 0; i < thisPattern.setList.length; i++) {
-			console.log(thisPattern.setList[i]);
-		}
-
+		var thisPattern = G_UserInfo["thisPatterns"][patternIndex];
 		var _EType = thisPattern.type;
 		var _nSets = thisPattern.sets;
-
-		// var setDict = UserStats.CurrentSets[_EType][setIndex];
 		var setDict = thisPattern.setList[setIndex];
 
-		// console.log(thisPattern);
-		// thisPattern = UserStats.CurrentWorkout.Patterns[patternID - 1];
-		//thisPattern
-			//.type
-			//.sets
-			//.name
- 			//.reps
-			//.alloyreps
-
-			//.alloyperformed
-			//.alloyweight			
-		// console.log(thisPattern);
-
-		// thisStat = UserStats.ExerciseStats[_EType];
-		// var thisStats = UserStats.ExerciseStats[_EType];
 		var input = parseInt(req.body[K]);
-
-		var G_Stats = G_thisStats;
-		var thisStats = G_thisStats[_EType];
-		
-		// console.log("251: " + UserStats.CurrentSets[_EType] + " set Index: " + setIndex);
+		var G_Stats = G_UserInfo["Stats"];
+		var thisStats = G_Stats[_EType];
 
 
 		if (inputType == "W" 
 			&& input && setNum <= _nSets) {
 			setDict.Weight = parseInt(req.body[K]);
-			// console.log("261");
 			if (setDict.RPE) {
 				setDict.Filled = true;
 			} 
 		}
 		else if (inputType == "RPE" 
 			&& input && setNum <= _nSets) {
-			// console.log("268");
 			setDict.RPE = parseInt(req.body[K]);
 			if (setDict.Weight) {
 				setDict.Filled = true;
@@ -456,98 +316,71 @@ router.post('/', function(req, res) {
 		}
 		else if (inputType.includes("T") 
 			&& input && setNum <= _nSets) {
-			// console.log("276");
 			setDict.Tempo.push(parseInt(req.body[K]));
 		}
 
-		// console.log(UserStats.CurrentSets[_EType]);
-		// if (UserStats.CurrentWorkout.Patterns[patternID - 1].alloy) {
-		// 	_nSets -= 1;
-		// }
-
 		if (setNum == _nSets) {
-			// console.log("286 setNum");
 			if (!(_EType in outputs)) {
 				outputs[_EType] = {
 					Tempo: [],
-					// Use G_Stats
 					Name: thisPattern.name, 
 					Reps: thisPattern.reps,
 					Alloy: thisPattern.alloy,
 					AlloyReps: thisPattern.alloyreps,
-					// Reps: thisPattern.reps,
-					// Reps: G_Stats[patternIndex].reps, 
-					// Alloy: G_Stats[patternIndex].alloy, 
-					// AlloyReps: G_Stats[patternIndex].alloyreps, 
-					// Name: UserStats.CurrentWorkout.Patterns[patternID - 1].name,
-					// Reps: UserStats.CurrentWorkout.Patterns[patternID - 1].reps,
-					// Alloy: UserStats.CurrentWorkout.Patterns[patternID - 1].alloy,
-					// AlloyReps: UserStats.CurrentWorkout.Patterns[patternID - 1].alloyreps,
 					ID: patternID,
 				};
 			}
-			// console.log("FINAL SET: " + _EType + " # " + _nSets);
 			if (inputType == "W") {
 				outputs[_EType].Weight = parseInt(req.body[K]);
-				// console.log("	Weight Input: " + req.body[K]);
-				// console.log("	oldMax: " + UserStats.ExerciseStats[_EType].Max + " newMax: " + req.body[K]);
 			}
 			else if (inputType == "RPE") {
 				outputs[_EType].RPE = parseInt(req.body[K]);
-				// console.log("	RPE: " + req.body[K]);
 			}
 			else if (inputType.includes("T")) {
 				outputs[_EType].Tempo.push(parseInt(req.body[K]));
-				// console.log("	Tempo " + inputType[1] + ": " + req.body[K]);
 			}
-			// console.log("311 outputDict: " + outputs[_EType]);
 		}
 		else if (inputCode[2] == "Alloy") {
 			var RepPerformance = parseInt(req.body[K]);
-			// G_Stats[_EType] = RepPerformance
-			// UserStats.AlloyPerformed[_EType] = RepPerformance;			
 			thisPattern.alloyperformed = RepPerformance;
 			if (RepPerformance >= thisPattern.alloyreps) {
-				G_Stats[_EType].Status = Alloy.Passed;
+				
+				thisStats.Status = Alloy.Passed;
 				thisPattern.alloystatus = Alloy.Passed;
-				// UserStats.ExerciseStats[_EType].Status = Alloy.Passed;
-				// G_Stats.Alloy = Alloy.Passed;
+				
 				console.log("ALLOY PASSED");				
 			}
 			else {
-				// UserStats.ExerciseStats[_EType].Status = Alloy.Failed;
-				G_Stats[_EType].Status = Alloy.Failed;
+				
+				thisStats.Status = Alloy.Failed;
 				thisPattern.alloystatus = Alloy.Failed;
+
 				console.log("ALLOY FAILED");				
 			}
-			// var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight + " lbs @ " + 10 + " RPE (Alloy) "
-			// + thisStat.Status.string;
-			// UserStats.ExerciseStats[_EType].LastSet = setDescription;			
 			
 			var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight 
 			+ " lbs @ " + 10 + " RPE (Alloy) " + G_Stats[_EType].Status.string;
-			G_Stats[_EType].LastSet = setDescription;
-			G_Stats[_EType].Name = thisPattern.name;
+			
+			thisStats.LastSet = setDescription;
+			thisPattern.LastSet = setDescription;
 
-			// outputs[_EType].AlloyReps
-			// console.log("ALLOY SET");
+			thisStats.Name = thisPattern.name;
+			G_UserInfo["User"].save();
 		}
 	}
-	// console.log("\n");
-	// console.log(outputs);
-	// console.log("\n");
+
 	for (var EType in outputs) {
 		var Val = outputs[EType];
-		// console.log("FINAL SET: " + EType + ", " + Val.Name);
-		// console.log("	INPUTS: " + "Weight: " + Val.Weight + " Reps: " + Val.Reps + " RPE: " + Val.RPE);
-		// console.log("	Old MAX: " + UserStats.ExerciseStats[EType].Max);
 		if (Val.Weight && Val.RPE && Val.Reps) {
 			var setDescription = Val.Reps + " Reps x " + Val.Weight + " lbs @ " + Val.RPE + " RPE";
+			var thisPattern = G_UserInfo["thisPatterns"][Val.ID - 1];
 
-			// UserStats.ExerciseStats[EType].LastSet = setDescription;
-			G_Stats[EType].LastSet = setDescription; 
-			G_Stats[EType].Name = thisPatterns[Val.ID - 1].name;
-			thisPatterns[Val.ID - 1].LastSet = setDescription;
+			var statDict = G_UserInfo["Stats"];
+			var thisStat = statDict[EType];
+
+			thisStat.LastSet = setDescription; 
+			thisStat.Name = thisPattern.name;
+			thisPattern.LastSet = setDescription;
 
 			console.log("	Calculating new max with inputs: " + Val.Weight + ", " + Val.Reps + ", " + Val.RPE);
 			var newMax = getMax(Val.Weight, Val.Reps, Val.RPE);
@@ -555,7 +388,7 @@ router.post('/', function(req, res) {
 
 			// UserStats.ExerciseStats[EType].Max = newMax;
 			G_Stats[EType].Max = newMax;
-			thisPatterns[Val.ID - 1].Max = newMax;			
+			thisPattern.Max = newMax;			
 
 			// console.log("	oldMax: " + UserStats.ExerciseStats[EType].Max
 			// + " newMax: " + getMax(Val.Weight, Val.Reps, Val.RPE));			
@@ -564,33 +397,55 @@ router.post('/', function(req, res) {
 				// var AlloyWeight = getMax(newMax, AlloyReps, 10);
 				var AlloyWeight = getWeight(newMax, AlloyReps, 10);
 				console.log("ALLOY SET: " + AlloyReps + " " + AlloyWeight);
-				// UserStats.ExerciseStats[EType].Max = newMax;
-
-				// Deprecated Soon
-				// UserStats.CurrentWorkout.Patterns[Val.ID - 1].alloyweight = AlloyWeight;
-				// UserStats.ExerciseStats[EType].Status = Alloy.Testing;
 
 				// Use These (BELOW)
-				thisPatterns[Val.ID - 1].alloyweight = AlloyWeight;
-				thisPatterns[Val.ID - 1].alloystatus = Alloy.Testing;
-				G_Stats[EType].Status = Alloy.Testing;
+				thisPattern.alloyweight = AlloyWeight;
+				thisPattern.alloystatus = Alloy.Testing;
 
+				thisStat.Status = Alloy.Testing;
 
 				// console.log("Alloy Show: " + UserStats.CurrentWorkout.Patterns[Val.ID - 1].alloyshow);
-				console.log("Alloy Show: " + thisPatterns[Val.ID - 1].alloyshow);
+				console.log("Alloy Show: " + thisPattern.alloyshow);
 			}
 		}
-		// console.log("\n")
-		// console.log("	Weight Input: " + Val.Weight + " RPE Input: " + Val.RPE + " Tempo: " + Val.Tempo);
-		// console.log("	oldMax: " + UserStats.ExerciseStats[EType].Max + " reps: " + Val.Reps
-		// + " newMax: " + getMax(Val.Weight, Val.Reps, Val.RPE)
-		// );
+	}
+	// Check AlloyStatus Here	
+	console.log("Alloy Check: ");
+	console.log(G_UserInfo["Stats"]["Squat"]);
+	console.log(G_UserInfo["Stats"]["UB Hor Push"]);
+	console.log(G_UserInfo["Stats"]["Hinge"]);
+	
+	var squatStatus = G_UserInfo["Stats"]["Squat"].Status;
+	var benchStatus = G_UserInfo["Stats"]["UB Hor Push"].Status;
+	var hingeStatus = G_UserInfo["Stats"]["Hinge"].Status;
+
+	G_UserInfo["Stats"]["Level Up"].Squat = squatStatus;
+	G_UserInfo["Stats"]["Level Up"].UBHorPush = benchStatus;
+	G_UserInfo["Stats"]["Level Up"].Hinge = hingeStatus;
+
+	if (squatStatus == Alloy.Passed
+		&& benchStatus == Alloy.Passed
+		&& hingeStatus == Alloy.Passed) {
+		G_UserInfo["Stats"]["Level Up"].Status = Alloy.Passed;
+	}
+	else if (squatStatus == Alloy.Failed
+		|| benchStatus == Alloy.Failed
+		|| hingeStatus == Alloy.Failed) {
+		G_UserInfo["Stats"]["Level Up"].Status = Alloy.Failed;
+	}
+	else if (
+		(squatStatus == Alloy.None || squatStatus == Alloy.Testing)
+		|| (benchStatus == Alloy.None || benchStatus == Alloy.Testing)
+		|| (hingeStatus == Alloy.None || hingeStatus == Alloy.Testing)
+		) {
+		G_UserInfo["Stats"]["Level Up"].Status = Alloy.Testing;
 	}
 
-	var name = req.body["name"];
-	var text = req.body.text;
-	// console.log("name: " + name);
-	// console.log(text);
+	G_UserInfo["User"].save();
+
+	console.log("Level Up?");
+	console.log(G_UserInfo["Stats"]["Level Up"]);
+
 	res.redirect('/');
 });
 
@@ -717,5 +572,21 @@ router.get('/workouts', function(req, res) {
 // 	// });
 
 // })
+
+// NEXT: write user model, handle submitting exercises, changing weights, level up, etc.
+// add default handlers
+function workoutUpdate(RPE, Weight, Reps, subWorkout, alloy) {
+	var EType = subWorkout.exerciseType;
+	var oldMax = UserStats.ExerciseStats[EType].Max;
+	var newMax = globals.getMax(Weight, Reps, RPE);
+	UserStats.ExerciseStats[EType].Max = newMax;
+	if (alloy == Alloy.None) {
+		//Update Alloy Set
+	}
+	// UserStats
+	//Get next set ready
+	//Update user stats (max weight)
+	//Update user level	
+}
 
 module.exports = router;

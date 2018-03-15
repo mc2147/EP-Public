@@ -7,6 +7,21 @@
 // 		4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
 // 		5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}}
 // }
+WorkoutsKeyCode = {
+	1: {Week: 1, Day: 1,},
+	2: {Week: 1, Day: 2,},
+	3: {Week: 1, Day: 3,},
+	4: {Week: 2, Day: 1,},
+	5: {Week: 2, Day: 2,},
+	6: {Week: 2, Day: 3,},
+	7: {Week: 3, Day: 1,},
+	8: {Week: 3, Day: 2,},
+	9: {Week: 3, Day: 3,},
+	10: {Week: 4, Day: 1,},
+	11: {Week: 4, Day: 2,},
+	12: {Week: 4, Day: 3,},
+}
+
 WorkoutGroup1 = {
 	Week: {
 		1: {
@@ -162,4 +177,5 @@ WorkoutGroup1 = {
 // }
 module.exports = {
 	Group1Workouts: WorkoutGroup1,
+	G1KeyCodes: WorkoutsKeyCode,
 }  
