@@ -16,6 +16,8 @@ var Exercise = models.Exercise
 var WorkoutTemplate = models.WorkoutTemplate;
 var SubWorkoutTemplate = models.SubWorkoutTemplate;
 
+var Group1WDtoID = models.Group1WDtoID;
+
 var Workout = models.Workout;
 var User = models.User;
 
@@ -79,7 +81,7 @@ function dateString(date) {
 	var day = date.getDate();
 	var month = date.getMonth() + 1;
 	// var suffix = ""
-	output = year + ", " + MonthDict[month] + " " + day;
+	output = MonthDict[month] + " " + day + ", " + year;
 	return output
 }
 
@@ -123,6 +125,10 @@ router.get('/', function(req, res
 	console.log("GLOBALS: ");
 	console.log("G_UserInfo: ");
 
+	// G_UserInfo["thisWorkoutID"]
+	// selectedweek
+	// selectedDay
+
 	var TemplateID = G_UserInfo["thisWorkoutID"];
 	var _Level = G_UserInfo["Level"];
 	var wDateIndex = G_UserInfo["thisWorkoutID"] - 1;
@@ -135,9 +141,19 @@ router.get('/', function(req, res
 	// console.log(G_UserInfo["thisWorkoutID"]);
 	// console.log(G_UserInfo["User"].workoutDates[G_UserInfo["thisWorkoutID"]]);
 
-	// console.log(thisworkoutDate);
-	
+	// console.log(G_UserInfo["thisPatterns"]);
+	console.log("User.workouts[TemplateID].Patterns:");
+	console.log(G_UserInfo["User"].workouts[TemplateID].Patterns);
+	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0) {
+		G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
+		render();
+		return
+	}
+
+	// G_UserInfo["User"].workouts[TemplateID].Patterns = 
 	var Patterns = [];
+
+	// if (!WorkouthasData) {};
 
 	WorkoutTemplate.findOne({
 		where: {
@@ -181,6 +197,7 @@ router.get('/', function(req, res
 						});
 					}
 					G_UserInfo["thisPatterns"].push(patternInstance);
+					G_UserInfo["User"].workouts[TemplateID].Patterns.push(patternInstance);
 					G_UserInfo["User"].save();
 				}
 				// Some backwards referencing was going on here
@@ -206,8 +223,19 @@ router.get('/', function(req, res
 		console.log("RENDER FUNCTION");
 		// console.log("thisPatterns: " + thisPatterns.length);
 
-		console.log(G_UserInfo["thisWorkoutDate"]);
-		console.log(typeof G_UserInfo["thisWorkoutDate"]);
+		// console.log(G_UserInfo["thisWorkoutDate"]);
+		// console.log(typeof G_UserInfo["thisWorkoutDate"]);
+		var changeWorkoutList = [];
+		
+		for (var W = 0; W < WeekList.length; W++) {
+			for (var D = 0; D < DayList.length; D++) {
+				var _W = WeekList[W];
+				var _D = DayList[D];
+				var wID = Group1WDtoID[_W][_D];
+				var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
+				changeWorkoutList.push({Week: _W, Day: _D, Date: date});
+			}
+		}
 
 		res.render('main', 
 		{
@@ -227,8 +255,10 @@ router.get('/', function(req, res
 			TestDict: {Test1: "Test1", Test2: "Test2"},
 			selectedWeek,
 			selectedDay,
+			allWorkouts: G_UserInfo["Workouts"],
 			WeekList,
-			DayList
+			DayList,
+			selectWorkoutList: changeWorkoutList,
 		});
 	}
 
@@ -257,6 +287,7 @@ router.post('/', function(req, res) {
 			var _D = parseInt(selectedWD[1]);
 			selectedWeek = _W;
 			selectedDay = _D;
+			G_UserInfo["thisWorkoutID"] = Group1WDtoID[_W][_D];
 		}
 		else if (req.body.NextBtn) {
 			var nextWorkoutID = G_UserInfo["thisWorkoutID"] + 1;

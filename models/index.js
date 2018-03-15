@@ -508,5 +508,6 @@ module.exports = {
 	WorkoutTemplate,
 	Workout,
 	User,
-    SubWorkoutTemplate
+    SubWorkoutTemplate,
+    Group1WDtoID: Group1WeekDays,
 };

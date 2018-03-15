@@ -23,15 +23,14 @@ table, th, td {
   <br>
  Change Workout:
   <select name="changeWorkoutSelect" style="margin-top:15px;">
-      <option value="{{selectedWeek}}|{{selectedDay}}" class="select-hr">Week {{selectedWeek}}: Day {{selectedDay}}</option>
+      <option value="{{selectedWeek}}|{{selectedDay}}" class="select-hr">Week {{selectedWeek}}: Day {{selectedDay}} - {{thisDate}}
+      </option>
       <hr>
-    {% for W in WeekList %}
-      {% for D in DayList %}
-      {% if W != selectedWeek or D != selectedDay %}
-      <option value="{{W}}|{{D}}">Week {{W}}: Day {{D}}</option>
-      {% endif %}
+      {% for S in selectWorkoutList %}
+        {% if S.Week != selectedWeek or S.Day != selectedDay %}
+          <option value="{{S.Week}}|{{S.Day}}">Week {{S.Week}}: Day {{S.Day}} - {{S.Date}}</option>      
+        {% endif %}
       {% endfor %}
-    {% endfor %}
   </select> 
   <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Workout' name="changeWorkoutBtn" id='btn'></input>
 </form>
