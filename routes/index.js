@@ -47,8 +47,10 @@ function userRefDict(user) {
 	output["Level"] = user.level;
 	output["Stats"] = user.stats;
 	output["Workouts"] = user.workouts;
+	
 	output["thisWorkoutID"] = user.currentWorkout.ID;
 	output["thisWorkout"] = user.currentWorkout;
+
 	output["thisWorkoutDate"] = user.workoutDates[user.currentWorkout.ID - 1];
 	// output["thisWorkoutDate"] = user.workouts[user.currentWorkout.ID].Date;
 	output["thisPatterns"] = user.workouts.thisPatterns;
@@ -142,10 +144,12 @@ router.get('/', function(req, res
 	// console.log(G_UserInfo["User"].workoutDates[G_UserInfo["thisWorkoutID"]]);
 
 	// console.log(G_UserInfo["thisPatterns"]);
-	console.log("User.workouts[TemplateID].Patterns:");
-	console.log(G_UserInfo["User"].workouts[TemplateID].Patterns);
+	console.log(G_UserInfo["User"].workouts);
+	// console.log("User.workouts[TemplateID].Patterns:");
+	// console.log(G_UserInfo["User"].workouts[TemplateID].Patterns);
 	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0) {
 		G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
+		G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
 		render();
 		return
 	}
@@ -308,6 +312,20 @@ router.post('/', function(req, res) {
 	if(req.body.ResetBtn) {
 		// reset();
 		res.redirect('/');
+	}
+
+	if (req.body.SubmitBtn) {
+		console.log("completing workout...");
+		var usr = G_UserInfo["User"];
+		// console.log(usr.workouts);
+		var wID = G_UserInfo["thisWorkoutID"];
+		// usr.currentworkoutID;
+		console.log(wID);
+		usr.workouts[wID].Completed = true;
+		usr.save();
+		// G_UserInfo["thisWorkout"].Completed = true;
+		// G_UserInfo["User"].workouts[]
+		// G_UserInfo["User"].save();
 	}
 
 	for (var K in req.body) {

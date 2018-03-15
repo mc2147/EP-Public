@@ -403,7 +403,7 @@ Group1WeekDays = {
         3: 12,
     }
 };
-
+ 
 var WorkoutElemTemplate = {
     ID: null,
     Week: null,
@@ -475,7 +475,7 @@ User.findOrCreate(
         console.log("Date 403: " + _Date);
         // console.log("i 370: " + i + " ID: " + workoutID);
         if (user.workouts[workoutID].Date < thisDate) {
-            user.workouts[workoutID].Completed = true;            
+            // user.workouts[workoutID].Completed = true;            
         }
         else {
             user.currentworkoutID = workoutID;
