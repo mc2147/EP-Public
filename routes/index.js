@@ -98,7 +98,7 @@ User.findById(1).then(user => {
 	thisUser = G_UserInfo["User"];
 	G_thisStats = G_UserInfo["Stats"];
 	thisPatterns = G_UserInfo["thisPatterns"];
-	console.log("Creating User Ref Dict: ");
+	// console.log("Creating User Ref Dict: ");
 	userFound = true;
 });
 
@@ -122,7 +122,7 @@ router.get('/', function(req, res
 		render();
 	}
 	// G_UserInfo = userRefDict(thisUser);
-
+	// G_UserInfo["thisWorkoutID"] = 13;
 	console.log("ROUTE.GET STARTS ");
 	console.log("GLOBALS: ");
 	console.log("G_UserInfo: ");
@@ -189,6 +189,24 @@ router.get('/', function(req, res
 				patternInstance.name = ENames[_Level][elem.exerciseType];	
 				patternInstance.setList = [];
 				patternInstance.sets = Sets;
+				patternInstance.workoutType = elem.type;
+				console.log("elem.type: " + elem.type);
+				if (patternInstance.workoutType == "stop") {
+					patternInstance.stop = true;
+					patternInstance.specialValue = elem.specialValue;
+					patternInstance.specialString = elem.specialValue + " RPE";
+					Sets = 1;
+					patternInstance.sets = 1;
+					patternInstance.specialStage = 0;
+				}
+				else if (patternInstance.workoutType == "drop") {
+					patternInstance.drop = true;
+					patternInstance.specialValue = elem.specialValue;
+					patternInstance.specialString = elem.specialValue + " %";
+					Sets = 1;
+					patternInstance.sets = 1;
+					patternInstance.specialStage = 0;
+				}
 				// Adding setDicts to patterInstance.setList -> []
 				if (!thisUser.workouts.patternsLoaded) {
 					for (var i = 0; i < Sets; i ++) {
@@ -275,11 +293,6 @@ router.post('/', function(req, res) {
 
 	var outputs = {}	
 
-	// if (req.body.NextBtn) {
-	// 	var nextWorkoutID = G_UserInfo["thisWorkoutID"] + 1;
-	// 	console.log("NEXT WORKOUT ID: " + nextWorkoutID); 
-	// 	console.log("NEXT WORKOUT Week/Day: " + G1KeyCodes[nextWorkoutID].Week + ", " + G1KeyCodes[nextWorkoutID].Day); 
-	// }
 
 	if (req.body.changeWorkoutBtn || req.body.NextBtn) {
 		G_UserInfo["User"].workouts.patternsLoaded = false;
@@ -294,9 +307,13 @@ router.post('/', function(req, res) {
 			G_UserInfo["thisWorkoutID"] = Group1WDtoID[_W][_D];
 		}
 		else if (req.body.NextBtn) {
+			var nWorkouts = G_UserInfo["User"].workoutDates.length;
+			console.log("nWorkouts: " + nWorkouts);
 			var nextWorkoutID = G_UserInfo["thisWorkoutID"] + 1;
-			if (nextWorkoutID > 12) {
-				res.redirect('/');
+			if (nextWorkoutID > nWorkouts) {
+				console.log("redirecting to workout: " + nextWorkoutID);
+				res.redirect('/level-up');
+				return
 				// Test user here
 			}
 			G_UserInfo["thisWorkoutID"] = nextWorkoutID;
@@ -340,6 +357,7 @@ router.post('/', function(req, res) {
 		var setIndex = setNum - 1;
 
 		var thisPattern = G_UserInfo["thisPatterns"][patternIndex];
+
 		var _EType = thisPattern.type;
 		var _nSets = thisPattern.sets;
 		var setDict = thisPattern.setList[setIndex];
@@ -358,8 +376,11 @@ router.post('/', function(req, res) {
 		}
 		else if (inputType == "RPE" 
 			&& input && setNum <= _nSets) {
-			setDict.RPE = parseInt(req.body[K]);
+			setDict.RPE = parseFloat(req.body[K]);
 			if (setDict.Weight) {
+				setDict.Filled = true;
+			}
+			if (thisPattern.workoutType == "bodyweight" && setDict.Reps) {
 				setDict.Filled = true;
 			}
 		}
@@ -368,6 +389,14 @@ router.post('/', function(req, res) {
 			setDict.Tempo.push(parseInt(req.body[K]));
 		}
 
+		if (inputType == "Reps") {
+			setDict.Reps = parseInt(req.body[K]);
+			if (thisPattern.workoutType == 'bodyweight' && setDict.RPE) {
+				console.log("395");
+				setDict.Filled = true;
+			}
+		}
+		console.log("thisPattern.type: " + thisPattern.type);
 		if (setNum == _nSets) {
 			if (!(_EType in outputs)) {
 				outputs[_EType] = {
@@ -383,7 +412,10 @@ router.post('/', function(req, res) {
 				outputs[_EType].Weight = parseInt(req.body[K]);
 			}
 			else if (inputType == "RPE") {
-				outputs[_EType].RPE = parseInt(req.body[K]);
+				outputs[_EType].RPE = parseFloat(req.body[K]);
+				if(thisPattern.drop && thisPattern.specialStage) {
+					outputs[_EType].Weight = thisPattern.dropWeight;
+				}
 			}
 			else if (inputType.includes("T")) {
 				outputs[_EType].Tempo.push(parseInt(req.body[K]));
@@ -423,6 +455,70 @@ router.post('/', function(req, res) {
 		if (Val.Weight && Val.RPE && Val.Reps) {
 			var setDescription = Val.Reps + " Reps x " + Val.Weight + " lbs @ " + Val.RPE + " RPE";
 			var thisPattern = G_UserInfo["thisPatterns"][Val.ID - 1];
+	
+			if (thisPattern.stop) {
+				console.log("stop set submitted");
+				if (thisPattern.specialStage == 0) {
+					if (Val.RPE < thisPattern.specialValue) {
+						thisPattern.sets += 1;
+						thisPattern.setList.push({
+							SetNum: thisPattern.sets,
+							Weight: null,
+							RPE: null,
+							Tempo: [null, null, null],
+							Filled: false,
+						});				 
+					}
+					else {
+						thisPattern.specialStage += 1;
+					}
+				}
+			}
+			else if (thisPattern.drop) {
+				console.log("drop set submitted. Drop Stage: " + thisPattern.dropStage);
+				if (thisPattern.specialStage == 0) {
+					if (Val.RPE < thisPattern.RPE) {
+						thisPattern.sets += 1;
+						thisPattern.setList.push({
+							SetNum: thisPattern.sets,
+							Weight: null,
+							RPE: null,
+							Tempo: [null, null, null],
+							Filled: false,
+						});				 
+					}
+					else {
+						thisPattern.specialStage += 1;
+						thisPattern.dropWeight =  Math.round(((100 - thisPattern.specialValue)/100)*Val.Weight);
+						// thisPattern.dropWeight = Val.Weight;
+						// thisPattern.dropWeight = (100 - thisPattern.specialValue);
+
+						thisPattern.sets += 1;
+						thisPattern.setList.push({
+							SetNum: thisPattern.sets,
+							Weight: thisPattern.dropWeight,
+							RPE: null,
+							Tempo: [null, null, null],
+							Filled: false,
+						});				  					
+					}
+				}
+				else if (thisPattern.specialStage == 1) {
+					if (Val.RPE < thisPattern.RPE) {
+						thisPattern.sets += 1;
+						thisPattern.setList.push({
+							SetNum: thisPattern.sets,
+							Weight: thisPattern.dropWeight,
+							RPE: null,
+							Tempo: [null, null, null],
+							Filled: false,
+						});				 
+					}
+					else {
+						thisPattern.specialStage += 1;
+					}
+				}
+			}
 
 			var statDict = G_UserInfo["Stats"];
 			var thisStat = statDict[EType];
@@ -551,12 +647,30 @@ UserStats = {
  return;
 }
 
-router.get('/workouts', function(req, res) {
+router.get('/level-up', function(req, res) {
+	console.log("555");
+	res.render('levelcheck', {
+		User: G_UserInfo["User"],
+		UserStats: G_UserInfo["Stats"],			
+		levelUp: G_UserInfo["Stats"]["Level Up"],
+		benchStat: G_UserInfo["Stats"]["Squat"],
+		squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
+		hingeStat: G_UserInfo["Stats"]["Hinge"],		
+	});
+})
 
+router.post('/', function(req, res) {
+	res.redirect("/");
+});
+
+router.post('/workouts', function(req, res) {
+	res.redirect("/workouts");
+});
+
+router.get('/workouts', function(req, res) {
 	// WorkoutTemplate.destroy({where: {}});
 	// SubWorkoutTemplate.destroy({where: {}});
 	// res.render('templates', {});
-
 	var subWorkoutPromises = [];
 	var workoutDict = {1: [], 2: [], 3: [], 4: []};
 	var subsDict = {1: [], 2: [], 3: [], 4: []};

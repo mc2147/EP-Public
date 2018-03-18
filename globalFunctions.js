@@ -6,7 +6,7 @@
 
 // var moment = require('moment');
 
-console.log("test");
+// console.log("test");
 
 var newDate = new Date(2018, 3, 10, 00, 0, 0, 0);
 
@@ -41,15 +41,15 @@ function Generate_Workouts(startDate, daysList, level, member, nWorkouts) {
 	var checkDays = 28;
 	var output = [];
 	var count = 0;
-	console.log(daysList);
+	// console.log(daysList);
 	var test = [];
-	console.log(test.indexOf(3));
+	// console.log(test.indexOf(3));
 	for (var i = 1; i <= 31, count < 12; i ++) {
 		var _DayTime = startDate.getTime() + DayValue*i;
 		var _Day = new Date(_DayTime);
 		var _weekDay = _Day.getDay(); //Sunday is 0, Saturday is 6
 		if (daysList.indexOf(_weekDay) >= 0) {
-			console.log("Day #" + i + " " + _Day + " " + _weekDay + " " + DaysofWeek[_weekDay]);
+			// console.log("Day #" + i + " " + _Day + " " + _weekDay + " " + DaysofWeek[_weekDay]);
 			output.push(_Day);
 			count ++;
 		}

@@ -3,7 +3,7 @@ const app = express(); // creates an instance of an express application
 var nunjucks = require('nunjucks');
 var routes = require('./routes');
 var bodyParser = require('body-parser');
-var models = require('./models');
+var loadData = require('./loadData');
 
 // app.get('/', (req, res) => res.send('New Alloy Strength'))
 app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
@@ -24,6 +24,7 @@ app.set('view engine', 'html'); // have res.render work with html files
 app.engine('html', nunjucks.render); // when giving html files to res.render, tell it to use nunjucks
 nunjucks.configure('views', { noCache: true });
 
+var models = require('./models');
 models.db.sync()
 .then(function () {
     console.log('All tables created!');

@@ -20,6 +20,7 @@ WorkoutsKeyCode = {
 	10: {Week: 4, Day: 1,},
 	11: {Week: 4, Day: 2,},
 	12: {Week: 4, Day: 3,},
+	13: {Week: 5, Day: 1,},
 }
 
 WorkoutGroup1 = {
@@ -28,12 +29,19 @@ WorkoutGroup1 = {
 			Day: {
 				1: {
 					ID: 1,
+					// Patterns: {
+					// 	1: {ExerciseType: "Squat", Sets: 3, Reps: 10, RPE: 7,},
+					// 	2: {ExerciseType: "UB Vert Push", Sets: 4, Reps: 6, RPE: 7,	Alloy: true, AlloyReps: 8},
+					// 	3: {ExerciseType: "Hinge", Sets: 3, Reps: 12, RPE: 7, Deload: -1},		
+					// 	4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
+					// 	5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}
+					// }
 					Patterns: {
-						1: {ExerciseType: "Squat", Sets: 3, Reps: 10, RPE: 7,},
-						2: {ExerciseType: "UB Vert Push", Sets: 4, Reps: 6, RPE: 7,	Alloy: true, AlloyReps: 8},
-						3: {ExerciseType: "Hinge", Sets: 3, Reps: 12, RPE: 7, Deload: -1},		
-						4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
-						5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}
+						1: {ExerciseType: "UB Hor Push", Reps: 8, RPE: 7, Type: "drop", DropValue: 7,},
+						2: {ExerciseType: "UB Vert Pull", Reps: 7, RPE: 7, Type: "stop", StopRPE: 8.5,},
+						3: {ExerciseType: "UB Hor Pull",  Sets: 4, Reps: 10, RPE: 7, Deload: -1},
+						4: {ExerciseType: "Iso 1",  Sets: 3, Type: "bodyweight", Reps: 12, RPE: 7},
+						5: {ExerciseType: "Iso 3",  Sets: 3, Type: "carry", Reps: 12, RPE: 7},
 					}
 				},
 				2: {
@@ -162,9 +170,34 @@ WorkoutGroup1 = {
 					}
 				}
 			},
-		},		
+		},
+		5: {
+			Day: {
+				1: {
+					ID: 13,
+					Patterns: {
+						1: {ExerciseType: "UB Hor Push", Reps: 8, RPE: 7, Type: "drop", DropValue: 7,},
+						2: {ExerciseType: "UB Vert Pull", RPE: 7, Type: "stop", StopRPE: 8.5,},
+						3: {ExerciseType: "UB Hor Pull",  Sets: 4, Reps: 10, RPE: 7, Deload: -1},
+						4: {ExerciseType: "Iso 1",  Sets: 3, Type: "bodyweight", Reps: 12, RPE: 7},
+						5: {ExerciseType: "Iso 3",  Sets: 3, Reps: 12, RPE: 7},
+					}
+				}
+			}
+		}		
 	},
 }
+
+// SampleStopDrop = {
+// 	Block: 2, Week: 1, Day: 2, LevelGroup: 4, NumSubWorkouts: 5,
+// 	SubWorkouts: {
+// 		1: {ExerciseType: "UB Hor Push", Reps: 8, RPE: 7, Type: "drop", DropValue: 7,},
+// 		2: {ExerciseType: "UB Vert Pull", RPE: 7, Type: "stop", StopRPE: 8.5,},
+// 		3: {ExerciseType: "UB Hor Pull",  Sets: 4, Reps: 10, RPE: 7, Deload: -1},
+// 		4: {ExerciseType: "Iso 1",  Sets: 3, Reps: 12, RPE: 7},
+// 		5: {ExerciseType: "Iso 3",  Sets: 3, Reps: 12, RPE: 7},
+// 	}
+// }
 
 // WorkoutSample = {
 // 	Week: 1, Day: 1, LevelGroup:1, NumSubWorkouts: 5,

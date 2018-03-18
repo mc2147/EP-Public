@@ -4,9 +4,16 @@ table, th, td {
 }
 </style>
 
-
-    {{ Workouts.length/2 | round }}
-    {{ Workouts.length/2 }}
+ <form action="/workouts" method="POST">
+ Change Level Group:
+  <select name="selectLevelGroup">
+    <option value="1">1-5</option>
+    <option value="2">6-10</option>
+    <option value="3">11-15</option>
+    <option value="4">16-25</option>
+  </select> 
+  <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
+</form>
 
 <div style="font-size:20px; width:90%; margin:auto;">
   <div style="width:30%; display:inline-block;"> 

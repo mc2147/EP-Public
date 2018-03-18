@@ -1,0 +1,69 @@
+<style>
+table, th, td {
+    border: 1px solid black;
+}
+</style>
+
+<div style="font-size:20px; width:90%; margin:auto;">
+<!--  {% for Key, Val in ExerciseStats %}
+  {{Key}},{{Val}} <br>
+ {% endfor %}
+ --> 
+ <!-- <br> -->
+ <b>Your New Level: {{User.level}}</b>
+ <br><br>
+ You have 
+
+  {% if levelUp.Status.value == 1 %}
+    PASSED
+  {% else %}
+    FAILED
+  {% endif %}
+
+ level {{User.level}}! 
+ <br><br>
+ <b style="font-size:1.5em;"">Performance Report</b>
+ <br><br>
+ <b>Core Exercises:</b>
+ <br>
+Squat: 
+{% if squatStat.Status.value == 1 %}
+  PASSED
+{% else %}
+  FAILED
+{% endif %}
+{{squatStat.LastSet}}
+<br>
+Upper Body Horizontal Press: 
+{% if benchStat.Status.value == 1 %}
+  PASSED
+{% else %}
+  FAILED
+{% endif %}
+{{benchStat.LastSet}}
+<br>
+Hinge: 
+{% if hingeStat.Status.value == 1 %}
+  PASSED
+{% else %}
+  FAILED
+{% endif %}
+
+{{hingeStat.LastSet}}
+ <br><br>
+ <b>All Stats:</b>
+{% for stat in UserStats %}
+  {% if stat.Status.value == 1 %}
+    PASSED
+  {% else %}
+    FAILED
+  {% endif %}
+{{stat.LastSet}}
+<br>
+{% endfor %}
+
+<form action="/" method="POST" style="margin-top:20px;">
+  <input style="margin:auto;" type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>        
+  <div style="margin:auto; margin-left:40%;">
+  </div>
+</form>

@@ -1,170 +1,29 @@
-const Sequelize = require('sequelize');
-var Group1Workouts = require('../WorkoutGroup1');
-var globals = require('../globals');
-var globalFuncs = require('../globalFunctions');
-var Generate_Workouts = globalFuncs.Generate_Workouts;
+// Required Globals
+var models = require('./models');
+var Exercise = models.Exercise;
+var WorkoutTemplate = models.WorkoutTemplate;
+var SubWorkoutTemplate = models.SubWorkoutTemplate;
+var User = models.User;
+// Level Group Workouts
+var Group1Workouts = require('./WorkoutGroup1');
+var Group2Workouts = require('./WorkoutGroup2');
+var Group3Workouts = require('./WorkoutGroup3');
+var Group4Workouts = require('./WorkoutGroup4');
 
+console.log("testing loadData.js");
+
+// Global Fixed References
 var DayValue = 24*3600*1000;
-
-const db = new Sequelize('postgres://localhost:5432/AS_db', {
-    logging: false
-});
-
-var Alloy = globals.Alloy;
-
-Exercise_Types = ["UB Hor Push", "UB Vert Push", "UB Hor Pull", "UB Vert Pull", "Hinge", "Squat", "LB Uni Push", "Ant Chain", "Post Chain",
-"Carry", "Iso 1", "Iso 2", "Iso 3", "Iso 4"];
- 
-var SampleWorkout = globals.WorkoutSample;
-var SampleWorkout_New = Group1Workouts.Group1Workouts.Week[1].Day[1];
-
-const Exercise = db.define('Exercise', {
-    name: {
-        type: Sequelize.STRING
-    },
-    level: {
-        type: Sequelize.INTEGER
-    },
-});
-
-var WorkoutTemplate = db.define('WorkoutTemplate', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement:true,
-    },
-    number: {
-        type: Sequelize.INTEGER,
-    },
-    levelGroup: {
-        type: Sequelize.INTEGER
-    },
-    block: {
-        type: Sequelize.INTEGER
-    },
-    week: {
-        type: Sequelize.INTEGER
-    },
-    day: {
-        type: Sequelize.INTEGER
-    },
-    NSubworkouts: {
-        type: Sequelize.INTEGER     
-    },
-});
-
-var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
-    number: {  
-        type: Sequelize.INTEGER,        
-        // primaryKey: true,
-        // autoIncrement:true,
-    },
-    exerciseType: {
-        type: Sequelize.STRING,
-        allowNull: true,
-    },
-    type: {
-        type: Sequelize.ENUM,
-        values: ['normal', 'bodyweight', 'carry', 'stop', 'drop', 'deload', 'alloy'],
-        defaultValue: 'normal',
-    },
-    specialValue: {
-        type: Sequelize.DECIMAL,
-        allowNull: true,
-    },
-    sets: {
-        type: Sequelize.INTEGER,        
-        allowNull: true,
-    },
-    reps: {
-        type: Sequelize.INTEGER,        
-        allowNull: true,
-    },
-    RPE: {
-        type: Sequelize.INTEGER,        
-        allowNull: true,
-    },
-    alloy: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-        allowNull: true,
-    },
-    alloyreps: {
-        type: Sequelize.INTEGER,        
-        allowNull: true,
-    },
-    deload: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: true,
-    },
-    description: {
-        type: Sequelize.STRING,
-        defaultValue: "description",
-    },
-});
-
-const User = db.define('User', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },  
-    level: {
-        type: Sequelize.INTEGER,
-    },  
-    stats: {
-        type: Sequelize.JSON, 
-    },
-    workouts: {
-        type: Sequelize.JSON,  
-        //ID'd by workout # (per L Group, Block)
-        //Can have a "current" value to quickly get current workout
-        //Missing workout case:
-            //Shift workoutDates by 1 after current(?)
-            //Reassign (completed) to all
-    },
-    currentWorkout: {
-        type: Sequelize.JSON,  
-    },
-    workoutDates: {
-        type: Sequelize.ARRAY(Sequelize.DATE),
-        //Same dates as with workouts, ID'd by workout # (per L Group, Block)
-        //For easy indexing with workouts, finding closest date, etc.
-    },
-    // currentWorkoutID: {
-    //     type: Sequelize.INTEGER,
-    //     //To easily find current/next workout
-    // },
-    startDate: {
-        type: Sequelize.DATE,
-    },
-    signUpDate: {
-        type: Sequelize.DATE,
-    }
-    // thisPatterns: [],
-});
+// Workout Weeks
+var G1_Weeks = Group1Workouts.Group1Workouts.Week;
+var G2_Weeks = Group2Workouts.Group2Workouts.Week;
+// var G3_Weeks = Group3Workouts.Group3Workouts.Week;
+// var G4_Weeks = Group4Workouts.Group1Workouts.Week;
 
 
-
-SubWorkoutTemplate.belongsTo(WorkoutTemplate, {foreignKey: 'fk_workout', foreignKeyConstraint:true });
-WorkoutTemplate.hasMany(SubWorkoutTemplate, {foreignKey: 'fk_workout', as: 'subWorkouts'});
-
-// WorkoutTemplate.hasMany(SubWorkoutTemplate);
-// SubWorkoutTemplate.belongsTo(WorkoutTemplate);
-// console.log(75);
-// console.log(WorkoutTemplate);
-// console.log(SubWorkoutTemplate);
-
-// WorkoutTemplate.hasMany(SubWorkoutTemplate, {foreignKey: 'fk_workout', sourceKey: 'subWorkouts'});
-// SubWorkoutTemplate.belongsTo(WorkoutTemplate, {foreignKey: 'fk_workout', targetKey: 'subWorkouts'});
-
-// db.sync({force: true});
-// db.sync();
- 
-var Weeks = Group1Workouts.Group1Workouts.Week;
+return
 // Group 1 Workouts
-for (var W in Weeks) {
+for (var W in G1_Weeks) {
     var Week = Weeks[W];
     // console.log("test");
     // console.log(Weeks[W]);
@@ -179,7 +38,6 @@ for (var W in Weeks) {
     // console.log(Group1Workouts.Week[W]);
 }
 
-CreateWorkoutTemplate(1, 5, 1, 1);
 
 function CreateWorkoutTemplate(LGroup, Week, Day, BlockNum) {
     var _Template = Group1Workouts.Group1Workouts.Week[Week].Day[Day];
@@ -218,7 +76,6 @@ function CreateWorkoutTemplate(LGroup, Week, Day, BlockNum) {
                 var Deload = Sub.Deload;
                 var Alloy = Sub.Alloy;
                 var Description = ExerciseName + " " + Sets + " " + Reps + " RPE: " + RPE + " Alloy: " + Alloy + " Deload: " + Deload;
-
                 SubWorkoutTemplate.findOrCreate({
                     where: {
                         number: ID, 
@@ -237,19 +94,9 @@ function CreateWorkoutTemplate(LGroup, Week, Day, BlockNum) {
                     if (result.deload) {
                         result.type = 'deload';
                     }
-                    else if (result.alloy) {
+                    if (result.alloy) {
                         result.type = 'alloy';
                     } 
-                    if (SubSample.Type) {
-                        result.type = SubSample.Type;                        
-                    }
-                    if (result.type == 'stop') {
-                        result.specialValue = SubSample.StopRPE;
-                    }
-                    else if (result.type == 'drop') {
-                        result.specialValue = SubSample.DropValue;
-                    }
-                    result.type = SubSample.Type;
                     // console.log("subWorkout Type: " + result.type);
                     // result.description = result.exerciseType + " " + result.sets 
                     // + " x " + result.reps + " RPE: " + result.RPE + " Alloy: " + result.alloy 
@@ -263,25 +110,6 @@ function CreateWorkoutTemplate(LGroup, Week, Day, BlockNum) {
         }
     })        
 }
-
- 
-const Workout = db.define('Workout', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },  
-    week: {
-        type: Sequelize.INTEGER
-    },
-    day: {
-        type: Sequelize.INTEGER
-    },
-});
-
-
-// Workout.belongsTo(WorkoutTemplate);
-// WorkoutTemplate.hasMany(Workout, {as: 'instances'});
 
 
 var StatTemplate = {
@@ -421,9 +249,6 @@ Group1WeekDays = {
         1: 10,
         2: 11,
         3: 12,
-    },
-    5: {
-        1: 13,
     }
 };
  
@@ -468,6 +293,8 @@ User.findOrCreate(
 
     var workoutDates = Generate_Workouts(oldDate, [1, 3, 5], 1, "", 12);
     user.workoutDates = workoutDates;
+    // user.workoutDates.push(thisDate);
+    // console.log("new user workoutDates: " + user.workoutDates);
     // Sort workouts by LGroups and blocks -> ID
     for (var W in Group1WeekDays) {
         var thisWeek = Group1WeekDays[W];
@@ -490,7 +317,7 @@ User.findOrCreate(
             user.save();
         }
     }
-    user.workouts[13] = WorkoutElemTemplate;
+
     // console.log(user.workouts);
     // workoutDates.sort();
     for (var i = 0; i < workoutDates.length; i++) {
@@ -523,15 +350,3 @@ User.findOrCreate(
         // console.log(user.stats[K]);
     }
 })
-
-
-
-module.exports = {
-    db: db,
-    Exercise: Exercise,
-    WorkoutTemplate,
-    Workout,
-    User,
-    SubWorkoutTemplate,
-    Group1WDtoID: Group1WeekDays,
-};
