@@ -3,11 +3,15 @@ const app = express(); // creates an instance of an express application
 var nunjucks = require('nunjucks');
 var routes = require('./routes');
 var bodyParser = require('body-parser');
+var history = require('connect-history-api-fallback');
+var cors = require('cors');
+
 var loadData = require('./loadData');
 
 // app.get('/', (req, res) => res.send('New Alloy Strength'))
 app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
 app.use(bodyParser.json()); // would be for AJAX requests
+app.use(cors());
 
 // var thisUser = await User.findById(1).then(user => {
 // 	console.log("USER FOUND!!! USER ID: " + user.id);
@@ -17,6 +21,7 @@ app.use(bodyParser.json()); // would be for AJAX requests
 // 	userFound = true;
 // });
 
+app.use('/api', require('./api'));
 
 app.use('/', routes);
 
@@ -25,6 +30,9 @@ app.engine('html', nunjucks.render); // when giving html files to res.render, te
 nunjucks.configure('views', { noCache: true });
 
 var models = require('./models');
+var generateTemplates = require('./models/generateTemplates');
+var createUser = require('./models/createUser');
+
 models.db.sync()
 .then(function () {
     console.log('All tables created!');

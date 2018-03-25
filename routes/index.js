@@ -1,32 +1,31 @@
 var Promise = require("bluebird");
 var bodyParser = require('body-parser');
-var globals = require('../globals');
-var Group1Workouts = require('../WorkoutGroup1');
-var G1KeyCodes = Group1Workouts.G1KeyCodes;
-// var globalFunctions = require('../globalFunctions')
-
-var getMax = globals.getMax;
-var getWeight = globals.getWeight;
-
 var express = require('express');
 var router = express.Router();
+
 var models = require('../models');
-var Exercise = models.Exercise
+	var Exercise = models.Exercise;
+	var WorkoutTemplate = models.WorkoutTemplate;
+	var SubWorkoutTemplate = models.SubWorkoutTemplate;
+	var Workout = models.Workout;
+	var User = models.User;
 
-var WorkoutTemplate = models.WorkoutTemplate;
-var SubWorkoutTemplate = models.SubWorkoutTemplate;
+var data = require('../data');
+	var G1KeyCodes = data.Workouts1.getWeekDay;
+	var Group1WDtoID = data.Workouts1.getID;
+	var ExerciseDict = data.ExerciseDict.Exercises;
+	// var Group1Workouts = require('../WorkoutGroup1');
 
-var Group1WDtoID = models.Group1WDtoID;
-
-var Workout = models.Workout;
-var User = models.User;
-
-var ETypes = globals.Exercise_Types;
-var ENames = globals.Exercise_Names;
-
+var globalEnums = require('../globals/enums');
+	var Alloy = globalEnums.Alloy;
+	
+var globalFuncs = require('../globals/functions');
+	var getMax = globalFuncs.getMax;
+	var getWeight = globalFuncs.getWeight;
+	
 var UserLevel = 1
 
-var Alloy = globals.Alloy;
+
 // var Alloy = {
 // 	None: {value: 0, name: "None", code: "N", string: "None"},
 // 	Testing: {value: 2, name: "Test", code: "T", string: "Testing"},
@@ -47,10 +46,9 @@ function userRefDict(user) {
 	output["Level"] = user.level;
 	output["Stats"] = user.stats;
 	output["Workouts"] = user.workouts;
-	
+	var thisWorkoutID = user.currentWorkout.ID;
 	output["thisWorkoutID"] = user.currentWorkout.ID;
-	output["thisWorkout"] = user.currentWorkout;
-
+	output["thisWorkout"] = user.workouts[thisWorkoutID];
 	output["thisWorkoutDate"] = user.workoutDates[user.currentWorkout.ID - 1];
 	// output["thisWorkoutDate"] = user.workouts[user.currentWorkout.ID].Date;
 	output["thisPatterns"] = user.workouts.thisPatterns;
@@ -102,6 +100,236 @@ User.findById(1).then(user => {
 	userFound = true;
 });
 
+var vueConvert = {
+	Date: function(date) {
+		var output = "";
+		var year = date.getFullYear();
+		var month = date.getMonth() + 1;
+		var day = date.getDate();
+		output = year + "-" + month + "-" + day;
+		return output;
+	}
+}
+
+function getVueInfo(refDict) {
+	var changeWorkoutList = [];
+	for (var W = 0; W < WeekList.length; W++) {
+		for (var D = 0; D < DayList.length; D++) {
+			var _W = WeekList[W];
+			var _D = DayList[D];
+			var wID = Group1WDtoID[_W][_D];
+			var date = dateString(refDict["User"].workoutDates[wID - 1]);
+			changeWorkoutList.push({Week: _W, Day: _D, Date: date});
+		}
+	}
+	
+	var vueColumns = [
+		["Reps/Time(s)", 1],
+		["Weights", 2],
+		["RPE", 3],
+		["Tempo", 4],
+	]
+	var vueSubworkouts = [];
+	console.log("PATTERNS:");
+	for (var N = 0; N < refDict["thisPatterns"].length; N ++) {
+		var Pattern = refDict["thisPatterns"][N];
+		console.log(Pattern);
+	}
+	// return {}
+	for (var N = 0; N < refDict["thisPatterns"].length; N ++) {
+		var Pattern = refDict["thisPatterns"][N];
+
+		var fixedList = [];
+		var filledList = [];
+		var inputList = [];
+		var tempoList = [];
+
+		var repLists = {
+			// fixed: [],
+			// filled: [],
+			inputs: []
+		};
+		var weightLists = {
+			// fixed: [],
+			// filled: [],
+			inputs: []
+		};
+		var RPELists = {
+			// fixed: [],
+			// filled: [],
+			inputs: []
+		};
+		var tempoLists = {
+			// fixed: [],
+			// filled: [],
+			inputs: []
+		};
+
+		for (var L = 0; L < Pattern.sets; L++) {
+			var set = Pattern.setList[L];			
+			// inputList.push("");
+			tempoList.push(["3", "2", "X"]);
+			
+			// 4 Input Statuses: Empty, Placeholder, Filled, Fixed
+			var repDict = {
+				value: Pattern.reps,
+				status: 'Fixed'
+			}
+			var weightDict = {
+				value: set.Weight,
+				status: 'Empty'
+			}
+			var RPEDict = {
+				value: set.RPE,
+				status: 'Empty'
+			}
+			if (set.Filled) {
+				weightDict.status = 'Filled';
+				RPEDict.status = 'Filled';
+			}
+			//Alloy Patterns
+			if (Pattern.alloy) {
+				repDict.status = 'Fixed';
+				if (set.Filled) {
+					if (Pattern.alloystatus.value != 0) {
+						weightDict.status = 'Fixed';
+						RPEDict.status = 'Fixed';
+					}
+					else {
+						weightDict.status = 'Filled';
+						RPEDict.status = 'Filled';						
+					}
+				}
+				else {
+					weightDict.status = 'Empty';
+					RPEDict.status = 'Empty';						
+				}
+			}
+			//Stop & Drop Patterns
+			else if (Pattern.stop || Pattern.drop) {
+				if (set.Filled) {
+					weightDict.status = 'Fixed';
+					RPEDict.status = 'Fixed';
+				}
+			}
+			//Bodyweight Workouts
+			else if (Pattern.workoutType == 'bodyweight') {
+				// weightLists.fixed.push("bodyweight");
+				weightDict.status = 'Fixed';
+				weightDict.value = 'Bodyweight';
+				if (set.Filled) {
+					repDict.value = set.Reps;
+					repDict.status = 'Filled';						
+				}
+				else {
+					repDict.value = "";
+					repDict.status = 'Empty';
+				}
+			}
+			// Carry
+			else if (Pattern.workoutType == 'carry') {
+				repDict.value = repDict.value + " (s)";
+				RPEDict.value = '---';
+				RPEDict.status = 'Fixed';
+			}
+			
+			repLists.inputs.push(repDict);
+			weightLists.inputs.push(weightDict);
+			RPELists.inputs.push(RPEDict);
+			
+			//Edge cases here (fixed)
+		}
+
+		// Final Alloy Set
+		if (Pattern.alloy) {
+			var repDict = {
+				value: Pattern.alloyreps,
+				status: 'Fixed',
+				alloy: true
+			}
+			var weightDict = {
+				value: "Alloy Weight",
+				status: 'Fixed',
+				alloy: true
+			}
+			var RPEDict = {
+				value: 10,
+				status: 'Fixed',
+				alloy: true
+			}
+			// RPELists.fixed.push(10);					
+			if (Pattern.alloystatus.value == 0) {
+				// repLists.fixed.push(Pattern.alloyreps);
+				// weightLists.fixed.push("Alloy Weight");
+			}
+			else if (Pattern.alloystatus.value == 2) {
+				repDict.status = 'Empty';
+				weightDict.value = Pattern.alloyweight;
+				weightDict.status = 'Fixed';
+				// repLists.inputs.push(Pattern.alloyreps);
+				// weightLists.fixed.push(Pattern.alloyweight);
+			}
+			else if (Pattern.alloystatus.value == 1) {
+				repDict.value = Pattern.alloyperformed + " PASSED";
+				repDict.status = 'Fixed';
+				weightDict.value = Pattern.alloyweight;
+				weightDict.status = 'Fixed';
+				// repLists.fixed.push(Pattern.alloyperformed + " PASSED");
+				// weightLists.fixed.push(Pattern.alloyweight);
+			}
+			else if (Pattern.alloystatus.value == -1) {
+				repDict.value = Pattern.alloyperformed + " FAILED";
+				repDict.status = 'Fixed';
+				weightDict.value = Pattern.alloyweight;
+				weightDict.status = 'Fixed';				
+				// repLists.fixed.push(Pattern.alloyperformed + " FAILED");
+				// weightLists.fixed.push(Pattern.alloyweight);
+			}
+			repLists.inputs.push(repDict);
+			weightLists.inputs.push(weightDict);
+			RPELists.inputs.push(RPEDict);
+		}
+		
+		var dataTableItems = []
+		//One per row
+		for (var I = 0; I < vueColumns.length; I++) {
+			//Vue Syntax
+			var item = vueColumns[I];
+			var rowDict = {
+				id: item[1],
+				name: item[0],
+				value: false,
+			};
+			//Which row case
+			if (item[1] == 4) { //Tempo
+				rowDict.inputs = tempoList;
+			}
+			else if (item[1] == 3) { //RPE
+				rowDict.inputs = RPELists.inputs;
+			}
+			else if (item[1] == 2) { //Weights
+				rowDict.inputs = weightLists.inputs;
+			}
+			else if (item[1] == 1) { //Reps
+				rowDict.inputs = repLists.inputs;
+			}
+			dataTableItems.push(rowDict); //One per ROW
+		}
+		//One per PATTERN
+		var subDict = {
+			name: Pattern.name,
+			RPEOptions: ["1", "2", "3", "4", "5-6", "7", "8", "9-10"],
+			dataTableItems: dataTableItems, //Rows -> 1 row per SET
+			sets: Pattern.sets, //N Sets
+		}		
+		vueSubworkouts.push(subDict);			
+	}
+
+	return  {
+		date: vueConvert.Date(refDict["thisWorkoutDate"]),
+		subworkouts: vueSubworkouts,
+	};
+}
 	// How to store old workouts:
 		// Add patterns list to PastWorkouts dict, indexed by week/day
 			// {Week: , Day: , Completed : , Patterns : }
@@ -112,6 +340,12 @@ var selectedWeek = 1;
 var selectedDay = 1;
 var WeekList = [1, 2, 3, 4];
 var DayList = [1, 2, 3];
+
+router.get('/vue-api', function(req, res) {
+	let userInfoToSend = getVueInfo(G_UserInfo);
+	console.log("RES.JSON");
+	res.json(userInfoToSend);
+})
 
 router.get('/', function(req, res
 	// , next
@@ -130,11 +364,10 @@ router.get('/', function(req, res
 	// G_UserInfo["thisWorkoutID"]
 	// selectedweek
 	// selectedDay
-
+	// G_UserInfo = userRefDict(thisUser);
 	var TemplateID = G_UserInfo["thisWorkoutID"];
 	var _Level = G_UserInfo["Level"];
 	var wDateIndex = G_UserInfo["thisWorkoutID"] - 1;
-
 	G_UserInfo["thisWorkoutDate"] = G_UserInfo["User"].workoutDates[wDateIndex];
 	// Make a refresh dictionary function later
 	var thisworkoutDate = G_UserInfo["Workouts"][TemplateID].Date;
@@ -150,6 +383,10 @@ router.get('/', function(req, res
 	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0) {
 		G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
 		G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
+		// let userInfoToSend = getVueInfo(G_UserInfo);
+		// console.log("RES.JSON");
+		// res.json(userInfoToSend);
+		// G_UserInfo
 		render();
 		return
 	}
@@ -184,9 +421,10 @@ router.get('/', function(req, res
 				patternInstance.alloy = elem.alloy;
 				if (patternInstance.alloy) {
 					patternInstance.alloyreps = elem.alloyreps;
+					patternInstance.alloystatus = Alloy.None;					
 					Sets -= 1;
 				}
-				patternInstance.name = ENames[_Level][elem.exerciseType];	
+				patternInstance.name = ExerciseDict[elem.exerciseType][_Level].name;	
 				patternInstance.setList = [];
 				patternInstance.sets = Sets;
 				patternInstance.workoutType = elem.type;
@@ -214,7 +452,7 @@ router.get('/', function(req, res
 							SetNum: i + 1,
 							Weight: null,
 							RPE: null,
-							Tempo: [null, null, null],
+							// Tempo: [null, null, null],
 							Filled: false,
 						});
 					}
@@ -261,12 +499,12 @@ router.get('/', function(req, res
 
 		res.render('main', 
 		{
-			ETypes: globals.Exercise_Types,
+			ETypes: ExerciseDict["Types"],
 			// Patterns: UserStats.CurrentWorkout.Patterns,
 			// ExerciseStats: UserStats.ExerciseStats,			
 			
 			thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
-
+			UserDict: G_UserInfo,
 			Patterns: G_UserInfo["thisPatterns"],
 			UserStats: G_UserInfo["Stats"],			
 			levelUp: G_UserInfo["Stats"]["Level Up"],
@@ -370,7 +608,7 @@ router.post('/', function(req, res) {
 		if (inputType == "W" 
 			&& input && setNum <= _nSets) {
 			setDict.Weight = parseInt(req.body[K]);
-			if (setDict.RPE) {
+			if (setDict.RPE || thisPattern.workoutType == 'carry') {
 				setDict.Filled = true;
 			} 
 		}
@@ -465,7 +703,7 @@ router.post('/', function(req, res) {
 							SetNum: thisPattern.sets,
 							Weight: null,
 							RPE: null,
-							Tempo: [null, null, null],
+							// Tempo: [null, null, null],
 							Filled: false,
 						});				 
 					}
@@ -483,7 +721,7 @@ router.post('/', function(req, res) {
 							SetNum: thisPattern.sets,
 							Weight: null,
 							RPE: null,
-							Tempo: [null, null, null],
+							// Tempo: [null, null, null],
 							Filled: false,
 						});				 
 					}
@@ -498,7 +736,7 @@ router.post('/', function(req, res) {
 							SetNum: thisPattern.sets,
 							Weight: thisPattern.dropWeight,
 							RPE: null,
-							Tempo: [null, null, null],
+							// Tempo: [null, null, null],
 							Filled: false,
 						});				  					
 					}
@@ -510,7 +748,7 @@ router.post('/', function(req, res) {
 							SetNum: thisPattern.sets,
 							Weight: thisPattern.dropWeight,
 							RPE: null,
-							Tempo: [null, null, null],
+							// Tempo: [null, null, null],
 							Filled: false,
 						});				 
 					}
@@ -741,7 +979,7 @@ router.get('/workouts', function(req, res) {
 function workoutUpdate(RPE, Weight, Reps, subWorkout, alloy) {
 	var EType = subWorkout.exerciseType;
 	var oldMax = UserStats.ExerciseStats[EType].Max;
-	var newMax = globals.getMax(Weight, Reps, RPE);
+	var newMax = getMax(Weight, Reps, RPE);
 	UserStats.ExerciseStats[EType].Max = newMax;
 	if (alloy == Alloy.None) {
 		//Update Alloy Set
