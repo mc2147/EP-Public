@@ -182,8 +182,6 @@ function getVueInfo(refDict) {
 			var RPEDict = {
 				value: set.RPE,
 				suggested: Pattern.RPE,
-				status: 'Empty'
-			} 	
 			if (set.Filled) {
 				weightDict.status = 'Filled';
 				RPEDict.status = 'Filled';
@@ -319,7 +317,8 @@ function getVueInfo(refDict) {
 		//One per PATTERN
 		var subDict = {
 			name: Pattern.name,
-			RPEOptions: ["1", "2", "3", "4", "5-6", "7", "8", "9-10"],
+			// RPEOptions: ["1", "2", "3", "4", "5-6", "7", "8", "9-10"],
+			RPEOptions: [1, 2, 3, 4, 5, 6, 7, 7.5, 8, 8.5, 9, 9.5, 10],
 			dataTableItems: dataTableItems, //Rows -> 1 row per SET
 			sets: Pattern.sets, //N Sets
 		}		
