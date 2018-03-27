@@ -181,8 +181,9 @@ function getVueInfo(refDict) {
 			}
 			var RPEDict = {
 				value: set.RPE,
+				suggested: Pattern.RPE,
 				status: 'Empty'
-			}
+			} 	
 			if (set.Filled) {
 				weightDict.status = 'Filled';
 				RPEDict.status = 'Filled';

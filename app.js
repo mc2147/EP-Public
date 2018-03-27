@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var history = require('connect-history-api-fallback');
 var cors = require('cors');
 
-var loadData = require('./loadData');
+var loadData = require('./data');
 
 // app.get('/', (req, res) => res.send('New Alloy Strength'))
 app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits

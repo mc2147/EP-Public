@@ -6,8 +6,6 @@ var models = require('../models');
 
 var data = require('../data');
 
-var loadData = require('../loadData');
-
 console.log("API FILE 9");
 
 var RPETable = data.RPETable;
@@ -16,7 +14,6 @@ var Exercises = data.ExerciseDict;
 var workoutTemplates = {};
 workoutTemplates[1] = data.Workouts1;
 workoutTemplates[2] = data.Workouts2;
-
 
 router.get('/workout-templates/:LGroup', function(req, res) {
     console.log("req params: ", req.params);
