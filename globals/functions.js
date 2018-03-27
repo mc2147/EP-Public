@@ -8,10 +8,10 @@ var thirdDate = new Date(2018, 0, 25, 00, 0, 0, 0);
 var now = new Date(Date.now());
 var DayValue = 24*3600*1000;
 // Logging Date Examples
-console.log(thirdDate);
-console.log(now);
-console.log(new Date(Date.now() + DayValue));
-console.log(new Date(Date.now()).getDay() + 10);
+    // console.log(thirdDate);
+    // console.log(now);
+    // console.log(new Date(Date.now() + DayValue));
+    // console.log(new Date(Date.now()).getDay() + 10);
 // Days of Week Enum
 var DaysofWeek = {
 	0: "Sunday",

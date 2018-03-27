@@ -25,6 +25,8 @@ var globalFuncs = require('../globals/functions');
 	
 var UserLevel = 1
 
+var postURL = "postWorkout";
+var getURL = "getWorkout";
 
 // var Alloy = {
 // 	None: {value: 0, name: "None", code: "N", string: "None"},
@@ -182,6 +184,7 @@ function getVueInfo(refDict) {
 			var RPEDict = {
 				value: set.RPE,
 				suggested: Pattern.RPE,
+			}
 			if (set.Filled) {
 				weightDict.status = 'Filled';
 				RPEDict.status = 'Filled';
@@ -341,7 +344,7 @@ var selectedDay = 1;
 var WeekList = [1, 2, 3, 4];
 var DayList = [1, 2, 3];
 
-router.get('/vue-api', function(req, res) {
+router.get('/' + getURL, function(req, res) {
 	let userInfoToSend = getVueInfo(G_UserInfo);
 	console.log("RES.JSON");
 	res.json(userInfoToSend);
@@ -521,16 +524,15 @@ router.get('/', function(req, res
 			selectWorkoutList: changeWorkoutList,
 		});
 	}
-
 });
 
 
-router.post('/', function(req, res) {
-	var inputCodes = req.body["inputCodes"];
+// router.post('/', function(req, res) {
+router.post('/' + postURL, function(req, res) {	
+	// var inputCodes = req.body["inputCodes"];
 	console.log("selectForm: " + req.body.selectForm);
-
+	console.log("req.body: ", req.body);
 	var outputs = {}	
-
 
 	if (req.body.changeWorkoutBtn || req.body.NextBtn) {
 		G_UserInfo["User"].workouts.patternsLoaded = false;

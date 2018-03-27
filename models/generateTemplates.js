@@ -8,18 +8,18 @@ var SubWorkoutTemplate = models.SubWorkoutTemplate;
 // var globalFuncs = require('../globalFunctions');
 var AllWorkouts = data.AllWorkouts;
 
-console.log("GENERATING TEMPLATES");
+// console.log("GENERATING TEMPLATES");
 
 var Workouts1 = data.Workouts1;
-console.log(AllWorkouts);
+// console.log(AllWorkouts);
 
-console.log("\nCreate Workout Template:");
-console.log(CreateWorkoutTemplate(1, 3, 2, 0));
+// console.log("\nCreate Workout Template:");
+// console.log(CreateWorkoutTemplate(1, 3, 2, 0));
 
 // Creating Group 1 Workouts
 for (var W in Workouts1.Templates) {
     for (var D in Workouts1.Templates[W]) {
-        console.log("W, D: ", W, D);
+        // console.log("W, D: ", W, D);
         CreateWorkoutTemplate(1, W, D, 0);
     }
 }
@@ -99,7 +99,7 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum) {
                     + " x " + result.reps + " RPE: " + result.RPE + " Alloy: " + result.alloy 
                     + " Deload: " + result.deload + " Type: " + result.type;
                     // console.log("Subworkout: " + result.number + " workout: " + result.fk_workout + " " + result.exerciseType);
-                    console.log("   Description: " + result.description);
+                    // console.log("   Description: " + result.description);
                     result.save();
                     template.save();
                 });            

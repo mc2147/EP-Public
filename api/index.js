@@ -6,7 +6,7 @@ var models = require('../models');
 
 var data = require('../data');
 
-console.log("API FILE 9");
+// console.log("API FILE 9");
 
 var RPETable = data.RPETable;
 var Exercises = data.ExerciseDict;
