@@ -131,9 +131,21 @@ User.findById(1).then(user => {
 			// 
 
 router.get('/' + getURL, function(req, res) {
-	let userInfoToSend = getVueInfo(G_UserInfo);
+	var workoutDates = [];
+	for (var W = 0; W < WeekList.length; W++) {
+		for (var D = 0; D < DayList.length; D++) {
+			var _W = WeekList[W];
+			var _D = DayList[D];
+			var wID = Group1WDtoID[_W][_D];
+			var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
+			workoutDates.push({Week: _W, Day: _D, Date: date});
+		}
+	}
+
+	let vueInfo = getVueInfo(G_UserInfo, workoutDates);
+	vueInfo.workoutDates = workoutDates;
 	console.log("RES.JSON");
-	res.json(userInfoToSend);
+	res.json(vueInfo);
 })
 
 router.get('/', function(req, res
@@ -334,10 +346,10 @@ router.post('/' + postURL, function(req, res) {
 	if (req.body.SaveBtn) {
 		console.log("Save PRESSED");
 		saveWorkout(req.body, G_UserInfo);
-		res.redirect('/');
-		
+		res.redirect('/');		
 		return
 	}
+
 	console.log("333");
 	if (req.body.changeWorkoutBtn || req.body.NextBtn || req.body.PrevBtn) {
 		// G_UserInfo["User"].workouts.patternsLoaded = false;

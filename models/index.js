@@ -164,6 +164,7 @@ const Workout = db.define('Workout', {
 });
 
 // db.sync({force: true});
+
 Group1WeekDays = {
     1: {
         1: 1,

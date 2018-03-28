@@ -1,4 +1,7 @@
 var models = require('./models');
+var generateTemplates = require('./models/generateTemplates');
+var createUser = require('./models/createUser');
+
 const express = require( 'express' );
 const app = express(); // creates an instance of an express application
 var nunjucks = require('nunjucks');
@@ -30,8 +33,6 @@ app.set('view engine', 'html'); // have res.render work with html files
 app.engine('html', nunjucks.render); // when giving html files to res.render, tell it to use nunjucks
 nunjucks.configure('views', { noCache: true });
 
-var generateTemplates = require('./models/generateTemplates');
-var createUser = require('./models/createUser');
 
 models.db.sync()
 .then(function () {
