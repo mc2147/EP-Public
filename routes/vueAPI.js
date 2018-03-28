@@ -55,7 +55,7 @@ function getVueInfo(refDict) {
 		for (var L = 0; L < Pattern.sets; L++) {
 			var set = Pattern.setList[L];			
 			// inputList.push("");
-			tempoList.push(["3", "2", "X"]);
+				// tempoList.push(["3", "2", "X"]);
 			
 			// 4 Input Statuses: Empty, Placeholder, Filled, Fixed
 			var repDict = {
@@ -70,6 +70,10 @@ function getVueInfo(refDict) {
 				value: set.RPE,
 				status: 'Empty',
 				suggested: Pattern.RPE,
+			}
+			var tempoDict = {
+				value: ["3", "2", "X"],
+				status: 'Fixed'
 			}
 			if (set.Filled) {
 				weightDict.status = 'Filled';
@@ -124,6 +128,7 @@ function getVueInfo(refDict) {
 			repLists.inputs.push(repDict);
 			weightLists.inputs.push(weightDict);
 			RPELists.inputs.push(RPEDict);
+			tempoList.push(tempoDict);
 			
 			//Edge cases here (fixed)
 		}
@@ -142,6 +147,11 @@ function getVueInfo(refDict) {
 			}
 			var RPEDict = {
 				value: 10,
+				status: 'Fixed',
+				alloy: true
+			}
+			var alloyTempo = {
+				value: ["3", "2", "X"],
 				status: 'Fixed',
 				alloy: true
 			}
@@ -176,6 +186,7 @@ function getVueInfo(refDict) {
 			repLists.inputs.push(repDict);
 			weightLists.inputs.push(weightDict);
 			RPELists.inputs.push(RPEDict);
+			tempoList.push(alloyTempo);
 		}
 		
 		var dataTableItems = []
