@@ -80,10 +80,11 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum) {
                         result.type = 'deload';
                         result.deload = thisSub.Deload;
                     }
-                    else if (thisSub.alloy) {
+                    else if (thisSub.Alloy) {
                         result.alloy = thisSub.Alloy;
                         result.alloyreps = thisSub.AlloyReps;
                         result.type = 'alloy';
+                        console.log("87");
                     } 
                     if (thisSub.Type) {
                         result.type = thisSub.Type;                        
@@ -92,8 +93,10 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum) {
                         result.specialValue = thisSub.StopRPE;
                     }
                     else if (result.type == 'drop') {
-                        result.specialValue = thisSub.DropValue;
+                        result.specialValue = thisSub.DropValue; 
                     }
+                    console.log("result.type: ", result.type, template.week, template.day);
+                    console.log(thisSub);
                     // console.log("subWorkout Type: " + result.type);
                     result.description = result.exerciseType + " " + result.sets 
                     + " x " + result.reps + " RPE: " + result.RPE + " Alloy: " + result.alloy 

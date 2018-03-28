@@ -117,6 +117,9 @@ const User = db.define('User', {
             //Shift workoutDates by 1 after current(?)
             //Reassign (completed) to all
     },
+    currentWorkoutID: {
+        type: Sequelize.INTEGER,
+    },
     currentWorkout: {
         type: Sequelize.JSON,  
     },

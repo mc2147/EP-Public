@@ -67,11 +67,7 @@ function CreateUser() {
          };        
          user.stats = StatTemplate;
          user.workouts = {};
-         // user.workouts["Current"] = {Patterns: []};
-         user.thisPatterns = [];
-     //  Current
-         user.workouts.thisPatterns = [];
-         user.workouts.patternsLoaded = false;
+
      //  Instance variables
          user.level = 1; 
          // console.log(new Date(Date.now() - 10*DayValue));
@@ -80,6 +76,7 @@ function CreateUser() {
      
          var workoutDates = getWorkoutDays(oldDate, [1, 3, 5], 1, "", 12);
          user.workoutDates = workoutDates;
+         user.currentWorkoutID = null;
          // Sort workouts by LGroups and blocks -> ID
          for (var W in Workouts1.Templates) {
              var thisWeek = Workouts1.Templates[W];
@@ -90,32 +87,17 @@ function CreateUser() {
                  user.workouts[ID].Day = D;
                  user.workouts[ID].ID = ID;
                  user.workouts[ID].Date = workoutDates[ID - 1];
+                 if (user.workouts[ID].Date >= thisDate && !user.currentWorkoutID) {
+                    user.currentWorkoutID = ID;
+                 }
                  user.save();
              }
          }
          user.workouts[13] = WorkoutInstanceTemplate;
         // Workout Completion Code
-         for (var i = 0; i < workoutDates.length; i++) {
-             var _Date = workoutDates[i]; 
-             var workoutID = i + 1;
-             if (user.workouts[workoutID].Date < thisDate) {
-                 // user.workouts[workoutID].Completed = true;            
-             }
-             else {
-                 user.currentworkoutID = workoutID;
-                 break;
-             }
-         }
-
         //  missedWorkouts(user, new Date(2018, 02, 15, 00, 0, 0, 0), new Date(2018, 02, 22, 00, 0, 0, 0));
 
          user.save();
-
-         // console.log("user.stats: " + user.stats);
-         for (var K in user.stats) {
-             // console.log(K + " : " + String(user.stats[K]));        
-             // console.log(user.stats[K]);
-         }
      })
 }
 

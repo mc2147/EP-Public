@@ -7,7 +7,7 @@ table, th, td {
 
 
 <div style="font-size:20px; width:90%; margin:auto;">
- <form action="/" method="POST">
+ <form action="/postWorkout" method="POST">
  Change Level Group:
   <select name="selectLevelGroup">
     <option value="1">1-5</option>
@@ -85,7 +85,7 @@ Exercise Types:
             {% if P.alloystatus.value == 2 %}            
                   Reps: {{P.alloyreps}} +
                   <input type="text" placeholder="Enter Reps" 
-                  name = "{{P.number}}|W|Alloy" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                  name = "{{P.number}}|X|Alloy" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
             {% elif P.alloystatus.value == 1 %}
                   {{P.alloyperformed}} PASS            
             {% elif P.alloystatus.value == -1 %}
@@ -190,6 +190,7 @@ Exercise Types:
 <br>
 <div style="margin:auto; margin-left:40%;">
         <input style="margin:auto;" type='submit' onclick="" value='SAVE' name="SaveBtn" id='btn'></input>
+        <input style="margin:auto;" type='submit' onclick="" value='PREV' name="PrevBtn" id='btn'></input>        
         <input style="margin:auto;" type='submit' onclick="" value='RESET' name="ResetBtn" id='btn'></input>
         <input style="margin:auto;" type='submit' onclick="" value='NEXT' name="NextBtn" id='btn'></input>        
         <input style="margin:auto; margin-left:300px;" type='submit' onclick="" value='SUBMIT' name="SubmitBtn" id='btn'></input>

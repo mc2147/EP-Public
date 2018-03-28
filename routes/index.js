@@ -22,6 +22,13 @@ var globalEnums = require('../globals/enums');
 var globalFuncs = require('../globals/functions');
 	var getMax = globalFuncs.getMax;
 	var getWeight = globalFuncs.getWeight;
+
+var vueAPI = require('./vueAPI');
+	var getVueInfo = vueAPI.getVueInfo;
+	var vueConvert = vueAPI.vueConvert;
+
+var workoutHandlers = require('./workoutHandlers');
+	var saveWorkout = workoutHandlers.saveWorkout;
 	
 var UserLevel = 1
 
@@ -41,19 +48,31 @@ var getURL = "getWorkout";
 // G_thisStats = thisUser.stats;
 // thisPatterns = thisUser.workouts.thisPatterns;
 // userFound = true;
+
 // Ref Dict
+// Default Ref Dict
+var selectedWeek = 1;
+var selectedDay = 1;
+var WeekList = [1, 2, 3, 4];
+var DayList = [1, 2, 3];
+
+console.log("TEST: "); 
 function userRefDict(user) {
 	var output = {};
 	output["User"] = user;
-	output["Level"] = user.level;
 	output["Stats"] = user.stats;
 	output["Workouts"] = user.workouts;
-	var thisWorkoutID = user.currentWorkout.ID;
-	output["thisWorkoutID"] = user.currentWorkout.ID;
+	var thisWorkoutID = user.currentWorkoutID;
+	console.log("thisWorkoutID: "+ thisWorkoutID); 
+	output["thisWorkoutID"] = user.currentWorkoutID;
+	output["Level"] = user.level;
 	output["thisWorkout"] = user.workouts[thisWorkoutID];
-	output["thisWorkoutDate"] = user.workoutDates[user.currentWorkout.ID - 1];
+	selectedWeek = user.workouts[thisWorkoutID].Week;
+	selectedDay = user.workouts[thisWorkoutID].Day;
+	output["thisWorkoutDate"] = user.workoutDates[user.currentworkoutID - 1];
 	// output["thisWorkoutDate"] = user.workouts[user.currentWorkout.ID].Date;
-	output["thisPatterns"] = user.workouts.thisPatterns;
+	output["thisPatterns"] = user.workouts[thisWorkoutID].Patterns;
+	// G_UserInfo["User"].workouts[TemplateID].Patterns
 	output["levelGroup"] = 1; //Manual for now
 	return output
 }
@@ -94,255 +113,22 @@ var G_thisStats;
 var G_UserInfo;
 
 User.findById(1).then(user => {
-	G_UserInfo = userRefDict(user);
-	thisUser = G_UserInfo["User"];
-	G_thisStats = G_UserInfo["Stats"];
-	thisPatterns = G_UserInfo["thisPatterns"];
-	// console.log("Creating User Ref Dict: ");
-	userFound = true;
+	// if (user.workouts.loaded) {		
+		G_UserInfo = userRefDict(user);
+		thisUser = G_UserInfo["User"];
+		G_thisStats = G_UserInfo["Stats"];
+		thisPatterns = G_UserInfo["thisPatterns"];
+		// console.log("Creating User Ref Dict: ");
+		userFound = true;
+	// }
 });
 
-var vueConvert = {
-	Date: function(date) {
-		var output = "";
-		var year = date.getFullYear();
-		var month = date.getMonth() + 1;
-		var day = date.getDate();
-		output = year + "-" + month + "-" + day;
-		return output;
-	}
-}
 
-function getVueInfo(refDict) {
-	var changeWorkoutList = [];
-	for (var W = 0; W < WeekList.length; W++) {
-		for (var D = 0; D < DayList.length; D++) {
-			var _W = WeekList[W];
-			var _D = DayList[D];
-			var wID = Group1WDtoID[_W][_D];
-			var date = dateString(refDict["User"].workoutDates[wID - 1]);
-			changeWorkoutList.push({Week: _W, Day: _D, Date: date});
-		}
-	}
-	
-	var vueColumns = [
-		["Reps/Time(s)", 1],
-		["Weights", 2],
-		["RPE", 3],
-		["Tempo", 4],
-	]
-	var vueSubworkouts = [];
-	console.log("PATTERNS:");
-	for (var N = 0; N < refDict["thisPatterns"].length; N ++) {
-		var Pattern = refDict["thisPatterns"][N];
-		console.log(Pattern);
-	}
-	// return {}
-	for (var N = 0; N < refDict["thisPatterns"].length; N ++) {
-		var Pattern = refDict["thisPatterns"][N];
-
-		var fixedList = [];
-		var filledList = [];
-		var inputList = [];
-		var tempoList = [];
-
-		var repLists = {
-			// fixed: [],
-			// filled: [],
-			inputs: []
-		};
-		var weightLists = {
-			// fixed: [],
-			// filled: [],
-			inputs: []
-		};
-		var RPELists = {
-			// fixed: [],
-			// filled: [],
-			inputs: []
-		};
-		var tempoLists = {
-			// fixed: [],
-			// filled: [],
-			inputs: []
-		};
-
-		for (var L = 0; L < Pattern.sets; L++) {
-			var set = Pattern.setList[L];			
-			// inputList.push("");
-			tempoList.push(["3", "2", "X"]);
-			
-			// 4 Input Statuses: Empty, Placeholder, Filled, Fixed
-			var repDict = {
-				value: Pattern.reps,
-				status: 'Fixed'
-			}
-			var weightDict = {
-				value: set.Weight,
-				status: 'Empty'
-			}
-			var RPEDict = {
-				value: set.RPE,
-				suggested: Pattern.RPE,
-			}
-			if (set.Filled) {
-				weightDict.status = 'Filled';
-				RPEDict.status = 'Filled';
-			}
-			//Alloy Patterns
-			if (Pattern.alloy) {
-				repDict.status = 'Fixed';
-				if (set.Filled) {
-					if (Pattern.alloystatus.value != 0) {
-						weightDict.status = 'Fixed';
-						RPEDict.status = 'Fixed';
-					}
-					else {
-						weightDict.status = 'Filled';
-						RPEDict.status = 'Filled';						
-					}
-				}
-				else {
-					weightDict.status = 'Empty';
-					RPEDict.status = 'Empty';						
-				}
-			}
-			//Stop & Drop Patterns
-			else if (Pattern.stop || Pattern.drop) {
-				if (set.Filled) {
-					weightDict.status = 'Fixed';
-					RPEDict.status = 'Fixed';
-				}
-			}
-			//Bodyweight Workouts
-			else if (Pattern.workoutType == 'bodyweight') {
-				// weightLists.fixed.push("bodyweight");
-				weightDict.status = 'Fixed';
-				weightDict.value = 'Bodyweight';
-				if (set.Filled) {
-					repDict.value = set.Reps;
-					repDict.status = 'Filled';						
-				}
-				else {
-					repDict.value = "";
-					repDict.status = 'Empty';
-				}
-			}
-			// Carry
-			else if (Pattern.workoutType == 'carry') {
-				repDict.value = repDict.value + " (s)";
-				RPEDict.value = '---';
-				RPEDict.status = 'Fixed';
-			}
-			
-			repLists.inputs.push(repDict);
-			weightLists.inputs.push(weightDict);
-			RPELists.inputs.push(RPEDict);
-			
-			//Edge cases here (fixed)
-		}
-
-		// Final Alloy Set
-		if (Pattern.alloy) {
-			var repDict = {
-				value: Pattern.alloyreps,
-				status: 'Fixed',
-				alloy: true
-			}
-			var weightDict = {
-				value: "Alloy Weight",
-				status: 'Fixed',
-				alloy: true
-			}
-			var RPEDict = {
-				value: 10,
-				status: 'Fixed',
-				alloy: true
-			}
-			// RPELists.fixed.push(10);					
-			if (Pattern.alloystatus.value == 0) {
-				// repLists.fixed.push(Pattern.alloyreps);
-				// weightLists.fixed.push("Alloy Weight");
-			}
-			else if (Pattern.alloystatus.value == 2) {
-				repDict.status = 'Empty';
-				weightDict.value = Pattern.alloyweight;
-				weightDict.status = 'Fixed';
-				// repLists.inputs.push(Pattern.alloyreps);
-				// weightLists.fixed.push(Pattern.alloyweight);
-			}
-			else if (Pattern.alloystatus.value == 1) {
-				repDict.value = Pattern.alloyperformed + " PASSED";
-				repDict.status = 'Fixed';
-				weightDict.value = Pattern.alloyweight;
-				weightDict.status = 'Fixed';
-				// repLists.fixed.push(Pattern.alloyperformed + " PASSED");
-				// weightLists.fixed.push(Pattern.alloyweight);
-			}
-			else if (Pattern.alloystatus.value == -1) {
-				repDict.value = Pattern.alloyperformed + " FAILED";
-				repDict.status = 'Fixed';
-				weightDict.value = Pattern.alloyweight;
-				weightDict.status = 'Fixed';				
-				// repLists.fixed.push(Pattern.alloyperformed + " FAILED");
-				// weightLists.fixed.push(Pattern.alloyweight);
-			}
-			repLists.inputs.push(repDict);
-			weightLists.inputs.push(weightDict);
-			RPELists.inputs.push(RPEDict);
-		}
-		
-		var dataTableItems = []
-		//One per row
-		for (var I = 0; I < vueColumns.length; I++) {
-			//Vue Syntax
-			var item = vueColumns[I];
-			var rowDict = {
-				id: item[1],
-				name: item[0],
-				value: false,
-			};
-			//Which row case
-			if (item[1] == 4) { //Tempo
-				rowDict.inputs = tempoList;
-			}
-			else if (item[1] == 3) { //RPE
-				rowDict.inputs = RPELists.inputs;
-			}
-			else if (item[1] == 2) { //Weights
-				rowDict.inputs = weightLists.inputs;
-			}
-			else if (item[1] == 1) { //Reps
-				rowDict.inputs = repLists.inputs;
-			}
-			dataTableItems.push(rowDict); //One per ROW
-		}
-		//One per PATTERN
-		var subDict = {
-			name: Pattern.name,
-			// RPEOptions: ["1", "2", "3", "4", "5-6", "7", "8", "9-10"],
-			RPEOptions: [1, 2, 3, 4, 5, 6, 7, 7.5, 8, 8.5, 9, 9.5, 10],
-			dataTableItems: dataTableItems, //Rows -> 1 row per SET
-			sets: Pattern.sets, //N Sets
-		}		
-		vueSubworkouts.push(subDict);			
-	}
-
-	return  {
-		date: vueConvert.Date(refDict["thisWorkoutDate"]),
-		subworkouts: vueSubworkouts,
-	};
-}
 	// How to store old workouts:
 		// Add patterns list to PastWorkouts dict, indexed by week/day
 			// {Week: , Day: , Completed : , Patterns : }
 		// Fill up PastWorkouts dict on workout generation
 			// 
-
-var selectedWeek = 1;
-var selectedDay = 1;
-var WeekList = [1, 2, 3, 4];
-var DayList = [1, 2, 3];
 
 router.get('/' + getURL, function(req, res) {
 	let userInfoToSend = getVueInfo(G_UserInfo);
@@ -360,9 +146,9 @@ router.get('/', function(req, res
 	}
 	// G_UserInfo = userRefDict(thisUser);
 	// G_UserInfo["thisWorkoutID"] = 13;
-	console.log("ROUTE.GET STARTS ");
-	console.log("GLOBALS: ");
-	console.log("G_UserInfo: ");
+	// console.log("ROUTE.GET STARTS ");
+	// console.log("GLOBALS: ");
+	// console.log("G_UserInfo: ");
 
 	// G_UserInfo["thisWorkoutID"]
 	// selectedweek
@@ -374,16 +160,20 @@ router.get('/', function(req, res
 	G_UserInfo["thisWorkoutDate"] = G_UserInfo["User"].workoutDates[wDateIndex];
 	// Make a refresh dictionary function later
 	var thisworkoutDate = G_UserInfo["Workouts"][TemplateID].Date;
-	console.log(G_UserInfo["thisWorkoutDate"]);
+	// console.log(G_UserInfo["thisWorkoutDate"]);
 	// console.log(G_UserInfo["User"].workoutDates);
 	// console.log(G_UserInfo["thisWorkoutID"]);
 	// console.log(G_UserInfo["User"].workoutDates[G_UserInfo["thisWorkoutID"]]);
 
 	// console.log(G_UserInfo["thisPatterns"]);
-	console.log(G_UserInfo["User"].workouts);
+	// console.log(G_UserInfo["User"].workouts);
 	// console.log("User.workouts[TemplateID].Patterns:");
 	// console.log(G_UserInfo["User"].workouts[TemplateID].Patterns);
-	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0) {
+	// render();
+	// return
+	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0
+		// || G_UserInfo["thisPatterns"].length != 0
+	) {
 		G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
 		G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
 		// let userInfoToSend = getVueInfo(G_UserInfo);
@@ -431,7 +221,7 @@ router.get('/', function(req, res
 				patternInstance.setList = [];
 				patternInstance.sets = Sets;
 				patternInstance.workoutType = elem.type;
-				console.log("elem.type: " + elem.type);
+				console.log("elem.type: " + elem.type, elem.exerciseType);
 				if (patternInstance.workoutType == "stop") {
 					patternInstance.stop = true;
 					patternInstance.specialValue = elem.specialValue;
@@ -449,7 +239,7 @@ router.get('/', function(req, res
 					patternInstance.specialStage = 0;
 				}
 				// Adding setDicts to patterInstance.setList -> []
-				if (!thisUser.workouts.patternsLoaded) {
+				// if (!thisUser.workouts.patternsLoaded) {
 					for (var i = 0; i < Sets; i ++) {
 						patternInstance.setList.push({
 							SetNum: i + 1,
@@ -459,10 +249,12 @@ router.get('/', function(req, res
 							Filled: false,
 						});
 					}
-					G_UserInfo["thisPatterns"].push(patternInstance);
+					// G_UserInfo["thisPatterns"].push(patternInstance);
 					G_UserInfo["User"].workouts[TemplateID].Patterns.push(patternInstance);
-					G_UserInfo["User"].save();
-				}
+					G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
+					G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
+								G_UserInfo["User"].save();
+				// }
 				// Some backwards referencing was going on here
 			});
 
@@ -528,14 +320,27 @@ router.get('/', function(req, res
 
 
 // router.post('/', function(req, res) {
+// function saveWorkout(body, refDict) {
+// 	console.log("saveWorkout (Line 321) \n");
+// 	console.log(body);
+// 	console.log(refDict);
+// }
+
 router.post('/' + postURL, function(req, res) {	
 	// var inputCodes = req.body["inputCodes"];
-	console.log("selectForm: " + req.body.selectForm);
-	console.log("req.body: ", req.body);
+	// console.log("selectForm: " + req.body.selectForm);
+	// console.log("req.body: ", req.body);
 	var outputs = {}	
-
-	if (req.body.changeWorkoutBtn || req.body.NextBtn) {
-		G_UserInfo["User"].workouts.patternsLoaded = false;
+	if (req.body.SaveBtn) {
+		console.log("Save PRESSED");
+		saveWorkout(req.body, G_UserInfo);
+		res.redirect('/');
+		
+		return
+	}
+	console.log("333");
+	if (req.body.changeWorkoutBtn || req.body.NextBtn || req.body.PrevBtn) {
+		// G_UserInfo["User"].workouts.patternsLoaded = false;
 		G_UserInfo["thisPatterns"] = [];
 		if (req.body.changeWorkoutBtn) {
 			var selectedWD = req.body.changeWorkoutSelect.split("|");
@@ -546,16 +351,23 @@ router.post('/' + postURL, function(req, res) {
 			selectedDay = _D;
 			G_UserInfo["thisWorkoutID"] = Group1WDtoID[_W][_D];
 		}
-		else if (req.body.NextBtn) {
+		else if (req.body.NextBtn || req.body.PrevBtn) {
 			var nWorkouts = G_UserInfo["User"].workoutDates.length;
 			console.log("nWorkouts: " + nWorkouts);
 			var nextWorkoutID = G_UserInfo["thisWorkoutID"] + 1;
+			if (req.body.PrevBtn) {
+				nextWorkoutID = G_UserInfo["thisWorkoutID"] - 1;
+				if (G_UserInfo["thisWorkoutID"] == 1) {
+					nextWorkoutID = nWorkouts;	
+				}			
+			} 
 			if (nextWorkoutID > nWorkouts) {
 				console.log("redirecting to workout: " + nextWorkoutID);
 				res.redirect('/level-up');
 				return
 				// Test user here
 			}
+			console.log("next Workout ID: " + nextWorkoutID);
 			G_UserInfo["thisWorkoutID"] = nextWorkoutID;
 			G_UserInfo["User"].save();
 			console.log("NEXT WORKOUT ID: " + nextWorkoutID); 
@@ -569,6 +381,7 @@ router.post('/' + postURL, function(req, res) {
 	if(req.body.ResetBtn) {
 		// reset();
 		res.redirect('/');
+		return
 	}
 
 	if (req.body.SubmitBtn) {
@@ -584,252 +397,6 @@ router.post('/' + postURL, function(req, res) {
 		// G_UserInfo["User"].workouts[]
 		// G_UserInfo["User"].save();
 	}
-
-	for (var K in req.body) {
-		var inputCode = K.split("|");
-		if (!K.includes("|") || !inputCode) {
-			continue;
-		}
-		var inputType = inputCode[1];
-		var patternID = parseInt(inputCode[0]); //Number (index + 1)
-		var patternIndex = patternID - 1;
-		var setNum = parseInt(inputCode[2]);
-		var setIndex = setNum - 1;
-
-		var thisPattern = G_UserInfo["thisPatterns"][patternIndex];
-
-		var _EType = thisPattern.type;
-		var _nSets = thisPattern.sets;
-		var setDict = thisPattern.setList[setIndex];
-
-		var input = parseInt(req.body[K]);
-		var G_Stats = G_UserInfo["Stats"];
-		var thisStats = G_Stats[_EType];
-
-
-		if (inputType == "W" 
-			&& input && setNum <= _nSets) {
-			setDict.Weight = parseInt(req.body[K]);
-			if (setDict.RPE || thisPattern.workoutType == 'carry') {
-				setDict.Filled = true;
-			} 
-		}
-		else if (inputType == "RPE" 
-			&& input && setNum <= _nSets) {
-			setDict.RPE = parseFloat(req.body[K]);
-			if (setDict.Weight) {
-				setDict.Filled = true;
-			}
-			if (thisPattern.workoutType == "bodyweight" && setDict.Reps) {
-				setDict.Filled = true;
-			}
-		}
-		else if (inputType.includes("T") 
-			&& input && setNum <= _nSets) {
-			setDict.Tempo.push(parseInt(req.body[K]));
-		}
-
-		if (inputType == "Reps") {
-			setDict.Reps = parseInt(req.body[K]);
-			if (thisPattern.workoutType == 'bodyweight' && setDict.RPE) {
-				console.log("395");
-				setDict.Filled = true;
-			}
-		}
-		console.log("thisPattern.type: " + thisPattern.type);
-		if (setNum == _nSets) {
-			if (!(_EType in outputs)) {
-				outputs[_EType] = {
-					Tempo: [],
-					Name: thisPattern.name, 
-					Reps: thisPattern.reps,
-					Alloy: thisPattern.alloy,
-					AlloyReps: thisPattern.alloyreps,
-					ID: patternID,
-				};
-			}
-			if (inputType == "W") {
-				outputs[_EType].Weight = parseInt(req.body[K]);
-			}
-			else if (inputType == "RPE") {
-				outputs[_EType].RPE = parseFloat(req.body[K]);
-				if(thisPattern.drop && thisPattern.specialStage) {
-					outputs[_EType].Weight = thisPattern.dropWeight;
-				}
-			}
-			else if (inputType.includes("T")) {
-				outputs[_EType].Tempo.push(parseInt(req.body[K]));
-			}
-		}
-		else if (inputCode[2] == "Alloy") {
-			var RepPerformance = parseInt(req.body[K]);
-			thisPattern.alloyperformed = RepPerformance;
-			if (RepPerformance >= thisPattern.alloyreps) {
-				
-				thisStats.Status = Alloy.Passed;
-				thisPattern.alloystatus = Alloy.Passed;
-				
-				console.log("ALLOY PASSED");				
-			}
-			else {
-				
-				thisStats.Status = Alloy.Failed;
-				thisPattern.alloystatus = Alloy.Failed;
-
-				console.log("ALLOY FAILED");				
-			}
-			
-			var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight 
-			+ " lbs @ " + 10 + " RPE (Alloy) " + G_Stats[_EType].Status.string;
-			
-			thisStats.LastSet = setDescription;
-			thisPattern.LastSet = setDescription;
-
-			thisStats.Name = thisPattern.name;
-			G_UserInfo["User"].save();
-		}
-	}
-
-	for (var EType in outputs) {
-		var Val = outputs[EType];
-		if (Val.Weight && Val.RPE && Val.Reps) {
-			var setDescription = Val.Reps + " Reps x " + Val.Weight + " lbs @ " + Val.RPE + " RPE";
-			var thisPattern = G_UserInfo["thisPatterns"][Val.ID - 1];
-	
-			if (thisPattern.stop) {
-				console.log("stop set submitted");
-				if (thisPattern.specialStage == 0) {
-					if (Val.RPE < thisPattern.specialValue) {
-						thisPattern.sets += 1;
-						thisPattern.setList.push({
-							SetNum: thisPattern.sets,
-							Weight: null,
-							RPE: null,
-							// Tempo: [null, null, null],
-							Filled: false,
-						});				 
-					}
-					else {
-						thisPattern.specialStage += 1;
-					}
-				}
-			}
-			else if (thisPattern.drop) {
-				console.log("drop set submitted. Drop Stage: " + thisPattern.dropStage);
-				if (thisPattern.specialStage == 0) {
-					if (Val.RPE < thisPattern.RPE) {
-						thisPattern.sets += 1;
-						thisPattern.setList.push({
-							SetNum: thisPattern.sets,
-							Weight: null,
-							RPE: null,
-							// Tempo: [null, null, null],
-							Filled: false,
-						});				 
-					}
-					else {
-						thisPattern.specialStage += 1;
-						thisPattern.dropWeight =  Math.round(((100 - thisPattern.specialValue)/100)*Val.Weight);
-						// thisPattern.dropWeight = Val.Weight;
-						// thisPattern.dropWeight = (100 - thisPattern.specialValue);
-
-						thisPattern.sets += 1;
-						thisPattern.setList.push({
-							SetNum: thisPattern.sets,
-							Weight: thisPattern.dropWeight,
-							RPE: null,
-							// Tempo: [null, null, null],
-							Filled: false,
-						});				  					
-					}
-				}
-				else if (thisPattern.specialStage == 1) {
-					if (Val.RPE < thisPattern.RPE) {
-						thisPattern.sets += 1;
-						thisPattern.setList.push({
-							SetNum: thisPattern.sets,
-							Weight: thisPattern.dropWeight,
-							RPE: null,
-							// Tempo: [null, null, null],
-							Filled: false,
-						});				 
-					}
-					else {
-						thisPattern.specialStage += 1;
-					}
-				}
-			}
-
-			var statDict = G_UserInfo["Stats"];
-			var thisStat = statDict[EType];
-
-			thisStat.LastSet = setDescription; 
-			thisStat.Name = thisPattern.name;
-			thisPattern.LastSet = setDescription;
-
-			console.log("	Calculating new max with inputs: " + Val.Weight + ", " + Val.Reps + ", " + Val.RPE);
-			var newMax = getMax(Val.Weight, Val.Reps, Val.RPE);
-			console.log("	New MAX: " + getMax(Val.Weight, Val.Reps, Val.RPE));
-
-			// UserStats.ExerciseStats[EType].Max = newMax;
-			G_Stats[EType].Max = newMax;
-			thisPattern.Max = newMax;			
-
-			// console.log("	oldMax: " + UserStats.ExerciseStats[EType].Max
-			// + " newMax: " + getMax(Val.Weight, Val.Reps, Val.RPE));			
-			if (Val.Alloy) {
-				var AlloyReps = Val.AlloyReps; 
-				// var AlloyWeight = getMax(newMax, AlloyReps, 10);
-				var AlloyWeight = getWeight(newMax, AlloyReps, 10);
-				console.log("ALLOY SET: " + AlloyReps + " " + AlloyWeight);
-
-				// Use These (BELOW)
-				thisPattern.alloyweight = AlloyWeight;
-				thisPattern.alloystatus = Alloy.Testing;
-
-				thisStat.Status = Alloy.Testing;
-
-				// console.log("Alloy Show: " + UserStats.CurrentWorkout.Patterns[Val.ID - 1].alloyshow);
-				console.log("Alloy Show: " + thisPattern.alloyshow);
-			}
-		}
-	}
-	// Check AlloyStatus Here	
-	console.log("Alloy Check: ");
-	console.log(G_UserInfo["Stats"]["Squat"]);
-	console.log(G_UserInfo["Stats"]["UB Hor Push"]);
-	console.log(G_UserInfo["Stats"]["Hinge"]);
-	
-	var squatStatus = G_UserInfo["Stats"]["Squat"].Status;
-	var benchStatus = G_UserInfo["Stats"]["UB Hor Push"].Status;
-	var hingeStatus = G_UserInfo["Stats"]["Hinge"].Status;
-
-	G_UserInfo["Stats"]["Level Up"].Squat = squatStatus;
-	G_UserInfo["Stats"]["Level Up"].UBHorPush = benchStatus;
-	G_UserInfo["Stats"]["Level Up"].Hinge = hingeStatus;
-
-	if (squatStatus == Alloy.Passed
-		&& benchStatus == Alloy.Passed
-		&& hingeStatus == Alloy.Passed) {
-		G_UserInfo["Stats"]["Level Up"].Status = Alloy.Passed;
-	}
-	else if (squatStatus == Alloy.Failed
-		|| benchStatus == Alloy.Failed
-		|| hingeStatus == Alloy.Failed) {
-		G_UserInfo["Stats"]["Level Up"].Status = Alloy.Failed;
-	}
-	else if (
-		(squatStatus == Alloy.None || squatStatus == Alloy.Testing)
-		|| (benchStatus == Alloy.None || benchStatus == Alloy.Testing)
-		|| (hingeStatus == Alloy.None || hingeStatus == Alloy.Testing)
-		) {
-		G_UserInfo["Stats"]["Level Up"].Status = Alloy.Testing;
-	}
-
-	G_UserInfo["User"].save();
-
-	console.log("Level Up?");
-	console.log(G_UserInfo["Stats"]["Level Up"]);
 
 	res.redirect('/');
 });
@@ -934,7 +501,6 @@ router.get('/workouts', function(req, res) {
 				});
 			});
 			// console.log(subworkouts);
-
 			for (var i = 0; i < results.length; i ++) {
 				var W = results[i];
 				var S = subworkouts[i];
