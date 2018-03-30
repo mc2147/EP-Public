@@ -59,7 +59,8 @@ function getVueInfo(refDict) {
 			
 			// 4 Input Statuses: Empty, Placeholder, Filled, Fixed
 			var repDict = {
-				value: Pattern.reps,
+				// value: Pattern.Reps,
+				value: set.Reps,
 				status: 'Fixed'
 			}
 			var weightDict = {

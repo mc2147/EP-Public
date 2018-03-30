@@ -6,6 +6,7 @@ function saveWorkout(body, refDict) {
 	console.log("saveWorkout (Line 2) \n");
 	console.log(body);
     console.log(refDict);
+    console.log("saveWorkout Line 9");
     refDict["User"].save();
     var outputs = {};
     // Filling out "outputs" dict
@@ -43,7 +44,8 @@ function saveWorkout(body, refDict) {
         }
         else if (inputType == "RPE" 
             && input && setNum <= _nSets) {
-            setDict.RPE = parseFloat(body[K]);
+            // setDict.RPE = parseFloat(body[K]);
+            setDict.RPE = body[K];
             if (setDict.Weight) {
                 setDict.Filled = true;
             }
@@ -62,14 +64,14 @@ function saveWorkout(body, refDict) {
                 setDict.Filled = true;
             }
         }
-        console.log("thisPattern.type: " + thisPattern.type);
+        // console.log("thisPattern.type: " + thisPattern.type);
         // Check if last set
         if (setNum == _nSets) {
             if (!(_EType in outputs)) {
                 outputs[_EType] = {
                     Tempo: [],
                     Name: thisPattern.name, 
-                    Reps: thisPattern.reps,
+                    Reps: setDict.Reps,
                     Alloy: thisPattern.alloy,
                     AlloyReps: thisPattern.alloyreps,
                     ID: patternID,
@@ -79,7 +81,8 @@ function saveWorkout(body, refDict) {
                 outputs[_EType].Weight = parseInt(body[K]);
             }
             else if (inputType == "RPE") {
-                outputs[_EType].RPE = parseFloat(body[K]);
+                // outputs[_EType].RPE = parseFloat(body[K]);
+                outputs[_EType].RPE = body[K];
                 if(thisPattern.drop && thisPattern.specialStage) {
                     outputs[_EType].Weight = thisPattern.dropWeight;
                 }
@@ -109,7 +112,7 @@ function saveWorkout(body, refDict) {
             
             var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight 
             + " lbs @ " + 10 + " RPE (Alloy) " + G_Stats[_EType].Status.string;
-            
+            console.log("_EType Error: " + _EType);
             thisStats.LastSet = setDescription;
             thisPattern.LastSet = setDescription;
 
@@ -191,7 +194,11 @@ function saveWorkout(body, refDict) {
 
             var statDict = refDict["Stats"];
             var thisStat = statDict[EType];
-
+            // console.log(thisStat, EType);
+            console.log("_EType Error: " + EType);
+            console.log("statDict", statDict);
+            // console.log("thisStat: " + statDict)
+            console.log(thisStat);
             thisStat.LastSet = setDescription; 
             thisStat.Name = thisPattern.name;
             thisPattern.LastSet = setDescription;
@@ -226,10 +233,10 @@ function saveWorkout(body, refDict) {
     }
 
     // Check General AlloyStatus Here	
-    console.log("Alloy Check: ");
-    console.log(refDict["Stats"]["Squat"]);
-    console.log(refDict["Stats"]["UB Hor Push"]);
-    console.log(refDict["Stats"]["Hinge"]);
+    // console.log("Alloy Check: ");
+    // console.log(refDict["Stats"]["Squat"]);
+    // console.log(refDict["Stats"]["UB Hor Push"]);
+    // console.log(refDict["Stats"]["Hinge"]);
 
     var squatStatus = refDict["Stats"]["Squat"].Status;
     var benchStatus = refDict["Stats"]["UB Hor Push"].Status;

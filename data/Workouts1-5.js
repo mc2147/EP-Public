@@ -160,7 +160,7 @@ WorkoutGroup1 = {
 					2: {ExerciseType: "UB Vert Push", Sets: 2, Reps: 12, RPE: 5, Deload: -1},
 					3: {ExerciseType: "Ant Chain", Sets: 2, Reps: null, RPE: 5,},		
 					4: {ExerciseType: "Iso 3", Sets: 2, Reps: 15, RPE: 5,}, 
-					5: {ExerciseType: "Carry", Sets: 2, Seconds:60}
+					5: {ExerciseType: "Carry", Sets: 2, Seconds:60, Reps: 60}
 				}
 			},
 			2: {
@@ -184,7 +184,7 @@ WorkoutGroup1 = {
 					2: {ExerciseType: "UB Hor Pull", Sets: 2, Reps: 12, RPE: 5, Deload: -2},
 					3: {ExerciseType: "UB Hor Push", Sets: 2, Reps: 15, RPE: 5, Deload: -2},		
 					4: {ExerciseType: "Iso 4", Sets: 2, Reps: 15, RPE: 5,}, 
-					5: {ExerciseType: "Carry", Sets: 2, Seconds: 60, Deload:-1}
+					5: {ExerciseType: "Carry", Sets: 2, Reps: 60, Seconds: 60, Deload:-1}
 				}
 			}
 		},

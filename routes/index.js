@@ -14,6 +14,7 @@ var data = require('../data');
 	var G1KeyCodes = data.Workouts1.getWeekDay;
 	var Group1WDtoID = data.Workouts1.getID;
 	var ExerciseDict = data.ExerciseDict.Exercises;
+	var RPE_Dict = data.RPETable;
 	// var Group1Workouts = require('../WorkoutGroup1');
 
 var globalEnums = require('../globals/enums');
@@ -34,6 +35,14 @@ var UserLevel = 1
 
 var postURL = "postWorkout";
 var getURL = "getWorkout";
+
+var levelGroupsDict = {
+	// Add Week and Day list here too
+	1: [1, 2, 3, 4, 5],
+	2: [6, 7, 8, 9, 10],
+	3: [11, 12, 13, 14, 15],
+	4: [16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
+}
 
 // var Alloy = {
 // 	None: {value: 0, name: "None", code: "N", string: "None"},
@@ -73,7 +82,11 @@ function userRefDict(user) {
 	// output["thisWorkoutDate"] = user.workouts[user.currentWorkout.ID].Date;
 	output["thisPatterns"] = user.workouts[thisWorkoutID].Patterns;
 	// G_UserInfo["User"].workouts[TemplateID].Patterns
-	output["levelGroup"] = 1; //Manual for now
+	// output["levelGroup"] = 1; //Manual for now
+	console.log("user.levelGroup: ", user.levelGroup);
+	output["levelGroup"] = user.levelGroup;
+	output["thisLevels"] = levelGroupsDict[user.levelGroup];
+	// user.levelGroup; //Manual for now
 	return output
 }
 // Referenced (global) information:
@@ -188,7 +201,7 @@ router.get('/', function(req, res
 	) {
 		G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
 		G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
-		// let userInfoToSend = getVueInfo(G_UserInfo);
+		// let userInfoToSend = getVueInfo(G_UserInfo); 
 		// console.log("RES.JSON");
 		// res.json(userInfoToSend);
 		// G_UserInfo
@@ -216,20 +229,31 @@ router.get('/', function(req, res
 				// Elem information
 				var patternInstance = {};
 				var N = elem.number;
-				var EType = elem.exerciseType;
 				var Sets = elem.sets;
 				// Adding info to patterInstance
 				patternInstance.number = N;
 				patternInstance.type = elem.exerciseType;
 				patternInstance.reps = elem.reps;
-				patternInstance.RPE = elem.RPE;
+				// patternInstance.RPE = elem.RPE;
+				// patternInstance.RPE = "elem.RPE";
 				patternInstance.alloy = elem.alloy;
+
 				if (patternInstance.alloy) {
 					patternInstance.alloyreps = elem.alloyreps;
 					patternInstance.alloystatus = Alloy.None;					
 					Sets -= 1;
 				}
-				patternInstance.name = ExerciseDict[elem.exerciseType][_Level].name;	
+				
+				var EType = elem.exerciseType;
+				if (elem.exerciseType == "Med Ball") {
+					EType = "Medicine Ball";
+				}
+				else if (elem.exerciseType == "Vert Pull") {
+					EType = "UB Vert Pull";
+				} 
+				console.log(EType);
+
+				patternInstance.name = ExerciseDict[EType][_Level].name;	
 				patternInstance.setList = [];
 				patternInstance.sets = Sets;
 				patternInstance.workoutType = elem.type;
@@ -250,17 +274,27 @@ router.get('/', function(req, res
 					patternInstance.sets = 1;
 					patternInstance.specialStage = 0;
 				}
-				// Adding setDicts to patterInstance.setList -> []
+				// Adding setDicts to patterInstancesetList -> []
 				// if (!thisUser.workouts.patternsLoaded) {
-					for (var i = 0; i < Sets; i ++) {
-						patternInstance.setList.push({
-							SetNum: i + 1,
-							Weight: null,
-							RPE: null,
-							// Tempo: [null, null, null],
-							Filled: false,
-						});
+				console.log("repsList: ", elem.repsList);
+				for (var i = 0; i < Sets; i ++) {
+					var Reps = elem.reps;
+					var RPE = elem.RPE;
+					if (elem.repsList.length > 0) {
+						console.log(elem.repsList[i]);
+						Reps = parseInt(elem.repsList[i]);
+						RPE = elem.RPEList[i];
 					}
+					patternInstance.setList.push({
+						SetNum: i + 1,
+						Weight: null,
+						RPE: null,
+						SuggestedRPE:RPE,
+						Reps: Reps,
+						// Tempo: [null, null, null],
+						Filled: false,
+					});
+				}
 					// G_UserInfo["thisPatterns"].push(patternInstance);
 					G_UserInfo["User"].workouts[TemplateID].Patterns.push(patternInstance);
 					G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
@@ -318,7 +352,7 @@ router.get('/', function(req, res
 			UBpressStat: G_UserInfo["Stats"]["Squat"],
 			squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
 			hingeStat: G_UserInfo["Stats"]["Hinge"],
-
+			RPEOptions: RPE_Dict["Options"],
 			TestDict: {Test1: "Test1", Test2: "Test2"},
 			selectedWeek,
 			selectedDay,
@@ -326,6 +360,7 @@ router.get('/', function(req, res
 			WeekList,
 			DayList,
 			selectWorkoutList: changeWorkoutList,
+			thisLevels: G_UserInfo["thisLevels"],
 		});
 	}
 });
@@ -348,6 +383,12 @@ router.post('/' + postURL, function(req, res) {
 		saveWorkout(req.body, G_UserInfo);
 		res.redirect('/');		
 		return
+	}
+	
+	if (req.body.changeLevel || req.body.changeLGroup) {
+		// if (req.body.changeLGroup) {}
+		// console.log("selectLevelGroup", req.body.selectLevelGroup);
+		// console.log("selectLevel", req.body.selectLevel);
 	}
 
 	console.log("333");

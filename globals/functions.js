@@ -144,7 +144,8 @@ function getMax(weight, reps, RPE) {
 	var Estimate = 0;
 	var Percentage = RPE_Dict[RPE][reps - 1];
 	Estimate = weight*100/Percentage;
-	return Estimate - (Estimate % 5);
+	// return Estimate - (Estimate % 5);
+	return Math.round(Estimate);
 }
 
 function getWeight(max, reps, RPE) {

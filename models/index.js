@@ -69,14 +69,33 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
         type: Sequelize.INTEGER,        
         allowNull: true,
     },
+    // Normal Reps and RPE
     reps: {
         type: Sequelize.INTEGER,        
         allowNull: true,
     },
     RPE: {
-        type: Sequelize.INTEGER,        
+        type: Sequelize.DECIMAL,        
         allowNull: true,
     },
+    // Split Cases (Reps and RPE)
+    repsList: {
+        type: Sequelize.ARRAY(Sequelize.DECIMAL),
+        defaultValue: [],
+        allowNull: true,
+    },
+    RPEList: {
+        type: Sequelize.ARRAY(Sequelize.DECIMAL),
+        defaultValue: [],
+        allowNull: true,
+    },
+    // Range Cases (RPEs)
+    RPERange: {
+        type: Sequelize.RANGE(Sequelize.DECIMAL),
+        defaultValue: [],
+        allowNull: true,
+    },
+    // Alloy and Special
     alloy: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
@@ -108,6 +127,9 @@ const User = db.define('User', {
     },  
     stats: {
         type: Sequelize.JSON, 
+    },
+    levelGroup: {
+        type: Sequelize.INTEGER
     },
     workouts: {
         type: Sequelize.JSON,  
@@ -145,9 +167,6 @@ const User = db.define('User', {
 
 SubWorkoutTemplate.belongsTo(WorkoutTemplate, {foreignKey: 'fk_workout', foreignKeyConstraint:true });
 WorkoutTemplate.hasMany(SubWorkoutTemplate, {foreignKey: 'fk_workout', as: 'subWorkouts'});
-
-// db.sync({force: true});
-// db.sync();
  
 const Workout = db.define('Workout', {
     id: {
@@ -164,6 +183,7 @@ const Workout = db.define('Workout', {
 });
 
 // db.sync({force: true});
+// db.sync();
 
 Group1WeekDays = {
     1: {

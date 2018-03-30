@@ -54,9 +54,14 @@ for (var N in CSVRows) {
         if (!(EType in ExerciseObjects)) {
             ExerciseObjects[EType] = {};
             ExerciseObjects[EType][N] = {name: RowSplit[K], bodyweight: false};
+            if (EType == "UB Vert Pull") {
+                ExerciseObjects["UB Vert Pull"] = {};
+                ExerciseObjects["UB Vert Pull"][N] = {name: RowSplit[K], bodyweight: false};                
+            }
         }
         else {
             ExerciseObjects[EType][N] = {name: RowSplit[K], bodyweight: false};            
+            ExerciseObjects["UB Vert Pull"][N] = {name: RowSplit[K], bodyweight: false};                
         }
     }
 }

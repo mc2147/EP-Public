@@ -6,87 +6,198 @@
 // Iso 1		3 x 12	7	
 // Iso 2		3 x 12	7	
 
-SampleWorkout_Group2 = {
-	Week: 3, Day: 3, LevelGroup: 2, NumSubWorkouts: 6,
-	SubWorkouts: {
-		1: {ExerciseType: "Hinge", Sets: 4, StaggeredReps: [10, 8, 6], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 8},
-		2: {ExerciseType: "UB Hor Push", Sets: 4, StaggeredReps: [10, 8, 6], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 8},
-		2: {ExerciseType: "Vert Pull", Sets: 4, StaggeredReps: [12, 10, 8], StaggeredRPE: [7, 7.5, 8], Alloy: true, AlloyReps: 10},
-		4: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 8, RPE: 7, Deload: -1}, 
-		5: {ExerciseType: "Iso 1", Sets: 3, Reps: 12, RPE: 7},
-		6: {ExerciseType: "Iso 2", Sets: 3, Reps: 12, RPE: 7}
-	},
-}
 
-Group2Workouts = {
+WorkoutGroup2 = {
 	Templates: {
+		// Week 1
 		1: {
 			1: {
 				Week: 1,
 				Day: 1,
 				Patterns: {
-					1: {ExerciseType: "Squat", Sets: 3, Reps: 10, RPE: 7,},
-					2: {ExerciseType: "UB Vert Push", Sets: 4, Reps: 6, RPE: 7,	Alloy: true, AlloyReps: 8},
-					3: {ExerciseType: "Hinge", Sets: 3, Reps: 12, RPE: 7, Deload: -1},		
-					4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}
+					1: {ExerciseType: "Squat", 
+							Sets: 4, Reps: 8, 
+							RPE: "7-8",},
+					2: {ExerciseType: "UB Vert Push", 
+							Sets: 4, Reps: 8, 
+							RPE: "7-8",},
+					3: {ExerciseType: "Hinge", 
+							Sets: 3, Reps: 12, 
+							RPE: 7, Deload: -1},		
+					4: {ExerciseType: "UB Hor Pull", 
+							Sets: 3, Reps: 12, 
+							RPE: 7, Deload: -1}, 
+					5: {ExerciseType: "Ant Chain", 
+							Sets: 2, Reps: null, 
+							RPE: 7}
 				}
 			},
 			2: {
 				Week: 1,
 				Day: 2,
 				Patterns: {
-					1: {ExerciseType: "Hinge", Sets: 3, Reps: 10, RPE: 7,},
-					2: {ExerciseType: "UB Hor Push", Sets: 3, Reps: 10, RPE: 7,},
-					3: {ExerciseType: "Vert Pull", Sets: 3, Reps: 10, RPE: 7,},		
-					4: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Iso 1", Sets: 3, Reps: 12, RPE: 7}
+					1: {ExerciseType: "RFD Unload 1", 
+							Sets: 3, Reps: 4, 
+							RPE: null,},
+					2: {ExerciseType: "RFD Unload 2", 
+						Sets: 3, Reps: 4, 
+						RPE: null,},
+					3: {ExerciseType: "RFD Load", 
+						Sets: 4, Reps: 6, 
+						RPE: null,},
+					4: {ExerciseType: "Med Ball", 
+						Sets: 3, Reps: 8, 
+						RPE: null,},
+					5: {ExerciseType: "UB Vert Push", 
+						Sets: 2, Reps: 12, 
+						RPE: 7, Deload: -1},
+					6: {ExerciseType: "UB Vert Pull", 
+						Sets: 2, Reps: 12, 
+						RPE: 7, Deload: -1},
+					7: {ExerciseType: "Iso 3", 
+						Sets: 2, Reps: 15, 
+						RPE: 7,},
 				}
 			},
 			3: {
 				Week: 1,
 				Day: 3,
 				Patterns: {
-					1: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 10, RPE: 7,},
-					2: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 10, RPE: 7,},
-					3: {ExerciseType: "Squat", Sets: 3, Reps: 12, RPE: 7, Deload: -1},		
-					4: {ExerciseType: "UB Hor Push", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Post Chain", Sets: 3, Reps: null, RPE: 7}
+					1: {ExerciseType: "Hinge", 
+						Sets: 4, Reps: 8, 
+						RPE: "7-8",},
+					2: {ExerciseType: "UB Hor Push", 
+						Sets: 4, Reps: 8, 
+						RPE: "7-8",},
+					3: {ExerciseType: "Vert Pull", 
+						Sets: 3, Reps: 12, 
+						RPE: "7-8",},		
+					4: {ExerciseType: "LB Uni Push", 
+						Sets: 3, Reps: 12, 
+						RPE: 7, Deload: -1}, 
+					5: {ExerciseType: "Iso 1", 
+						Sets: 2, Reps: 15, 
+						RPE: 7},
+					6: {ExerciseType: "Iso 2", 
+						Sets: 2, 
+						Reps: 15, RPE: 7}
+				}
+			},
+			4: {
+				Week: 2,
+				Day: 4,
+				Patterns: {
+					1: {ExerciseType: "LB Uni Push", 
+							Sets: 4, Reps: 8, 
+							RPE: "7-8",},
+					2: {ExerciseType: "UB Hor Pull", 
+							Sets: 3, Reps: 12, 
+							RPE: "7-8",},
+					3: {ExerciseType: "Squat", 
+							Sets: 3, Reps: 12, 
+							RPE: 7, Deload: -1},		
+					4: {ExerciseType: "UB Hor Push", 
+							Sets: 3, Reps: 12, 
+							RPE: 7, Deload: -1}, 
+					5: {ExerciseType: "Post Chain", 
+							Sets: 2, Reps: 15, 
+							RPE: 7}
 				}
 			}
 		},
+		// Week 2
 		2: {
 			1: {
 				Week: 2,
 				Day: 1,
 				Patterns: {
-					1: {ExerciseType: "Squat", Sets: 4, Reps: 8, RPE: 7.5,},
-					2: {ExerciseType: "UB Vert Push", Sets: 4, Reps: 7.5,},
-					3: {ExerciseType: "Hinge", Sets: 3, Reps: 10, RPE: 7, Deload: -1},		
-					4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 10, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}
+					1: {ExerciseType: "Squat", 
+							Sets: 4, Reps: 6, 
+							RPE: "8-8.5",},
+					2: {ExerciseType: "UB Vert Push", 
+							Sets: 4, Reps: 6, 
+							RPE: "8-8.5",},
+					3: {ExerciseType: "Hinge", 
+							Sets: 3, Reps: 10, 
+							RPE: 7.5, Deload: -1},		
+					4: {ExerciseType: "UB Hor Pull", 
+							Sets: 3, Reps: 10, 
+							RPE: 7.5, Deload: -1}, 
+					5: {ExerciseType: "Ant Chain", 
+							Sets: 3, Reps: null, 
+							RPE: 7.5}
 				}
 			},
 			2: {
 				Week: 2,
 				Day: 2,
 				Patterns: {
-					1: {ExerciseType: "Hinge", Sets: 3, Reps: 10, RPE: 7,},
-					2: {ExerciseType: "UB Hor Push", Sets: 3, Reps: 10, RPE: 7,},
-					3: {ExerciseType: "Vert Pull", Sets: 3, Reps: 10, RPE: 7,},		
-					4: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Iso 1", Sets: 3, Reps: 12, RPE: 7}
+					1: {ExerciseType: "RFD Unload 1", 
+							Sets: 3, Reps: 5, 
+							RPE: null,},
+					2: {ExerciseType: "RFD Unload 2", 
+						Sets: 3, Reps: 5, 
+						RPE: null,},
+					3: {ExerciseType: "RFD Load", 
+						Sets: 4, Reps: 4, 
+						RPE: null,},
+					4: {ExerciseType: "Med Ball", 
+						Sets: 3, Reps: 10, 
+						RPE: null,},
+					5: {ExerciseType: "UB Vert Push", 
+						Sets: 2, Reps: 10, 
+						RPE: 7.5, Deload: -1},
+					6: {ExerciseType: "UB Vert Pull", 
+						Sets: 2, Reps: 10, 
+						RPE: 7.5, Deload: -1},
+					7: {ExerciseType: "Iso 4", 
+						Sets: 2, Reps: 15, 
+						RPE: 7.5,},
 				}
 			},
 			3: {
 				Week: 2,
 				Day: 3,
 				Patterns: {
-					1: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 10, RPE: 7,},
-					2: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 10, RPE: 7,},
-					3: {ExerciseType: "Squat", Sets: 3, Reps: 12, RPE: 7, Deload: -1},		
-					4: {ExerciseType: "UB Hor Push", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Post Chain", Sets: 3, Reps: null, RPE: 7}
+					1: {ExerciseType: "Hinge", 
+						Sets: 4, Reps: 8, 
+						RPE: "8-8.5",},
+					2: {ExerciseType: "UB Hor Push", 
+						Sets: 4, Reps: 6, 
+						RPE: "8-8.5",},
+					3: {ExerciseType: "Vert Pull", 
+						Sets: 4, Reps: 10, 
+						RPE: "8-8.5",},		
+					4: {ExerciseType: "LB Uni Push", 
+						Sets: 3, Reps: 10, 
+						RPE: 7.5, Deload: -1}, 
+					5: {ExerciseType: "Iso 1", 
+						Sets: 2, Reps: 15, 
+						RPE: 7.5},
+					6: {ExerciseType: "Iso 2", 
+						Sets: 2, Reps: 15, 
+						RPE: 7.5}
+				}
+			},
+			4: {
+				Week: 2,
+				Day: 4,
+				Patterns: {
+					1: {ExerciseType: "LB Uni Push", 
+							Sets: 4, Reps: 6, 
+							RPE: "8-8.5",},
+					2: {ExerciseType: "UB Hor Pull", 
+							Sets: 4, Reps: 10, 
+							RPE: "8-8.5",},
+					3: {ExerciseType: "Squat", 
+							Sets: 3, Reps: 10, 
+							RPE: 7.5, Deload: -1},		
+					4: {ExerciseType: "UB Hor Push", 
+							Sets: 3, Reps: 10, 
+							RPE: 7.5, Deload: -1}, 
+					5: {ExerciseType: "Post Chain", 
+							Sets: 3, Reps: null, 
+							RPE: 7.5}
 				}
 			}
 		},
@@ -95,73 +206,156 @@ Group2Workouts = {
 				Week: 3,
 				Day: 1,
 				Patterns: {
-					1: {ExerciseType: "Squat", Sets: 4, Reps: 6, RPE: 8, Alloy: true, AlloyReps: 8},
-					2: {ExerciseType: "UB Vert Push", Sets: 4, Reps: 6, RPE: 8,	Alloy: true, AlloyReps: 8},
-					3: {ExerciseType: "Hinge", Sets: 3, Reps: 10, RPE: 7, Deload: -1},		
-					4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 10, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Ant Chain", Sets: 3, Reps: 10, RPE: 7}
-				},
-				Alloy: true
+					1: {ExerciseType: "Squat", 
+							Sets: 4, Reps: [10, 8, 6], RPE: [7, 7.5, 8], SplitSets: true,
+							Alloy: true, AlloyReps: 8},
+					2: {ExerciseType: "UB Vert Push", 
+							Sets: 4, Reps: [12, 10, 8], RPE: [7, 7.5, 8], SplitSets: true,
+							Alloy: true, AlloyReps: 10},
+					3: {ExerciseType: "Hinge", 
+							Sets: 3, Reps: 8, RPE: 7, 
+							Deload: -1},		
+					4: {ExerciseType: "UB Hor Pull", 
+							Sets: 3, Reps: 8, RPE: 7, 
+							Deload: -1},					
+					5: {ExerciseType: "Ant Chain",
+							Sets: 3, Reps: null, RPE: 7}, 
+				}
 			},
 			2: {
 				Week: 3,
 				Day: 2,
 				Patterns: {
-					1: {ExerciseType: "Hinge", Sets: 4, Reps: 6, RPE: 8, Alloy: true, AlloyReps: 8},
-					2: {ExerciseType: "UB Hor Push", Sets: 4, Reps: 6, RPE: 7, Alloy: true, AlloyReps: 8},
-					3: {ExerciseType: "Vert Pull", Sets: 4, Reps: 8, RPE: 7, Alloy: true, AlloyReps: 10},		
-					4: {ExerciseType: "LB Uni Push", Sets: 3, Reps: 10, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Iso 1", Sets: 3, Reps: 10, RPE: 7}
-				},
-				Alloy: true
+					1: {ExerciseType: "RFD Unload 1", 
+							Sets: 3, Reps: 6, RPE: null,},
+					2: {ExerciseType: "RFD Unload 2", 
+						Sets: 3, Reps: 6, RPE: null,},
+					3: {ExerciseType: "RFD Load", 
+						Sets: 5, Reps: 4, RPE: null,},
+					4: {ExerciseType: "Med Ball", 
+						Sets: 3, Reps: 12, RPE: null,},
+					5: {ExerciseType: "UB Vert Push", 
+						Sets: 3, Reps: 12, RPE: 7, 
+						Deload: -1},
+					6: {ExerciseType: "UB Vert Pull", 
+						Sets: 3, Reps: 12, RPE: 7, 
+						Deload: -1},
+					7: {ExerciseType: "Iso 3", 
+						Sets: 3, Reps: 12, RPE: 7,},
+				}
 			},
 			3: {
 				Week: 3,
 				Day: 3,
 				Patterns: {
-					1: {ExerciseType: "LB Uni Push", Sets: 4, Reps: 6, RPE: 8, Alloy: true, AlloyReps: 8},
-					2: {ExerciseType: "UB Hor Pull", Sets: 4, Reps: 8, RPE: 8, Alloy: true, AlloyReps: 10},
-					3: {ExerciseType: "Squat", Sets: 3, Reps: 10, RPE: 7, Deload: -1},		
-					4: {ExerciseType: "UB Hor Push", Sets: 3, Reps: 10, RPE: 7, Deload: -1}, 
-					5: {ExerciseType: "Post Chain", Sets: 3, Reps: 10, RPE: 7}
-				},
-				Alloy: true
+					1: {ExerciseType: "Hinge", 
+						Sets: 4, Reps: [10, 8, 6], RPE: [7, 7.5, 8], SplitSets: true,
+						Alloy: true, AlloyReps: 8},
+					2: {ExerciseType: "UB Hor Push", 
+						Sets: 4, Reps: [10, 8, 6], RPE: [7, 7.5, 8], SplitSets: true,
+						Alloy: true, AlloyReps: 8},
+					3: {ExerciseType: "Vert Pull", 
+						Sets: 4, Reps: [12, 10, 8], RPE: [7, 7.5, 8], SplitSets: true,
+						Alloy: true, AlloyReps: 10},
+					4: {ExerciseType: "LB Uni Push", 
+						Sets: 3, Reps: 8, 
+						RPE: 7, Deload: -1}, 
+					5: {ExerciseType: "Iso 1", 
+						Sets: 3, Reps: 12, 
+						RPE: 7},
+					6: {ExerciseType: "Iso 2", 
+						Sets: 3, Reps: 12, 
+						RPE: 7}
+				}
+			},
+			4: {
+				Week: 3,
+				Day: 4,
+				Patterns: {
+					1: {ExerciseType: "LB Uni Push", 
+							Sets: 4, Reps: [10, 8, 6], RPE: [7, 7.5, 8], SplitSets: true,
+							Alloy: true, AlloyReps: 8},
+					2: {ExerciseType: "UB Hor Pull", 
+						Sets: 4, Reps: [12, 10, 8], RPE: [7, 7.5, 8], SplitSets: true,
+						Alloy: true, AlloyReps: 10},
+					3: {ExerciseType: "Squat", 
+							Sets: 3, Reps: 8, 
+							RPE: 7, Deload: -1},		
+					4: {ExerciseType: "UB Hor Push", 
+							Sets: 3, Reps: 8, 
+							RPE: 7, Deload: -1}, 
+					5: {ExerciseType: "Post Chain", 
+							Sets: 3, Reps: null, 
+							RPE: 7}
+				}
 			}
-		},		
+		},
 		4: {
 			1: {
 				Week: 4,
 				Day: 1,
 				Patterns: {
-					1: {ExerciseType: "Squat", Sets: 2, Reps: 12, RPE: 5, Deload: -2},
-					2: {ExerciseType: "UB Vert Push", Sets: 2, Reps: 12, RPE: 5, Deload: -1},
-					3: {ExerciseType: "Ant Chain", Sets: 2, Reps: null, RPE: 5,},		
-					4: {ExerciseType: "Iso 3", Sets: 2, Reps: 15, RPE: 5,}, 
-					5: {ExerciseType: "Carry", Sets: 2, Seconds:60}
+					1: {ExerciseType: "Squat", 
+							Sets: 3, Reps: 12, 
+							RPE: "5-6", Deload: -2},
+					2: {ExerciseType: "UB Vert Push", 
+							Sets: 3, Reps: 12, 
+							RPE: "5-6", Deload: -2},
+					3: {ExerciseType: "Ant Chain", 
+							Sets: 2, Reps: null, 
+							RPE: "5-6", Deload: -1},		
+					4: {ExerciseType: "Iso 3", 
+							Sets: 2, Reps: 15, 
+							RPE: "5-6"}, 
+					5: {ExerciseType: "Carry", 
+							Sets: 3, Reps: 45, Seconds: 45}
 				}
 			},
 			2: {
 				Week: 4,
 				Day: 2,
 				Patterns: {
-					1: {ExerciseType: "Hinge", Sets: 2, Reps: 12, RPE: 5, Deload: -2},
-					2: {ExerciseType: "UB Hor Push", Sets: 2, Reps: 12, RPE: 5, Deload: -2},
-					3: {ExerciseType: "Vert Pull", Sets: 2, Reps: 15, RPE: 5, Deload: -2},		
-					4: {ExerciseType: "Iso 1", Sets: 2, Reps: 15, RPE: 5,}, 
-					5: {ExerciseType: "Post Chain", Sets: 2, Reps: null, RPE: 5}
+					1: {ExerciseType: "Hinge", 
+							Sets: 3, Reps: 12, 
+							RPE: "5-6", Deload: -2,},
+					2: {ExerciseType: "UB Hor Push", 
+							Sets: 3, Reps: 12, 
+							RPE: "5-6", Deload: -2,},
+					3: {ExerciseType: "Vert Pull", 
+							Sets: 2, Reps: 15, 
+							RPE: "5-6", Deload: -2,},
+					4: {ExerciseType: "Post Chain", 
+							Sets: 2, Reps: null, 
+							RPE: "5-6",},
+					5: {ExerciseType: "Iso 1", 
+							Sets: 2, Reps: 15, 
+							RPE: "5-6",},
+					6: {ExerciseType: "Iso 2", 
+							Sets: 2, Reps: 15, 
+							RPE: "5-6",},
 				}
 			},
 			3: {
 				Week: 4,
 				Day: 3,
 				Patterns: {
-					1: {ExerciseType: "LB Uni Push", Sets: 2, Reps: 12, RPE: 5, Deload: -2},
-					2: {ExerciseType: "UB Hor Pull", Sets: 2, Reps: 12, RPE: 5, Deload: -2},
-					3: {ExerciseType: "UB Hor Push", Sets: 2, Reps: 15, RPE: 5, Deload: -2},		
-					4: {ExerciseType: "Iso 4", Sets: 2, Reps: 15, RPE: 5,}, 
-					5: {ExerciseType: "Carry", Sets: 2, Seconds:60, Deload:-1}
+					1: {ExerciseType: "LB Uni Push", 
+						Sets: 3, Reps: 12, 
+						RPE: "5-6", Deload: -2},
+					2: {ExerciseType: "UB Hor Pull", 
+						Sets: 3, Reps: 12, 
+						RPE: "5-6", Deload: -2},
+					3: {ExerciseType: "UB Hor Push", 
+						Sets: 2, Reps: 15, 
+						RPE: "5-6", Deload: -2},		
+					4: {ExerciseType: "Iso 4", 
+						Sets: 2, Reps: 15, 
+						RPE: "5-6",}, 
+					5: {ExerciseType: "Carry", 
+						Sets: 3, Reps: 45, Seconds: 45, 
+						Deload:-1},
 				}
-			}
+			},
 		},
 	},
 	getID: {
@@ -216,4 +410,4 @@ WorkoutSample = {
 		5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}}
 }
 
-module.exports = Group2Workouts;
+module.exports = WorkoutGroup2;

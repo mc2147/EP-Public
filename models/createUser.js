@@ -1,5 +1,4 @@
 const Sequelize = require('sequelize');
-var data = require('../data');
 var models = require('./index');
 var WorkoutTemplate = models.WorkoutTemplate;
 var SubWorkoutTemplate = models.SubWorkoutTemplate;
@@ -9,9 +8,15 @@ var globalFuncs = require('../globals/functions');
 var globalEnums = require('../globals/enums');
 
 var getWorkoutDays = globalFuncs.getWorkoutDays;
-var Workouts1 = data.Workouts1;
 
+var data = require('../data');
+    var Workouts1 = data.Workouts1;
+    var Workouts2 = data.Workouts2;
+    var AllWorkouts = data.AllWorkouts;
 
+// var thisGroup = Workouts1;
+
+console.log("assigning workouts:");
 var DayValue = 24*3600*1000;
 
 var Alloy = globalEnums.Alloy;
@@ -31,6 +36,10 @@ var StatTemplate = {
     "Iso 2": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
     "Iso 3": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
     "Iso 4": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+    "RFD Load": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+    "RFD Unload 1": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+    "RFD Unload 2": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+    "Medicine Ball": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""},     
     "Level Up": {
         Status: Alloy.None, 
         Squat: Alloy.None,
@@ -48,38 +57,37 @@ var WorkoutInstanceTemplate = {
 }
 
 
-CreateUser();
 
 
-function CreateUser() {
-    User.findOrCreate(
+var oldDate = new Date(Date.now() - 10*DayValue);
+var thisDate = new Date(Date.now());         
+
+// CreateUser(1, 1, oldDate);
+CreateUser(1, 1, thisDate);
+
+function CreateUser(levelGroup, level, startDate) {
+    return User.findOrCreate(
         {
          where: {
              id: 1,
          }
      }).spread((user, created) => {
          if (created) {}
-         user.currentWorkout = {
-             ID: 1,
-             Week: 1,
-             Day: 1,
-             Patterns: []
-         };        
+         var thisGroup = AllWorkouts[levelGroup];
          user.stats = StatTemplate;
-         user.workouts = {};
-
-     //  Instance variables
-         user.level = 1; 
-         // console.log(new Date(Date.now() - 10*DayValue));
-         var oldDate = new Date(Date.now() - 10*DayValue);
-         var thisDate = new Date(Date.now());
-     
-         var workoutDates = getWorkoutDays(oldDate, [1, 3, 5], 1, "", 12);
+         user.workouts = {};        
+         user.levelGroup = levelGroup;
+         user.save();
+         console.log("setting LevelGroup: " + user.levelGroup);
+         user.level = level; 
+         //  Instance variables
+         var workoutDates = getWorkoutDays(startDate, [1, 3, 5], 1, "", 12);
+        //  console.log(workoutDates);
          user.workoutDates = workoutDates;
-         user.currentWorkoutID = null;
+         user.currentWorkoutID = 1;
          // Sort workouts by LGroups and blocks -> ID
-         for (var W in Workouts1.Templates) {
-             var thisWeek = Workouts1.Templates[W];
+         for (var W in thisGroup.Templates) {
+             var thisWeek = thisGroup.Templates[W];
              for (var D in thisWeek) {
                  var ID = thisWeek[D].ID;
                  user.workouts[ID] = Object.assign({}, WorkoutInstanceTemplate);                 
@@ -96,8 +104,13 @@ function CreateUser() {
          user.workouts[13] = WorkoutInstanceTemplate;
         // Workout Completion Code
         //  missedWorkouts(user, new Date(2018, 02, 15, 00, 0, 0, 0), new Date(2018, 02, 22, 00, 0, 0, 0));
-
          user.save();
+     })
+     .then(() => {
+         console.log("User PROMISE RESOLVED");
      })
 }
 
+module.exports = {
+    CreateUser,
+}

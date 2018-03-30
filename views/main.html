@@ -8,15 +8,24 @@ table, th, td {
 
 <div style="font-size:20px; width:90%; margin:auto;">
  <form action="/postWorkout" method="POST">
- Change Level Group:
+ Level Group:
   <select name="selectLevelGroup">
     <option value="1">1-5</option>
     <option value="2">6-10</option>
     <option value="3">11-15</option>
     <option value="4">16-25</option>
-  </select> <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
+  </select> 
+  <input style="margin:auto; margin-left:10px; margin-right:10px;" type='submit' onclick="" value='Change Level Group' name="changeLGroup" id='btn'></input>
+  <!-- <br> -->
+  Level:
+  <select name="selectLevel">
+    {% for level in thisLevels %}
+    <option value={{level}}>Level {{level}}</option>
+    {% endfor %}
+  </select> 
+  <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Level' name="changeLevel" id='btn'></input>
   <br>
- Change Workout:
+  Change Workout:
   <select name="changeWorkoutSelect" style="margin-top:15px;">
       <option value="{{selectedWeek}}|{{selectedDay}}" class="select-hr">Week {{selectedWeek}}: Day {{selectedDay}} - {{thisDate}}
       </option>
@@ -66,7 +75,7 @@ Exercise Types:
                 <div style="border:solid 1px black;">
                 Reps: 
                 {% if P.workoutType == 'carry' %}
-                  {{P.reps}} seconds
+                  {{S.reps}} seconds
                 {% elif P.workoutType == 'bodyweight' %}
                   {% if S.Filled %}                  
                     <input type="text" placeholder="Enter Reps" value="{{S.Reps}}"
@@ -76,7 +85,7 @@ Exercise Types:
                     name = "{{P.number}}|Reps|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
                   {% endif %}
                 {% else %}
-                  {{P.reps}}
+                  {{S.Reps}}
                 {% endif %}
                 </div>
           {% endfor %}
@@ -150,14 +159,26 @@ Exercise Types:
                   {% elif (P.alloystatus.value == 2) or (P.alloystatus.value == -1) or (P.alloystatus.value == 1) %} 
                     &nbsp; &nbsp; &nbsp; &nbsp; {{S.RPE}}
                   {% else %}
-                  RPE: {{P.RPE}}
-                      <input type="text" placeholder="Enter RPE" value = "{{S.RPE}}"
-                    name = "{{P.number}}|RPE|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                  RPE: {{S.SuggestedRPE}}
+                  <select name="{{P.number}}|RPE|{{S.SetNum}}" style="float:right;">
+                    <option value={{S.RPE}}>{{S.RPE}}</option>
+                    {% for Option in RPEOptions %}
+                      <option value={{Option}}>{{Option}}</option>
+                    {% endfor %}
+                  </select>
+                          <!-- <input type="text" placeholder="Enter RPE" value = "{{S.RPE}}"
+                    name = "{{P.number}}|RPE|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;"> -->
                   {% endif %}
             {% else %}
-                RPE: {{P.RPE}}
-                  <input type="text" placeholder="Enter RPE" 
-                name = "{{P.number}}|RPE|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;">
+                
+            RPE: {{S.SuggestedRPE}} 
+              <select name="{{P.number}}|RPE|{{S.SetNum}}" style="float:right;">
+                {% for Option in RPEOptions %}
+                  <option value={{Option}}>{{Option}}</option>
+                {% endfor %}
+              </select>
+                  <!-- <input type="text" placeholder="Enter RPE" 
+                name = "{{P.number}}|RPE|{{S.SetNum}}" style="margin:0px; width:50%; height:100%; float:right; margin-right:5px;"> -->
             {% endif %}
             </div>
           {% endfor %}
