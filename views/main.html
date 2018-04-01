@@ -8,33 +8,38 @@ table, th, td {
 
 <div style="font-size:20px; width:90%; margin:auto;">
  <form action="/postWorkout" method="POST">
- Level Group:
-  <select name="selectLevelGroup">
-    <option value="1">1-5</option>
-    <option value="2">6-10</option>
-    <option value="3">11-15</option>
-    <option value="4">16-25</option>
-  </select> 
-  <input style="margin:auto; margin-left:10px; margin-right:10px;" type='submit' onclick="" value='Change Level Group' name="changeLGroup" id='btn'></input>
   <!-- <br> -->
-  Level:
-  <select name="selectLevel">
-    {% for level in thisLevels %}
-    <option value={{level}}>Level {{level}}</option>
-    {% endfor %}
-  </select> 
-  <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Level' name="changeLevel" id='btn'></input>
-  <br>
-  Change Workout:
-  <select name="changeWorkoutSelect" style="margin-top:15px;">
-      <option value="{{selectedWeek}}|{{selectedDay}}" class="select-hr">Week {{selectedWeek}}: Day {{selectedDay}} - {{thisDate}}
-      </option>
-      <hr>
-      {% for S in selectWorkoutList %}
-        {% if S.Week != selectedWeek or S.Day != selectedDay %}
-          <option value="{{S.Week}}|{{S.Day}}">Week {{S.Week}}: Day {{S.Day}} - {{S.Date}}</option>      
-        {% endif %}
+  <div style="float:right;">
+    <br>Level:
+    <select name="selectLevel">
+      {% for level in thisLevels %}
+      <option value={{level}}>Level {{level}}</option>
       {% endfor %}
+    </select> 
+    <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Level' name="changeLevel" id='btn'></input>
+    <br>Level Group:
+    <select name="selectLevelGroup">
+      <option value="1">1-5</option>
+      <option value="2">6-10</option>
+      <option value="3">11-15</option>
+      <option value="4">16-25</option>
+    </select> 
+    <input style="margin:auto; margin-left:10px; margin-right:10px;" type='submit' onclick="" value='Change Level Group' name="changeLGroup" id='btn'></input>
+  </div>
+  Change Workout:
+  <!-- {{selectedWeek}}
+  {{selectedDay}}
+  {{selectWorkoutList}} -->
+  <select name="changeWorkoutSelect" style="margin-top:15px;">
+    <option value="{{thisWorkoutID}}" class="select-hr">
+      Week {{selectedWeek}}: Day {{selectedDay}} - {{thisDate}}
+    </option>
+    <hr>
+    {% for S in selectWorkoutList %}
+      {% if S.Week != selectedWeek or S.Day != selectedDay %}
+        <option value="{{S.ID}}">Week {{S.Week}}: Day {{S.Day}} - {{S.Date}}</option>      
+      {% endif %}
+    {% endfor %}
   </select> 
   <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Workout' name="changeWorkoutBtn" id='btn'></input>
 </form>

@@ -716,7 +716,6 @@ module.exports = {
 				   RPE:5,
 				   Type:"stop",
 				   StopRPE:6,
- 
 				},
 				2:{  
 				   ExerciseType:"LB Uni Push",
@@ -725,8 +724,7 @@ module.exports = {
 				   Deload:-2,
 				   RPE:5,
 				   Type:"stop",
-				   StopRPE:6,
- 
+				   StopRPE:6, 
 				},
 				3:{  
 				   ExerciseType:"Squat",

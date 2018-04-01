@@ -72,7 +72,6 @@ ExerciseObjects["UB Hor Pull"][6].bodyweight = true;
 ExerciseObjects["UB Hor Pull"][9].bodyweight = true;
 ExerciseObjects["UB Hor Pull"][12].bodyweight = true;
 ExerciseObjects["UB Hor Pull"][14].bodyweight = true;
-
 ExerciseObjects["UB Vert Pull"][7].bodyweight = true;
 ExerciseObjects["UB Vert Pull"][9].bodyweight = true;
 ExerciseObjects["UB Vert Pull"][10].bodyweight = true;
@@ -103,6 +102,27 @@ for (var I = 1; I <= 25; I ++) {
 }
 
 ExerciseDict["Exercises"] = ExerciseObjects;
+
+var count = 0;
+for (var EType in ExerciseDict["Exercises"]) {
+    for (var Level in ExerciseDict["Exercises"][EType]) {
+        count ++;
+        console.log(Exercise, Level);
+        Exercise.findOrCreate({
+            where: {
+                type: EType,
+                level: Level
+            }
+        }).spread((exercise, created) => {
+            var exerciseJSON = ExerciseDict["Exercises"][exercise.type][exercise.level];
+            exercise.name = exerciseJSON.name;
+            exercise.bodyweight = exerciseJSON.bodyweight;
+            exercise.save();
+        });
+    }
+}
+console.log(count);
+
 
 module.exports = {
     ExerciseDict,

@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
 
 const db = new Sequelize('postgres://localhost:5432/AS_db', {
-    logging: false
+    logging: false,
+    dialectOptions: { decimalNumbers: true }
 });
 
 const Exercise = db.define('Exercise', {
@@ -9,7 +10,8 @@ const Exercise = db.define('Exercise', {
         type: Sequelize.STRING
     },
     name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true,
     },
     level: {
         type: Sequelize.INTEGER
@@ -19,6 +21,19 @@ const Exercise = db.define('Exercise', {
         defaultValue: false,
     }
 });
+
+const Video = db.define('Video', {
+    title: {
+        type: Sequelize.STRING
+    },
+    url: {
+        type: Sequelize.STRING
+    },
+    levelAccess: {
+        type: Sequelize.INTEGER 
+    }
+
+})
 
 var WorkoutTemplate = db.define('WorkoutTemplate', {
     id: {
@@ -42,7 +57,8 @@ var WorkoutTemplate = db.define('WorkoutTemplate', {
         type: Sequelize.INTEGER
     },
     NSubworkouts: {
-        type: Sequelize.INTEGER     
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
     },
 });
 
@@ -125,6 +141,9 @@ const User = db.define('User', {
     level: {
         type: Sequelize.INTEGER,
     },  
+    blockNum: {
+        type: Sequelize.INTEGER,
+    },      
     stats: {
         type: Sequelize.JSON, 
     },
@@ -185,41 +204,6 @@ const Workout = db.define('Workout', {
 // db.sync({force: true});
 // db.sync();
 
-Group1WeekDays = {
-    1: {
-        1: 1,
-        2: 2,
-        3: 3,
-    }, 
-    2: {
-        1: 4,
-        2: 5,
-        3: 6,
-    }, 
-    3: {
-        1: 7,
-        2: 8,
-        3: 9,
-    }, 
-    4: {
-        1: 10,
-        2: 11,
-        3: 12,
-    },
-    5: {
-        1: 13,
-    }
-};
- 
-var WorkoutElemTemplate = {
-    ID: null,
-    Week: null,
-    Day: null,
-    Date: null,
-    Completed: false,
-    Patterns: [],
-}
-
 module.exports = {
     db: db,
     Exercise: Exercise,
@@ -227,5 +211,4 @@ module.exports = {
     Workout,
     User,
     SubWorkoutTemplate,
-    Group1WDtoID: Group1WeekDays,
 };

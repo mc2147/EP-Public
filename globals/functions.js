@@ -27,11 +27,14 @@ Enum_Days = [0, 1, 2, 3, 4, 5, 6]
 function getWorkoutDays (startDate, daysList, level, member, nWorkouts) {
 	var checkDays = 28;
 	var output = [];
-	var count = 0;
+    var count = 0;
+    // var nWorkouts = 0;
 	// console.log(daysList);
 	var test = [];
 	// console.log(test.indexOf(3));
-	for (var i = 1; i <= 31, count < 12; i ++) {
+	// for (var i = 1; i <= 31, count < 12; i ++) {
+    var i = 1;
+    while (count < nWorkouts) {
 		var _DayTime = startDate.getTime() + DayValue*i;
 		var _Day = new Date(_DayTime);
 		var _weekDay = _Day.getDay(); //Sunday is 0, Saturday is 6
@@ -39,9 +42,12 @@ function getWorkoutDays (startDate, daysList, level, member, nWorkouts) {
 			// console.log("Day #" + i + " " + _Day + " " + _weekDay + " " + DaysofWeek[_weekDay]);
 			output.push(_Day);
 			count ++;
-		}
-	}
-	// console.log("Count: " + count);
+        }
+        // console.log("count", count);
+        i ++;
+    }
+    // console.log("Count: " + count);
+    // console.log(output, output.length);
 	return output;
 }
 

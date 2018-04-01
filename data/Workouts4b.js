@@ -1,289 +1,1225 @@
-var Workout4bJSON = 
-[
-    ["","","","","","","","",null,"","","","","","","","","","","",null,"","",""  ],
-    ["","Week 1","LEVELS 11-15","","","","","Speed",null,"","","","","","","","","","","Speed",null,"","",""  ],
-    ["","Day 1","","S x R","RPE","Strength Drop","","Day 2",null,"S x R","RPE","Strength Stop","","Day 3","","S x R","RPE","Strength Drop","","Day 4",null,"S x R","RPE","Strength Stop"  ],
-    ["","Squat","","4","9","10%","","RFD Load",null,"5 x 2","","","","Hinge","","4","9","10%","","RFD Unload 1",null,"3 x 6","",""  ],
-    ["","Hinge","-1","4 x 6","9","","","Med Ball",null,"3 x 8","","","","LB Uni Push","","6","9","10%","","RFD Unload 2",null,"3 x 6","",""  ],
-    ["","LB Uni Push","-1","4 x 8","8-9","","","UB Hor Push",null,"3","7","8","","Squat","-1","4 x 8","8-9","","","UB Vert Push",null,"3","7","8"  ],
-    ["","UB Hor Pull","","4 x 8","8-9","","","UB Vert Push",null,"4","7","8","","UB Vert Pull","","4 x #","8-9","","","UB Hor Push",null,"3","7","8"  ],
-    ["","Iso 1","","2 x 12","8","","","Carry",-1,"3 x 30yds","","","","Iso 2","","2x 12","8","","","Carry",null,"3 x 30yds","",""  ],
-    ["","Iso 3","","2 x 12","8","","","Ant Chain",null,"3 x #","7","","","Iso 4","","2 x 12","8","","","Post Chain",null,"3 x #","7",""  ],
-    ["","","","","","","","",null,"","","","","","","","","","","",null,"","",""  ],
-    ["","Week 2","Speed","","","","","",null,"","","","","","Speed","","","","","",null,"","",""  ],
-    ["","Day 1","","S x R","RPE","Strength Stop","","Day 2",null,"S x R","RPE","Strength Drop","","Day 3","","S x R","RPE","Strength Stop","","Day 4",null,"S x R","RPE","Strength Drop"  ],
-    ["","RFD Load","","4 x 3","","","","UB Hor Push",null,"3","9","10%","","RFD Unload 1","","3 x 5","","","","UB Vert Push",null,"3","9","10%"  ],
-    ["","Med Ball","","3 x 6","","","","UB Vert Pull",null,"#","9","Stop: 10","","RFD Unload 2","","3 x 5","","","","UB Hor Pull",null,"6","9","10%"  ],
-    ["","Squat","","3","7","8","","UB Hor Pull",-1,"4 x 8","8-9","","","Hinge","","3","7","8","","UB Hor Push",-1,"4 x 6","8-9",""  ],
-    ["","Hinge","-1","4 x 6","7","","","UB Vert Push",-1,"4 x 6","8-9","","","LB Uni Push","","4","7","8","","UB Vert Pull",-1,"4 x 8","8-9",""  ],
-    ["","Ant Chain","","3 x #","7","","","Iso 1",null,"2 x 12","8","","","Squat","-1","4x 6","7","","","Iso 2",null,"2x 12","8",""  ],
-    ["","Post Chain","","3 x #","7","","","Iso 3",null,"2 x 12","8","","","Carry","","3 x 30yds","7","","","Iso 4",null,"2 x 12","8",""  ],
-    ["","","","","","","","",null,"","","","","","","","","","","",null,"","",""  ],
-    ["","Week 3","ALLOY SET","","","","","Speed",null,"","","","","","","","","","","Speed",null,"","",""  ],
-    ["","Day 1","","S x R","RPE","A","","Day 2",null,"S x R","RPE","Strength Stop","","Day 3","","S x R","RPE","A","","Day 4",null,"S x R","RPE","Strength Stop"  ],
-    ["","Squat","","6,4,3,#","7,7.5,8,10","3+","","RFD Load",null,"5x 2","","","","Hinge","","6,4,3,#","7,7.5,8,10","3+","","RFD Unload 1",null,"3 x 6","",""  ],
-    ["","Hinge","-1","3 x 5","8-9","","","Med Ball",null,"3 x 5","","","","LB Uni Push","","8,6,4,#","7,7.5,8,10","4+","","RFD Unload 2",null,"3 x 6","",""  ],
-    ["","LB Uni Push","-1","3 x 5","8","","","UB Hor Push",null,"2","7","8","","Squat","-1","3 x 5","8","","","UB Vert Push",null,"2","7","8"  ],
-    ["","Iso 1","","3 x 8","8","","","UB Vert Push",null,"4","7","8","","Iso 2","","3 x 8","8","","","UB Hor Push",null,"2","7","8"  ],
-    ["","Iso 3","","3 x 8","8","","","Carry",-1,"3 x 30yds","","","","Iso 4","","3 x 8","8","","","Carry",null,"3 x 30yds","",""  ],
-    ["","","","","","","","Ant Chain",null,"3 x #","7","","","","","","","","","Post Chain",null,"3 x #","7",""  ],
-    ["","","","","","","","",null,"","","","","","","","","","","",null,"","",""  ],
-    ["","Week 4","ALLOY SET","","Speed","","","",null,"","","","","Speed","","","","","","",null,"","",""  ],
-    ["","Day 1","","S x R","RPE","Strength Stop","","Day 2",null,"S x R","RPE","A","","Day 3","","S x R","RPE","Strength Stop","","Day 4",null,"S x R","RPE","A"  ],
-    ["","RFD Load","","5 x 2","","","","UB Hor Push",null,"6,4,3,#","7,7.5,8,10","3+","","RFD Unload 1","","3 x 5","","","","UB Vert Push",null,"6,4,3,#","7,7.5,8,10","3+"  ],
-    ["","Med Ball","","3 x 5","","","","UB Vert Pull",null,"8,6,6,#","7,7.5,8,10","6+","","RFD Unload 2","","3 x 5","","","","UB Hor Pull",null,"8,6,6,#","7,7.5,8,10","6+"  ],
-    ["","Squat","","2","7","8","","UB Hor Pull",-1,"3 x 8","8","","","Hinge","","2","7","8","","UB Hor Push",-1,"3 x 5","8",""  ],
-    ["","Hinge","-1","3 x 5","8","","","UB Vert Push",-1,"3 x 5","8","","","LB Uni Push","","4","7","8","","UB Vert Pull",-1,"3 x 8","8",""  ],
-    ["","LB Uni Push","-1","3 x 6","7","","","Iso 1",null,"3 x 8","8","","","Carry","-1","3 x 30yds","","","","Iso 2",null,"3 x 8","8",""  ],
-    ["","","","","","","","Iso 3",null,"3 x 8","8","","","","","","","","","Iso 4",null,"3 x 8","8",""  ],
-    ["","","","","","","","",null,"","","","","","","","","","","",null,"","",""  ],
-    ["","","","","","","","",null,"","","","","","","","","","","",null,"","",""  ],
-    ["","Week 5","Deload","","","","","",null,"","","","","","","","","","","",null,"","",""  ],
-    ["","Day 1","","S x R","RPE","","","Day 2",null,"S x R","RPE","","","Day 3","","S x R","RPE","","","",null,"","",""  ],
-    ["","Squat","-2","3 x 15","4-5","","","RFD Unload 1",null,"3 x 10","","","","UB Hor Push","","3 x 15","4-5","","","",null,"","",""  ],
-    ["","Hinge","-2","3 x 15","4-5","","","RFD Unload 2",null,"3 x 10","","","","UB Hor Pull","","3 x 15","4-5","","","",null,"","",""  ],
-    ["","LB Uni Push","-2","2 x 20","4-5","","","RFD Load",null,"6 x 3","","","","Iso 1","","2 x 20","4-5","","","",null,"","",""  ],
-    ["","Ant Chain","","2 x #","4-5","","","Med Ball",null,"4 x 8","","","","Iso 2","","2 x20","4-5","","","",null,"","",""  ],
-    ["","","","","","","","Carry",null,"2 x :60","","","","","","","","","","",null,"","",""  ]
-  ]
-
-var JSONList = Workout4bJSON
-
-var Output = {
-    Templates: {
-        1: {},
-        2: {},
-        3: {},
-        4: {},
-        5: {}
+module.exports = {  
+    Templates:{  
+       1:{  
+          1:{  
+             ID:1,
+             Week:1,
+             Day:1,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"Squat",
+                   Reps:4,
+                   Sets:1,
+                   RPE:9,
+                   Type:"drop",
+                   DropValue:10,
+                   Special:"Strength Drop",
+ 
+                },
+                2:{  
+                   ExerciseType:"Hinge",
+                   Reps:6,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:9,
+ 
+                },
+                3:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:8,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:"8-9",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Hor Pull",
+                   Reps:8,
+                   Sets:4,
+                   RPE:"8-9",
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 1",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+                6:{  
+                   ExerciseType:"Iso 3",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+          2:{  
+             ID:2,
+             Week:1,
+             Day:2,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Load",
+                   Reps:2,
+                   Sets:5,
+ 
+                },
+                2:{  
+                   ExerciseType:"Med Ball",
+                   Reps:8,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:3,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:4,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                5:{  
+                   ExerciseType:"Carry",
+                   Reps:30,
+                   Sets:3,
+                   Seconds:30,
+                   Type:"carry",
+                   Deload:-1,
+ 
+                },
+                6:{  
+                   ExerciseType:"Ant Chain",
+                   Reps:"Bodyweight",
+                   Sets:3,
+                   Type:"Bodyweight",
+                   RPE:7,
+ 
+                },
+ 
+             },
+ 
+          },
+          3:{  
+             ID:3,
+             Week:1,
+             Day:3,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"Hinge",
+                   Reps:4,
+                   Sets:1,
+                   RPE:9,
+                   Type:"drop",
+                   DropValue:10,
+                   Special:"Strength Drop",
+ 
+                },
+                2:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:6,
+                   Sets:1,
+                   RPE:9,
+                   Type:"drop",
+                   DropValue:10,
+                   Special:"Strength Drop",
+ 
+                },
+                3:{  
+                   ExerciseType:"Squat",
+                   Reps:8,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:"8-9",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Vert Pull",
+                   Reps:"Bodyweight",
+                   Sets:4,
+                   Type:"Bodyweight",
+                   RPE:"8-9",
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 2",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+                6:{  
+                   ExerciseType:"Iso 4",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+          4:{  
+             ID:4,
+             Week:1,
+             Day:4,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Unload 1",
+                   Reps:6,
+                   Sets:3,
+ 
+                },
+                2:{  
+                   ExerciseType:"RFD Unload 2",
+                   Reps:6,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:3,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:3,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                5:{  
+                   ExerciseType:"Carry",
+                   Reps:30,
+                   Sets:3,
+                   Seconds:30,
+                   Type:"carry",
+ 
+                },
+                6:{  
+                   ExerciseType:"Post Chain",
+                   Reps:"Bodyweight",
+                   Sets:3,
+                   Type:"Bodyweight",
+                   RPE:7,
+ 
+                },
+ 
+             },
+ 
+          },
+ 
+       },
+       2:{  
+          1:{  
+             ID:5,
+             Week:2,
+             Day:1,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Load",
+                   Reps:3,
+                   Sets:4,
+ 
+                },
+                2:{  
+                   ExerciseType:"Med Ball",
+                   Reps:6,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"Squat",
+                   Reps:3,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"Hinge",
+                   Reps:6,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:7,
+ 
+                },
+                5:{  
+                   ExerciseType:"Ant Chain",
+                   Reps:"Bodyweight",
+                   Sets:3,
+                   Type:"Bodyweight",
+                   RPE:7,
+ 
+                },
+                6:{  
+                   ExerciseType:"Post Chain",
+                   Reps:"Bodyweight",
+                   Sets:3,
+                   Type:"Bodyweight",
+                   RPE:7,
+ 
+                },
+ 
+             },
+ 
+          },
+          2:{  
+             ID:6,
+             Week:2,
+             Day:2,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:3,
+                   Sets:1,
+                   RPE:9,
+                   Type:"drop",
+                   DropValue:10,
+                   Special:"Strength Drop",
+ 
+                },
+                2:{  
+                   ExerciseType:"UB Vert Pull",
+                   Reps:"Bodyweight",
+                   Sets:1,
+                   RPE:9,
+                   Type:"drop",
+                   DropValue:null,
+                   Special:"Strength Drop",
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Hor Pull",
+                   Reps:8,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:"8-9",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:6,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:"8-9",
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 1",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+                6:{  
+                   ExerciseType:"Iso 3",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+          3:{  
+             ID:7,
+             Week:2,
+             Day:3,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Unload 1",
+                   Reps:5,
+                   Sets:3,
+ 
+                },
+                2:{  
+                   ExerciseType:"RFD Unload 2",
+                   Reps:5,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"Hinge",
+                   Reps:3,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:4,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                5:{  
+                   ExerciseType:"Squat",
+                   Reps:6,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:7,
+ 
+                },
+                6:{  
+                   ExerciseType:"Carry",
+                   Reps:30,
+                   Sets:3,
+                   Seconds:30,
+                   Type:"carry",
+                   RPE:7,
+ 
+                },
+ 
+             },
+ 
+          },
+          4:{  
+             ID:8,
+             Week:2,
+             Day:4,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:3,
+                   Sets:1,
+                   RPE:9,
+                   Type:"drop",
+                   DropValue:10,
+                   Special:"Strength Drop",
+ 
+                },
+                2:{  
+                   ExerciseType:"UB Hor Pull",
+                   Reps:6,
+                   Sets:1,
+                   RPE:9,
+                   Type:"drop",
+                   DropValue:10,
+                   Special:"Strength Drop",
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:6,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:"8-9",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Vert Pull",
+                   Reps:8,
+                   Sets:4,
+                   Deload:-1,
+                   RPE:"8-9",
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 2",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+                6:{  
+                   ExerciseType:"Iso 4",
+                   Reps:12,
+                   Sets:2,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+ 
+       },
+       3:{  
+          1:{  
+             ID:9,
+             Week:3,
+             Day:1,
+             NPatterns:5,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"Squat",
+                   Reps:[  
+                      6,
+                      4,
+                      3,
+ 
+                   ],
+                   Sets:3,
+                   SplitSets:true,
+                   RPE:[7, 7.5, 8],
+                   Alloy:true,
+                   AlloyReps:3,
+                   Special:"Alloy",
+ 
+                },
+                2:{  
+                   ExerciseType:"Hinge",
+                   Reps:5,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:"8-9",
+ 
+                },
+                3:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:5,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:8,
+ 
+                },
+                4:{  
+                   ExerciseType:"Iso 1",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 3",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+          2:{  
+             ID:10,
+             Week:3,
+             Day:2,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Load",
+                   Reps:2,
+                   Sets:5,
+ 
+                },
+                2:{  
+                   ExerciseType:"Med Ball",
+                   Reps:5,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:2,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:4,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                5:{  
+                   ExerciseType:"Carry",
+                   Reps:30,
+                   Sets:3,
+                   Seconds:30,
+                   Type:"carry",
+                   Deload:-1,
+ 
+                },
+                6:{  
+                   ExerciseType:"Ant Chain",
+                   Reps:"Bodyweight",
+                   Sets:3,
+                   Type:"Bodyweight",
+                   RPE:7,
+ 
+                },
+ 
+             },
+ 
+          },
+          3:{  
+             ID:11,
+             Week:3,
+             Day:3,
+             NPatterns:5,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"Hinge",
+                   Reps:[  
+                      6,
+                      4,
+                      3,
+ 
+                   ],
+                   Sets:3,
+                   SplitSets:true,
+                   RPE:[7, 7.5, 8],
+                   Alloy:true,
+                   AlloyReps:3,
+                   Special:"Alloy",
+ 
+                },
+                2:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:[  
+                      8,
+                      6,
+                      4, 
+                   ],
+                   Sets:3,
+                   SplitSets:true,
+                   RPE:[7, 7.5, 8],
+                   Alloy:true,
+                   AlloyReps:4,
+                   Special:"Alloy",
+ 
+                },
+                3:{  
+                   ExerciseType:"Squat",
+                   Reps:5,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:8,
+ 
+                },
+                4:{  
+                   ExerciseType:"Iso 2",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 4",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+          4:{  
+             ID:12,
+             Week:3,
+             Day:4,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Unload 1",
+                   Reps:6,
+                   Sets:3,
+ 
+                },
+                2:{  
+                   ExerciseType:"RFD Unload 2",
+                   Reps:6,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:2,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:2,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                5:{  
+                   ExerciseType:"Carry",
+                   Reps:30,
+                   Sets:3,
+                   Seconds:30,
+                   Type:"carry",
+ 
+                },
+                6:{  
+                   ExerciseType:"Post Chain",
+                   Reps:"Bodyweight",
+                   Sets:3,
+                   Type:"Bodyweight",
+                   RPE:7,
+ 
+                },
+ 
+             },
+ 
+          },
+ 
+       },
+       4:{  
+          1:{  
+             ID:13,
+             Week:4,
+             Day:1,
+             NPatterns:5,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Load",
+                   Reps:2,
+                   Sets:5,
+ 
+                },
+                2:{  
+                   ExerciseType:"Med Ball",
+                   Reps:5,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"Squat",
+                   Reps:2,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"Hinge",
+                   Reps:5,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:8,
+ 
+                },
+                5:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:6,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:7,
+ 
+                },
+ 
+             },
+ 
+          },
+          2:{  
+             ID:14,
+             Week:4,
+             Day:2,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:[  
+                      6,
+                      4,
+                      3,
+ 
+                   ],
+                   Sets:3,
+                   SplitSets:true,
+                   RPE:[7, 7.5, 8],
+                   Alloy:true,
+                   AlloyReps:3,
+                   Special:"Alloy",
+ 
+                },
+                2:{  
+                   ExerciseType:"UB Vert Pull",
+                   Reps:[  
+                      8,
+                      6,
+                      6,
+ 
+                   ],
+                   Sets:3,
+                   SplitSets:true,
+                   RPE:[7, 7.5, 8],
+                   Alloy:true,
+                   AlloyReps:6,
+                   Special:"Alloy",
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Hor Pull",
+                   Reps:8,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:8,
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:5,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:8,
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 1",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+                6:{  
+                   ExerciseType:"Iso 3",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+          3:{  
+             ID:15,
+             Week:4,
+             Day:3,
+             NPatterns:5,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Unload 1",
+                   Reps:5,
+                   Sets:3,
+ 
+                },
+                2:{  
+                   ExerciseType:"RFD Unload 2",
+                   Reps:5,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"Hinge",
+                   Reps:2,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                4:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:4,
+                   Sets:1,
+                   RPE:7,
+                   Type:"stop",
+                   StopRPE:8,
+                   Special:"Strength Stop",
+ 
+                },
+                5:{  
+                   ExerciseType:"Carry",
+                   Reps:30,
+                   Sets:3,
+                   Seconds:30,
+                   Type:"carry",
+                   Deload:-1,
+ 
+                },
+ 
+             },
+ 
+          },
+          4:{  
+             ID:16,
+             Week:4,
+             Day:4,
+             NPatterns:6,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"UB Vert Push",
+                   Reps:[  
+                      6,
+                      4,
+                      3,
+                   ],
+                   Sets:3,
+                   SplitSets:true,
+                   RPE:[7, 7.5, 8],
+                   Alloy:true,
+                   AlloyReps:3,
+                   Special:"Alloy",
+ 
+                },
+                2:{  
+                   ExerciseType:"UB Hor Pull",
+                   Reps:[  
+                      8,
+                      6,
+                      6,
+ 
+                   ],
+                   Sets:3,
+                   SplitSets:true,
+                   RPE:[7, 7.5, 8],
+                   Alloy:true,
+                   AlloyReps:6,
+                   Special:"Alloy",
+ 
+                },
+                3:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:5,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:8,
+ 
+                },
+                4:{  
+                   ExerciseType:"UB Vert Pull",
+                   Reps:8,
+                   Sets:3,
+                   Deload:-1,
+                   RPE:8,
+ 
+                },
+                5:{  
+                   ExerciseType:"Iso 2",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+                6:{  
+                   ExerciseType:"Iso 4",
+                   Reps:8,
+                   Sets:3,
+                   RPE:8,
+ 
+                },
+ 
+             },
+ 
+          },
+ 
+       },
+       5:{  
+          1:{  
+             ID:17,
+             Week:5,
+             Day:1,
+             NPatterns:4,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"Squat",
+                   Reps:15,
+                   Sets:3,
+                   Deload:-2,
+                   RPE:"4-5",
+ 
+                },
+                2:{  
+                   ExerciseType:"Hinge",
+                   Reps:15,
+                   Sets:3,
+                   Deload:-2,
+                   RPE:"4-5",
+ 
+                },
+                3:{  
+                   ExerciseType:"LB Uni Push",
+                   Reps:20,
+                   Sets:2,
+                   Deload:-2,
+                   RPE:"4-5",
+ 
+                },
+                4:{  
+                   ExerciseType:"Ant Chain",
+                   Reps:"Bodyweight",
+                   Sets:2,
+                   Type:"Bodyweight",
+                   RPE:"4-5",
+ 
+                },
+ 
+             },
+ 
+          },
+          2:{  
+             ID:18,
+             Week:5,
+             Day:2,
+             NPatterns:5,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"RFD Unload 1",
+                   Reps:10,
+                   Sets:3,
+ 
+                },
+                2:{  
+                   ExerciseType:"RFD Unload 2",
+                   Reps:10,
+                   Sets:3,
+ 
+                },
+                3:{  
+                   ExerciseType:"RFD Load",
+                   Reps:3,
+                   Sets:6,
+ 
+                },
+                4:{  
+                   ExerciseType:"Med Ball",
+                   Reps:8,
+                   Sets:4,
+ 
+                },
+                5:{  
+                   ExerciseType:"Carry",
+                   Reps:60,
+                   Sets:2,
+                   Seconds:60,
+                   Type:"carry",
+ 
+                },
+ 
+             },
+ 
+          },
+          3:{  
+             ID:19,
+             Week:5,
+             Day:3,
+             NPatterns:4,
+             Patterns:{  
+                1:{  
+                   ExerciseType:"UB Hor Push",
+                   Reps:15,
+                   Sets:3,
+                   RPE:"4-5",
+ 
+                },
+                2:{  
+                   ExerciseType:"UB Hor Pull",
+                   Reps:15,
+                   Sets:3,
+                   RPE:"4-5",
+ 
+                },
+                3:{  
+                   ExerciseType:"Iso 1",
+                   Reps:20,
+                   Sets:2,
+                   RPE:"4-5",
+ 
+                },
+                4:{  
+                   ExerciseType:"Iso 2",
+                   Reps:20,
+                   Sets:2,
+                   RPE:"4-5",
+ 
+                },
+ 
+             },
+ 
+          },
+ 
+       },
+ 
     },
-    getWeekDay: {},
-    getID: {}
-}
-
-var TemplateNum = 0;
-for (var W = 1; W <= 4; W++) {
-  for (var D = 1; D <= 4; D++) {
-      TemplateNum ++;
-      if (!(W in Output.getID)) {
-        Output.getID[W] = {}
-        Output.getID[W][D] = TemplateNum;
-      }
-      else {
-        Output.getID[W][D] = TemplateNum;
-      }
-      Output.Templates[W][D] = {
-          ID: TemplateNum,
-          Week: W,
-          Day: D,
-          NPatterns: 0,
-          Patterns: {}
-      }
-      Output.getWeekDay[TemplateNum] = {Week: W, Day: D};
-  }
-}
-for (var D = 1; D <= 3; D++) {
-    TemplateNum ++;
-    if (!(5 in Output.getID)) {
-        Output.getID[5] = {}
-        Output.getID[5][D] = TemplateNum;
-    }
-    else {
-        Output.getID[5][D] = TemplateNum;
-    }
-    Output.Templates[5][D] = {
-        ID: TemplateNum,
-        Week: 5,
-        Day: D,
-        NPatterns: 0,
-        Patterns: {}
-    }
-    Output.getWeekDay[TemplateNum] = {Week: 5, Day: D};  
-}
-
-module.exports = Output;
-
-
-var thisWeek = 0;
-var thisDay = 0;
-var thisSpecial = "";
-var specialsList = ["", "", "", ""];
-
-
-JSONList.forEach(elem => {
-    var AllDays = [
-        elem.slice(1, 7),
-        elem.slice(7, 13),
-        elem.slice(13, 19),
-        elem.slice(19),    
-    ]
-    if (AllDays[0][0].includes("Week")) {
-        thisWeek = parseInt(AllDays[0][0].split(" ")[1].trim());
-        // console.log("thisWeek(1): " + thisWeek);
-    }
-
-    for (var i = 0; i < AllDays.length; i ++) {
-        if (thisWeek == 0) {
-            continue;
-        }
-        var dayRow = AllDays[i];
-        var dayNum = i + 1;
-        thisDay = dayNum;
-        if (dayRow[0].includes("Day")) {
-            // console.log("Workout Template: " + " Week, Day: ", thisWeek, thisDay);
-            if (dayRow[4] != "") {
-                if (dayRow[4].includes("Stop")) {
-                    thisSpecial = "Strength Stop";
-                    specialsList[dayNum - 1] = "Strength Stop";
-                }
-                else if (dayRow[4].includes("Drop")) {
-                    thisSpecial = "Strength Drop";
-                    specialsList[dayNum - 1] = "Strength Drop";                    
-                }
-                else if (dayRow[4].includes("A")) {
-                    thisSpecial = "Alloy";
-                    specialsList[dayNum - 1] = "Alloy";
-                }
-                console.log("   Special Type: " + thisSpecial);
-            }
-            // console.log(Workouts3b.Templates[thisWeek][thisDay]);
-        }        
-        if (AllDays[0][0].includes("Week") || AllDays[0][0].includes("Day") || dayRow[0] == "") {
-            // continue;
-        }
-        else {
-            console.log("thisWeek", thisWeek);
-            console.log("thisDay", thisDay);
-            Output.Templates[thisWeek][thisDay].NPatterns ++;
-            var PatternNum = Output.Templates[thisWeek][thisDay].NPatterns;
-            var PatternDict = {
-                ExerciseType: dayRow[0].trim(),
-                Reps: dayRow[2],                
-            };
-            //     if (item[0] != "") {
-            var refDict = {};
-            refDict["EType"] = dayRow[0];
-            refDict["Deload"] = dayRow[1];
-            refDict["SxR"] = dayRow[2];
-            refDict["RPE"] = dayRow[3];
-            refDict["Special"] = dayRow[4];
-
-            // SETS AND REPS
-            if (refDict["SxR"].includes("x") || refDict["SxR"].includes("X")) {
-                var splitChar = "x";
-                var Sets = parseInt(refDict["SxR"].trim().split(splitChar)[0]);    
-                var Reps = refDict["SxR"].trim().split(splitChar)[1];
-                PatternDict.Sets = Sets;
-                PatternDict.Reps = parseInt(Reps.trim());
-                // SETS AND REPS
-                if (PatternDict.ExerciseType == "Carry") {
-                    if (Reps.includes(":")) {
-                        PatternDict.Reps = parseInt(Reps.trim().slice(1));
-                        PatternDict.Seconds = PatternDict.Reps;
-                    }
-                    else {
-                        PatternDict.Reps = parseInt(Reps.trim());
-                        PatternDict.Seconds = PatternDict.Reps;                        
-                    }
-                    PatternDict.Type = "carry";
-                }
-                else if (Reps.includes("#") || Reps == "#") {
-                    PatternDict.Reps = "Bodyweight";             
-                    PatternDict.Type = "Bodyweight";       
-                }
-            }
-            // STAGGERED REPS
-            else if (refDict["SxR"].includes(",")) {
-                var repSplit = refDict["SxR"].trim().split(",");
-                var repList = [];
-                var setCount = 0;
-                repSplit.forEach((reps) => {
-                    if (reps != "#") {
-                        repList.push(parseInt(reps));
-                        setCount ++;                        
-                    }
-                })
-                PatternDict.Reps = repList;
-                PatternDict.Sets = setCount;
-                PatternDict.SplitSets = true;
-            }
-            else {
-                PatternDict.Sets = 1;
-                if (refDict["SxR"] == "#") {
-                    PatternDict.Reps = "Bodyweight";
-                }
-                else {
-                    PatternDict.Reps = parseInt(refDict["SxR"].trim());                    
-                }
-            }
-            //DELOAD
-            if (refDict["Deload"] != "" && refDict["Deload"] != null) {
-                PatternDict.Deload = parseInt(refDict["Deload"]);
-            }
-            // RPE
-            if (refDict["RPE"] != "" && refDict["RPE"] != null) {
-                if (refDict["RPE"].includes("-")) {
-                    PatternDict.RPE = refDict["RPE"];
-                }
-                else {
-                    PatternDict.RPE = parseFloat(refDict["RPE"]);
-                }
-            }
-                
-            //Special Val
-            if (refDict["Special"] != "") {
-
-                if (specialsList[dayNum - 1] == "Strength Stop") {
-                    PatternDict.Type = "stop";
-                    PatternDict.StopRPE = parseFloat(refDict["Special"]);
-                }
-                else if (specialsList[dayNum - 1] == "Strength Drop"
-                || specialsList[dayNum - 1].includes("Drop")) {
-                    PatternDict.Type = "drop";
-                    PatternDict.DropValue = parseFloat(refDict["Special"]);
-                }
-                else if (specialsList[dayNum - 1] == "Alloy") {
-                    PatternDict.Alloy = true;
-                    PatternDict.AlloyReps = parseInt(refDict["Special"]);
-                }
-                PatternDict.Special = specialsList[dayNum - 1];
-            }
-            Output.Templates[thisWeek][thisDay].Patterns[PatternNum] = PatternDict;
-
-            //       thisTemplate.Patterns[thisTemplate.NPatterns] = PatternDict;
-
-            //       // 1: {ExerciseType: "UB Hor Push", Reps: 8, RPE: 7, Type: "drop", DropValue: 7,},
-            //       // 1: {ExerciseType: "UB Hor Push", Reps: 8, RPE: 7, Type: "drop", DropValue: 7,},
-            //       // 2: {ExerciseType: "UB Vert Pull", Reps: 7, RPE: 7, Type: "stop", StopRPE: 8.5,},
-            //       // 3: {ExerciseType: "UB Hor Pull",  Sets: 4, Reps: 10, RPE: 7, Deload: -1},
-            //       // 4: {ExerciseType: "Iso 1",  Sets: 3, Type: "bodyweight", Reps: 12, RPE: 7},
-            //       // 5: {ExerciseType: "Iso 3",  Sets: 3, Type: "carry", Reps: 12, RPE: 7},
-            //       // 1: {ExerciseType: "Hinge", Sets: 3, Reps: 10, RPE: 7,},
-
-            //       // ["W1D4","Ant Chain","","2 x #","4-5",""  ]
-            //       // console.log(item, week, day);
-            //       // console.log(84, Workouts3a.Templates[week][day]);
-            //         //Assign to workout object here
-
-            // console.log("   Pattern Detected: " + dayRow[0]);            
-        }
-    }
-
-
-    AllDays.forEach(day => {
-
-    })
-
-
-    var D1List = elem.slice(1, 7);
-    var D2List = elem.slice(7, 13);
-    var D3List = elem.slice(13, 19);
-    var D4List = elem.slice(19);
-    
-    // console.log(elem[1], elem[7], elem[13]);
-    // console.log("Day 1: " + elem.slice(1, 7));
-    // console.log("Day 2: " +  elem.slice(7, 13));
-    // console.log("Day 3: " +  elem.slice(13, 19));
-    // console.log("Day 4: " + elem.slice(19))
-    // console.log(elem.slice(7));
-})
+    getWeekDay:{  
+       1:{  
+          Week:1,
+          Day:1,
+ 
+       },
+       2:{  
+          Week:1,
+          Day:2,
+ 
+       },
+       3:{  
+          Week:1,
+          Day:3,
+ 
+       },
+       4:{  
+          Week:1,
+          Day:4,
+ 
+       },
+       5:{  
+          Week:2,
+          Day:1,
+ 
+       },
+       6:{  
+          Week:2,
+          Day:2,
+ 
+       },
+       7:{  
+          Week:2,
+          Day:3,
+ 
+       },
+       8:{  
+          Week:2,
+          Day:4,
+ 
+       },
+       9:{  
+          Week:3,
+          Day:1,
+ 
+       },
+       10:{  
+          Week:3,
+          Day:2,
+ 
+       },
+       11:{  
+          Week:3,
+          Day:3,
+ 
+       },
+       12:{  
+          Week:3,
+          Day:4,
+ 
+       },
+       13:{  
+          Week:4,
+          Day:1,
+ 
+       },
+       14:{  
+          Week:4,
+          Day:2,
+ 
+       },
+       15:{  
+          Week:4,
+          Day:3,
+ 
+       },
+       16:{  
+          Week:4,
+          Day:4,
+ 
+       },
+       17:{  
+          Week:5,
+          Day:1,
+ 
+       },
+       18:{  
+          Week:5,
+          Day:2,
+ 
+       },
+       19:{  
+          Week:5,
+          Day:3,
+ 
+       },
+ 
+    },
+    getID:{  
+       1:{  
+          1:1,
+          2:2,
+          3:3,
+          4:4,
+ 
+       },
+       2:{  
+          1:5,
+          2:6,
+          3:7,
+          4:8,
+ 
+       },
+       3:{  
+          1:9,
+          2:10,
+          3:11,
+          4:12,
+ 
+       },
+       4:{  
+          1:13,
+          2:14,
+          3:15,
+          4:16,
+ 
+       },
+       5:{  
+          1:17,
+          2:18,
+          3:19,
+ 
+       },
+ 
+    },
+ 
+ }

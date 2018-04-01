@@ -66,25 +66,54 @@ var WeekList = [1, 2, 3, 4];
 var DayList = [1, 2, 3];
 
 console.log("TEST: "); 
+
+// var viewingWorkoutID = 1;
+
+var SessionDict = {
+	viewingWID: 1,
+	patternList: [],
+}
+// thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
+// UserDict: G_UserInfo,
+// Patterns: G_UserInfo["thisPatterns"],
+// UserStats: G_UserInfo["Stats"],			
+// levelUp: G_UserInfo["Stats"]["Level Up"],
+// UBpressStat: G_UserInfo["Stats"]["Squat"],
+// squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
+// hingeStat: G_UserInfo["Stats"]["Hinge"],
+// RPEOptions: RPE_Dict["Options"],
+// TestDict: {Test1: "Test1", Test2: "Test2"},
+// selectedWeek,
+// selectedDay,
+// allWorkouts: G_UserInfo["Workouts"],
+// WeekList,
+// DayList,
+// selectWorkoutList: changeWorkoutList,
+// thisLevels: G_UserInfo["thisLevels"],
+
+
 function userRefDict(user) {
 	var output = {};
 	output["User"] = user;
 	output["Stats"] = user.stats;
+	
 	output["Workouts"] = user.workouts;
+	// var thisWorkoutID = SessionDict.viewingWID; // user.currentWorkoutID;
 	var thisWorkoutID = user.currentWorkoutID;
-	console.log("thisWorkoutID: "+ thisWorkoutID); 
 	output["thisWorkoutID"] = user.currentWorkoutID;
+
 	output["Level"] = user.level;
 	output["thisWorkout"] = user.workouts[thisWorkoutID];
 	selectedWeek = user.workouts[thisWorkoutID].Week;
 	selectedDay = user.workouts[thisWorkoutID].Day;
-	output["thisWorkoutDate"] = user.workoutDates[user.currentworkoutID - 1];
+	output["thisWorkoutDate"] = user.workoutDates[user.currentWorkoutID - 1];
 	// output["thisWorkoutDate"] = user.workouts[user.currentWorkout.ID].Date;
 	output["thisPatterns"] = user.workouts[thisWorkoutID].Patterns;
 	// G_UserInfo["User"].workouts[TemplateID].Patterns
 	// output["levelGroup"] = 1; //Manual for now
-	console.log("user.levelGroup: ", user.levelGroup);
+	// console.log("user.levelGroup: ", user.levelGroup);
 	output["levelGroup"] = user.levelGroup;
+	output["blockNum"] = user.blockNum;
 	output["thisLevels"] = levelGroupsDict[user.levelGroup];
 	// user.levelGroup; //Manual for now
 	return output
@@ -125,23 +154,20 @@ var thisPatterns;
 var G_thisStats;
 var G_UserInfo;
 
-User.findById(1).then(user => {
-	// if (user.workouts.loaded) {		
-		G_UserInfo = userRefDict(user);
-		thisUser = G_UserInfo["User"];
-		G_thisStats = G_UserInfo["Stats"];
-		thisPatterns = G_UserInfo["thisPatterns"];
-		// console.log("Creating User Ref Dict: ");
-		userFound = true;
-	// }
-});
+function loadUserInfo(id) {
+	return User.findById(id).then(user => {
+		// if (user.workouts.loaded) {		
+			G_UserInfo = userRefDict(user);
+			thisUser = G_UserInfo["User"];
+			G_thisStats = G_UserInfo["Stats"];
+			thisPatterns = G_UserInfo["thisPatterns"];
+			// console.log("Creating User Ref Dict: ");
+			userFound = true;
+		// }
+	});
+}
 
-
-	// How to store old workouts:
-		// Add patterns list to PastWorkouts dict, indexed by week/day
-			// {Week: , Day: , Completed : , Patterns : }
-		// Fill up PastWorkouts dict on workout generation
-			// 
+loadUserInfo(1);
 
 router.get('/' + getURL, function(req, res) {
 	var workoutDates = [];
@@ -164,38 +190,21 @@ router.get('/' + getURL, function(req, res) {
 router.get('/', function(req, res
 	// , next
 	) {	
-	// res.redirect('/');
 	if (!thisUser) {
-		// Loading
 		render();
 	}
-	// G_UserInfo = userRefDict(thisUser);
-	// G_UserInfo["thisWorkoutID"] = 13;
-	// console.log("ROUTE.GET STARTS ");
-	// console.log("GLOBALS: ");
-	// console.log("G_UserInfo: ");
 
-	// G_UserInfo["thisWorkoutID"]
-	// selectedweek
-	// selectedDay
-	// G_UserInfo = userRefDict(thisUser);
+	loadUserInfo(1);
+
 	var TemplateID = G_UserInfo["thisWorkoutID"];
+
 	var _Level = G_UserInfo["Level"];
 	var wDateIndex = G_UserInfo["thisWorkoutID"] - 1;
 	G_UserInfo["thisWorkoutDate"] = G_UserInfo["User"].workoutDates[wDateIndex];
-	// Make a refresh dictionary function later
+	// // Make a refresh dictionary function later
+	console.log("Loading Patterns: ", G_UserInfo["User"].workouts[TemplateID].Patterns);
+	
 	var thisworkoutDate = G_UserInfo["Workouts"][TemplateID].Date;
-	// console.log(G_UserInfo["thisWorkoutDate"]);
-	// console.log(G_UserInfo["User"].workoutDates);
-	// console.log(G_UserInfo["thisWorkoutID"]);
-	// console.log(G_UserInfo["User"].workoutDates[G_UserInfo["thisWorkoutID"]]);
-
-	// console.log(G_UserInfo["thisPatterns"]);
-	// console.log(G_UserInfo["User"].workouts);
-	// console.log("User.workouts[TemplateID].Patterns:");
-	// console.log(G_UserInfo["User"].workouts[TemplateID].Patterns);
-	// render();
-	// return
 	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0
 		// || G_UserInfo["thisPatterns"].length != 0
 	) {
@@ -216,7 +225,8 @@ router.get('/', function(req, res
 
 	WorkoutTemplate.findOne({
 		where: {
-	        levelGroup: G_UserInfo["levelGroup"],
+			levelGroup: G_UserInfo["levelGroup"],
+			block: G_UserInfo["User"].blockNum,
 	        week: selectedWeek,
 	        day: selectedDay			
 		}
@@ -251,13 +261,13 @@ router.get('/', function(req, res
 				else if (elem.exerciseType == "Vert Pull") {
 					EType = "UB Vert Pull";
 				} 
-				console.log(EType);
+				// console.log(EType);
 
 				patternInstance.name = ExerciseDict[EType][_Level].name;	
 				patternInstance.setList = [];
 				patternInstance.sets = Sets;
 				patternInstance.workoutType = elem.type;
-				console.log("elem.type: " + elem.type, elem.exerciseType);
+				// console.log("elem.type: " + elem.type, elem.exerciseType);
 				if (patternInstance.workoutType == "stop") {
 					patternInstance.stop = true;
 					patternInstance.specialValue = elem.specialValue;
@@ -276,14 +286,25 @@ router.get('/', function(req, res
 				}
 				// Adding setDicts to patterInstancesetList -> []
 				// if (!thisUser.workouts.patternsLoaded) {
-				console.log("repsList: ", elem.repsList);
+				// console.log("repsList: ", elem.repsList);
 				for (var i = 0; i < Sets; i ++) {
 					var Reps = elem.reps;
 					var RPE = elem.RPE;
-					if (elem.repsList.length > 0) {
-						console.log(elem.repsList[i]);
-						Reps = parseInt(elem.repsList[i]);
-						RPE = elem.RPEList[i];
+					// Check for RPE Ranges
+					if (elem.RPE == null) {
+						// console.log("null RPE");
+						if (elem.RPERange.length > 0) {
+							// console.log(elem.RPERange);
+							RPE = elem.RPERange[0] + "-" + elem.RPERange[1];
+						}
+						else if (elem.repsList.length > 0) {
+							// console.log(elem.repsList[i]);
+							Reps = parseInt(elem.repsList[i]);
+							RPE = elem.RPEList[i];
+						}
+						else {
+							RPE = "---";							
+						}
 					}
 					patternInstance.setList.push({
 						SetNum: i + 1,
@@ -299,7 +320,7 @@ router.get('/', function(req, res
 					G_UserInfo["User"].workouts[TemplateID].Patterns.push(patternInstance);
 					G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
 					G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
-								G_UserInfo["User"].save();
+					G_UserInfo["User"].save();
 				// }
 				// Some backwards referencing was going on here
 			});
@@ -327,23 +348,48 @@ router.get('/', function(req, res
 		// console.log(G_UserInfo["thisWorkoutDate"]);
 		// console.log(typeof G_UserInfo["thisWorkoutDate"]);
 		var changeWorkoutList = [];
-		
-		for (var W = 0; W < WeekList.length; W++) {
-			for (var D = 0; D < DayList.length; D++) {
-				var _W = WeekList[W];
-				var _D = DayList[D];
-				var wID = Group1WDtoID[_W][_D];
-				var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
-				changeWorkoutList.push({Week: _W, Day: _D, Date: date});
+		var  WorkoutDict = G_UserInfo["User"].workouts;
+		// console.log("WorkoutDict", WorkoutDict);
+		for (var K in WorkoutDict) {
+			var Workout = WorkoutDict[K];
+			if (!Workout.ID) {
+				continue;
 			}
+			var _W = Workout.Week;
+			var _D = Workout.Day;
+			var wID = Workout.ID;
+			// var date = G_UserInfo["User"].workoutDates[wID - 1];
+			var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
+			// console.log("date", date, _W, _D, K);
+			changeWorkoutList.push({Week: _W, Day: _D, Date: date, ID: wID});		
 		}
+
+		// for (var W = 0; W < WeekList.length; W++) {
+		// 	for (var D = 0; D < DayList.length; D++) {
+		// 		var _W = WeekList[W];
+		// 		var _D = DayList[D];
+		// 		var wID = Group1WDtoID[_W][_D];
+		// 		var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
+		// 		changeWorkoutList.push({Week: _W, Day: _D, Date: date});
+		// 	}
+		// }
+		
+		// for (var W = 0; W < WeekList.length; W++) {
+		// 	for (var D = 0; D < DayList.length; D++) {
+		// 		var _W = WeekList[W];
+		// 		var _D = DayList[D];
+		// 		var wID = Group1WDtoID[_W][_D];
+		// 		var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
+		// 		changeWorkoutList.push({Week: _W, Day: _D, Date: date});
+		// 	}
+		// }
 
 		res.render('main', 
 		{
 			ETypes: ExerciseDict["Types"],
 			// Patterns: UserStats.CurrentWorkout.Patterns,
 			// ExerciseStats: UserStats.ExerciseStats,			
-			
+			thisWorkoutID: G_UserInfo["thisWorkoutID"],
 			thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
 			UserDict: G_UserInfo,
 			Patterns: G_UserInfo["thisPatterns"],
@@ -366,13 +412,6 @@ router.get('/', function(req, res
 });
 
 
-// router.post('/', function(req, res) {
-// function saveWorkout(body, refDict) {
-// 	console.log("saveWorkout (Line 321) \n");
-// 	console.log(body);
-// 	console.log(refDict);
-// }
-
 router.post('/' + postURL, function(req, res) {	
 	// var inputCodes = req.body["inputCodes"];
 	// console.log("selectForm: " + req.body.selectForm);
@@ -381,8 +420,10 @@ router.post('/' + postURL, function(req, res) {
 	if (req.body.SaveBtn) {
 		console.log("Save PRESSED");
 		saveWorkout(req.body, G_UserInfo);
-		res.redirect('/');		
-		return
+		G_UserInfo["User"].save().then(() => {
+			res.redirect('/');		
+			return
+		});
 	}
 	
 	if (req.body.changeLevel || req.body.changeLGroup) {
@@ -400,9 +441,21 @@ router.post('/' + postURL, function(req, res) {
 			console.log(selectedWD);
 			var _W = parseInt(selectedWD[0]);
 			var _D = parseInt(selectedWD[1]);
-			selectedWeek = _W;
-			selectedDay = _D;
-			G_UserInfo["thisWorkoutID"] = Group1WDtoID[_W][_D];
+			// G_UserInfo["thisWorkoutID"] = Group1WDtoID[_W][_D];
+			var newWID = parseInt(req.body.changeWorkoutSelect);
+			var newWorkout = G_UserInfo["User"].workouts[req.body.changeWorkoutSelect];
+			
+			
+			selectedWeek = parseInt(newWorkout.Week);
+			selectedDay = parseInt(newWorkout.Day);
+			console.log("NEW WORKOUT ID: " + req.body.changeWorkoutSelect);
+			console.log("NEW WORKOUT: ", newWorkout, "Week: " + selectedWeek, "Day: " + selectedDay);
+			G_UserInfo["User"].currentWorkoutID = parseInt(newWID);
+			G_UserInfo["User"].save().then(() => {
+				res.redirect('/');
+				return				
+			});
+		// G_UserInfo["thisWorkoutID"] = nextWorkoutID;
 		}
 		else if (req.body.NextBtn || req.body.PrevBtn) {
 			var nWorkouts = G_UserInfo["User"].workoutDates.length;
@@ -421,14 +474,22 @@ router.post('/' + postURL, function(req, res) {
 				// Test user here
 			}
 			console.log("next Workout ID: " + nextWorkoutID);
-			G_UserInfo["thisWorkoutID"] = nextWorkoutID;
-			G_UserInfo["User"].save();
+			// G_UserInfo["thisWorkoutID"] = nextWorkoutID;
+			// NOOOO
+			//USE "VIEWING WORKOUT ID"
+			G_UserInfo["User"].currentWorkoutID = nextWorkoutID; 
+			G_UserInfo["User"].save().then(() => {
+				res.redirect('/');
+				return				
+			}
+			);			
 			console.log("NEXT WORKOUT ID: " + nextWorkoutID); 
-			console.log("NEXT WORKOUT Week/Day: " + G1KeyCodes[nextWorkoutID].Week + ", " + G1KeyCodes[nextWorkoutID].Day); 
-			selectedWeek = G1KeyCodes[nextWorkoutID].Week;
-			selectedDay = G1KeyCodes[nextWorkoutID].Day;
+			// console.log("NEXT WORKOUT Week/Day: " + G1KeyCodes[nextWorkoutID].Week + ", " + G1KeyCodes[nextWorkoutID].Day); 
+			selectedWeek = G_UserInfo["User"].workouts[nextWorkoutID].Week;
+			selectedDay = G_UserInfo["User"].workouts[nextWorkoutID].Day;
+			// selectedWeek = G1KeyCodes[nextWorkoutID].Week;
+			// selectedDay = G1KeyCodes[nextWorkoutID].Day;
 		}
-		res.redirect('/');
 	}
 
 	if(req.body.ResetBtn) {
@@ -449,9 +510,9 @@ router.post('/' + postURL, function(req, res) {
 		// G_UserInfo["thisWorkout"].Completed = true;
 		// G_UserInfo["User"].workouts[]
 		// G_UserInfo["User"].save();
+		res.redirect('/');
 	}
 
-	res.redirect('/');
 });
 
 
@@ -576,39 +637,5 @@ router.get('/workouts', function(req, res) {
 		});
 	});
 });
-
-// 				//.then(subsList => {
-// 				//elem.Patterns = subsList;
-// 				//console.log(subsList.length);
-// 				// WorkoutsList.push(elem);
-// 				//console.log("620");
-// 		});
-// 		console.log("SubWorkouts: ");
-// 		WorkoutsList.push(elem);
-// 		})
-// 		var Patterns = [];
-// 	});		
-// 	// res.render('templates', 
-// 	// {			
-// 	// 	Workouts: WorkoutsList,
-// 	// });
-
-// })
-
-// NEXT: write user model, handle submitting exercises, changing weights, level up, etc.
-// add default handlers
-function workoutUpdate(RPE, Weight, Reps, subWorkout, alloy) {
-	var EType = subWorkout.exerciseType;
-	var oldMax = UserStats.ExerciseStats[EType].Max;
-	var newMax = getMax(Weight, Reps, RPE);
-	UserStats.ExerciseStats[EType].Max = newMax;
-	if (alloy == Alloy.None) {
-		//Update Alloy Set
-	}
-	// UserStats
-	//Get next set ready
-	//Update user stats (max weight)
-	//Update user level	
-}
 
 module.exports = router;

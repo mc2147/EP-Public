@@ -16,7 +16,7 @@ var data = require('../data');
 
 // var thisGroup = Workouts1;
 
-console.log("assigning workouts:");
+// console.log("assigning workouts:");
 var DayValue = 24*3600*1000;
 
 var Alloy = globalEnums.Alloy;
@@ -57,15 +57,25 @@ var WorkoutInstanceTemplate = {
 }
 
 
-
-
 var oldDate = new Date(Date.now() - 10*DayValue);
 var thisDate = new Date(Date.now());         
 
 // CreateUser(1, 1, oldDate);
-CreateUser(1, 1, thisDate);
+// CreateUser(1, 0, 1, thisDate);
 
-function CreateUser(levelGroup, level, startDate) {
+// CreateUser(2, 0, 6, thisDate);
+// CreateUser(3, 1, 11, thisDate);
+// CreateUser(3, 2, 11, thisDate);
+// CreateUser(4, 1, 16, thisDate);
+CreateUser(4, 2, 16, thisDate);
+
+function CreateUser(levelGroup, blockNum, level, startDate) {
+    var thisGroup = AllWorkouts[levelGroup];
+    if (blockNum != 0) {
+        thisGroup = thisGroup[blockNum];
+    }
+    // console.log("thisGroup", thisGroup);
+    var NWorkouts = Object.keys(thisGroup.getWeekDay).length;
     return User.findOrCreate(
         {
          where: {
@@ -73,16 +83,18 @@ function CreateUser(levelGroup, level, startDate) {
          }
      }).spread((user, created) => {
          if (created) {}
-         var thisGroup = AllWorkouts[levelGroup];
          user.stats = StatTemplate;
          user.workouts = {};        
          user.levelGroup = levelGroup;
+         user.blockNum = blockNum;
          user.save();
-         console.log("setting LevelGroup: " + user.levelGroup);
+        //  console.log("setting LevelGroup: " + user.levelGroup);
+        //  console.log("Counting Workouts: " + Object.keys(thisGroup.getWeekDay).length)
          user.level = level; 
          //  Instance variables
-         var workoutDates = getWorkoutDays(startDate, [1, 3, 5], 1, "", 12);
-        //  console.log(workoutDates);
+         var workoutDates = getWorkoutDays(startDate, [1, 3, 5], 1, "", NWorkouts);
+        //  console.log("96");
+        //  console.log(workoutDates, workoutDates.length);
          user.workoutDates = workoutDates;
          user.currentWorkoutID = 1;
          // Sort workouts by LGroups and blocks -> ID
@@ -101,7 +113,7 @@ function CreateUser(levelGroup, level, startDate) {
                  user.save();
              }
          }
-         user.workouts[13] = WorkoutInstanceTemplate;
+        //  user.workouts[13] = WorkoutInstanceTemplate;
         // Workout Completion Code
         //  missedWorkouts(user, new Date(2018, 02, 15, 00, 0, 0, 0), new Date(2018, 02, 22, 00, 0, 0, 0));
          user.save();

@@ -1,13 +1,4 @@
-// Day 3		S x R	RPE	A
-// Hinge		10, 8, 6, #	7,7.5,8,10	8+
-// UB Hor Push		10, 8, 6, #	7,7.5,8,10	8+
-// Vert Pull		12, 10, 8, #	7,7.5,8,10	10+
-// LB Uni Push	-1	3 x 8	7	
-// Iso 1		3 x 12	7	
-// Iso 2		3 x 12	7	
-
-
-WorkoutGroup2 = {
+module.exports = {
 	Templates: {
 		// Week 1
 		1: {
@@ -410,4 +401,10 @@ WorkoutSample = {
 		5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}}
 }
 
-module.exports = WorkoutGroup2;
+// Day 3		S x R	RPE	A
+// Hinge		10, 8, 6, #	7,7.5,8,10	8+
+// UB Hor Push		10, 8, 6, #	7,7.5,8,10	8+
+// Vert Pull		12, 10, 8, #	7,7.5,8,10	10+
+// LB Uni Push	-1	3 x 8	7	
+// Iso 1		3 x 12	7	
+// Iso 2		3 x 12	7	
