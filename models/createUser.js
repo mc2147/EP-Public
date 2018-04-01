@@ -61,13 +61,13 @@ var oldDate = new Date(Date.now() - 10*DayValue);
 var thisDate = new Date(Date.now());         
 
 // CreateUser(1, 1, oldDate);
-// CreateUser(1, 0, 1, thisDate);
+CreateUser(1, 0, 1, thisDate);
 
 // CreateUser(2, 0, 6, thisDate);
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
 // CreateUser(4, 1, 16, thisDate);
-CreateUser(4, 2, 16, thisDate);
+// CreateUser(4, 2, 16, thisDate);
 
 function CreateUser(levelGroup, blockNum, level, startDate) {
     var thisGroup = AllWorkouts[levelGroup];
@@ -86,11 +86,11 @@ function CreateUser(levelGroup, blockNum, level, startDate) {
          user.stats = StatTemplate;
          user.workouts = {};        
          user.levelGroup = levelGroup;
+         user.level = level; 
          user.blockNum = blockNum;
          user.save();
         //  console.log("setting LevelGroup: " + user.levelGroup);
         //  console.log("Counting Workouts: " + Object.keys(thisGroup.getWeekDay).length)
-         user.level = level; 
          //  Instance variables
          var workoutDates = getWorkoutDays(startDate, [1, 3, 5], 1, "", NWorkouts);
         //  console.log("96");
@@ -119,7 +119,7 @@ function CreateUser(levelGroup, blockNum, level, startDate) {
          user.save();
      })
      .then(() => {
-         console.log("User PROMISE RESOLVED");
+        //  console.log("User PROMISE RESOLVED");
      })
 }
 

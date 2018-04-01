@@ -194,7 +194,8 @@ router.get('/', function(req, res
 		render();
 	}
 
-	loadUserInfo(1);
+	// loadUserInfo(1);
+	G_UserInfo = userRefDict(thisUser);
 
 	var TemplateID = G_UserInfo["thisWorkoutID"];
 
@@ -202,7 +203,7 @@ router.get('/', function(req, res
 	var wDateIndex = G_UserInfo["thisWorkoutID"] - 1;
 	G_UserInfo["thisWorkoutDate"] = G_UserInfo["User"].workoutDates[wDateIndex];
 	// // Make a refresh dictionary function later
-	console.log("Loading Patterns: ", G_UserInfo["User"].workouts[TemplateID].Patterns);
+	// console.log("Loading Patterns: ", G_UserInfo["User"].workouts[TemplateID].Patterns);
 	
 	var thisworkoutDate = G_UserInfo["Workouts"][TemplateID].Date;
 	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0
@@ -383,31 +384,75 @@ router.get('/', function(req, res
 		// 		changeWorkoutList.push({Week: _W, Day: _D, Date: date});
 		// 	}
 		// }
-
-		res.render('main', 
-		{
-			ETypes: ExerciseDict["Types"],
-			// Patterns: UserStats.CurrentWorkout.Patterns,
-			// ExerciseStats: UserStats.ExerciseStats,			
-			thisWorkoutID: G_UserInfo["thisWorkoutID"],
-			thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
-			UserDict: G_UserInfo,
-			Patterns: G_UserInfo["thisPatterns"],
-			UserStats: G_UserInfo["Stats"],			
-			levelUp: G_UserInfo["Stats"]["Level Up"],
-			UBpressStat: G_UserInfo["Stats"]["Squat"],
-			squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
-			hingeStat: G_UserInfo["Stats"]["Hinge"],
-			RPEOptions: RPE_Dict["Options"],
-			TestDict: {Test1: "Test1", Test2: "Test2"},
-			selectedWeek,
-			selectedDay,
-			allWorkouts: G_UserInfo["Workouts"],
-			WeekList,
-			DayList,
-			selectWorkoutList: changeWorkoutList,
-			thisLevels: G_UserInfo["thisLevels"],
+		User.findById(1).then((user) => {
+			// console.log("User Stats: ", user.stats);
+			// console.log("typeof user", typeof user);
+			// console.log(G_UserInfo["User"] == user);
 		});
+		// console.log("user dict stats: ", G_UserInfo["User"].stats);
+		// console.log("typeof userDict", typeof G_UserInfo["User"]);
+		// console.log("typeof userDict.save", typeof G_UserInfo["User"].save);
+		thisUser.stats = G_UserInfo["User"].stats;
+		var workoutsClone = thisUser.workouts;
+		workoutsClone[G_UserInfo["thisWorkoutID"]].Patterns = G_UserInfo["thisPatterns"];
+		thisUser.workouts = workoutsClone;
+
+
+		// // console.log("397: \n\n", thisUser.workouts);
+		// // console.log("thisWorkoutID: ", G_UserInfo["thisWorkoutID"]);
+		// // console.log()
+		// // console.log("397: \n\n", thisUser.workouts[G_UserInfo["thisWorkoutID"]]);
+		// User.findById(1).then((user) => {
+		// 	// res.json(user.stats);
+		// 	user.workouts.Patterns = G_UserInfo["thisPatterns"];
+
+		// 	var workoutsClone = user.workouts;
+		// 	workoutsClone[G_UserInfo["thisWorkoutID"]].Patterns = G_UserInfo["thisPatterns"];
+		// 	// user.workouts[G_UserInfo["thisWorkoutID"]] = {};
+		// 	user.workouts = workoutsClone;
+
+		// 	// user.workouts = {};
+		// 	user.save().then(() => {
+		// 		console.log("saved: ", user.workouts);
+		// 	});
+		// 	console.log("user = user", user == thisUser);
+		// 	// res.json(user.workouts);
+		// })
+			// console.log("398: \n\n", thisUser.workouts[G_UserInfo["thisWorkoutID"]].Patterns);
+		// thisUser.workouts[G_UserInfo["thisWorkoutID"]] = "Test";
+		// .Patterns = ["Test"];
+		thisUser.save();
+		// G_UserInfo["User"].save()
+		thisUser.save().then(() => {
+			res.render('main', 
+			{
+				ETypes: ExerciseDict["Types"],
+				// Patterns: UserStats.CurrentWorkout.Patterns,
+				// ExerciseStats: UserStats.ExerciseStats,			
+				thisWorkoutID: G_UserInfo["thisWorkoutID"],
+				thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
+				UserDict: G_UserInfo,
+				Patterns: G_UserInfo["thisPatterns"],
+				
+				// UserStats: G_UserInfo["Stats"],			
+				UserStats: G_UserInfo["User"].stats,
+				// UserStats: {},
+
+				levelUp: G_UserInfo["Stats"]["Level Up"],
+				UBpressStat: G_UserInfo["Stats"]["Squat"],
+				squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
+				hingeStat: G_UserInfo["Stats"]["Hinge"],
+				RPEOptions: RPE_Dict["Options"],
+				TestDict: {Test1: "Test1", Test2: "Test2"},
+				selectedWeek,
+				selectedDay,
+				allWorkouts: G_UserInfo["Workouts"],
+				WeekList,
+				DayList,
+				selectWorkoutList: changeWorkoutList,
+				thisLevels: G_UserInfo["thisLevels"],
+			});
+		})
 	}
 });
 

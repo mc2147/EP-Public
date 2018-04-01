@@ -146,7 +146,7 @@ for (var Key in VideosJSON) {
     var VideosCategory = VideosJSON[Key];
     for (var K in VideosCategory) {
         if (!VideosCategory[K].URL) {
-            VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID;
+            VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
         }
         VideosList.push(VideosCategory[K]);
     }
@@ -157,7 +157,7 @@ var LevelList = [];
 for (var i = 1; i <= 25; i++) {
     LevelList.push(i);
 }
-console.log("LevelList", LevelList);
+// console.log("LevelList", LevelList);
 
 function vueConvert (JSON, levelFilter) {
     output = {
@@ -177,7 +177,7 @@ function vueConvert (JSON, levelFilter) {
                     output.selectedVideo = elem;                    
                 }
                 output.videoList.push(elem);
-                console.log(elem);
+                // console.log(elem);
             }
         }
     }

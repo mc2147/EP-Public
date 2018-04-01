@@ -3,24 +3,24 @@ var globalFuncs = require('../globals/functions');
 	var getWeight = globalFuncs.getWeight;
 
 function saveWorkout(body, refDict) {
-	console.log("saveWorkout (Line 2) \n");
-	console.log(body);
-    console.log(refDict);
-    console.log("saveWorkout Line 9");
+	// console.log("saveWorkout (Line 2) \n");
+	// console.log(body);
+    // console.log(refDict);
     refDict["User"].save();
     var outputs = {};
     // Filling out "outputs" dict
+    console.log("saveWorkout Line 12");
+    console.log("thisPatterns 13", refDict["thisPatterns"]);
     for (var K in body) {
         var inputCode = K.split("|");
         if (!K.includes("|") || !inputCode) {
             continue;
-        }
-        
+        }        
         var patternID = parseInt(inputCode[0]); //Number (index + 1)
         var patternIndex = patternID - 1;
-
         var thisPattern = refDict["thisPatterns"][patternIndex];
-        var _EType = thisPattern.type;
+        console.log("patternIndex 22", patternIndex);
+        var _EType = thisPattern.type; //Getting undefined error
         var _nSets = thisPattern.sets;
 
         var inputType = inputCode[1];

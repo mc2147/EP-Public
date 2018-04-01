@@ -107,7 +107,7 @@ var count = 0;
 for (var EType in ExerciseDict["Exercises"]) {
     for (var Level in ExerciseDict["Exercises"][EType]) {
         count ++;
-        console.log(Exercise, Level);
+        // console.log(EType, Level);
         Exercise.findOrCreate({
             where: {
                 type: EType,
