@@ -32,7 +32,7 @@ table, th, td {
   {{selectWorkoutList}} -->
   <select name="changeWorkoutSelect" style="margin-top:15px;">
     <option value="{{thisWorkoutID}}" class="select-hr">
-      Week {{selectedWeek}}: Day {{selectedDay}} - {{thisDate}}
+      Week {{selectedWeek}}: Day {{selectedDay}} - {{ViewingDate}}
     </option>
     <hr>
     {% for S in selectWorkoutList %}
@@ -44,12 +44,10 @@ table, th, td {
   <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Workout' name="changeWorkoutBtn" id='btn'></input>
 </form>
 
-Exercise Types: 
- {% for Type in ETypes %}
-  {{Type}}, 
- {% endfor %}
+Current/Upcoming Workout Date: 
+ {{CurrentDate}}
  <br><br>
- <b>Workout Date: {{thisDate}}</b><br>
+ <b>Workout Date: {{ViewingDate}}</b><br>
  <b>Completed: {{UserDict.thisWorkout.Completed}}</b>
  <!-- Test -->
 <form action="/postWorkout" method="POST" style="margin-top:0px;">
@@ -65,7 +63,7 @@ Exercise Types:
   {% for P in Patterns %}
         <tr>
           <!-- Pattern Column -->
-          <td>{{P.type}} ({{P.number}})</td>
+          <td>{{P.type}} ({{P.number}}) {{P.alloystatus.value}}</td>
           <!-- Exercise Name Column -->
           <td>{{P.name}} : {{P.workoutType}}, Sets: {{P.sets}}{% if P.workoutType == 'stop' or P.workoutType == 'drop' %},
             {{P.specialValue}} 
@@ -80,7 +78,7 @@ Exercise Types:
                 <div style="border:solid 1px black;">
                 Reps: 
                 {% if P.workoutType == 'carry' %}
-                  {{S.reps}} seconds
+                  {{S.Reps}} seconds
                 {% elif P.workoutType == 'bodyweight' %}
                   {% if S.Filled %}                  
                     <input type="text" placeholder="Enter Reps" value="{{S.Reps}}"

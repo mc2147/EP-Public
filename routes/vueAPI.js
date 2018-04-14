@@ -18,13 +18,13 @@ function getVueInfo(refDict) {
 	]
 	var vueSubworkouts = [];
 	console.log("PATTERNS:");
-	for (var N = 0; N < refDict["thisPatterns"].length; N ++) {
-		var Pattern = refDict["thisPatterns"][N];
-		console.log(Pattern);
+	for (var N = 0; N < refDict.Patterns.length; N ++) {
+		var Pattern = refDict.Patterns[N];
+		// console.log(Pattern);
 	}
 	// return {}
-	for (var N = 0; N < refDict["thisPatterns"].length; N ++) {
-		var Pattern = refDict["thisPatterns"][N];
+	for (var N = 0; N < refDict.Patterns.length; N ++) {
+		var Pattern = refDict.Patterns[N];
 
 		var fixedList = [];
 		var filledList = [];
@@ -58,23 +58,30 @@ function getVueInfo(refDict) {
 				// tempoList.push(["3", "2", "X"]);
 			
 			// 4 Input Statuses: Empty, Placeholder, Filled, Fixed
+			var setNum = L + 1;
 			var repDict = {
 				// value: Pattern.Reps,
 				value: set.Reps,
-				status: 'Fixed'
+				status: 'Fixed',
+				code: Pattern.number + "|Reps|" + (L + 1),
 			}
 			var weightDict = {
 				value: set.Weight,
-				status: 'Empty'
+				status: 'Empty',
+				code: Pattern.number + "|W|" + (L + 1),
 			}
 			var RPEDict = {
 				value: set.RPE,
 				status: 'Empty',
 				suggested: Pattern.RPE,
+				code: Pattern.number + "|RPE|" + (L + 1),
+				// test: "test",
 			}
 			var tempoDict = {
+				stringValue: "3|2|X",
 				value: ["3", "2", "X"],
-				status: 'Fixed'
+				status: 'Fixed',
+				code: Pattern.number + "|T|" + (L + 1),
 			}
 			if (set.Filled) {
 				weightDict.status = 'Filled';
@@ -139,21 +146,26 @@ function getVueInfo(refDict) {
 			var repDict = {
 				value: Pattern.alloyreps,
 				status: 'Fixed',
+				code: Pattern.number + "|Reps|" + "Alloy",
 				alloy: true
 			}
 			var weightDict = {
 				value: "Alloy Weight",
 				status: 'Fixed',
+				code: Pattern.number + "|W|" + "Alloy",
 				alloy: true
 			}
 			var RPEDict = {
 				value: 10,
 				status: 'Fixed',
+				code: Pattern.number + "|RPE|" + "Alloy",
 				alloy: true
 			}
 			var alloyTempo = {
 				value: ["3", "2", "X"],
+				stringValue: "3|2|X",
 				status: 'Fixed',
+				code: Pattern.number + "|T|" + "Alloy",
 				alloy: true
 			}
 			// RPELists.fixed.push(10);					
@@ -218,6 +230,7 @@ function getVueInfo(refDict) {
 		//One per PATTERN
 		var subDict = {
 			name: Pattern.name,
+			type: Pattern.type,
 			// RPEOptions: ["1", "2", "3", "4", "5-6", "7", "8", "9-10"],
 			RPEOptions: [1, 2, 3, 4, 5, 6, 7, 7.5, 8, 8.5, 9, 9.5, 10],
 			dataTableItems: dataTableItems, //Rows -> 1 row per SET
@@ -231,6 +244,7 @@ function getVueInfo(refDict) {
 
 	return  {
 		date: vueConvert.Date(refDict["thisWorkoutDate"]),
+		// date: refDict["thisWorkoutDate"],
 		subworkouts: vueSubworkouts,
 	};
 }

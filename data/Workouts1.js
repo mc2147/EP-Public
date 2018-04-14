@@ -1,4 +1,5 @@
 module.exports = {
+	nWorkouts: 12, //13 to test
 	Templates: {
 		1: {
 			1: {

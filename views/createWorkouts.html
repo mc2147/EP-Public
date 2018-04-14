@@ -1,0 +1,75 @@
+
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+    </style>
+    <form action="/get-next-workouts" method="POST">
+    <div style="font-size:20px; width:90%; margin:auto;">
+    <br>
+    <b>Create New Workouts</b>
+    <br><br>
+    Get your next set of workouts!!
+    <br><br>
+    Choose your level:
+    <select style="margin-left:10px; margin-right:10px;" name="workoutLevel">
+        <option value={{User.level}}>Level {{User.level}}</option>
+        {% for level in allLevels %}
+        {% if level != User.level %}
+                <option value={{level}}>Level {{level}}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+
+    Choose your start date: ({{currDate}})
+    <input id="date" type="date" name="startDate" value={{currDate}}>
+    <br><br>
+    Block #:
+    <select style="margin-left:10px; margin-right:10px;" name="workoutBlock">
+        <option value="1">1 - Volume</option>
+        <option value="2">2 - Strength/Power</option>
+    </select>
+
+    <br><br>
+    <div style="margin-bottom:15px;">Select 3-4 days of the week you want to schedule workouts on:<br></div>
+    <div style="margin-bottom:10px;">        
+        Day 1:     
+        <select style="margin-left:10px;" name="Day-1">
+            {% for day in daysOfWeek %}
+            <option value={{day[0]}}>{{day[1]}}</option>
+            {% endfor %}
+        </select>
+        <br>
+    </div>
+    <div style="margin-bottom:10px;">        
+        Day 2:
+        <select style="margin-left:10px;" name="Day-2">
+            {% for day in daysOfWeek %}
+                <option value={{day[0]}}>{{day[1]}}</option>
+            {% endfor %}
+        </select>
+        <br>
+    </div>
+    <div style="margin-bottom:10px;">        
+        Day 3:
+        <select style="margin-left:10px;" name="Day-3">
+            {% for day in daysOfWeek %}
+                <option value={{day[0]}}>{{day[1]}}</option>
+            {% endfor %}
+        </select>
+        <br>
+    </div>
+    <div style="margin-bottom:10px;">        
+        Day 4:
+        <select style="margin-left:10px;" name="Day-4">
+            {% for day in daysOfWeek %}
+                <option value={{day[0]}}>{{day[1]}}</option>
+            {% endfor %}
+        </select>
+        (Levels 6-25 only)
+        <br>
+    </div>
+    <input type="submit" value="Create Workouts">
+    </div>
+    </form>

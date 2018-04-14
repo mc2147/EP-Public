@@ -1,7 +1,11 @@
+const session = require('express-session');
 var Promise = require("bluebird");
 var bodyParser = require('body-parser');
 var express = require('express');
 var router = express.Router();
+
+const axios = require('axios');
+// import axios from 'axios';
 
 var models = require('../models');
 	var Exercise = models.Exercise;
@@ -10,11 +14,15 @@ var models = require('../models');
 	var Workout = models.Workout;
 	var User = models.User;
 
+var userFuncs = require('../models/createUser');
+	var setUser = userFuncs.SetUser;
+
 var data = require('../data');
 	var G1KeyCodes = data.Workouts1.getWeekDay;
 	var Group1WDtoID = data.Workouts1.getID;
 	var ExerciseDict = data.ExerciseDict.Exercises;
 	var RPE_Dict = data.RPETable;
+	var allWorkoutJSONs = data.AllWorkouts;
 	// var Group1Workouts = require('../WorkoutGroup1');
 
 var globalEnums = require('../globals/enums');
@@ -23,6 +31,8 @@ var globalEnums = require('../globals/enums');
 var globalFuncs = require('../globals/functions');
 	var getMax = globalFuncs.getMax;
 	var getWeight = globalFuncs.getWeight;
+	var getWorkoutDates = globalFuncs.getWorkoutDays;
+	var G_getPattern = globalFuncs.getPattern;
 
 var vueAPI = require('./vueAPI');
 	var getVueInfo = vueAPI.getVueInfo;
@@ -30,11 +40,18 @@ var vueAPI = require('./vueAPI');
 
 var workoutHandlers = require('./workoutHandlers');
 	var saveWorkout = workoutHandlers.saveWorkout;
+
+var Videos = require('../data/JSON/Videos');
+	var getVideos = Videos.getVideos;
+	var videosJSON = Videos.VideosJSON;
 	
 var UserLevel = 1
 
 var postURL = "postWorkout";
 var getURL = "getWorkout";
+
+
+
 
 var levelGroupsDict = {
 	// Add Week and Day list here too
@@ -44,19 +61,19 @@ var levelGroupsDict = {
 	4: [16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
 }
 
+// -Put everything together for entire flow
+// 	user initial creation + workout generation 
+// 		-> going through workouts + updating stats 
+// 			-> level-check 
+// 				-> stashing old workouts/stats + generate next set of workouts -> repeat
+
+
 // var Alloy = {
 // 	None: {value: 0, name: "None", code: "N", string: "None"},
 // 	Testing: {value: 2, name: "Test", code: "T", string: "Testing"},
 // 	Passed: {value: 1, name: "Passed", code: "P", string: "Passed"},
 // 	Failed: {value: -1, name: "Failed", code: "F", string: "Failed"},
 // }
-// await 
-// var thisUser;
-
-// thisUser = user;
-// G_thisStats = thisUser.stats;
-// thisPatterns = thisUser.workouts.thisPatterns;
-// userFound = true;
 
 // Ref Dict
 // Default Ref Dict
@@ -69,70 +86,34 @@ console.log("TEST: ");
 
 // var viewingWorkoutID = 1;
 
-var SessionDict = {
-	viewingWID: 1,
-	patternList: [],
+function displayDict(user, viewingWID) {
+	
 }
-// thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
-// UserDict: G_UserInfo,
-// Patterns: G_UserInfo["thisPatterns"],
-// UserStats: G_UserInfo["Stats"],			
-// levelUp: G_UserInfo["Stats"]["Level Up"],
-// UBpressStat: G_UserInfo["Stats"]["Squat"],
-// squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
-// hingeStat: G_UserInfo["Stats"]["Hinge"],
-// RPEOptions: RPE_Dict["Options"],
-// TestDict: {Test1: "Test1", Test2: "Test2"},
-// selectedWeek,
-// selectedDay,
-// allWorkouts: G_UserInfo["Workouts"],
-// WeekList,
-// DayList,
-// selectWorkoutList: changeWorkoutList,
-// thisLevels: G_UserInfo["thisLevels"],
 
-
-function userRefDict(user) {
+function userRefDict(user, viewingWID) {
 	var output = {};
 	output["User"] = user;
 	output["Stats"] = user.stats;
 	
 	output["Workouts"] = user.workouts;
-	// var thisWorkoutID = SessionDict.viewingWID; // user.currentWorkoutID;
-	var thisWorkoutID = user.currentWorkoutID;
-	output["thisWorkoutID"] = user.currentWorkoutID;
 
+	var thisWorkoutID = viewingWID;
+
+	output["thisWorkoutID"] = viewingWID;
 	output["Level"] = user.level;
-	output["thisWorkout"] = user.workouts[thisWorkoutID];
-	selectedWeek = user.workouts[thisWorkoutID].Week;
-	selectedDay = user.workouts[thisWorkoutID].Day;
-	output["thisWorkoutDate"] = user.workoutDates[user.currentWorkoutID - 1];
-	// output["thisWorkoutDate"] = user.workouts[user.currentWorkout.ID].Date;
+
+	selectedWeek = user.workouts[viewingWID].Week;
+	selectedDay = user.workouts[viewingWID].Day;	
+
+	output["thisWorkoutDate"] = user.workoutDates[user.viewingWID - 1];
 	output["thisPatterns"] = user.workouts[thisWorkoutID].Patterns;
-	// G_UserInfo["User"].workouts[TemplateID].Patterns
-	// output["levelGroup"] = 1; //Manual for now
-	// console.log("user.levelGroup: ", user.levelGroup);
+
 	output["levelGroup"] = user.levelGroup;
 	output["blockNum"] = user.blockNum;
 	output["thisLevels"] = levelGroupsDict[user.levelGroup];
-	// user.levelGroup; //Manual for now
+
 	return output
 }
-// Referenced (global) information:
-	// thisUser.level
-	// thisUser's current workout
-	// thisUser's current workout ID
-	// thisUser's stats
-	// currentWorkoutID
-// Dictionary Refs:
-	// G_UserInfo["Level"];
-	// G_UserInfo["Stats"];
-	// G_UserInfo["thisPatterns"];
-
-	// G_UserInfo["thisWorkoutID"];
-	// G_UserInfo["thisWorkout"];
-
-	// G_UserInfo["Workouts"];
 
 function dateString(date) {
 	var MonthDict = {
@@ -154,10 +135,11 @@ var thisPatterns;
 var G_thisStats;
 var G_UserInfo;
 
+//Use this to assign to req.session later
 function loadUserInfo(id) {
 	return User.findById(id).then(user => {
 		// if (user.workouts.loaded) {		
-			G_UserInfo = userRefDict(user);
+			G_UserInfo = userRefDict(user, user.currentWorkoutID);
 			thisUser = G_UserInfo["User"];
 			G_thisStats = G_UserInfo["Stats"];
 			thisPatterns = G_UserInfo["thisPatterns"];
@@ -167,190 +149,350 @@ function loadUserInfo(id) {
 	});
 }
 
-loadUserInfo(1);
+// loadUserInfo(1);
+
+router.get('/show-videos', function (req, res) {
+	res.json(getVideos(VideosJSON, thisUser.level));
+});
 
 router.get('/' + getURL, function(req, res) {
-	var workoutDates = [];
-	for (var W = 0; W < WeekList.length; W++) {
-		for (var D = 0; D < DayList.length; D++) {
-			var _W = WeekList[W];
-			var _D = DayList[D];
-			var wID = Group1WDtoID[_W][_D];
-			var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
-			workoutDates.push({Week: _W, Day: _D, Date: date});
-		}
-	}
 
-	let vueInfo = getVueInfo(G_UserInfo, workoutDates);
-	vueInfo.workoutDates = workoutDates;
-	console.log("RES.JSON");
-	res.json(vueInfo);
+	console.log("G_vueOutput", G_vueOutput);
+	res.json(G_vueOutput);
 })
 
-router.get('/', function(req, res
-	// , next
-	) {	
-	if (!thisUser) {
-		render();
+// router.get('/test-route', 
+// 	async(req, res, next) => {	
+// 		req.session.userId = 1;
+// 		req.session.User = await User.findById(req.session.userId);
+// 		req.session.User.workouts = {"test": "test"};
+// 		await req.session.User.save();		
+// 		var realUser = 	await User.findById(req.session.userId);
+// 		console.log("==: ", 
+// 		realUser === req.session.User);
+// 		res.json({"test": "test"});
+// 	})
+
+//ADD to req.session
+	//User.WorkoutDates
+	//currentWorkoutID
+	//viewingWID
+	//workouts
+	//current workout patterns 
+//^^HIGH LEVEL REQUIREMENTS
+	//req.session.viewingWorkout
+	//req.session.User
+
+var thisUserID = 5;
+
+var thisUserName = "UserName5";
+
+var allLevels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+var daysOfWeek = [
+	[1, "Monday"], 
+	[2, "Tuesday"], 
+	[3, "Wednesday"], 
+	[4, "Thursday"], 
+	[5, "Friday"], 
+	[6, "Saturday"],
+	[0, "Sunday"], 
+];
+
+var DaysofWeekDict = {
+	0: "Sunday",
+	1: "Monday",
+	2: "Tuesday",
+	3: "Wednesday",
+	4: "Thursday",
+	5: "Friday",
+	6: "Saturday",
+}
+
+router.get('/signup',
+	async function(req, res, next) {
+		res.render("signup");
+	}
+)
+router.get('/login',
+	async function(req, res, next) {
+		res.render("login");
+	}
+)
+
+router.post('/signup',
+	async function(req, res, next) {
+		res.render(req.body);
+	}
+)
+router.post('/login',
+	async function(req, res, next) {
+		res.json(req.body);
+	// 	res.render("createWorkouts", {allLevels, daysOfWeek});
+	}
+)
+
+
+
+router.get('/get-next-workouts',
+	async function(req, res, next) {
+		var _User = await User.findById(req.session.userId);	
+		// res.json(_User);
+		var dateNow = new Date(Date.now());
+		var month = dateNow.getMonth() + 1;
+		if (month < 10) {
+			month = "0" + month;
+		}
+		var date = dateNow.getDate();
+		if (date < 10) {
+			date = "0" + date;
+		}
+		var currDate = dateNow.getFullYear() + "-" + month + "-" + date;
+		console.log("currDate: ", currDate);
+		res.render("createWorkouts", {allLevels, daysOfWeek, User: _User, currDate});
+	}
+)
+
+router.post('/get-next-workouts',
+	async function(req, res, next) {
+		if (!req.session.userId) {
+			req.session.userId = 5;
+		}
+		setUser(parseInt(req.session.userId), "", "", "", "", "");
+		var input = req.body;
+		var dateSplit = req.body.startDate.split("-");
+		var dateNow = Date.now();
+		// input.test = {};
+		input.dateObj1 = Date.parse(req.body.startDate);
+		input.dateObj2 = new Date(
+			parseInt(dateSplit[0]), 
+			parseInt(dateSplit[1] - 1), 
+			parseInt(dateSplit[2] - 1)); 
+		input.dateObj3 = dateNow;
+		input.dateObj4 = new Date(Date.now());
+		var daysList = [
+			parseInt(req.body["Day-1"]),
+			parseInt(req.body["Day-2"]),
+			parseInt(req.body["Day-3"]),
+			// parseInt(req.body["Day-4"]),
+		];
+		var Level = parseInt(req.body.workoutLevel); //Determine N Workouts based on that
+		var Group = 0;
+		var Block = parseInt(req.body.workoutBlock);
+		var TemplatesJSON = {};
+		input.level = Level;
+		if (Level <= 5) {
+			Group = 1;
+			TemplatesJSON = allWorkoutJSONs[Group];
+		}
+		else if (Level <= 10) {
+			Group = 2;
+			TemplatesJSON = allWorkoutJSONs[Group];
+			daysList.push(parseInt(req.body["Day-4"]));
+		}
+		else if (Level <= 16) {
+			Group = 3;
+			// Block = "a";
+			TemplatesJSON = allWorkoutJSONs[Group][Block];
+			daysList.push(parseInt(req.body["Day-4"]));
+		}
+		else {
+			Group = 4;
+			// Block = "a";
+			TemplatesJSON = allWorkoutJSONs[Group][Block];
+			daysList.push(parseInt(req.body["Day-4"]));
+		}
+		var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
+		input.nWorkouts = nWorkouts;
+		input.daysList = daysList;
+		// var Templates = allWorkoutJSONs[]
+
+		var workoutDates = getWorkoutDates(input.dateObj2, daysList, Level, "", nWorkouts);
+		input.workoutDates = workoutDates;
+		input.detailedworkoutDates = [];
+		workoutDates.forEach((elem) => {
+			var item = [elem];
+			item.push(DaysofWeekDict[elem.getDay()]);
+			input.detailedworkoutDates.push(item);
+		});
+		var Templates = TemplatesJSON.Templates;
+		input.workouts = {};
+		for (var W in Templates) {
+			var thisWeek = Templates[W];
+			for (var D in thisWeek) {
+				var ID = thisWeek[D].ID;
+				input.workouts[ID] = {
+					ID: null,
+					Week: null,
+					Day: null,
+					Date: null,
+					Completed: false,
+					Patterns: [],
+				};                 
+				input.workouts[ID].Week = W;
+				input.workouts[ID].Day = D;
+				input.workouts[ID].ID = ID;
+				var thisworkoutDate = workoutDates[ID - 1];
+				input.workouts[ID].Date = thisworkoutDate;
+				// if (thisworkoutDate >= new Date(Date.now())) {
+					// }
+				}
+		}
+		var updatedUser = await User.findById(req.session.userId);
+		updatedUser.workouts = input.workouts;
+		updatedUser.currentWorkoutID = 1;
+		updatedUser.workoutDates = workoutDates;
+		await updatedUser.save();
+		req.session.viewingWID = 1;
+		req.session.User = updatedUser;
+
+		// req.session.User.currentWorkoutID = 1;
+		// req.session.User.workouts = input.workouts;
+
+		
+		// await req.session.User.save();
+
+		input.user = req.session.User;
+		console.log(req.body.startDate);
+		res.json(input);
+	}
+)
+
+var G_vueOutput = {};
+
+router.get('/', 
+	async(req, res, next) => {	
+	// req.session.userId -> find user -> get information as req.session.user
+	// req.session.userId = 1;
+	// req.session.userId = thisUserID;
+	if (!req.session.username) {
+		req.session.username = thisUserName;
+		axios.get(`http://localhost:3000/api/user/logged-in`, { proxy: { host: '127.0.0.1', port: 3000 } })
+		.then(res => res.data)
+		.then(user => {
+				if (!user) {
+					req.session.username = "UserName5";
+				}
+				else {
+					req.session.username = user.username;
+				}
+			} 
+		);
+	}
+	req.session.User = await User.findOne({where: {username: req.session.username}});
+	req.session.userId = req.session.User.id;
+		// (req.session.userId);
+	// req.session.User = await User.findById(req.session.userId);
+	// thisUser = req.session.User;
+
+	if (!req.session.viewingWID) {
+		req.session.viewingWID = req.session.User.currentWorkoutID;
 	}
 
-	// loadUserInfo(1);
-	G_UserInfo = userRefDict(thisUser);
-
-	var TemplateID = G_UserInfo["thisWorkoutID"];
-
-	var _Level = G_UserInfo["Level"];
-	var wDateIndex = G_UserInfo["thisWorkoutID"] - 1;
-	G_UserInfo["thisWorkoutDate"] = G_UserInfo["User"].workoutDates[wDateIndex];
-	// // Make a refresh dictionary function later
-	// console.log("Loading Patterns: ", G_UserInfo["User"].workouts[TemplateID].Patterns);
+	req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];
+	// console.log("index.js 189 thisPatterns", req.session.User.workouts[req.session.viewingWID]);
+	// console.log("router.get stats", req.session.User.stats);
+	console.log("router.get patterns \n");
+    req.session.viewingWorkout.Patterns.forEach((elem) => {
+        console.log("alloy Status: ", elem.alloystatus);
+    })
 	
-	var thisworkoutDate = G_UserInfo["Workouts"][TemplateID].Date;
-	if (G_UserInfo["User"].workouts[TemplateID].Patterns.length != 0
-		// || G_UserInfo["thisPatterns"].length != 0
-	) {
-		G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
-		G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
-		// let userInfoToSend = getVueInfo(G_UserInfo); 
-		// console.log("RES.JSON");
-		// res.json(userInfoToSend);
-		// G_UserInfo
+	// G_UserInfo = userRefDict(thisUser, req.session.viewingWID);
+	// G_UserInfo["thisWorkoutID"] = req.session.viewingWID;
+	// console.log("req.session 204", req.session);
+	//On Reset: req.session.userInfo = {};
+	if (!req.session.User) {
 		render();
 		return
 	}
+	console.log("req.session: ", req.session);
+	// loadUserInfo(1);
+	
+	
+	var TemplateID = req.session.viewingWID;
+	var wDateIndex = req.session.viewingWID - 1;
+	req.session.viewingWorkoutDate = req.session.User.workoutDates[wDateIndex];
+
+	var _Level = req.session.User.level;
+
+	// G_UserInfo["thisWorkoutDate"] = req.session.User.workoutDates[wDateIndex];
+	
+
+	var thisworkoutDate = req.session.User.workouts[TemplateID].Date;
+
+	//Change to req.session later
+	if (
+		// req.session.User.workouts[TemplateID].Patterns.length != 0
+		req.session.User.workouts[req.session.viewingWID].Patterns.length != 0
+		// ||  G_UserInfo["thisPatterns"].length != 0
+	) {
+		console.log("LINE 219");
+		// G_UserInfo["thisPatterns"] = req.session.User.workouts[TemplateID].Patterns;
+		// G_UserInfo["thisWorkout"] = req.session.User.workouts[TemplateID];
+		render();
+		return
+	}
+	console.log("LINE 225:	" + TemplateID);
 
 	// G_UserInfo["User"].workouts[TemplateID].Patterns = 
 	var Patterns = [];
 
 	// if (!WorkouthasData) {};
 
-	WorkoutTemplate.findOne({
-		where: {
-			levelGroup: G_UserInfo["levelGroup"],
-			block: G_UserInfo["User"].blockNum,
-	        week: selectedWeek,
-	        day: selectedDay			
-		}
-	}).then(template => {
-		var SubWorkouts = template.getSubWorkouts().then(subs => {
-			subs.sort(function(a, b) {
-				return a.number - b.number
-			});
-			subs.forEach(elem => {
-				// Elem information
-				var patternInstance = {};
-				var N = elem.number;
-				var Sets = elem.sets;
-				// Adding info to patterInstance
-				patternInstance.number = N;
-				patternInstance.type = elem.exerciseType;
-				patternInstance.reps = elem.reps;
-				// patternInstance.RPE = elem.RPE;
-				// patternInstance.RPE = "elem.RPE";
-				patternInstance.alloy = elem.alloy;
-
-				if (patternInstance.alloy) {
-					patternInstance.alloyreps = elem.alloyreps;
-					patternInstance.alloystatus = Alloy.None;					
-					Sets -= 1;
-				}
-				
-				var EType = elem.exerciseType;
-				if (elem.exerciseType == "Med Ball") {
-					EType = "Medicine Ball";
-				}
-				else if (elem.exerciseType == "Vert Pull") {
-					EType = "UB Vert Pull";
-				} 
-				// console.log(EType);
-
-				patternInstance.name = ExerciseDict[EType][_Level].name;	
-				patternInstance.setList = [];
-				patternInstance.sets = Sets;
-				patternInstance.workoutType = elem.type;
-				// console.log("elem.type: " + elem.type, elem.exerciseType);
-				if (patternInstance.workoutType == "stop") {
-					patternInstance.stop = true;
-					patternInstance.specialValue = elem.specialValue;
-					patternInstance.specialString = elem.specialValue + " RPE";
-					Sets = 1;
-					patternInstance.sets = 1;
-					patternInstance.specialStage = 0;
-				}
-				else if (patternInstance.workoutType == "drop") {
-					patternInstance.drop = true;
-					patternInstance.specialValue = elem.specialValue;
-					patternInstance.specialString = elem.specialValue + " %";
-					Sets = 1;
-					patternInstance.sets = 1;
-					patternInstance.specialStage = 0;
-				}
-				// Adding setDicts to patterInstancesetList -> []
-				// if (!thisUser.workouts.patternsLoaded) {
-				// console.log("repsList: ", elem.repsList);
-				for (var i = 0; i < Sets; i ++) {
-					var Reps = elem.reps;
-					var RPE = elem.RPE;
-					// Check for RPE Ranges
-					if (elem.RPE == null) {
-						// console.log("null RPE");
-						if (elem.RPERange.length > 0) {
-							// console.log(elem.RPERange);
-							RPE = elem.RPERange[0] + "-" + elem.RPERange[1];
-						}
-						else if (elem.repsList.length > 0) {
-							// console.log(elem.repsList[i]);
-							Reps = parseInt(elem.repsList[i]);
-							RPE = elem.RPEList[i];
-						}
-						else {
-							RPE = "---";							
-						}
-					}
-					patternInstance.setList.push({
-						SetNum: i + 1,
-						Weight: null,
-						RPE: null,
-						SuggestedRPE:RPE,
-						Reps: Reps,
-						// Tempo: [null, null, null],
-						Filled: false,
-					});
-				}
-					// G_UserInfo["thisPatterns"].push(patternInstance);
-					G_UserInfo["User"].workouts[TemplateID].Patterns.push(patternInstance);
-					G_UserInfo["thisPatterns"] = G_UserInfo["User"].workouts[TemplateID].Patterns;
-					G_UserInfo["thisWorkout"] = G_UserInfo["User"].workouts[TemplateID];
-					G_UserInfo["User"].save();
-				// }
-				// Some backwards referencing was going on here
-			});
-
-			// console.log("\nWATCH THIS!!! \n");
-			// console.log("thisUser.workouts.thisPatterns:");
-			// for (var P = 0; P < thisPatterns.length; P ++) {
-			// 	var _Pattern = thisPatterns[P];
-			// 	console.log("	" + thisPatterns[P].type + ", " + _Pattern.name + ", " 
-			// 	+ _Pattern.sets + " x " + _Pattern.reps + ", " + _Pattern.RPE + " RPE, " + (_Pattern.alloy ? "Alloy, " : "Regular, ")
-			// 	+ "Set List Count: " + _Pattern.setList.length);
-			// }
-			// console.log("\n");
-
-			G_UserInfo["User"].workouts.patternsLoaded = true;
-			G_UserInfo["User"].save();
-			render();
-		});
-	});
+	var lgroup = req.session.User.levelGroup;
+	var block = req.session.User.blockNum; 
+	var templateAPIURL = `/api/workout-templates/${lgroup}/block/${block}/week/${selectedWeek}/day/${selectedDay}`;
 	
-	function render() {
+	var templateResponse = await axios.get(templateAPIURL
+		,{ proxy: { host: '127.0.0.1', port: 3000 }}
+	);
+	var thisTemplate  = templateResponse.data;
+	
+	var subsAPIURL = templateAPIURL + '/subworkouts';
+	var subData = await axios.get(subsAPIURL
+		,{ proxy: { host: '127.0.0.1', port: 3000 }}
+	);
+	var thisSubs = subData.data;
+			
+			
+	console.log("thisSubs", thisSubs);
+
+	
+	thisSubs.forEach(elem => {
+		var _Type = elem.exerciseType;
+		if (_Type == "Med Ball") {_Type = "Medicine Ball";}
+		else if (_Type == "Vert Pull") {_Type = "UB Vert Pull";} 	
+		
+		var eName = ExerciseDict[_Type][req.session.User.level].name;
+
+		var userPattern = elem.patternFormat;
+		
+		userPattern.name = eName;
+		req.session.User.workouts[TemplateID].Patterns.push(userPattern);
+		req.session.User.save();
+	});
+
+	render();
+	
+	async function render() {
 		console.log("RENDER FUNCTION");
 		// console.log("thisPatterns: " + thisPatterns.length);
+		// VUE STUFF		
 
+		req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];
+		let vueJSON = req.session.viewingWorkout;
+		vueJSON.thisWorkoutDate = new Date(req.session.User.workoutDates[req.session.viewingWID - 1]);
+		let vueInfo = getVueInfo(vueJSON);
+		G_vueOutput = vueInfo;
+		G_vueOutput.workoutDates = req.session.User.workoutDates;
+		// res.json(thisWorkout);
+		
 		// console.log(G_UserInfo["thisWorkoutDate"]);
 		// console.log(typeof G_UserInfo["thisWorkoutDate"]);
 		var changeWorkoutList = [];
-		var  WorkoutDict = G_UserInfo["User"].workouts;
+		var  WorkoutDict = req.session.User.workouts;
 		// console.log("WorkoutDict", WorkoutDict);
+		console.log(req.session.User.workoutDates);
+		console.log("# of workoutDates: ", req.session.User.workoutDates.length);
 		for (var K in WorkoutDict) {
 			var Workout = WorkoutDict[K];
 			if (!Workout.ID) {
@@ -360,118 +502,86 @@ router.get('/', function(req, res
 			var _D = Workout.Day;
 			var wID = Workout.ID;
 			// var date = G_UserInfo["User"].workoutDates[wID - 1];
-			var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
+			console.log(wID);
+			var date = dateString(req.session.User.workoutDates[wID - 1]);
 			// console.log("date", date, _W, _D, K);
 			changeWorkoutList.push({Week: _W, Day: _D, Date: date, ID: wID});		
 		}
 
-		// for (var W = 0; W < WeekList.length; W++) {
-		// 	for (var D = 0; D < DayList.length; D++) {
-		// 		var _W = WeekList[W];
-		// 		var _D = DayList[D];
-		// 		var wID = Group1WDtoID[_W][_D];
-		// 		var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
-		// 		changeWorkoutList.push({Week: _W, Day: _D, Date: date});
-		// 	}
-		// }
-		
-		// for (var W = 0; W < WeekList.length; W++) {
-		// 	for (var D = 0; D < DayList.length; D++) {
-		// 		var _W = WeekList[W];
-		// 		var _D = DayList[D];
-		// 		var wID = Group1WDtoID[_W][_D];
-		// 		var date = dateString(G_UserInfo["User"].workoutDates[wID - 1]);
-		// 		changeWorkoutList.push({Week: _W, Day: _D, Date: date});
-		// 	}
-		// }
-		User.findById(1).then((user) => {
-			// console.log("User Stats: ", user.stats);
-			// console.log("typeof user", typeof user);
-			// console.log(G_UserInfo["User"] == user);
-		});
-		// console.log("user dict stats: ", G_UserInfo["User"].stats);
-		// console.log("typeof userDict", typeof G_UserInfo["User"]);
-		// console.log("typeof userDict.save", typeof G_UserInfo["User"].save);
-		thisUser.stats = G_UserInfo["User"].stats;
-		var workoutsClone = thisUser.workouts;
-		workoutsClone[G_UserInfo["thisWorkoutID"]].Patterns = G_UserInfo["thisPatterns"];
-		thisUser.workouts = workoutsClone;
+		// console.log("379 user workouts", req.session.User.workouts);
+
+		// thisUser.stats = G_UserInfo["User"].stats;
+		// var workoutsClone = thisUser.workouts;
+		var workoutsClone = req.session.User.workouts;		
+		// console.log("379 viewingWID", req.session.viewingWID);
+		// workoutsClone[req.session.viewingWID].Patterns = G_UserInfo["thisPatterns"];
+		// req.session.User.workouts = workoutsClone;
 
 
-		// // console.log("397: \n\n", thisUser.workouts);
-		// // console.log("thisWorkoutID: ", G_UserInfo["thisWorkoutID"]);
-		// // console.log()
-		// // console.log("397: \n\n", thisUser.workouts[G_UserInfo["thisWorkoutID"]]);
-		// User.findById(1).then((user) => {
-		// 	// res.json(user.stats);
-		// 	user.workouts.Patterns = G_UserInfo["thisPatterns"];
-
-		// 	var workoutsClone = user.workouts;
-		// 	workoutsClone[G_UserInfo["thisWorkoutID"]].Patterns = G_UserInfo["thisPatterns"];
-		// 	// user.workouts[G_UserInfo["thisWorkoutID"]] = {};
-		// 	user.workouts = workoutsClone;
-
-		// 	// user.workouts = {};
-		// 	user.save().then(() => {
-		// 		console.log("saved: ", user.workouts);
-		// 	});
-		// 	console.log("user = user", user == thisUser);
-		// 	// res.json(user.workouts);
-		// })
-			// console.log("398: \n\n", thisUser.workouts[G_UserInfo["thisWorkoutID"]].Patterns);
-		// thisUser.workouts[G_UserInfo["thisWorkoutID"]] = "Test";
-		// .Patterns = ["Test"];
-		thisUser.save();
+		await req.session.User.save();
 		// G_UserInfo["User"].save()
-		thisUser.save().then(() => {
+		// req.session.User.save().then(() => {
+		var realUser = await User.findById(req.session.userId);
+		realUser.workouts = req.session.User.workouts;
+		await realUser.save();
+		// req.session.User = await User.findById(req.session.userId);
+		var thisWorkout = req.session.User.workouts[req.session.viewingWID];
+		// console.log("thisWorkout 378", thisWorkout);
+		var vWID = req.session.viewingWID;
+		var WDateList = req.session.User.workoutDates;
+		sessionSave = req.session;
 			res.render('main', 
 			{
 				ETypes: ExerciseDict["Types"],
-				// Patterns: UserStats.CurrentWorkout.Patterns,
-				// ExerciseStats: UserStats.ExerciseStats,			
-				thisWorkoutID: G_UserInfo["thisWorkoutID"],
-				thisDate: dateString(G_UserInfo["thisWorkoutDate"]),
-				UserDict: G_UserInfo,
-				Patterns: G_UserInfo["thisPatterns"],
-				
-				// UserStats: G_UserInfo["Stats"],			
-				UserStats: G_UserInfo["User"].stats,
-				// UserStats: {},
+				CurrentDate: dateString(WDateList[req.session.User.currentWorkoutID - 1]),
+				ViewingDate: dateString(WDateList[req.session.viewingWID - 1]),
 
-				levelUp: G_UserInfo["Stats"]["Level Up"],
-				UBpressStat: G_UserInfo["Stats"]["Squat"],
-				squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
-				hingeStat: G_UserInfo["Stats"]["Hinge"],
+				thisWorkoutID: req.session.viewingWID,
+				Patterns: thisWorkout.Patterns,				
+				UserStats: req.session.User.stats,			
+
+				levelUp: req.session.User["Level Up"],
+				UBpressStat: req.session.User["UB Hor Push"],
+				squatStat: req.session.User["Squat"],
+				hingeStat: req.session.User["Hinge"],
 				RPEOptions: RPE_Dict["Options"],
-				TestDict: {Test1: "Test1", Test2: "Test2"},
 				selectedWeek,
-				selectedDay,
-				allWorkouts: G_UserInfo["Workouts"],
-				WeekList,
-				DayList,
+				selectedDay,				
 				selectWorkoutList: changeWorkoutList,
-				thisLevels: G_UserInfo["thisLevels"],
+				allWorkouts: req.session.User.workouts,
+				thisLevels: levelGroupsDict[req.session.User.levelGroup],
 			});
-		})
 	}
 });
 
+var sessionSave = {};
 
-router.post('/' + postURL, function(req, res) {	
+router.post('/' + postURL, async (req, res) => {	
 	// var inputCodes = req.body["inputCodes"];
 	// console.log("selectForm: " + req.body.selectForm);
 	// console.log("req.body: ", req.body);
-	var outputs = {}	
+	var outputs = {};	
+	console.log("routes/index 640 post", req.body);
+	req.session.User = await User.findById(req.session.userId);
+	var realUser = await User.findById(req.session.userId);
 	if (req.body.SaveBtn) {
 		console.log("Save PRESSED");
-		saveWorkout(req.body, G_UserInfo);
-		G_UserInfo["User"].save().then(() => {
-			res.redirect('/');		
-			return
-		});
+		// console.log(req.session);
+		// console.log(req.session.User.workouts[req.session.viewingWID]);
+		// console.log(req.session.User.workouts[req.session.viewingWID].Patterns);
+		// saveWorkout(req.body, G_UserInfo);
+		await saveWorkout(req.body, sessionSave.User, sessionSave.viewingWID); //cross-origin session
+		res.redirect('/');
+		return
+		// G_UserInfo["User"].save().then(() => {
+		// 	res.redirect('/');		
+		// 	return
+		// });
 	}
 	
 	if (req.body.changeLevel || req.body.changeLGroup) {
+		res.redirect('/');
+		return;
 		// if (req.body.changeLGroup) {}
 		// console.log("selectLevelGroup", req.body.selectLevelGroup);
 		// console.log("selectLevel", req.body.selectLevel);
@@ -480,7 +590,7 @@ router.post('/' + postURL, function(req, res) {
 	console.log("333");
 	if (req.body.changeWorkoutBtn || req.body.NextBtn || req.body.PrevBtn) {
 		// G_UserInfo["User"].workouts.patternsLoaded = false;
-		G_UserInfo["thisPatterns"] = [];
+		// G_UserInfo["thisPatterns"] = [];
 		if (req.body.changeWorkoutBtn) {
 			var selectedWD = req.body.changeWorkoutSelect.split("|");
 			console.log(selectedWD);
@@ -488,32 +598,50 @@ router.post('/' + postURL, function(req, res) {
 			var _D = parseInt(selectedWD[1]);
 			// G_UserInfo["thisWorkoutID"] = Group1WDtoID[_W][_D];
 			var newWID = parseInt(req.body.changeWorkoutSelect);
-			var newWorkout = G_UserInfo["User"].workouts[req.body.changeWorkoutSelect];
 			
-			
+			var newWorkout = req.session.User.workouts[req.body.changeWorkoutSelect];
+
 			selectedWeek = parseInt(newWorkout.Week);
 			selectedDay = parseInt(newWorkout.Day);
 			console.log("NEW WORKOUT ID: " + req.body.changeWorkoutSelect);
 			console.log("NEW WORKOUT: ", newWorkout, "Week: " + selectedWeek, "Day: " + selectedDay);
-			G_UserInfo["User"].currentWorkoutID = parseInt(newWID);
-			G_UserInfo["User"].save().then(() => {
-				res.redirect('/');
-				return				
-			});
+			// Using req.session
+			req.session.viewingWID = newWID;
+			console.log("new WID: " + req.session.viewingWID
+			+ " week: " + selectedWeek + " day: " + selectedDay);
+			res.redirect('/');
+			return;
+
+			// 	G_UserInfo["User"].currentWorkoutID = parseInt(newWID);
+			// G_UserInfo["User"].save().then(() => {
+			// 	res.redirect('/');
+			// 	return				
+			// });
 		// G_UserInfo["thisWorkoutID"] = nextWorkoutID;
 		}
 		else if (req.body.NextBtn || req.body.PrevBtn) {
-			var nWorkouts = G_UserInfo["User"].workoutDates.length;
+			var nWorkouts = req.session.User.workoutDates.length;
 			console.log("nWorkouts: " + nWorkouts);
-			var nextWorkoutID = G_UserInfo["thisWorkoutID"] + 1;
+			var nextWorkoutID = req.session.viewingWID + 1;
 			if (req.body.PrevBtn) {
-				nextWorkoutID = G_UserInfo["thisWorkoutID"] - 1;
-				if (G_UserInfo["thisWorkoutID"] == 1) {
+				nextWorkoutID = req.session.viewingWID - 1;
+				if (req.session.viewingWID == 1) {
 					nextWorkoutID = nWorkouts;	
 				}			
 			} 
 			if (nextWorkoutID > nWorkouts) {
-				console.log("redirecting to workout: " + nextWorkoutID);
+				// console.log("redirecting to workout: " + nextWorkoutID);
+				//"Submit" last workout here
+				var levelUpStats = req.session.User.stats["Level Up"];
+				if (!realUser.stats["Level Up"].Status.Checked && realUser.stats["Level Up"].Status.value == 1) {
+					realUser.level ++;
+				}
+				realUser.level ++;
+				realUser.stats["Level Up"].Status.Checked = true;
+				console.log("Going to level-up: ", realUser.stats["Level Up"].Status);
+				realUser.changed( 'stats', true);
+				await realUser.save();
+				// res.json(realUser);
 				res.redirect('/level-up');
 				return
 				// Test user here
@@ -522,16 +650,24 @@ router.post('/' + postURL, function(req, res) {
 			// G_UserInfo["thisWorkoutID"] = nextWorkoutID;
 			// NOOOO
 			//USE "VIEWING WORKOUT ID"
-			G_UserInfo["User"].currentWorkoutID = nextWorkoutID; 
-			G_UserInfo["User"].save().then(() => {
-				res.redirect('/');
-				return				
-			}
-			);			
+			// G_UserInfo["User"].currentWorkoutID = nextWorkoutID; 
+
+			// Using req.session
+			console.log("nextWorkoutID 512", nextWorkoutID);
+			selectedWeek = req.session.User.workouts[nextWorkoutID].Week;
+			selectedDay = req.session.User.workouts[nextWorkoutID].Day;
+			req.session.viewingWID = nextWorkoutID;
+			res.redirect('/');
+			return;
+
+				// G_UserInfo["User"].save().then(() => {
+				// 	res.redirect('/');
+				// 	return				
+				// }
+				// );			
+				
 			console.log("NEXT WORKOUT ID: " + nextWorkoutID); 
 			// console.log("NEXT WORKOUT Week/Day: " + G1KeyCodes[nextWorkoutID].Week + ", " + G1KeyCodes[nextWorkoutID].Day); 
-			selectedWeek = G_UserInfo["User"].workouts[nextWorkoutID].Week;
-			selectedDay = G_UserInfo["User"].workouts[nextWorkoutID].Day;
 			// selectedWeek = G1KeyCodes[nextWorkoutID].Week;
 			// selectedDay = G1KeyCodes[nextWorkoutID].Day;
 		}
@@ -552,76 +688,24 @@ router.post('/' + postURL, function(req, res) {
 		console.log(wID);
 		usr.workouts[wID].Completed = true;
 		usr.save();
+		thisUser.workouts = usr.workouts;
+		thisUser.save();
 		// G_UserInfo["thisWorkout"].Completed = true;
 		// G_UserInfo["User"].workouts[]
 		// G_UserInfo["User"].save();
 		res.redirect('/');
 	}
-
 });
-
-
-
-
-
-function reset() {
-UserStats = {
-	Level: 1,
-	AlloyPerformed: {
-		"UB Hor Push": 0, 
-		"UB Vert Push": 0, 
-		"UB Hor Pull": 0, 
-		"UB Vert Pull": 0, 
-		"Hinge": 0,
-		"Squat": 0, 
-		"LB Uni Push": 0, 
-		"Ant Chain": 0, 
-		"Post Chain": 0, 
-		"Carry": 0, 
-		"Iso 1": 0, 
-		"Iso 2": 0, 
-		"Iso 3": 0, 
-		"Iso 4": 0, 		
-	},
-	ExerciseStats: {
-		"UB Hor Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"UB Vert Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"UB Hor Pull": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"UB Vert Pull": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Hinge": {Status: Alloy.None, Max: 100, LastSet: ""},
-		"Squat": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"LB Uni Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Ant Chain": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Post Chain": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Carry": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 1": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 2": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 3": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-		"Iso 4": {Status: Alloy.None, Max: 100, LastSet: ""}, 
-	},
-	CurrentSets: {
-
-	},
-	CurrentWorkout: {
-		Week: 1,
-		Day: 1,
-		LGroup: 1,
-		TemplateID: 1,
-	},
-	TemplateID: 1,
- }
- return;
-}
 
 router.get('/level-up', function(req, res) {
 	console.log("555");
 	res.render('levelcheck', {
-		User: G_UserInfo["User"],
-		UserStats: G_UserInfo["Stats"],			
-		levelUp: G_UserInfo["Stats"]["Level Up"],
-		benchStat: G_UserInfo["Stats"]["Squat"],
-		squatStat: G_UserInfo["Stats"]["UB Hor Pull"],
-		hingeStat: G_UserInfo["Stats"]["Hinge"],		
+		User: req.session.User,
+		UserStats: req.session.User.stats,			
+		levelUp: req.session.User.stats["Level Up"],
+		benchStat: req.session.User.stats["UB Hor Push"],
+		squatStat: req.session.User.stats["Squat"],
+		hingeStat: req.session.User.stats["Hinge"],		
 	});
 })
 
@@ -683,4 +767,55 @@ router.get('/workouts', function(req, res) {
 	});
 });
 
+
+
+function reset() {
+	UserStats = {
+		Level: 1,
+		AlloyPerformed: {
+			"UB Hor Push": 0, 
+			"UB Vert Push": 0, 
+			"UB Hor Pull": 0, 
+			"UB Vert Pull": 0, 
+			"Hinge": 0,
+			"Squat": 0, 
+			"LB Uni Push": 0, 
+			"Ant Chain": 0, 
+			"Post Chain": 0, 
+			"Carry": 0, 
+			"Iso 1": 0, 
+			"Iso 2": 0, 
+			"Iso 3": 0, 
+			"Iso 4": 0, 		
+		},
+		ExerciseStats: {
+			"UB Hor Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"UB Vert Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"UB Hor Pull": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"UB Vert Pull": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Hinge": {Status: Alloy.None, Max: 100, LastSet: ""},
+			"Squat": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"LB Uni Push": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Ant Chain": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Post Chain": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Carry": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Iso 1": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Iso 2": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Iso 3": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+			"Iso 4": {Status: Alloy.None, Max: 100, LastSet: ""}, 
+		},
+		CurrentSets: {
+	
+		},
+		CurrentWorkout: {
+			Week: 1,
+			Day: 1,
+			LGroup: 1,
+			TemplateID: 1,
+		},
+		TemplateID: 1,
+	 }
+	 return;
+	}
+	
 module.exports = router;

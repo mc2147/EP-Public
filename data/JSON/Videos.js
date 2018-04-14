@@ -1,3 +1,5 @@
+DescriptionsJSON = require("./Descriptions");
+
 VideosJSON = {
     "Posterior Chain": {
         "Single Leg Hip Thrust": {
@@ -148,6 +150,9 @@ for (var Key in VideosJSON) {
         if (!VideosCategory[K].URL) {
             VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
         }
+        if (Key in DescriptionsJSON) {
+            VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
+        }
         VideosList.push(VideosCategory[K]);
     }
 }
@@ -160,7 +165,7 @@ for (var i = 1; i <= 25; i++) {
 // console.log("LevelList", LevelList);
 
 function vueConvert (JSON, levelFilter) {
-    output = {
+    var output = {
         videoList:[],
         selectedVideo:{}
     };
@@ -184,6 +189,36 @@ function vueConvert (JSON, levelFilter) {
     // console.log(output);    
     return output;
 }
+
+function getVideos(JSON, Level) {
+    var output = [];
+    for (var Key in JSON) {
+        var VideosCategory = JSON[Key];
+        for (var K in VideosCategory) {
+            if (VideosCategory[K].LevelAccess <= Level) {
+                var elem = Object.assign({}, VideosCategory[K]); 
+                elem.label = K;
+                elem.image = '../../static/video_placeholder.png';
+                elem.levels = LevelList.slice(elem.LevelAccess - 1);
+                output.push(elem);
+            }
+        }        
+    };
+    output.sort(function(a, b) {
+        return (a.LevelAccess - b.LevelAccess);
+    });
+    output.sort(function(a, b) {
+        var x = a.label;
+        var y = b.label;
+        if (x < y) {return -1};
+        if (x > y) {return 1};
+        return 0;
+    })
+    return output;
+}
+
+// console.log(getVideos(VideosJSON, 5));
+
 vueConvert(VideosJSON, 1);
 // module.exports = VideosJSON;
-module.exports = {VideosJSON, vueConvert};
+module.exports = {VideosJSON, vueConvert, getVideos};

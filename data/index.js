@@ -8,6 +8,7 @@ var Workouts4a = require('./Workouts4a');
 var Workouts4b = require('./Workouts4b');
 var VideosJSON = require('./JSON/Videos').VideosJSON;
 var VideosVue = require('./JSON/Videos').vueConvert;
+var DescriptionsJSON = require('./JSON/Descriptions');
 
 // export default VideosJSON;
 
@@ -54,4 +55,5 @@ module.exports = {
     Workouts4b,
     ExerciseDict,
     RPETable,
+    DescriptionsJSON,
 }

@@ -1,5 +1,8 @@
 var data = require('../data');
-var RPE_Dict = data.RPETable;
+    var RPE_Dict = data.RPETable;
+
+var globalEnums = require('../globals/enums');
+	var Alloy = globalEnums.Alloy;
 
 // Date Examples
 var newDate = new Date(2018, 3, 10, 00, 0, 0, 0);
@@ -161,7 +164,92 @@ function getWeight(max, reps, RPE) {
 	return Estimate - (Estimate % 5);
 }
 
+function getPattern(sub, exerciseName) {
+    var pattern = {};
+    var Sets = sub.sets;
+    var EType = sub.exerciseType;
+    pattern.number = sub.number;
+    pattern.type = EType;
+    pattern.reps = sub.reps;
+    pattern.alloy = sub.alloy;
+
+    pattern.name = exerciseName;	
+    pattern.setList = [];
+    pattern.sets = Sets;
+    pattern.workoutType = sub.type;
+    // Alloy Condition
+    if (pattern.alloy) {
+        pattern.alloyreps = sub.alloyreps;
+        pattern.alloystatus = Alloy.None;					
+        pattern.sets -= 1;
+    }
+    // Name Exceptions Condition        
+    if (pattern.type == "Med Ball") {
+        pattern.type = "Medicine Ball";
+    }
+    else if (pattern.type == "Vert Pull") {
+        pattern.type = "UB Vert Pull";
+    } 
+
+
+    if (pattern.workoutType == "stop") {
+        pattern.stop = true;
+        pattern.specialValue = sub.specialValue;
+        pattern.specialString = sub.specialValue + " RPE";
+        Sets = 1;
+        pattern.sets = 1;
+        pattern.specialStage = 0;
+    }
+    else if (pattern.workoutType == "drop") {
+        pattern.drop = true;
+        pattern.specialValue = sub.specialValue;
+        pattern.specialString = sub.specialValue + " %";
+        pattern.dropRPE = sub.RPE;
+        pattern.sets = 1;
+        pattern.specialStage = 0;
+    }
+
+    if (sub.RPE) {
+        pattern.RPE = sub.RPE;
+    }
+
+    for (var i = 0; i < Sets; i ++) {
+        // console.log(pattern.name, sub.reps);
+        var Reps = sub.reps;
+        var RPE = sub.RPE;
+        // Check for RPE Ranges
+        if (sub.RPE == null) {
+            // console.log("null RPE");
+            if (sub.RPERange.length > 0) {
+                // console.log(sub.RPERange);
+                RPE = sub.RPERange[0] + "-" + sub.RPERange[1];
+                pattern.RPE = RPE;
+            }
+            else if (sub.repsList.length > 0) {
+                // console.log(sub.repsList[i]);
+                Reps = parseInt(sub.repsList[i]);
+                RPE = sub.RPEList[i];
+            }
+            else {
+                RPE = "---";							
+            }
+        }
+        pattern.setList.push({
+            SetNum: i + 1,
+            Weight: null,
+            RPE: null,
+            SuggestedRPE:RPE,
+            Reps: Reps,
+            // Tempo: [null, null, null],
+            Filled: false,
+        });
+    }
+    return pattern;
+}
+
+
 module.exports = {
+    getPattern,
     getMax,
     getWeight,
     getWorkoutDays,

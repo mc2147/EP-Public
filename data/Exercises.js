@@ -121,7 +121,7 @@ for (var EType in ExerciseDict["Exercises"]) {
         });
     }
 }
-console.log(count);
+// console.log(count);
 
 
 module.exports = {

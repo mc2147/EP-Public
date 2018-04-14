@@ -1,4 +1,5 @@
-module.exports = {  
+var Export3bDict = {  
+	Code: "3b",
     Templates:{  
        1:{  
           1:{  
@@ -13,40 +14,39 @@ module.exports = {
                    RPE:9,
                    Type:"stop",
                    StopRPE:10,
-                   Reps:4,
- 
+                   Reps:4, 
                 },
                 2:{  
                    ExerciseType:"Hinge",
                    Sets:4,
                    Deload:-1,
                    RPE:9,
- 
+                   Reps:6,  
                 },
                 3:{  
                    ExerciseType:"LB Uni Push",
                    Sets:4,
                    Deload:-1,
                    RPE:"8-9",
- 
+                   Reps:8,   
                 },
                 4:{  
                    ExerciseType:"UB Hor Pull",
                    Sets:4,
                    RPE:"8-9",
- 
+                   Reps:8,  
                 },
                 5:{  
                    ExerciseType:"Iso 1",
                    Sets:2,
                    RPE:8,
- 
+                   Reps:12,  
                 },
                 6:{  
                    ExerciseType:"Iso 3",
                    Sets:2,
                    RPE:8,
- 
+                   Reps:12,
                 },
  
              },
@@ -61,12 +61,12 @@ module.exports = {
                 1:{  
                    ExerciseType:"RFD Load",
                    Sets:5,
- 
+                   Reps:2,
                 },
                 2:{  
                    ExerciseType:"Med Ball",
                    Sets:3,
- 
+                   Reps:8,
                 },
                 3:{  
                    ExerciseType:"UB Hor Push",
@@ -75,7 +75,6 @@ module.exports = {
                    Type:"stop",
                    StopRPE:8,
                    Reps:3,
- 
                 },
                 4:{  
                    ExerciseType:"UB Vert Push",
@@ -92,7 +91,7 @@ module.exports = {
                    Reps:30,
                    Seconds:30,
                    Deload:-1,
- 
+                   Unit: "yds", 
                 },
                 6:{  
                    ExerciseType:"Ant Chain",
@@ -118,7 +117,7 @@ module.exports = {
                    Type:"stop",
                    StopRPE:10,
                    Reps:4,
- 
+
                 },
                 2:{  
                    ExerciseType:"LB Uni Push",
@@ -134,7 +133,7 @@ module.exports = {
                    Sets:4,
                    Deload:-1,
                    RPE:"8-9",
- 
+                   Reps:8, 
                 },
                 4:{  
                    ExerciseType:"UB Vert Pull",
@@ -147,13 +146,13 @@ module.exports = {
                    ExerciseType:"Iso 2",
                    Sets:2,
                    RPE:8,
- 
+                   Reps:12,
                 },
                 6:{  
                    ExerciseType:"Iso 4",
                    Sets:2,
                    RPE:8,
- 
+                   Reps:12,
                 },
  
              },
@@ -1118,3 +1117,46 @@ module.exports = {
     },
  
  }
+var repLists = [
+    // Week 1
+    [],
+    [],
+    [],
+    [6, 6, 3, 3, 30, null],
+    // Week 2
+    [3, 6, 3, 6, null, null],
+    [3, null, 8, 6, 12, 12],
+    [5, 5, 3, 4, 6, 30],
+    [3, 6, 6, null, 12, 12],
+    // Week 3
+    [[6, 4, 3], 5, 5, 8, 8],
+    [2, 5, 2, 4, 30, null],
+    [[6, 4, 3], [8, 6, 4], 5, 8, 8],
+    [6, 6, 2, 2, 30, null],
+    // Week 4
+    [2, 5, 2, 5, 6],
+    [[6, 4, 3], [8, 6, 6], 8, 5, 8, 8],
+    [5, 5, 2, 4, 30],
+    [[6, 4, 3], [8, 6, 6], 5, 8, 8, 8],
+    // Week 5
+    [15, 15, 20, null],
+    [10, 10, 3, 8, 60],
+    [15, 15, 20, 20],
+    // [6, 6, 3, 3, 30, null],
+];
+
+for (var K in Export3bDict.Templates) {
+    var Week = Export3bDict.Templates[K];
+    for (var T in Week) {
+        for (var N in Week[T].Patterns) {
+            var P = Week[T].Patterns[N];
+            if (!P.Reps) {
+                P.Reps = repLists[Week[T].ID - 1][N - 1];
+            }
+            else {
+            }
+        }
+    }
+}
+
+ module.exports = Export3bDict;

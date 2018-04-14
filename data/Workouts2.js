@@ -5,6 +5,7 @@ module.exports = {
 			1: {
 				Week: 1,
 				Day: 1,
+				ID: 1,
 				Patterns: {
 					1: {ExerciseType: "Squat", 
 							Sets: 4, Reps: 8, 
@@ -26,6 +27,7 @@ module.exports = {
 			2: {
 				Week: 1,
 				Day: 2,
+				ID: 2,
 				Patterns: {
 					1: {ExerciseType: "RFD Unload 1", 
 							Sets: 3, Reps: 4, 
@@ -53,6 +55,7 @@ module.exports = {
 			3: {
 				Week: 1,
 				Day: 3,
+				ID: 3,
 				Patterns: {
 					1: {ExerciseType: "Hinge", 
 						Sets: 4, Reps: 8, 
@@ -77,6 +80,7 @@ module.exports = {
 			4: {
 				Week: 2,
 				Day: 4,
+				ID: 4,
 				Patterns: {
 					1: {ExerciseType: "LB Uni Push", 
 							Sets: 4, Reps: 8, 
@@ -101,6 +105,7 @@ module.exports = {
 			1: {
 				Week: 2,
 				Day: 1,
+				ID: 5,
 				Patterns: {
 					1: {ExerciseType: "Squat", 
 							Sets: 4, Reps: 6, 
@@ -122,6 +127,7 @@ module.exports = {
 			2: {
 				Week: 2,
 				Day: 2,
+				ID: 6,
 				Patterns: {
 					1: {ExerciseType: "RFD Unload 1", 
 							Sets: 3, Reps: 5, 
@@ -149,6 +155,7 @@ module.exports = {
 			3: {
 				Week: 2,
 				Day: 3,
+				ID: 7,
 				Patterns: {
 					1: {ExerciseType: "Hinge", 
 						Sets: 4, Reps: 8, 
@@ -173,6 +180,7 @@ module.exports = {
 			4: {
 				Week: 2,
 				Day: 4,
+				ID: 8,
 				Patterns: {
 					1: {ExerciseType: "LB Uni Push", 
 							Sets: 4, Reps: 6, 
@@ -196,6 +204,7 @@ module.exports = {
 			1: {
 				Week: 3,
 				Day: 1,
+				ID: 9,
 				Patterns: {
 					1: {ExerciseType: "Squat", 
 							Sets: 4, Reps: [10, 8, 6], RPE: [7, 7.5, 8], SplitSets: true,
@@ -216,6 +225,7 @@ module.exports = {
 			2: {
 				Week: 3,
 				Day: 2,
+				ID: 10,
 				Patterns: {
 					1: {ExerciseType: "RFD Unload 1", 
 							Sets: 3, Reps: 6, RPE: null,},
@@ -238,6 +248,7 @@ module.exports = {
 			3: {
 				Week: 3,
 				Day: 3,
+				ID: 11,
 				Patterns: {
 					1: {ExerciseType: "Hinge", 
 						Sets: 4, Reps: [10, 8, 6], RPE: [7, 7.5, 8], SplitSets: true,
@@ -262,6 +273,7 @@ module.exports = {
 			4: {
 				Week: 3,
 				Day: 4,
+				ID: 12,
 				Patterns: {
 					1: {ExerciseType: "LB Uni Push", 
 							Sets: 4, Reps: [10, 8, 6], RPE: [7, 7.5, 8], SplitSets: true,
@@ -285,6 +297,7 @@ module.exports = {
 			1: {
 				Week: 4,
 				Day: 1,
+				ID: 13,
 				Patterns: {
 					1: {ExerciseType: "Squat", 
 							Sets: 3, Reps: 12, 
@@ -305,6 +318,7 @@ module.exports = {
 			2: {
 				Week: 4,
 				Day: 2,
+				ID: 14,
 				Patterns: {
 					1: {ExerciseType: "Hinge", 
 							Sets: 3, Reps: 12, 
@@ -329,6 +343,7 @@ module.exports = {
 			3: {
 				Week: 4,
 				Day: 3,
+				ID: 15,
 				Patterns: {
 					1: {ExerciseType: "LB Uni Push", 
 						Sets: 3, Reps: 12, 
@@ -378,16 +393,18 @@ module.exports = {
 		1: {Week: 1, Day: 1,},
 		2: {Week: 1, Day: 2,},
 		3: {Week: 1, Day: 3,},
-		4: {Week: 2, Day: 1,},
-		5: {Week: 2, Day: 2,},
-		6: {Week: 2, Day: 3,},
-		7: {Week: 3, Day: 1,},
-		8: {Week: 3, Day: 2,},
-		9: {Week: 3, Day: 3,},
-		10: {Week: 4, Day: 1,},
-		11: {Week: 4, Day: 2,},
-		12: {Week: 4, Day: 3,},
-		13: {Week: 5, Day: 1,},
+		4: {Week: 1, Day: 4,},
+		5: {Week: 2, Day: 1,},
+		6: {Week: 2, Day: 2,},
+		7: {Week: 2, Day: 3,},
+		8: {Week: 2, Day: 4,},
+		9: {Week: 3, Day: 1,},
+		10: {Week: 3, Day: 2,},
+		11: {Week: 3, Day: 3,},
+		12: {Week: 3, Day: 4,},
+		13: {Week: 4, Day: 1,},
+		14: {Week: 4, Day: 2,},
+		15: {Week: 4, Day: 3,},
 	},	
 }
 

@@ -1,4 +1,5 @@
 module.exports = {  
+	Code: "3a",
 	Templates:{  
 	   1:{  
 		  1:{  
@@ -33,10 +34,10 @@ module.exports = {
  
 				},
 				4:{  
-				   ExerciseType:"Carry ",
+				   ExerciseType:"Carry",
 				   Type: "carry",
 				   Sets:3,
-				   Reps:"45 Seconds",
+				   Reps:45,
  
 				},
 				5:{  
@@ -134,8 +135,8 @@ module.exports = {
 				},
 				4:{  
 				   ExerciseType:"Carry",
-				   Sets:3,
-				   Reps:"45 Seconds",
+				   Sets: 3,
+				   Reps: 45,
 				   Deload:-1,
  
 				},
@@ -287,7 +288,7 @@ module.exports = {
 				4:{  
 				   ExerciseType:"Carry ",
 				   Sets:3,
-				   Reps:"30 Seconds",
+				   Reps: 30,
  
 				},
 				5:{  
@@ -386,7 +387,7 @@ module.exports = {
 				4:{  
 				   ExerciseType:"Carry",
 				   Sets:3,
-				   Reps:"45 Seconds",
+				   Reps:45,
 				   Deload:-1,
  
 				},
@@ -438,7 +439,7 @@ module.exports = {
 				4:{  
 				   ExerciseType:"Carry ",
 				   Sets:3,
-				   Reps:"20 Seconds",
+				   Reps:20,
  
 				},
 				5:{  
@@ -537,7 +538,7 @@ module.exports = {
 				4:{  
 				   ExerciseType:"Carry",
 				   Sets:3,
-				   Reps:"30 Seconds",
+				   Reps: 30,
 				   Deload:-1,
  
 				},
@@ -640,7 +641,7 @@ module.exports = {
 				4:{  
 				   ExerciseType:"Carry",
 				   Sets:2,
-				   Reps:"60 Seconds",
+				   Reps: 60,
  
 				},
 				5:{  
@@ -738,7 +739,7 @@ module.exports = {
 				   ExerciseType:"Carry",
 				   Type: "carry",
 				   Sets:2,
-				   Reps:"45 Seconds",
+				   Reps: 45,
 				   Deload:-1,
  
 				},

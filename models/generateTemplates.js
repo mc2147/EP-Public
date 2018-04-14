@@ -54,6 +54,9 @@ function MakeTemplates(LGroup, BlockNum) {
     if (BlockNum != 0) {
         TemplateJSON = TemplateJSON[BlockNum];
     }
+    if (LGroup == 3 && BlockNum == 2) {
+        console.log(TemplateJSON);
+    }
     // console.log("DESTROYED LINE 37");
     for (var W in TemplateJSON.Templates) {
         for (var D in TemplateJSON.Templates[W]) {
@@ -222,6 +225,7 @@ function setPatternInfo(PatternJSON, SubTemplate) {
     }
     else { //Not Split Set
         SubTemplate.reps = PatternJSON.Reps;
+        // console.log(PatternJSON.Reps, PatternJSON.number);
         // Type Enums: ['normal', 'bodyweight', 'carry', 'stop', 'drop', 'deload', 'alloy'],
         if (typeof PatternJSON.Reps == typeof "string") {
             // SubTemplate.reps = parseInt(PatternJSON.Reps);
@@ -270,8 +274,13 @@ function setPatternInfo(PatternJSON, SubTemplate) {
     if (PatternJSON.Seconds 
         || PatternJSON.ExerciseType == "Carry"
         || SubTemplate.exerciseType == "Carry") {
-        SubTemplate.reps = PatternJSON.Seconds;
         SubTemplate.type = 'carry';
+        if (!PatternJSON.Reps) {
+            SubTemplate.reps = PatternJSON.Seconds;
+        }
+        else {
+            SubTemplate.reps = PatternJSON.Reps;
+        }
     }
     // SubTemplate.reps = 30;
     // Setting Description
