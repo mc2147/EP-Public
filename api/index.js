@@ -110,32 +110,34 @@ router.get("/user/logged-in", function(req, res) {
     res.json(loggedinUser);
 })
 
-router.post("/user/login", function(req, res) {
+router.post("/user/login", async function(req, res) {
     var username = req.body.username;
     var passwordInput = req.body.password;
 
-    // User.findOne({
-    //     where: {
-    //         username,
-    //     }
-    // }).then((user) => {
-    //     if (!user) {
-    //         res.send("no user exists with that username");
-    //     }
-    //     else {
-    //         var hashed = User.generateHash(passwordInput, user.salt);
-    //         if (hashed == user.password) {
-    //             res.send("Logged in!");
-    //             // req.session.userId = user;
-    //             // req.session.User = user;
-    //         }
-    //         else {
-    //             res.send("Wrong password");
-    //         }
-    //     }
-    // })
-    // var input = req.body;
-    // res.json(input);
+    var loginUser = await User.findOne({
+        where: {
+            username,
+        }
+    });
+    if (!loginUser) {
+        res.json({
+            Status: "No user found"
+        });
+    }
+    else {
+        var hashed = loginUser.generateHash(passwordInput, loginUser.salt);
+        if (hashed == loginUser.password) {
+            res.json({
+                Status: "Success"
+            });
+        }
+        else {
+            res.json({
+                Status: "Incorrect Password!"
+            });
+        }
+    }
+    var input = req.body;
 })
 
 // router.get("/templates/3a", function(req, res) {

@@ -237,6 +237,19 @@ function getVueInfo(refDict) {
 			dataTableItems: dataTableItems, //Rows -> 1 row per SET
 			sets: Pattern.sets, //N Sets
 		}	
+		
+		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
+			if (Pattern.workoutType == 'stop') {subDict.minRPE = parseInt(Pattern.specialValue);}
+			else if (Pattern.workoutType == 'drop') {subDict.minRPE = parseInt(Pattern.dropRPE);}
+			var newRPEOptions = [];
+			subDict.RPEOptions.forEach(elem => {
+				if (elem >= subDict.minRPE) {
+					newRPEOptions.push(elem);
+				}
+			});
+			subDict.RPEOptions = newRPEOptions;
+		} 
+		
 		if (Pattern.alloy) {
 			subDict.alloyStage = Pattern.alloystatus.value;
 		}	
