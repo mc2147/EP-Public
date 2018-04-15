@@ -1,3 +1,5 @@
+var axios = require('axios');
+
 var globalFuncs = require('../globals/functions');
 	var getMax = globalFuncs.getMax;
 	var getWeight = globalFuncs.getWeight;
@@ -115,8 +117,6 @@ async function saveWorkout(body, userInstance, vWID) {
             thisPattern.LastSet = setDescription;
 
             thisStats.Name = thisPattern.name;
-            // refDict["User"].save();
-            userInstance.save();
         }
     }
 
@@ -227,7 +227,7 @@ async function saveWorkout(body, userInstance, vWID) {
     userInstance.stats = allStats;
     userInstance.workouts = allWorkouts;    
 
-    await userInstance.save();
+    // await userInstance.save();
 
     console.log("WH 273 Patterns \n");
     userInstance.workouts[vWID].Patterns.forEach((elem) => {
@@ -266,13 +266,16 @@ async function saveWorkout(body, userInstance, vWID) {
     console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
     
     userInstance.stats = copiedStats;
+    await axios.put(`/api/users/${userInstance.id}/stats`, copiedStats,
+    { proxy: { host: '127.0.0.1', port: 3000 } });
+    await axios.put(`/api/users/${userInstance.id}/workouts`, allWorkouts,
+    { proxy: { host: '127.0.0.1', port: 3000 } });
+    // await userInstance.save();
 
-    await userInstance.save();
-
-    console.log("WH 312 Patterns \n");
-    userInstance.workouts[vWID].Patterns.forEach((elem) => {
-        console.log("alloy Status: ", elem.alloystatus);
-    })
+    // console.log("WH 312 Patterns \n");
+    // userInstance.workouts[vWID].Patterns.forEach((elem) => {
+    //     console.log("alloy Status: ", elem.alloystatus);
+    // })
 
 }
 

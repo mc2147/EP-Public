@@ -139,19 +139,20 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
 },
 {
     getterMethods: {
-        patternFormat(eName) {
+        patternFormat() {
             var pattern = {};
             var EType = this.exerciseType;
             pattern.number = this.number;
             pattern.type = EType;
             pattern.reps = this.reps;
-            pattern.alloy = this.alloy;
-        
-            pattern.name = eName;	
+            
+            // pattern.name = eName;	
             pattern.setList = [];
             pattern.sets = this.sets;
             pattern.workoutType = this.type;
+            
             // Alloy Condition
+            pattern.alloy = this.alloy;
             if (pattern.alloy) {
                 pattern.alloyreps = this.alloyreps;
                 pattern.alloystatus = Alloy.None;					
@@ -187,19 +188,15 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
             }
         
             for (var i = 0; i < pattern.sets; i ++) {
-                // console.log(pattern.name, this.reps);
                 var Reps = this.reps;
                 var RPE = this.RPE;
                 // Check for RPE Ranges
                 if (this.RPE == null) {
-                    // console.log("null RPE");
                     if (this.RPERange.length > 0) {
-                        // console.log(this.RPERange);
                         RPE = this.RPERange[0] + "-" + this.RPERange[1];
                         pattern.RPE = RPE;
                     }
                     else if (this.repsList.length > 0) {
-                        // console.log(this.repsList[i]);
                         Reps = parseInt(this.repsList[i]);
                         RPE = this.RPEList[i];
                     }

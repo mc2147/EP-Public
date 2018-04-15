@@ -461,9 +461,7 @@ router.get('/',
 		var _Type = elem.exerciseType;
 		if (_Type == "Med Ball") {_Type = "Medicine Ball";}
 		else if (_Type == "Vert Pull") {_Type = "UB Vert Pull";} 	
-		
 		var eName = ExerciseDict[_Type][req.session.User.level].name;
-
 		var userPattern = elem.patternFormat;
 		
 		userPattern.name = eName;
@@ -557,46 +555,27 @@ router.get('/',
 var sessionSave = {};
 
 router.post('/' + postURL, async (req, res) => {	
-	// var inputCodes = req.body["inputCodes"];
-	// console.log("selectForm: " + req.body.selectForm);
-	// console.log("req.body: ", req.body);
 	var outputs = {};	
-	console.log("routes/index 640 post", req.body);
-	req.session.User = await User.findById(req.session.userId);
-	var realUser = await User.findById(req.session.userId);
+	var _User = sessionSave.User; //req.session could be empty because of CORS
+
 	if (req.body.SaveBtn) {
 		console.log("Save PRESSED");
-		// console.log(req.session);
-		// console.log(req.session.User.workouts[req.session.viewingWID]);
-		// console.log(req.session.User.workouts[req.session.viewingWID].Patterns);
-		// saveWorkout(req.body, G_UserInfo);
-		await saveWorkout(req.body, sessionSave.User, sessionSave.viewingWID); //cross-origin session
+		await saveWorkout(req.body, _User, sessionSave.viewingWID); //cross-origin session
 		res.redirect('/');
 		return
-		// G_UserInfo["User"].save().then(() => {
-		// 	res.redirect('/');		
-		// 	return
-		// });
 	}
 	
 	if (req.body.changeLevel || req.body.changeLGroup) {
 		res.redirect('/');
 		return;
-		// if (req.body.changeLGroup) {}
-		// console.log("selectLevelGroup", req.body.selectLevelGroup);
-		// console.log("selectLevel", req.body.selectLevel);
 	}
 
 	console.log("333");
 	if (req.body.changeWorkoutBtn || req.body.NextBtn || req.body.PrevBtn) {
-		// G_UserInfo["User"].workouts.patternsLoaded = false;
-		// G_UserInfo["thisPatterns"] = [];
 		if (req.body.changeWorkoutBtn) {
 			var selectedWD = req.body.changeWorkoutSelect.split("|");
-			console.log(selectedWD);
 			var _W = parseInt(selectedWD[0]);
 			var _D = parseInt(selectedWD[1]);
-			// G_UserInfo["thisWorkoutID"] = Group1WDtoID[_W][_D];
 			var newWID = parseInt(req.body.changeWorkoutSelect);
 			
 			var newWorkout = req.session.User.workouts[req.body.changeWorkoutSelect];
@@ -611,13 +590,6 @@ router.post('/' + postURL, async (req, res) => {
 			+ " week: " + selectedWeek + " day: " + selectedDay);
 			res.redirect('/');
 			return;
-
-			// 	G_UserInfo["User"].currentWorkoutID = parseInt(newWID);
-			// G_UserInfo["User"].save().then(() => {
-			// 	res.redirect('/');
-			// 	return				
-			// });
-		// G_UserInfo["thisWorkoutID"] = nextWorkoutID;
 		}
 		else if (req.body.NextBtn || req.body.PrevBtn) {
 			var nWorkouts = req.session.User.workoutDates.length;
@@ -633,15 +605,15 @@ router.post('/' + postURL, async (req, res) => {
 				// console.log("redirecting to workout: " + nextWorkoutID);
 				//"Submit" last workout here
 				var levelUpStats = req.session.User.stats["Level Up"];
-				if (!realUser.stats["Level Up"].Status.Checked && realUser.stats["Level Up"].Status.value == 1) {
-					realUser.level ++;
+				if (!_User.stats["Level Up"].Status.Checked && _User.stats["Level Up"].Status.value == 1) {
+					_User.level ++;
 				}
-				realUser.level ++;
-				realUser.stats["Level Up"].Status.Checked = true;
-				console.log("Going to level-up: ", realUser.stats["Level Up"].Status);
-				realUser.changed( 'stats', true);
-				await realUser.save();
-				// res.json(realUser);
+				_User.level ++;
+				_User.stats["Level Up"].Status.Checked = true;
+				console.log("Going to level-up: ", _User.stats["Level Up"].Status);
+				_User.changed( 'stats', true);
+				await _User.save();
+				// res.json(_User);
 				res.redirect('/level-up');
 				return
 				// Test user here
@@ -659,17 +631,6 @@ router.post('/' + postURL, async (req, res) => {
 			req.session.viewingWID = nextWorkoutID;
 			res.redirect('/');
 			return;
-
-				// G_UserInfo["User"].save().then(() => {
-				// 	res.redirect('/');
-				// 	return				
-				// }
-				// );			
-				
-			console.log("NEXT WORKOUT ID: " + nextWorkoutID); 
-			// console.log("NEXT WORKOUT Week/Day: " + G1KeyCodes[nextWorkoutID].Week + ", " + G1KeyCodes[nextWorkoutID].Day); 
-			// selectedWeek = G1KeyCodes[nextWorkoutID].Week;
-			// selectedDay = G1KeyCodes[nextWorkoutID].Day;
 		}
 	}
 
