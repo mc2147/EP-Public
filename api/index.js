@@ -1,4 +1,5 @@
 const session = require('express-session');
+const axios = require('axios');
 var Promise = require("bluebird");
 var bodyParser = require('body-parser');
 var express = require('express');
@@ -113,6 +114,13 @@ router.get("/user/logged-in", function(req, res) {
 router.post("/user/login", async function(req, res) {
     var username = req.body.username;
     var passwordInput = req.body.password;
+    var axiosPost = await axios.post(`/api/users/${username}/login`, req.body,
+    { proxy: { host: '127.0.0.1', port: 3000 } });
+    
+    res.json(axiosPost.data);
+    // res.send("test");
+
+    return
 
     var loginUser = await User.findOne({
         where: {

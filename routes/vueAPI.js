@@ -146,7 +146,8 @@ function getVueInfo(refDict) {
 			var repDict = {
 				value: Pattern.alloyreps,
 				status: 'Fixed',
-				code: Pattern.number + "|Reps|" + "Alloy",
+				// code: Pattern.number + "|Reps|" + "Alloy",
+				code: Pattern.number + "|X|" + "Alloy",
 				alloy: true
 			}
 			var weightDict = {

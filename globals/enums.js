@@ -28,8 +28,6 @@ function getWeight(max, reps, RPE) {
 	return Estimate - (Estimate % 5);
 }
 
-
-
 Exercise_Types = ["UB Hor Push", "UB Vert Push", "UB Hor Pull",	"UB Vert Pull",	"Hinge", "Squat", "LB Uni Push", "Ant Chain", "Post Chain",
 "Carry", "Iso 1", "Iso 2", "Iso 3", "Iso 4"]
 
@@ -76,6 +74,16 @@ Alloy = {
 	Failed: {value: -1, name: "Failed", code: "F", string: "Failed"},
 }
 
+var DaysofWeekDict = {
+	0: "Sunday",
+	1: "Monday",
+	2: "Tuesday",
+	3: "Wednesday",
+	4: "Thursday",
+	5: "Friday",
+	6: "Saturday",
+}
+
 
 module.exports = {
 	Level_Groups,
@@ -85,5 +93,6 @@ module.exports = {
 	getMax,
 	getWeight,
 	Alloy,
+	DaysofWeekDict,
 }
 

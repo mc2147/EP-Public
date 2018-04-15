@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const bcrypt    = require('bcryptjs');
+var globalTemplates = require('../globals/templates');
+    var userStatTemplate = globalTemplates.userStatTemplate;
 // var globalFuncs = require('../globals/functions');
 // var data = require('../data');
 	// var ExerciseDict = data.ExerciseDict.Exercises;
@@ -313,7 +315,14 @@ const User = db.define('User', {
         allowNull: true,
     }
     // thisPatterns: [],
-},);
+}, {
+    setterMethods: {
+        resetStats() {
+            this.setDataValue('stats', userStatTemplate);
+        }
+    }
+}
+);
 
 User.generateHash = function(password, salt){
     return bcrypt.hashSync(password, salt, null);
