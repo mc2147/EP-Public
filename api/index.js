@@ -185,7 +185,7 @@ router.get('/json/videos', function(req, res) {
 })
 
 router.get('/json/videos/vue-api', function(req, res) {
-    res.json(VideosVue(VideosJSON, 1));
+    res.json(VideosVue(VideosJSON, 25));
 })
 
 router.get('/videos/vue-api', function(req, res) {

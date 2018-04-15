@@ -9,7 +9,7 @@ var nunjucks = require('nunjucks');
 var routes = require('./routes');
 var bodyParser = require('body-parser');
 var history = require('connect-history-api-fallback');
-// var cors = require('cors');
+var cors = require('cors');
 
 var loadData = require('./data');
 
@@ -32,11 +32,11 @@ app.use(function (req, res, next) {
 next();
 });
 
-// app.use(cors({
-//     origin:['http://localhost:8080'],
-//     methods:['GET','POST'],
-//     credentials: true // enable set cookie    
-// }));
+app.use(cors({
+    origin:['http://localhost:8080'],
+    methods:['GET','POST'],
+    credentials: true // enable set cookie    
+}));
 
 // var thisUser = await User.findById(1).then(user => {
 // 	console.log("USER FOUND!!! USER ID: " + user.id);

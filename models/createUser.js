@@ -89,7 +89,7 @@ CreateUser("UserName6", 4, 2, 11, thisDate, [1, 2, 3, 5]);
 // CreateUser(4, 1, 16, thisDate);
 // CreateUser(4, 2, 16, thisDate);
 
-function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) {
+async function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) {
     console.log("id: ", id);
     return User.findById(id).then((user) => {
         var oldStat = {

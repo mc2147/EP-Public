@@ -4,12 +4,15 @@ var globalFuncs = require('../globals/functions');
 	var getMax = globalFuncs.getMax;
 	var getWeight = globalFuncs.getWeight;
 
-async function saveWorkout(body, userInstance, vWID) {
-    console.log("workoutHandler 7");
+async function saveWorkout(body, userInstance, vWID, submit=false) {
+    console.log("workoutHandler 7");    
     
     var lastSets = {};
-
     var allWorkouts = userInstance.workouts;
+    var thisWorkout = allWorkouts[vWID];
+    if (submit) {
+        thisWorkout.Completed = true;                        
+    }
     var selectedPatterns = allWorkouts[vWID].Patterns;
     var allStats = userInstance.stats;
     for (var K in body) {
@@ -244,8 +247,9 @@ async function saveWorkout(body, userInstance, vWID) {
     copiedStats["Level Up"].UBHorPush = benchStatus;
     copiedStats["Level Up"].Hinge = hingeStatus;
 
-    console.log("copied Level Up: \n\n", copiedStats["Level Up"]);
-    console.log("Level UP?", squatStatus.value == 1, benchStatus.value == 1, hingeStatus.value == 1)
+    // console.log("copied Level Up: \n\n", copiedStats["Level Up"]);
+    // console.log("Level UP?", squatStatus.value == 1, benchStatus.value == 1, hingeStatus.value == 1)
+
     if (squatStatus.value == 1
         && benchStatus.value == 1
         && hingeStatus.value == 1) {

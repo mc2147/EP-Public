@@ -67,7 +67,6 @@ var levelGroupsDict = {
 // 			-> level-check 
 // 				-> stashing old workouts/stats + generate next set of workouts -> repeat
 
-
 // var Alloy = {
 // 	None: {value: 0, name: "None", code: "N", string: "None"},
 // 	Testing: {value: 2, name: "Test", code: "T", string: "Testing"},
@@ -257,6 +256,11 @@ router.post('/get-next-workouts',
 		if (!req.session.userId) {
 			req.session.userId = 5;
 		}
+		await axios.post(`/api/users/${req.session.userId}/get-next-workouts`, req.body,
+		{ proxy: { host: '127.0.0.1', port: 3000 } });
+		res.json(req.body);
+		return
+		
 		setUser(parseInt(req.session.userId), "", "", "", "", "");
 		var input = req.body;
 		var dateSplit = req.body.startDate.split("-");
@@ -404,8 +408,6 @@ router.get('/',
 		render();
 		return
 	}
-	console.log("req.session: ", req.session);
-	// loadUserInfo(1);
 	
 	
 	var TemplateID = req.session.viewingWID;
@@ -431,7 +433,7 @@ router.get('/',
 		render();
 		return
 	}
-	console.log("LINE 225:	" + TemplateID);
+	// console.log("LINE 225:	" + TemplateID);
 
 	// G_UserInfo["User"].workouts[TemplateID].Patterns = 
 	var Patterns = [];
@@ -451,10 +453,8 @@ router.get('/',
 	var subData = await axios.get(subsAPIURL
 		,{ proxy: { host: '127.0.0.1', port: 3000 }}
 	);
-	var thisSubs = subData.data;
-			
-			
-	console.log("thisSubs", thisSubs);
+	var thisSubs = subData.data;						
+	// console.log("thisSubs", thisSubs);
 
 	
 	thisSubs.forEach(elem => {
@@ -473,7 +473,6 @@ router.get('/',
 	
 	async function render() {
 		console.log("RENDER FUNCTION");
-		// console.log("thisPatterns: " + thisPatterns.length);
 		// VUE STUFF		
 
 		req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];
@@ -484,13 +483,8 @@ router.get('/',
 		G_vueOutput.workoutDates = req.session.User.workoutDates;
 		// res.json(thisWorkout);
 		
-		// console.log(G_UserInfo["thisWorkoutDate"]);
-		// console.log(typeof G_UserInfo["thisWorkoutDate"]);
 		var changeWorkoutList = [];
 		var  WorkoutDict = req.session.User.workouts;
-		// console.log("WorkoutDict", WorkoutDict);
-		console.log(req.session.User.workoutDates);
-		console.log("# of workoutDates: ", req.session.User.workoutDates.length);
 		for (var K in WorkoutDict) {
 			var Workout = WorkoutDict[K];
 			if (!Workout.ID) {
@@ -500,7 +494,6 @@ router.get('/',
 			var _D = Workout.Day;
 			var wID = Workout.ID;
 			// var date = G_UserInfo["User"].workoutDates[wID - 1];
-			console.log(wID);
 			var date = dateString(req.session.User.workoutDates[wID - 1]);
 			// console.log("date", date, _W, _D, K);
 			changeWorkoutList.push({Week: _W, Day: _D, Date: date, ID: wID});		
@@ -530,10 +523,11 @@ router.get('/',
 		sessionSave = req.session;
 			res.render('main', 
 			{
+				User: req.session.User,
 				ETypes: ExerciseDict["Types"],
 				CurrentDate: dateString(WDateList[req.session.User.currentWorkoutID - 1]),
 				ViewingDate: dateString(WDateList[req.session.viewingWID - 1]),
-
+				ViewingWorkout: thisWorkout,
 				thisWorkoutID: req.session.viewingWID,
 				Patterns: thisWorkout.Patterns,				
 				UserStats: req.session.User.stats,			
@@ -555,14 +549,40 @@ router.get('/',
 var sessionSave = {};
 
 router.post('/' + postURL, async (req, res) => {	
+	
+	
 	var outputs = {};	
 	var _User = sessionSave.User; //req.session could be empty because of CORS
 
+	var putBody = {};
+	putBody.submission = req.body;
+	putBody.viewingWID = sessionSave.viewingWID;
+	// console.log("567", axiosPutResponse.data);
+	
 	if (req.body.SaveBtn) {
-		console.log("Save PRESSED");
-		await saveWorkout(req.body, _User, sessionSave.viewingWID); //cross-origin session
+		var axiosPutResponse = await axios.put(`/api/users/${_User.id}/save-workout`, putBody,
+		{ proxy: { host: '127.0.0.1', port: 3000 } });
 		res.redirect('/');
-		return
+		return;
+	}
+	if (req.body.SubmitBtn) {
+		var axiosPutResponse = await axios.put(`/api/users/${_User.id}/submit-workout`, putBody,
+		{ proxy: { host: '127.0.0.1', port: 3000 } });
+
+		// console.log("completing workout...");
+		// var usr = G_UserInfo["User"];
+		// // console.log(usr.workouts);
+		// var wID = G_UserInfo["thisWorkoutID"];
+		// // usr.currentworkoutID;
+		// console.log(wID);
+		// usr.workouts[wID].Completed = true;
+		// usr.save();
+		// thisUser.workouts = usr.workouts;
+		// thisUser.save();
+		// G_UserInfo["thisWorkout"].Completed = true;
+		// G_UserInfo["User"].workouts[]
+		// G_UserInfo["User"].save();
+		res.redirect('/');
 	}
 	
 	if (req.body.changeLevel || req.body.changeLGroup) {
@@ -570,7 +590,7 @@ router.post('/' + postURL, async (req, res) => {
 		return;
 	}
 
-	console.log("333");
+	// console.log("333");
 	if (req.body.changeWorkoutBtn || req.body.NextBtn || req.body.PrevBtn) {
 		if (req.body.changeWorkoutBtn) {
 			var selectedWD = req.body.changeWorkoutSelect.split("|");
@@ -582,18 +602,18 @@ router.post('/' + postURL, async (req, res) => {
 
 			selectedWeek = parseInt(newWorkout.Week);
 			selectedDay = parseInt(newWorkout.Day);
-			console.log("NEW WORKOUT ID: " + req.body.changeWorkoutSelect);
-			console.log("NEW WORKOUT: ", newWorkout, "Week: " + selectedWeek, "Day: " + selectedDay);
+			// console.log("NEW WORKOUT ID: " + req.body.changeWorkoutSelect);
+			// console.log("NEW WORKOUT: ", newWorkout, "Week: " + selectedWeek, "Day: " + selectedDay);
 			// Using req.session
 			req.session.viewingWID = newWID;
-			console.log("new WID: " + req.session.viewingWID
-			+ " week: " + selectedWeek + " day: " + selectedDay);
+			// console.log("new WID: " + req.session.viewingWID
+			// + " week: " + selectedWeek + " day: " + selectedDay);
 			res.redirect('/');
 			return;
 		}
 		else if (req.body.NextBtn || req.body.PrevBtn) {
 			var nWorkouts = req.session.User.workoutDates.length;
-			console.log("nWorkouts: " + nWorkouts);
+			// console.log("nWorkouts: " + nWorkouts);
 			var nextWorkoutID = req.session.viewingWID + 1;
 			if (req.body.PrevBtn) {
 				nextWorkoutID = req.session.viewingWID - 1;
@@ -610,7 +630,7 @@ router.post('/' + postURL, async (req, res) => {
 				}
 				_User.level ++;
 				_User.stats["Level Up"].Status.Checked = true;
-				console.log("Going to level-up: ", _User.stats["Level Up"].Status);
+				// console.log("Going to level-up: ", _User.stats["Level Up"].Status);
 				_User.changed( 'stats', true);
 				await _User.save();
 				// res.json(_User);
@@ -618,14 +638,14 @@ router.post('/' + postURL, async (req, res) => {
 				return
 				// Test user here
 			}
-			console.log("next Workout ID: " + nextWorkoutID);
+			// console.log("next Workout ID: " + nextWorkoutID);
 			// G_UserInfo["thisWorkoutID"] = nextWorkoutID;
 			// NOOOO
 			//USE "VIEWING WORKOUT ID"
 			// G_UserInfo["User"].currentWorkoutID = nextWorkoutID; 
 
 			// Using req.session
-			console.log("nextWorkoutID 512", nextWorkoutID);
+			// console.log("nextWorkoutID 512", nextWorkoutID);
 			selectedWeek = req.session.User.workouts[nextWorkoutID].Week;
 			selectedDay = req.session.User.workouts[nextWorkoutID].Day;
 			req.session.viewingWID = nextWorkoutID;
@@ -638,23 +658,6 @@ router.post('/' + postURL, async (req, res) => {
 		// reset();
 		res.redirect('/');
 		return
-	}
-
-	if (req.body.SubmitBtn) {
-		console.log("completing workout...");
-		var usr = G_UserInfo["User"];
-		// console.log(usr.workouts);
-		var wID = G_UserInfo["thisWorkoutID"];
-		// usr.currentworkoutID;
-		console.log(wID);
-		usr.workouts[wID].Completed = true;
-		usr.save();
-		thisUser.workouts = usr.workouts;
-		thisUser.save();
-		// G_UserInfo["thisWorkout"].Completed = true;
-		// G_UserInfo["User"].workouts[]
-		// G_UserInfo["User"].save();
-		res.redirect('/');
 	}
 });
 

@@ -173,7 +173,7 @@ function vueConvert (JSON, levelFilter) {
         // console.log(Key);
         var VideosCategory = JSON[Key];
         for (var K in VideosCategory) {
-            if (VideosCategory[K].LevelAccess >= levelFilter) {
+            if (VideosCategory[K].LevelAccess <= levelFilter) {
                 var elem = Object.assign({}, VideosCategory[K]); 
                 elem.label = K;
                 elem.image = '../../static/video_placeholder.png';

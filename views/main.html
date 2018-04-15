@@ -44,12 +44,13 @@ table, th, td {
   <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Change Workout' name="changeWorkoutBtn" id='btn'></input>
 </form>
 
-Current/Upcoming Workout Date: 
+Current/Next Workout Date: 
  {{CurrentDate}}
  <br><br>
+ <b>Username: {{User.username}}</b><br>
  <b>Workout Date: {{ViewingDate}}</b><br>
- <b>Completed: {{UserDict.thisWorkout.Completed}}</b>
- <!-- Test -->
+ <b>Completed: {{ViewingWorkout.Completed}}</b>
+
 <form action="/postWorkout" method="POST" style="margin-top:0px;">
 <table style="font-size:20px; margin-top:25px; width:100%;">
   <tr>

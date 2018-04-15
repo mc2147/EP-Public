@@ -231,6 +231,7 @@ function getVueInfo(refDict) {
 		var subDict = {
 			name: Pattern.name,
 			type: Pattern.type,
+			class: Pattern.workoutType,
 			// RPEOptions: ["1", "2", "3", "4", "5-6", "7", "8", "9-10"],
 			RPEOptions: [1, 2, 3, 4, 5, 6, 7, 7.5, 8, 8.5, 9, 9.5, 10],
 			dataTableItems: dataTableItems, //Rows -> 1 row per SET
