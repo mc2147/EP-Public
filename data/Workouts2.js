@@ -408,7 +408,7 @@ module.exports = {
 	},	
 }
 
-WorkoutSample = {
+let WorkoutSample = {
 	Week: 1, Day: 1, LevelGroup:1, NumSubWorkouts: 5,
 	SubWorkouts: {
 		1: {ExerciseType: "Squat", Sets: 3, Reps: 10, RPE: 7,},

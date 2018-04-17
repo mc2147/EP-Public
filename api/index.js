@@ -11,7 +11,8 @@ var models = require('../models');
 	var WorkoutTemplate = models.WorkoutTemplate;
 	var SubWorkoutTemplate = models.SubWorkoutTemplate;
 	var Workout = models.Workout;
-	var User = models.User;
+    var User = models.User;
+    var Video = models.Video;
 
 var data = require('../data');
     var W3a = data.AllWorkouts[3]["a"];
@@ -37,6 +38,12 @@ const saltRounds = 10;
  * @return salt
  */
 
+router.use('/content', require('./content'));
+
+router.use('/workout-templates', require('./workoutTemplates'));
+
+router.use('/users', require('./users'));
+
 function generateSalt(){
     return bcrypt.genSaltSync(saltRounds);
 }
@@ -49,24 +56,26 @@ router.get("/session", function(req, res) {
     res.json(req.session);
 })
 
-router.get("/users", function(req, res) {
-    // User.findById(11).then(user => user.destroy());
-    // User.findById(12).then(user => user.destroy());
-    // User.destroy({
-    //     where:{}
-    // });
-    // User.findById(27).then(user => user.destroy());
-    // User.findById(28).then(user => user.destroy());
-    // User.findById(29).then(user => user.destroy());
-    req.session.test = "TESTING";
-    User.findAll({
-        where: {}
-    }).then((users) => {
-        res.json(users);
-    })
-})
 
 var loggedinUser = {};
+
+router.post("/test-route", function (req, res) {
+    console.log("test-route hit: ", req.body);
+    res.json(req.body);
+})
+
+router.post("/user/login", async function(req, res) {
+    var username = req.body.username;
+    var passwordInput = req.body.password;
+    var axiosPost = await axios.post(`/api/users/${username}/login`, req.body,
+    { proxy: { host: '127.0.0.1', port: 3000 } });
+    
+    res.json(axiosPost.data);
+    // res.send("test");
+
+    return
+
+})
 
 router.post("/user/signup", function(req, res) {
         var input = req.body;
@@ -92,8 +101,21 @@ router.post("/user/signup", function(req, res) {
                 req.session.username = user.username;
                 req.session.User = user;
                 loggedinUser = user;
+
+                res.json({
+                    user,
+                    session: {
+                        userId: user.id,
+                        username: user.username,
+                        User: user,        
+                    }
+                });
+            }).catch((err) => {
+                res.json({
+                    error: true,
+                    status: "error"
+                })
             })
-            res.json(user);
         }
         else {
             res.send("Passwords not matching");
@@ -109,43 +131,6 @@ router.get("/user/logged-in", function(req, res) {
         req.session.username = loggedinUser.username;        
     }
     res.json(loggedinUser);
-})
-
-router.post("/user/login", async function(req, res) {
-    var username = req.body.username;
-    var passwordInput = req.body.password;
-    var axiosPost = await axios.post(`/api/users/${username}/login`, req.body,
-    { proxy: { host: '127.0.0.1', port: 3000 } });
-    
-    res.json(axiosPost.data);
-    // res.send("test");
-
-    return
-
-    var loginUser = await User.findOne({
-        where: {
-            username,
-        }
-    });
-    if (!loginUser) {
-        res.json({
-            Status: "No user found"
-        });
-    }
-    else {
-        var hashed = loginUser.generateHash(passwordInput, loginUser.salt);
-        if (hashed == loginUser.password) {
-            res.json({
-                Status: "Success"
-            });
-        }
-        else {
-            res.json({
-                Status: "Incorrect Password!"
-            });
-        }
-    }
-    var input = req.body;
 })
 
 // router.get("/templates/3a", function(req, res) {
@@ -178,10 +163,6 @@ router.get("/templates/4b", function(req, res) {
     res.json(data.AllWorkouts[4]["b"]);
 });
 
-router.use('/workout-templates', require('./workoutTemplates'));
-
-
-
 router.get('/SubWorkoutTemplate', function(req, res) {
     console.log("req params: ", req.params);
     SubWorkoutTemplate.findAll({where:{}}).then(result => {
@@ -192,6 +173,15 @@ router.get('/SubWorkoutTemplate', function(req, res) {
 
 router.get('/json/videos', function(req, res) {
     res.json(VideosJSON);
+})
+
+router.get('/videos', function(req, res) {
+    Video.findAll({
+        where: {}
+    }).then(videos => {
+        res.json(videos);
+    })
+    // res.json()
 })
 
 router.get('/json/videos/vue-api', function(req, res) {
@@ -333,8 +323,5 @@ router.get('/json/rpe-table', function(req, res) {
 });
 
 router.use('/json', require('./JSONs'));
-
-router.use('/users', require('./users'));
-
 
 module.exports = router;

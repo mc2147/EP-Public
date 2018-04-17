@@ -1,3 +1,4 @@
+import {Alloy} from '../globals/enums';
 var axios = require('axios');
 
 var globalFuncs = require('../globals/functions');
@@ -231,11 +232,6 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
     userInstance.workouts = allWorkouts;    
 
     // await userInstance.save();
-
-    console.log("WH 273 Patterns \n");
-    userInstance.workouts[vWID].Patterns.forEach((elem) => {
-        console.log("alloy Status: ", elem.alloystatus);
-    })
 
     var squatStatus = userInstance.stats["Squat"].Status;
     var benchStatus = userInstance.stats["UB Hor Push"].Status;

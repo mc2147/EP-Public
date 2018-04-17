@@ -1,4 +1,5 @@
-const session = require('express-session');
+import session from 'express-session';
+// const session = require('express-session');
 var Promise = require("bluebird");
 var bodyParser = require('body-parser');
 var express = require('express');
@@ -13,6 +14,7 @@ var models = require('../models');
 	var SubWorkoutTemplate = models.SubWorkoutTemplate;
 	var Workout = models.Workout;
 	var User = models.User;
+// import * from '../models';
 
 var userFuncs = require('../models/createUser');
 	var setUser = userFuncs.SetUser;
@@ -247,15 +249,20 @@ router.get('/get-next-workouts',
 		}
 		var currDate = dateNow.getFullYear() + "-" + month + "-" + date;
 		console.log("currDate: ", currDate);
+		console.log("req.session", req.session);
 		res.render("createWorkouts", {allLevels, daysOfWeek, User: _User, currDate});
 	}
 )
+// var test = axios.get('/api/users'
+//     ,{ proxy: { host: '127.0.0.1', port: 3000 }}
+// );
 
 router.post('/get-next-workouts',
 	async function(req, res, next) {
 		if (!req.session.userId) {
-			req.session.userId = 5;
+			req.session.userId = 8;
 		}
+		console.log("req.session", req.session);
 		var axiosPost = await axios.post(`/api/users/${req.session.userId}/get-next-workouts`, req.body,
 		{ proxy: { host: '127.0.0.1', port: 3000 } });
 		res.json(axiosPost.data);
@@ -384,6 +391,7 @@ router.get('/',
 	}
 	req.session.User = await User.findOne({where: {username: req.session.username}});
 	req.session.userId = req.session.User.id;
+	// console.log("390", req.session)
 		// (req.session.userId);
 	// req.session.User = await User.findById(req.session.userId);
 	// thisUser = req.session.User;
@@ -397,7 +405,7 @@ router.get('/',
 	// console.log("router.get stats", req.session.User.stats);
 	console.log("router.get patterns \n");
     req.session.viewingWorkout.Patterns.forEach((elem) => {
-        console.log("alloy Status: ", elem.alloystatus);
+        // console.log("alloy Status: ", elem.alloystatus);
     })
 	
 	// G_UserInfo = userRefDict(thisUser, req.session.viewingWID);
@@ -420,6 +428,10 @@ router.get('/',
 	
 
 	var thisworkoutDate = req.session.User.workouts[TemplateID].Date;
+	var test = await axios.get('/api/users'
+		,{ proxy: { host: '127.0.0.1', port: 3000 }}
+	);
+	console.log("432 test");
 
 	//Change to req.session later
 	if (
@@ -447,6 +459,9 @@ router.get('/',
 	var templateResponse = await axios.get(templateAPIURL
 		,{ proxy: { host: '127.0.0.1', port: 3000 }}
 	);
+	// var test = await axios.get('/api/users'
+	// 	,{ proxy: { host: '127.0.0.1', port: 3000 }}
+	// );
 	var thisTemplate  = templateResponse.data;
 	
 	var subsAPIURL = templateAPIURL + '/subworkouts';
@@ -454,27 +469,26 @@ router.get('/',
 		,{ proxy: { host: '127.0.0.1', port: 3000 }}
 	);
 	var thisSubs = subData.data;						
-	// console.log("thisSubs", thisSubs);
-
-	
-	thisSubs.forEach(elem => {
-		var _Type = elem.exerciseType;
-		if (_Type == "Med Ball") {_Type = "Medicine Ball";}
-		else if (_Type == "Vert Pull") {_Type = "UB Vert Pull";} 	
-		var eName = ExerciseDict[_Type][req.session.User.level].name;
-		var userPattern = elem.patternFormat;
-		
-		userPattern.name = eName;
-		req.session.User.workouts[TemplateID].Patterns.push(userPattern);
-		req.session.User.save();
-	});
+	// console.log("thisSubs", thisSubs);	
+	if (false) { //now handled in CU
+		thisSubs.forEach(elem => {
+			var _Type = elem.exerciseType;
+			if (_Type == "Med Ball") {_Type = "Medicine Ball";}
+			else if (_Type == "Vert Pull") {_Type = "UB Vert Pull";} 	
+			var eName = ExerciseDict[_Type][req.session.User.level].name;
+			var userPattern = elem.patternFormat;
+			
+			userPattern.name = eName;
+			req.session.User.workouts[TemplateID].Patterns.push(userPattern);
+			req.session.User.save();
+		});
+	}
 
 	render();
 	
 	async function render() {
 		console.log("RENDER FUNCTION");
 		// VUE STUFF		
-
 		req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];
 		let vueJSON = req.session.viewingWorkout;
 		vueJSON.thisWorkoutDate = new Date(req.session.User.workoutDates[req.session.viewingWID - 1]);
@@ -520,6 +534,8 @@ router.get('/',
 		// console.log("thisWorkout 378", thisWorkout);
 		var vWID = req.session.viewingWID;
 		var WDateList = req.session.User.workoutDates;
+		// console.log("RPEOptions", RPE_Dict["Options"]);
+		// console.log("RPEDIct", RPE_Dict);
 		sessionSave = req.session;
 			res.render('main', 
 			{
@@ -548,27 +564,38 @@ router.get('/',
 
 var sessionSave = {};
 
+router.get('/tutorial', function (req, res) {
+	res.render('tutorial');
+});
+
 router.post('/' + postURL, async (req, res) => {	
 	
 	
 	var outputs = {};	
 	var _User = sessionSave.User; //req.session could be empty because of CORS
-
+	var _WID = sessionSave.viewingWID;
 	var putBody = {};
 	putBody.submission = req.body;
-	putBody.viewingWID = sessionSave.viewingWID;
+	putBody.viewingWID = _WID;
 	// console.log("567", axiosPutResponse.data);
-	
+	var WorkoutURL = `/api/users/${_User.id}/workouts/${_WID}`;
 	if (req.body.SaveBtn) {
-		var axiosPutResponse = await axios.put(`/api/users/${_User.id}/save-workout`, putBody,
+		var axiosPutResponse = await axios.put(WorkoutURL + "/save", putBody,
 		{ proxy: { host: '127.0.0.1', port: 3000 } });
 		res.redirect('/');
 		return;
 	}
 	if (req.body.SubmitBtn) {
-		var axiosPutResponse = await axios.put(`/api/users/${_User.id}/submit-workout`, putBody,
+		var axiosPutResponse = await axios.put(WorkoutURL + "/submit", putBody,
 		{ proxy: { host: '127.0.0.1', port: 3000 } });
-
+		if (axiosPutResponse.data.lastWorkout) {
+			res.redirect('/level-up');
+			return		
+		}
+		else {
+			res.redirect('/');
+			return			
+		}
 		// console.log("completing workout...");
 		// var usr = G_UserInfo["User"];
 		// // console.log(usr.workouts);
@@ -628,7 +655,6 @@ router.post('/' + postURL, async (req, res) => {
 				if (!_User.stats["Level Up"].Status.Checked && _User.stats["Level Up"].Status.value == 1) {
 					_User.level ++;
 				}
-				_User.level ++;
 				_User.stats["Level Up"].Status.Checked = true;
 				// console.log("Going to level-up: ", _User.stats["Level Up"].Status);
 				_User.changed( 'stats', true);
@@ -661,15 +687,21 @@ router.post('/' + postURL, async (req, res) => {
 	}
 });
 
-router.get('/level-up', function(req, res) {
-	console.log("555");
+router.get('/level-up', async function(req, res) {
+	var _UserData = await axios.get(`/api/users/${req.session.User.id}`, { proxy: { host: '127.0.0.1', port: 3000 } });
+	var _User = _UserData.data;
+	var newLevel = _User.level;
+	var oldLevel = (_User.stats["Level Up"].Status.value == 1) ? newLevel - 1 : newLevel;
+
 	res.render('levelcheck', {
-		User: req.session.User,
-		UserStats: req.session.User.stats,			
-		levelUp: req.session.User.stats["Level Up"],
-		benchStat: req.session.User.stats["UB Hor Push"],
-		squatStat: req.session.User.stats["Squat"],
-		hingeStat: req.session.User.stats["Hinge"],		
+		User: _User,
+		oldLevel,
+		newLevel,
+		UserStats: _User.stats,			
+		levelUp: _User.stats["Level Up"],
+		benchStat: _User.stats["UB Hor Push"],
+		squatStat: _User.stats["Squat"],
+		hingeStat: _User.stats["Hinge"],		
 	});
 })
 

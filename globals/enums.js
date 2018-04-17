@@ -1,4 +1,4 @@
-RPE_Dict = {
+var RPE_Dict = {
 	10: [100, 94, 91, 89, 86,84,82, 80,78,76,75,73,71,70,68,67,66,64,63,62,61,60,59,58,57],
 	9.5: [97, 94, 91, 89, 86, 84, 82, 80, 78, 76, 75, 73, 71, 70, 68, 67, 66, 64, 63, 62, 61, 60, 59, 58, 57, 56],
 	9: [97, 94, 91, 89, 86, 84, 82, 80, 78, 76, 75, 73, 71, 70, 68, 67, 66, 64, 63, 62, 61, 60, 59, 58, 57, 56],
@@ -28,17 +28,17 @@ function getWeight(max, reps, RPE) {
 	return Estimate - (Estimate % 5);
 }
 
-Exercise_Types = ["UB Hor Push", "UB Vert Push", "UB Hor Pull",	"UB Vert Pull",	"Hinge", "Squat", "LB Uni Push", "Ant Chain", "Post Chain",
+var Exercise_Types = ["UB Hor Push", "UB Vert Push", "UB Hor Pull",	"UB Vert Pull",	"Hinge", "Squat", "LB Uni Push", "Ant Chain", "Post Chain",
 "Carry", "Iso 1", "Iso 2", "Iso 3", "Iso 4"]
 
-Level_Groups = {
+var Level_Groups = {
 	1: "1-5",
 	2: "6-10",
 	3: "11-15",
 	4: "16-25" 
 }
 
-WorkoutSample = {
+var WorkoutSample = {
 	Week: 1, Day: 1, LevelGroup:1, NumSubWorkouts: 5,
 	SubWorkouts: {
 		1: {ExerciseType: "Squat", Sets: 3, Reps: 10, RPE: 7,},
@@ -48,7 +48,7 @@ WorkoutSample = {
 		5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}}
 }
 
-Exercise_Names = {
+var Exercise_Names = {
 	1: {
 		"UB Hor Push": "DB Bench Press", 
 		"UB Vert Push": "KB/DB neutral 1/2 Kn OHP", 
@@ -67,7 +67,7 @@ Exercise_Names = {
 	}
 }
 
-Alloy = {
+export var Alloy = {
 	None: {value: 0, name: "None", code: "N", string: "None"},
 	Testing: {value: 2, name: "Test", code: "T", string: "Testing"},
 	Passed: {value: 1, name: "Passed", code: "P", string: "Passed"},
@@ -84,15 +84,16 @@ var DaysofWeekDict = {
 	6: "Saturday",
 }
 
-
-module.exports = {
+// export * from …;
+// module.exports = 
+export {
 	Level_Groups,
 	WorkoutSample,
 	Exercise_Names,
 	Exercise_Types,
 	getMax,
 	getWeight,
-	Alloy,
+	// Alloy,
 	DaysofWeekDict,
 }
 

@@ -1,6 +1,7 @@
-DescriptionsJSON = require("./Descriptions");
+import {Video} from '../../models';
+let DescriptionsJSON = require("./Descriptions");
 
-VideosJSON = {
+let VideosJSON = {
     "Posterior Chain": {
         "Single Leg Hip Thrust": {
             URL: "https://drive.google.com/file/d/1SU8J73QiKGrcU58sNOxq6cf3m3xu3rhz/preview",
@@ -141,7 +142,7 @@ VideosJSON = {
     }
 }
 
-VideosList = [];
+let VideosList = [];
 
 for (var Key in VideosJSON) {
     // console.log(Key);
@@ -153,7 +154,20 @@ for (var Key in VideosJSON) {
         if (Key in DescriptionsJSON) {
             VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
         }
+        var videoObj = VideosCategory[K];
         VideosList.push(VideosCategory[K]);
+        Video.findOrCreate({
+            where: {
+                title: K,
+                url: videoObj.URL,
+                levelAccess: videoObj.LevelAccess,
+                exerciseNames: [K]
+            }
+        }).spread((video, created) => {
+            video.tags = video.title;
+            // console.log("video found/created: ", video);
+            video.save();
+        })
     }
 }
 

@@ -1,8 +1,10 @@
-const session = require('express-session');
-var Promise = require("bluebird");
+// const session = require('express-session');
+import session from 'express-session';
+import Promise from "bluebird";
 var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
+import {assignWorkouts} from './apiFunctions';
 
 var router = express.Router();
 var models = require('../models');
@@ -12,7 +14,8 @@ var models = require('../models');
 	var Workout = models.Workout;
 	var User = models.User;
 
-var data = require('../data');
+// let data = require('../data');
+import data from '../data';
     var W3a = data.AllWorkouts[3]["a"];
     var RPETable = data.RPETable;
     var Exercises = data.ExerciseDict;
@@ -26,20 +29,29 @@ var globalFuncs = require('../globals/functions');
 	var getWeight = globalFuncs.getWeight;
 	var getWorkoutDates = globalFuncs.getWorkoutDays;
     var G_getPattern = globalFuncs.getPattern;
+    var dateString = globalFuncs.dateString;
     
 var globalEnums = require('../globals/enums');
     var DaysofWeekDict = globalEnums.DaysofWeekDict;
-    
+    var Alloy = globalEnums.Alloy;
 var workoutHandlers = require('../routes/workoutHandlers');
 	var saveWorkout = workoutHandlers.saveWorkout;
-    
-router.get("/test", function(req, res) {
-    res.json("test");
+
+var vueAPI = require('../routes/vueAPI');
+    var getVueInfo = vueAPI.getVueInfo;
+
+router.get("/", function (req, res) {
+    User.findAll({
+        where: {}
+    }).then((users) => {
+        res.json(users);
+    })
 });
 
 router.post("/:username/login", async function (req, res) {
     var username = req.params.username;
     var passwordInput = req.body.password;
+    console.log("username/login route hit", req.body);
     var loginUser = await User.findOne({
         where: {
             username,
@@ -48,28 +60,122 @@ router.post("/:username/login", async function (req, res) {
 
     if (!loginUser) {
         res.json({
+            Success: false,
+            Found: false,
             Status: "No user found"
         });
     }
     else {
-        var hashed = loginUser.generateHash(passwordInput, loginUser.salt);
+        var hashed = User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
             res.json({
-                Status: "Success"
+                Success: true,
+                Found: true,
+                Status: "Success",
+                User:loginUser,
             });
         }
         else {
             res.json({
+                Success: false,
+                Found: true,
                 Status: "Incorrect Password!"
             });
         }
     }
 })
 
+router.get("/:userId", function(req, res) {
+    User.findById(req.params.userId).then((user) => {
+        res.json(user);
+    });
+});
+
+router.get("/:userId/workouts", function(req, res) {
+    User.findById(req.params.userId).then((user) => {
+        res.json(user.workouts);
+    });
+})
+
+router.get("/:userId/workouts/:workoutId", function(req, res) {
+    User.findById(req.params.userId).then((user) => {
+        var _Workout = user.workouts[req.params.workoutId];
+        // _Workout
+        res.json(_Workout);
+    });
+})
+
+router.put("/:userId/workouts/:workoutId/save", async function(req, res) {
+     console.log("108 save workout by Id");
+    var _User = await User.findById(req.params.userId);
+    var body = req.body;    
+    await saveWorkout(body.submission, _User, req.params.workoutId);
+    res.json(req.body);
+})
+
+router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
+    console.log("108 save workout by Id");
+   var _User = await User.findById(req.params.userId);
+   var workoutId = req.params.workoutId;
+   var body = req.body;    
+   await saveWorkout(body.submission, _User, req.params.workoutId);
+    if (parseInt(workoutId) == _User.workoutDates.length) {
+        console.log("LEVEL CHECK! ", workoutId);
+        var levelUpStats = _User.stats["Level Up"];
+        if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
+            _User.level ++;
+            // _User.stats["Level Up"].Status = Alloy.Passed;
+        }
+        _User.stats["Level Up"].Status.Checked = true;
+        _User.changed( 'stats', true);
+        await _User.save();
+        body.lastWorkout = true;
+    }
+    res.json(body);
+})
+
+router.get("/:userId/workouts/:workoutId/vue", function(req, res) {
+    User.findById(req.params.userId).then((user) => {
+        var _Workout = user.workouts[req.params.workoutId];
+        var _WorkoutDate = user.workoutDates[req.params.workoutId - 1];
+        let JSON = _Workout;
+        JSON.thisWorkoutDate = _WorkoutDate;
+        var vueJSON = getVueInfo(JSON);
+
+		
+		let workoutDatelist = [];
+		var userWorkouts = user.workouts;
+		for (var K in userWorkouts) {
+			var Workout = userWorkouts[K];
+			if (!Workout.ID) {
+				continue;
+			}
+			var _W = Workout.Week;
+			var _D = Workout.Day;
+			var wID = Workout.ID;
+			// var date = G_UserInfo["User"].workoutDates[wID - 1];
+			var date = dateString(user.workoutDates[wID - 1]);
+			// console.log("date", date, _W, _D, K);
+			workoutDatelist.push({Week: _W, Day: _D, Date: date, ID: wID});		
+		}
+        
+        vueJSON.workoutDates = workoutDatelist;
+
+        res.json(vueJSON);
+    });
+})
+
+
 router.put("/:userId", function(req, res) {
     User.findById(req.params.userId).then((user) => {
         user.update(req.body).then(user => res.json(user));
     });
+})
+
+router.get("/:userId/stats", function(req, res) {
+    User.findById(req.params.userId).then((user) => {
+        res.json(user.stats);
+    })
 })
 
 router.put("/:userId/stats", function(req, res) {
@@ -118,105 +224,30 @@ router.put("/:userId/submit-workout", async function(req, res) {
         var levelUpStats = updateUser.stats["Level Up"];
         if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
             updateUser.level ++;
+            // updateUser.stats["Level Up"].Status = Alloy.Passed;
         }
         updateUser.stats["Level Up"].Status.Checked = true;
         updateUser.changed( 'stats', true);
         await updateUser.save();
+        body.lastWorkout = true;
     }
-    res.json(req.body);
+    res.json(body);
 })
 
-router.post("/:userId/get-next-workouts", async function(req, res) {
+router.put("/:userId/generate-workouts", async function(req, res) {
     var input = req.body;
-    console.log("91", input);
     var _User = await User.findById(req.params.userId);
-    var _oldStat = {
-        addLater : "Finish date, alloy pass/fail, level",
-        finishDate : "",
-        level : _User.level,
-    };
-    _oldStat.statDict = _User.stats
-    _User.oldstats.push(_oldStat);
-    _User.changed( 'oldstats', true);
-    await _User.save();
-    
-    var dateSplit = input.startDate.split("-");
-    var dateNow = Date.now();
-    input.dateObj1 = Date.parse(input.startDate);
-    input.dateObj2 = new Date(
-        parseInt(dateSplit[0]), 
-        parseInt(dateSplit[1] - 1), 
-        parseInt(dateSplit[2] - 1)); 
-    input.dateObj3 = dateNow;
-    input.dateObj4 = new Date(Date.now());
-    var daysList = [
-        parseInt(input["Day-1"]),
-        parseInt(input["Day-2"]),
-        parseInt(input["Day-3"]),
-    ];
-    var Level = parseInt(input.workoutLevel); //Determine N Workouts based on that
-    var Group = 0;
-    var Block = parseInt(input.workoutBlock);
-    var TemplatesJSON = {};
-    input.level = Level;
-    if (Level <= 5) {
-        Group = 1;
-        TemplatesJSON = allWorkoutJSONs[Group];
+    if (_User.workoutDates.length > 0) {
+        var _oldStat = {
+            finishDate : _User.workoutDates[-1],
+            level : _User.level,
+        };
+        _oldStat.statDict = _User.stats
+        _User.oldstats.push(_oldStat);
+        _User.changed( 'oldstats', true);
+        await _User.save();
     }
-    else if (Level <= 10) {
-        Group = 2;
-        TemplatesJSON = allWorkoutJSONs[Group];
-        daysList.push(parseInt(input["Day-4"]));
-    }
-    else if (Level <= 16) {
-        Group = 3;
-        // Block = "a";
-        TemplatesJSON = allWorkoutJSONs[Group][Block];
-        daysList.push(parseInt(input["Day-4"]));
-    }
-    else {
-        Group = 4;
-        // Block = "a";
-        TemplatesJSON = allWorkoutJSONs[Group][Block];
-        daysList.push(parseInt(input["Day-4"]));
-    }
-    var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
-    input.nWorkouts = nWorkouts;
-    input.daysList = daysList;
-    
-    var workoutDates = getWorkoutDates(input.dateObj2, daysList, Level, "", nWorkouts);
-    input.workoutDates = workoutDates;
-    input.detailedworkoutDates = [];
-    workoutDates.forEach((elem) => {
-        var item = [elem];
-        item.push(DaysofWeekDict[elem.getDay()]);
-        input.detailedworkoutDates.push(item);
-    });
-    var Templates = TemplatesJSON.Templates;
-    input.workouts = {};
-    for (var W in Templates) {
-        var thisWeek = Templates[W];
-        for (var D in thisWeek) {
-            var ID = thisWeek[D].ID;
-            input.workouts[ID] = {
-                ID: null,
-                Week: null,
-                Day: null,
-                Date: null,
-                Completed: false,
-                Patterns: [],
-            };                 
-            input.workouts[ID].Week = W;
-            input.workouts[ID].Day = D;
-            input.workouts[ID].ID = ID;
-            var thisworkoutDate = workoutDates[ID - 1];
-            input.workouts[ID].Date = thisworkoutDate;
-            }
-    }
-    _User.workouts = input.workouts;
-    _User.currentWorkoutID = 1;
-    _User.workoutDates = workoutDates;
-    _User.resetStats = true;
+    assignWorkouts(_User, input);
     await _User.save();
     res.json({input, updatedUser: _User, session: {
         viewingWID: 1,
@@ -224,6 +255,44 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
         username: _User.username,
         userId: _User.id,
     }});
+    return    
+});
+
+// router.post("/:userId/old-stats/clear", async function(req, res) {
+
+// })
+
+router.post("/:userId/get-next-workouts", async function(req, res) {
+    var input = req.body;
+    console.log("91", input);
+    var _User = await User.findById(req.params.userId);
+    _User.oldstats = [];
+    _User.oldworkouts = [];
+    await _User.save();
+    if (_User.workoutDates.length > 0) {
+        var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
+        console.log("last workout date in list: ", _User.workoutDates[_User.workoutDates.length - 1]);
+        var _oldStat = {
+            finishDate : lastWDate,
+            level : _User.level,
+        };
+        var _oldWorkouts = _User.workouts;
+        _oldStat.statDict = _User.stats
+        _User.oldstats.push(_oldStat);
+        _User.oldworkouts.push(_oldWorkouts);
+        _User.changed( 'oldstats', true);
+        _User.changed( 'oldworkouts', true);
+        await _User.save(); 
+    }
+    await assignWorkouts(_User, input);
+    await _User.save();
+    res.json({input, updatedUser: _User, session: {
+        viewingWID: 1,
+        User: _User,
+        username: _User.username,
+        userId: _User.id,
+    }});
+    return
 }) 
 
 router.get("/:userId/videos", async function(req, res) {

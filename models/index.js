@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const bcrypt    = require('bcryptjs');
 var globalTemplates = require('../globals/templates');
     var userStatTemplate = globalTemplates.userStatTemplate;
+import {Alloy} from '../globals/enums';
 // var globalFuncs = require('../globals/functions');
 // var data = require('../data');
 	// var ExerciseDict = data.ExerciseDict.Exercises;
@@ -38,9 +39,42 @@ const Video = db.define('Video', {
     },
     levelAccess: {
         type: Sequelize.INTEGER 
+    },  
+    exerciseNames: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        defaultValue: [],
+    },
+    tags: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        defaultValue: [],        
+        set: function(value) {
+            this.setDataValue('tags', value.split(" "));
+        }
     }
-
 })
+
+Video.search = function(name, exhaustive) {
+    console.log("searching for video: ", name);
+    var searchTerms = [name];
+    if (exhaustive) {
+        return Video.findOne({
+            where: {
+                tags: {
+                    $overlap:name.split(" "),
+                }
+            }
+        })
+    }
+    else {
+        return Video.findOne({
+            where: {
+                exerciseNames: {
+                    $overlap:[name]
+                }
+            }
+        })
+    }
+}
 
 var WorkoutTemplate = db.define('WorkoutTemplate', {
     id: {
@@ -356,4 +390,5 @@ module.exports = {
     Workout,
     User,
     SubWorkoutTemplate,
+    Video,
 };

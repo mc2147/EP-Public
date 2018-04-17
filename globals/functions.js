@@ -5,9 +5,9 @@ var globalEnums = require('../globals/enums');
 	var Alloy = globalEnums.Alloy;
 
 // Date Examples
-var newDate = new Date(2018, 3, 10, 00, 0, 0, 0);
+var newDate = new Date(2018, 3, 10, 0, 0, 0, 0);
 var oneDay = new Date(0, 0, 0, 1, 0, 0, 0);
-var thirdDate = new Date(2018, 0, 25, 00, 0, 0, 0);
+var thirdDate = new Date(2018, 0, 25, 0, 0, 0, 0);
 var now = new Date(Date.now());
 var DayValue = 24*3600*1000;
 // Logging Date Examples
@@ -25,7 +25,22 @@ var DaysofWeek = {
 	5: "Friday",
 	6: "Saturday",
 }
-Enum_Days = [0, 1, 2, 3, 4, 5, 6]
+let Enum_Days = [0, 1, 2, 3, 4, 5, 6]
+
+function dateString(date) {
+	var MonthDict = {
+		1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June",
+		7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December",
+	}
+	var output = "";
+	var year = date.getFullYear();
+	var day = date.getDate();
+	var month = date.getMonth() + 1;
+	// var suffix = ""
+	output = MonthDict[month] + " " + day + ", " + year;
+	return output
+}
+
 
 function getWorkoutDays (startDate, daysList, level, member, nWorkouts) {
 	var checkDays = 28;
@@ -255,4 +270,5 @@ module.exports = {
     getWorkoutDays,
     missedWorkouts,
     dateOnly,
+    dateString,
 }  

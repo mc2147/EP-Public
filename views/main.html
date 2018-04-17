@@ -47,7 +47,7 @@ table, th, td {
 Current/Next Workout Date: 
  {{CurrentDate}}
  <br><br>
- <b>Username: {{User.username}}</b><br>
+ <b>Username: {{User.username}} <br>Level: {{User.level}}</b><br>
  <b>Workout Date: {{ViewingDate}}</b><br>
  <b>Completed: {{ViewingWorkout.Completed}}</b>
 
@@ -66,11 +66,16 @@ Current/Next Workout Date:
           <!-- Pattern Column -->
           <td>{{P.type}} ({{P.number}}) {{P.alloystatus.value}}</td>
           <!-- Exercise Name Column -->
-          <td>{{P.name}} : {{P.workoutType}}, Sets: {{P.sets}}{% if P.workoutType == 'stop' or P.workoutType == 'drop' %},
-            {{P.specialValue}} 
+          <td>{{P.name}} : {{P.workoutType}}, Sets: {{P.sets}}
+            {% if P.workoutType == 'stop' or P.workoutType == 'drop' %},
+             {{P.specialValue}} 
             {% if P.workoutType == 'drop' %}
-            %
+              %
             {% endif %}
+          {% endif %}
+          {% if P.hasVideo %}
+          <br>
+          <a href={{P.videoURL}}>Watch Video</a>
           {% endif %}
         </td> 
           <!-- Reps Column -->
