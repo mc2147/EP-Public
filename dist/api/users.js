@@ -64,6 +64,17 @@ router.get("/", function (req, res) {
     });
 });
 
+router.post("/", async function (req, res) {
+    var newUser = await (0, _apiFunctions.signupUser)(req.body);
+    if (!newUser) {
+        res.json({
+            error: true,
+            status: "passwords no match"
+        });
+    }
+    res.json(newUser);
+});
+
 router.post("/:username/login", async function (req, res) {
     var username = req.params.username;
     var passwordInput = req.body.password;

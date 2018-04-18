@@ -3,6 +3,45 @@ import {AllWorkouts, ExerciseDict} from '../data';
 import {DaysofWeekDict} from '../globals/enums';
 import {User, Video} from '../models';
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
+const saltRounds = 10;
+
+function generateSalt(){
+    return bcrypt.genSaltSync(saltRounds);
+}
+
+export async function signupUser(input) {
+    var P1 = input.P1;
+    var P2 = input.P2;
+    var username = input.username;
+    var salt = generateSalt();
+    if (P1 == P2) {
+        var hashedPassword = generateHash(P1, salt);
+        User.create({
+            id: 29,
+            username: username,
+            salt: salt,
+            password: hashedPassword,
+        }).then((user) => {
+            return({
+                user,
+                session: {
+                    userId: user.id,
+                    username: username,
+                    User: user,        
+                }
+            });
+        }).catch((err) => {
+            return({
+                error: true,
+                status: "error"
+            })
+        })
+    }
+    else {
+        return false
+    }
+}
 
 //Assigns a set of workouts to the user depending on level, start date, and workout days (list) 
 export async function assignWorkouts(_User, input, newUser=false) {
@@ -79,12 +118,14 @@ export async function assignWorkouts(_User, input, newUser=false) {
                 var subsURL = `/api/workout-templates/${_User.levelGroup}/block/${_User.blockNum}/week/${W}/day/${D}/subworkouts`;    
                 var subsResponse = await axios.get(subsURL ,{ proxy: { host: 'localhost', port: 3000 }});
                 var subsList = subsResponse.data;
+                console.log("subList for: ", W, D, subsList.length);
                 // input.workouts[ID].Patterns = subsList;
-                console.log("line 80 subsList",subsList);
+                // console.log("line 80 subsList",subsList);
                 subsList.sort(function(a, b) {
                     return a.number - b.number
                 });
-                subsList.forEach(async (sub) => {
+                for (var i = 0; i < subsList.length; i++) {
+                    var sub = subsList[i];
                     var patternInstance = sub.patternFormat;
                     var EType = sub.exerciseType;
                     if (EType == "Med Ball") {EType = "Medicine Ball";}
@@ -92,13 +133,17 @@ export async function assignWorkouts(_User, input, newUser=false) {
                     patternInstance.type = EType;
                     var EName = ExerciseDict.Exercises[patternInstance.type][Level].name;
                     patternInstance.name = EName;
+                    console.log("97");
                     var findVideo = await Video.search(EName, false); 
+                    console.log("99");
                     if (findVideo) {
                         patternInstance.hasVideo = true;
                         patternInstance.videoURL = findVideo.url;
                     }
                     input.workouts[ID].Patterns.push(patternInstance);
-                })    
+                    console.log("Pushing sub for Pattern: ", ID);                   
+                }
+                console.log(ID, "Patterns: ", input.workouts[ID].Patterns.length);
             }
     }
     _User.workouts = input.workouts;
@@ -106,3 +151,4 @@ export async function assignWorkouts(_User, input, newUser=false) {
     _User.workoutDates = workoutDates;
     _User.resetStats = true;
 }
+

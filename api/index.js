@@ -3,17 +3,11 @@ const axios = require('axios');
 var Promise = require("bluebird");
 var bodyParser = require('body-parser');
 var express = require('express');
-const bcrypt    = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
 var router = express.Router();
-var models = require('../models');
-	var Exercise = models.Exercise;
-	var WorkoutTemplate = models.WorkoutTemplate;
-	var SubWorkoutTemplate = models.SubWorkoutTemplate;
-	var Workout = models.Workout;
-    var User = models.User;
-    var Video = models.Video;
-
+import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User, Video} from '../models';
+import {signupUser, assignWorkouts} from './apiFunctions';
 var data = require('../data');
     var W3a = data.AllWorkouts[3]["a"];
     var RPETable = data.RPETable;

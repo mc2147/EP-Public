@@ -1,5 +1,9 @@
 'use strict';
 
+var _models = require('../models');
+
+var _apiFunctions = require('./apiFunctions');
+
 var session = require('express-session');
 var axios = require('axios');
 var Promise = require("bluebird");
@@ -8,13 +12,6 @@ var express = require('express');
 var bcrypt = require('bcryptjs');
 
 var router = express.Router();
-var models = require('../models');
-var Exercise = models.Exercise;
-var WorkoutTemplate = models.WorkoutTemplate;
-var SubWorkoutTemplate = models.SubWorkoutTemplate;
-var Workout = models.Workout;
-var User = models.User;
-var Video = models.Video;
 
 var data = require('../data');
 var W3a = data.AllWorkouts[3]["a"];
@@ -89,7 +86,7 @@ router.post("/user/signup", function (req, res) {
     if (P1 == P2) {
         var hashedPassword = generateHash(req.body.P1, salt);
         input.hashed = hashedPassword;
-        User.create({
+        _models.User.create({
             id: 29,
             username: req.body.username,
             salt: salt,
@@ -135,7 +132,7 @@ router.get("/user/logged-in", function (req, res) {
 //     res.json(W3a);
 // });
 router.get("/exercises", function (req, res) {
-    Exercise.findAll({
+    _models.Exercise.findAll({
         where: {}
     }).then(function (exercises) {
         res.json(exercises);
@@ -162,7 +159,7 @@ router.get("/templates/4b", function (req, res) {
 
 router.get('/SubWorkoutTemplate', function (req, res) {
     console.log("req params: ", req.params);
-    SubWorkoutTemplate.findAll({ where: {} }).then(function (result) {
+    _models.SubWorkoutTemplate.findAll({ where: {} }).then(function (result) {
         res.json(result);
     });
 });
@@ -172,7 +169,7 @@ router.get('/json/videos', function (req, res) {
 });
 
 router.get('/videos', function (req, res) {
-    Video.findAll({
+    _models.Video.findAll({
         where: {}
     }).then(function (videos) {
         res.json(videos);
@@ -196,7 +193,7 @@ router.get('/descriptions/json', function (req, res) {
 
 router.get("/user/:userId", function (req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(function (user) {
         // user.oldstats.push({"test": "test"}),
         // user.oldstats.push(user.stats)
         user.save().then(function () {
@@ -208,7 +205,7 @@ router.get("/user/:userId", function (req, res) {
 
 router.get("/user/:userId/workouts", function (req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(function (user) {
         res.json(user.workouts);
     });
     console.log("25");
@@ -216,7 +213,7 @@ router.get("/user/:userId/workouts", function (req, res) {
 
 router.get('/user/:userId/stats', function (req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(function (user) {
         // res.json(user.workouts);
         res.json(user.stats);
     });
@@ -236,7 +233,7 @@ function vueStats(JSON) {
 
 router.get('/user/:userId/stats/vue/get', function (req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(function (user) {
         var JSONStats = user.stats;
         for (var statKey in JSONStats) {
             console.log(statKey);
@@ -288,7 +285,7 @@ function vueProgress(JSONStats) {
 router.get('/user/:userId/progress/vue/get', function (req, res) {
     var userId = req.params.userId;
     console.log("USER PROGRESS VUE");
-    User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(function (user) {
         var JSONStats = user.stats;
         for (var statKey in JSONStats) {
             console.log(statKey);

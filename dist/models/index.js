@@ -58,7 +58,7 @@ var Video = db.define('Video', {
 });
 
 Video.search = function (name, exhaustive) {
-    console.log("searching for video: ", name);
+    // console.log("searching for video: ", name);
     var searchTerms = [name];
     if (exhaustive) {
         return Video.findOne({

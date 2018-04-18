@@ -4,7 +4,7 @@ import Promise from "bluebird";
 var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
-import {assignWorkouts} from './apiFunctions';
+import {assignWorkouts, signupUser} from './apiFunctions';
 
 var router = express.Router();
 var models = require('../models');
@@ -47,6 +47,17 @@ router.get("/", function (req, res) {
         res.json(users);
     })
 });
+
+router.post("/", async function(req, res) {
+    var newUser = await signupUser(req.body);
+    if (!newUser) {
+        res.json({
+            error:true,
+            status: "passwords no match",
+        })
+    }
+    res.json(newUser);
+})
 
 router.post("/:username/login", async function (req, res) {
     var username = req.params.username;

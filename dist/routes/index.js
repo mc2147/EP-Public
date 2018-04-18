@@ -246,93 +246,6 @@ router.post('/get-next-workouts', async function (req, res, next) {
 	var axiosPost = await axios.post('/api/users/' + req.session.userId + '/get-next-workouts', req.body, { proxy: { host: '127.0.0.1', port: 3000 } });
 	res.json(axiosPost.data);
 	return;
-
-	setUser(parseInt(req.session.userId), "", "", "", "", "");
-	var input = req.body;
-	var dateSplit = req.body.startDate.split("-");
-	var dateNow = Date.now();
-	// input.test = {};
-	input.dateObj1 = Date.parse(req.body.startDate);
-	input.dateObj2 = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1] - 1), parseInt(dateSplit[2] - 1));
-	input.dateObj3 = dateNow;
-	input.dateObj4 = new Date(Date.now());
-	var daysList = [parseInt(req.body["Day-1"]), parseInt(req.body["Day-2"]), parseInt(req.body["Day-3"])];
-	var Level = parseInt(req.body.workoutLevel); //Determine N Workouts based on that
-	var Group = 0;
-	var Block = parseInt(req.body.workoutBlock);
-	var TemplatesJSON = {};
-	input.level = Level;
-	if (Level <= 5) {
-		Group = 1;
-		TemplatesJSON = allWorkoutJSONs[Group];
-	} else if (Level <= 10) {
-		Group = 2;
-		TemplatesJSON = allWorkoutJSONs[Group];
-		daysList.push(parseInt(req.body["Day-4"]));
-	} else if (Level <= 16) {
-		Group = 3;
-		// Block = "a";
-		TemplatesJSON = allWorkoutJSONs[Group][Block];
-		daysList.push(parseInt(req.body["Day-4"]));
-	} else {
-		Group = 4;
-		// Block = "a";
-		TemplatesJSON = allWorkoutJSONs[Group][Block];
-		daysList.push(parseInt(req.body["Day-4"]));
-	}
-	var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
-	input.nWorkouts = nWorkouts;
-	input.daysList = daysList;
-	// var Templates = allWorkoutJSONs[]
-
-	var workoutDates = getWorkoutDates(input.dateObj2, daysList, Level, "", nWorkouts);
-	input.workoutDates = workoutDates;
-	input.detailedworkoutDates = [];
-	workoutDates.forEach(function (elem) {
-		var item = [elem];
-		item.push(DaysofWeekDict[elem.getDay()]);
-		input.detailedworkoutDates.push(item);
-	});
-	var Templates = TemplatesJSON.Templates;
-	input.workouts = {};
-	for (var W in Templates) {
-		var thisWeek = Templates[W];
-		for (var D in thisWeek) {
-			var ID = thisWeek[D].ID;
-			input.workouts[ID] = {
-				ID: null,
-				Week: null,
-				Day: null,
-				Date: null,
-				Completed: false,
-				Patterns: []
-			};
-			input.workouts[ID].Week = W;
-			input.workouts[ID].Day = D;
-			input.workouts[ID].ID = ID;
-			var thisworkoutDate = workoutDates[ID - 1];
-			input.workouts[ID].Date = thisworkoutDate;
-			// if (thisworkoutDate >= new Date(Date.now())) {
-			// }
-		}
-	}
-	var updatedUser = await User.findById(req.session.userId);
-	updatedUser.workouts = input.workouts;
-	updatedUser.currentWorkoutID = 1;
-	updatedUser.workoutDates = workoutDates;
-	await updatedUser.save();
-	req.session.viewingWID = 1;
-	req.session.User = updatedUser;
-
-	// req.session.User.currentWorkoutID = 1;
-	// req.session.User.workouts = input.workouts;
-
-
-	// await req.session.User.save();
-
-	input.user = req.session.User;
-	console.log(req.body.startDate);
-	res.json(input);
 });
 
 var G_vueOutput = {};
@@ -406,44 +319,6 @@ router.get('/', async function (req, res, next) {
 			render();
 			return;
 		}
-	// console.log("LINE 225:	" + TemplateID);
-
-	// G_UserInfo["User"].workouts[TemplateID].Patterns = 
-	var Patterns = [];
-
-	// if (!WorkouthasData) {};
-
-	var lgroup = req.session.User.levelGroup;
-	var block = req.session.User.blockNum;
-	var templateAPIURL = '/api/workout-templates/' + lgroup + '/block/' + block + '/week/' + selectedWeek + '/day/' + selectedDay;
-
-	var templateResponse = await axios.get(templateAPIURL, { proxy: { host: '127.0.0.1', port: 3000 } });
-	// var test = await axios.get('/api/users'
-	// 	,{ proxy: { host: '127.0.0.1', port: 3000 }}
-	// );
-	var thisTemplate = templateResponse.data;
-
-	var subsAPIURL = templateAPIURL + '/subworkouts';
-	var subData = await axios.get(subsAPIURL, { proxy: { host: '127.0.0.1', port: 3000 } });
-	var thisSubs = subData.data;
-	// console.log("thisSubs", thisSubs);	
-	if (false) {
-		//now handled in CU
-		thisSubs.forEach(function (elem) {
-			var _Type = elem.exerciseType;
-			if (_Type == "Med Ball") {
-				_Type = "Medicine Ball";
-			} else if (_Type == "Vert Pull") {
-				_Type = "UB Vert Pull";
-			}
-			var eName = ExerciseDict[_Type][req.session.User.level].name;
-			var userPattern = elem.patternFormat;
-
-			userPattern.name = eName;
-			req.session.User.workouts[TemplateID].Patterns.push(userPattern);
-			req.session.User.save();
-		});
-	}
 
 	render();
 
