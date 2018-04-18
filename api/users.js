@@ -124,12 +124,22 @@ router.put("/:userId/workouts/:workoutId/save", async function(req, res) {
     res.json(req.body);
 })
 
+router.post("/:userId/workouts/:workoutId/save", async function(req, res) {
+   console.log("128 save workout by Id!!!!");
+   var _User = await User.findById(req.params.userId);
+//    console.log("found User?: ", _User);
+   var body = req.body;    
+   await saveWorkout(body, _User, req.params.workoutId);
+   res.json(req.body);
+})
+
+
 router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
-    console.log("108 save workout by Id");
+    // console.log("108 save workout by Id");
    var _User = await User.findById(req.params.userId);
    var workoutId = req.params.workoutId;
    var body = req.body;    
-   await saveWorkout(body.submission, _User, req.params.workoutId);
+   await saveWorkout(body, _User, req.params.workoutId);
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];

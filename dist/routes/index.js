@@ -268,7 +268,7 @@ router.get('/', async function (req, res, next) {
 	}
 	req.session.User = await User.findOne({ where: { username: req.session.username } });
 	req.session.userId = req.session.User.id;
-	// console.log("390", req.session)
+	// console.log("390", req.session)c
 	// (req.session.userId);
 	// req.session.User = await User.findById(req.session.userId);
 	// thisUser = req.session.User;
