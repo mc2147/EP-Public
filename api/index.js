@@ -236,12 +236,25 @@ router.get('/user/:userId/stats/vue/get', function(req, res) {
         }
         console.log(JSONStats);
         // res.json(user.workouts);
+        var nWorkoutsComplete = 0;
+        var nWorkouts = 0;
+        for (var K in user.workouts) {
+            if (user.workouts[K].Completed) {
+                nWorkoutsComplete ++;
+            }
+            nWorkouts ++;
+        }
+        // user.
+        var percentComplete = Math.round((nWorkoutsComplete*100)/(nWorkouts));
         var vueData = {
             level: user.level,
             exerciseTableItems: vueStats(JSONStats),
             nPassed: 0,  
             nFailed: 0,
             nTesting: 0,          
+            nWorkoutsComplete: nWorkoutsComplete,
+            nWorkouts: nWorkouts,
+            percentComplete,
         }
         vueData.exerciseTableItems.forEach(stat => {
             if (stat.alloyVal == 1) {

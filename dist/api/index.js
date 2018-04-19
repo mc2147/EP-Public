@@ -232,10 +232,35 @@ router.get('/user/:userId/stats/vue/get', function (req, res) {
         }
         console.log(JSONStats);
         // res.json(user.workouts);
+        var nWorkoutsComplete = 0;
+        var nWorkouts = 0;
+        for (var K in user.workouts) {
+            if (user.workouts[K].Completed) {
+                nWorkoutsComplete++;
+            }
+            nWorkouts++;
+        }
+        // user.
+        var percentComplete = Math.round(nWorkoutsComplete * 100 / nWorkouts);
         var vueData = {
             level: user.level,
-            exerciseTableItems: (0, _vueFormat.vueStats)(JSONStats)
+            exerciseTableItems: (0, _vueFormat.vueStats)(JSONStats),
+            nPassed: 0,
+            nFailed: 0,
+            nTesting: 0,
+            nWorkoutsComplete: nWorkoutsComplete,
+            nWorkouts: nWorkouts,
+            percentComplete: percentComplete
         };
+        vueData.exerciseTableItems.forEach(function (stat) {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed++;
+            } else if (stat.alloyVal == -1) {
+                vueData.nFailed++;
+            } else {
+                vueData.nTesting++;
+            }
+        });
         res.json(vueData);
     });
     // console.log("25");
@@ -250,10 +275,29 @@ router.get('/user/:userId/progress/vue/get', function (req, res) {
         for (var statKey in JSONStats) {
             console.log(statKey);
         }
-        // console.log(JSONStats);
-        // res.json(user.workouts);
         var vueData = (0, _vueFormat.vueProgress)(JSONStats);
         vueData.level = user.level;
+        vueData.nPassed = 0;
+        vueData.nFailed = 0;
+        vueData.nTesting = 0;
+        vueData.coreExerciseTableItems.forEach(function (stat) {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed++;
+            } else if (stat.alloyVal == -1) {
+                vueData.nFailed++;
+            } else {
+                vueData.nTesting++;
+            }
+        });
+        vueData.secondaryExerciseTableItems.forEach(function (stat) {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed++;
+            } else if (stat.alloyVal == -1) {
+                vueData.nFailed++;
+            } else {
+                vueData.nTesting++;
+            }
+        });
         res.json(vueData);
     });
 });
