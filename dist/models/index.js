@@ -54,6 +54,10 @@ var Video = db.define('Video', {
         set: function set(value) {
             this.setDataValue('tags', value.split(" "));
         }
+    },
+    description: {
+        type: Sequelize.TEXT,
+        defaultValue: ""
     }
 });
 

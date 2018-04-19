@@ -409,8 +409,8 @@ router.post('/' + postURL, async function (req, res) {
 	var _User = sessionSave.User; //req.session could be empty because of CORS
 	var _WID = sessionSave.viewingWID;
 	var putBody = {};
-	putBody.submission = req.body;
-	putBody.viewingWID = _WID;
+	putBody = req.body;
+	// putBody.viewingWID = _WID;
 	// console.log("567", axiosPutResponse.data);
 	var WorkoutURL = '/api/users/' + _User.id + '/workouts/' + _WID;
 	if (req.body.SaveBtn) {

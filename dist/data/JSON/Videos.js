@@ -8,11 +8,15 @@ var VideosJSON = {
     "Posterior Chain": {
         "Single Leg Hip Thrust": {
             URL: "https://drive.google.com/file/d/1SU8J73QiKGrcU58sNOxq6cf3m3xu3rhz/preview",
-            LevelAccess: 9
+            LevelAccess: 9,
+            LinkedLevels: [9, 11, 13],
+            Tags: "SL Hip Thrust"
         },
         "DB Hip Thrust": {
             URL: "https://drive.google.com/file/d/0BysnsnxGpKeUdWUtM3c0SGY1d28/preview",
-            LevelAccess: 1
+            LevelAccess: 1,
+            LinkedLevels: [3, 5],
+            Tags: "DB Hip Thrust"
         }
     },
     "Anterior Chain": {
@@ -168,6 +172,9 @@ for (var Key in VideosJSON) {
             }
         }).spread(function (video, created) {
             video.tags = video.title;
+            if ('Description' in videoObj) {
+                video.description = videoObj.Description;
+            }
             // console.log("video found/created: ", video);
             video.save();
         });

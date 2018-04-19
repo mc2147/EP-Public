@@ -125,7 +125,17 @@ async function assignWorkouts(_User, input) {
             input.workouts[ID].ID = ID;
             var thisworkoutDate = workoutDates[ID - 1];
             input.workouts[ID].Date = thisworkoutDate;
-
+            var describerPrefix = "Level " + Level;
+            var blockString = "";
+            if (_User.blockNum != 0) {
+                if (_User.blockNum == 1) {
+                    blockString = ", Block 1: Volume";
+                } else if (_User.blockNum == 2) {
+                    blockString = ", Block 2: Strength/Power";
+                }
+            }
+            var Describer = describerPrefix + blockString + " - " + " Week " + W + ", Day " + D;
+            input.workouts[ID].Describer = Describer;
             var subsURL = '/api/workout-templates/' + _User.levelGroup + '/block/' + _User.blockNum + '/week/' + W + '/day/' + D + '/subworkouts';
             var subsResponse = await _axios2.default.get(subsURL, { proxy: { host: 'localhost', port: 3000 } });
             var subsList = subsResponse.data;
@@ -153,6 +163,19 @@ async function assignWorkouts(_User, input) {
                 if (findVideo) {
                     patternInstance.hasVideo = true;
                     patternInstance.videoURL = findVideo.url;
+                    patternInstance.selectedVideo = {
+                        URL: findVideo.url,
+                        label: findVideo.title,
+                        image: "../../static/video_placeholder.png",
+                        description: findVideo.description,
+                        LevelAccess: findVideo.levelAccess
+                    };
+
+                    var LevelList = [];
+                    for (var i = 1; i <= 25; i++) {
+                        LevelList.push(i);
+                    }
+                    patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
                 }
                 input.workouts[ID].Patterns.push(patternInstance);
                 console.log("Pushing sub for Pattern: ", ID);

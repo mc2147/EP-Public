@@ -89,7 +89,7 @@ CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5]);
 CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5]);
 CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5]);
 CreateUser("UserName4", 4, 1, 11, thisDate, [1, 2, 3, 5]);
-CreateUser("UserName5", 3, 2, 11, thisDate, [1, 2, 3, 5]);
+CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5]);
 CreateUser("UserName6", 4, 2, 11, thisDate, [1, 2, 3, 5]);
 
 // CreateUser(3, 1, 11, thisDate);
@@ -208,6 +208,19 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
                 if (findVideo) {
                     userPattern.hasVideo = true;
                     userPattern.videoURL = findVideo.url;
+                    userPattern.selectedVideo = {
+                        URL: findVideo.url,
+                        label: findVideo.title,
+                        image: "../../static/video_placeholder.png",
+                        description: findVideo.description,
+                        LevelAccess: findVideo.levelAccess
+                    };
+
+                    var LevelList = [];
+                    for (var i = 1; i <= 25; i++) {
+                        LevelList.push(i);
+                    }
+                    userPattern.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
                 }
                 userPattern.name = eName;
                 user.workouts[ID].Patterns.push(userPattern);
@@ -217,6 +230,19 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
             user.workouts[ID].Day = D;
             user.workouts[ID].ID = ID;
             user.workouts[ID].Date = workoutDates[ID - 1];
+
+            var describerPrefix = "Level " + user.level;
+            var blockString = "";
+            if (user.blockNum != 0) {
+                if (user.blockNum == 1) {
+                    blockString = ", Block 1: Volume";
+                } else if (user.blockNum == 2) {
+                    blockString = ", Block 2: Strength/Power";
+                }
+            }
+            var Describer = describerPrefix + blockString + " - " + " Week: " + W + " Day: " + D;
+            user.workouts[ID].Describer = Describer;
+
             if (user.workouts[ID].Date >= thisDate && !user.currentWorkoutID) {
                 user.currentWorkoutID = ID;
             }

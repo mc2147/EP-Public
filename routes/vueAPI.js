@@ -238,10 +238,24 @@ function getVueInfo(refDict) {
 			dataTableItems: dataTableItems, //Rows -> 1 row per SET
 			sets: Pattern.sets, //N Sets
 		}	
+		var repString = 
+		subDict.describer = Pattern.sets + " x " + Pattern.reps;
+
+		if (Pattern.hasVideo) {
+			subDict.hasVideo = true;
+			subDict.videoURL = Pattern.videoURL;
+			subDict.selectedVideo = Pattern.selectedVideo;
+		}
 		
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
-			if (Pattern.workoutType == 'stop') {subDict.minRPE = parseInt(Pattern.specialValue);}
-			else if (Pattern.workoutType == 'drop') {subDict.minRPE = parseInt(Pattern.dropRPE);}
+			if (Pattern.workoutType == 'stop') {
+				subDict.minRPE = parseInt(Pattern.specialValue);
+				subDict.describer += " (Strength Stop)";
+			}
+			else if (Pattern.workoutType == 'drop') {
+				subDict.minRPE = parseInt(Pattern.dropRPE);
+				subDict.describer += " (Strength Drop)";
+			}
 			var newRPEOptions = [];
 			subDict.RPEOptions.forEach(elem => {
 				if (elem >= subDict.minRPE) {
@@ -252,14 +266,20 @@ function getVueInfo(refDict) {
 		} 
 		
 		if (Pattern.alloy) {
+			subDict.describer += " (Alloy)";
 			subDict.alloyStage = Pattern.alloystatus.value;
 		}	
-		vueSubworkouts.push(subDict);			
+		if (Pattern.workoutType == 'carry') {
+			subDict.describer += " (seconds)";
+		}
+		
+	vueSubworkouts.push(subDict);			
 	}
 
 	return  {
 		date: vueConvert.Date(refDict["thisWorkoutDate"]),
 		// date: refDict["thisWorkoutDate"],
+		describer: refDict.Describer,
 		subworkouts: vueSubworkouts,
 	};
 }
