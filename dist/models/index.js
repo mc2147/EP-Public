@@ -1,11 +1,14 @@
 'use strict';
 
-var _enums = require('../globals/enums');
-
 var Sequelize = require('sequelize');
 var bcrypt = require('bcryptjs');
 var globalTemplates = require('../globals/templates');
 var userStatTemplate = globalTemplates.userStatTemplate;
+
+var _require = require('../globals/enums'),
+    Alloy = _require.Alloy;
+
+// import {Alloy} from '../globals/enums';
 
 // var globalFuncs = require('../globals/functions');
 // var data = require('../data');
@@ -196,7 +199,7 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
             pattern.alloy = this.alloy;
             if (pattern.alloy) {
                 pattern.alloyreps = this.alloyreps;
-                pattern.alloystatus = _enums.Alloy.None;
+                pattern.alloystatus = Alloy.None;
                 pattern.sets -= 1;
             }
             // Name Exceptions Condition        

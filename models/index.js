@@ -2,7 +2,10 @@ const Sequelize = require('sequelize');
 const bcrypt    = require('bcryptjs');
 var globalTemplates = require('../globals/templates');
     var userStatTemplate = globalTemplates.userStatTemplate;
-import {Alloy} from '../globals/enums';
+const {Alloy} = require('../globals/enums');
+
+// import {Alloy} from '../globals/enums';
+
 // var globalFuncs = require('../globals/functions');
 // var data = require('../data');
 	// var ExerciseDict = data.ExerciseDict.Exercises;
@@ -388,7 +391,7 @@ const Workout = db.define('Workout', {
 // db.sync();
 
 module.exports = {
-    db: db,
+    db,
     Exercise: Exercise,
     WorkoutTemplate,
     Workout,
