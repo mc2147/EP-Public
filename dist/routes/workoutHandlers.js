@@ -11,7 +11,7 @@ var getWeight = globalFuncs.getWeight;
 async function saveWorkout(body, userInstance, vWID) {
     var submit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
-    console.log("workoutHandler 7");
+    console.log("workoutHandler 8");
 
     var lastSets = {};
     var allWorkouts = userInstance.workouts;
@@ -23,9 +23,11 @@ async function saveWorkout(body, userInstance, vWID) {
     var allStats = userInstance.stats;
     for (var K in body) {
         var inputCode = K.split("|");
+        console.log("K 21: ", K);
         if (!K.includes("|") || !inputCode) {
             continue;
         }
+        console.log("inputCode: ", inputCode);
         var patternID = parseInt(inputCode[0]); //Number (index + 1)
         var patternIndex = patternID - 1;
 

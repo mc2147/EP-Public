@@ -1,0 +1,49 @@
+export function vueStats(JSON) {
+    var output = [];
+    console.log("vueStats from other page");
+    for (var EType in JSON) {
+        if (EType != "Level Up") {
+            output.push(getVueStat(EType, JSON[EType]));
+        }
+    }
+    return output;
+}
+
+export function getVueStat(EType, JSONStat) {
+    var vueStat = {
+        value:false,
+    };
+    console.log("getVueStat from other page test");
+    vueStat.exerciseType = EType;
+    vueStat.exerciseName = JSONStat.name;
+    vueStat.max = JSONStat.Max;
+    vueStat.alloyVal = JSONStat.Status.value;
+    if (JSONStat.Status.value == 1) {
+        vueStat.alloyResult = "PASSED";
+    }
+    else if (JSONStat.Status.value == -1) {
+        vueStat.alloyResult = "FAILED";
+    }
+    else {
+        vueStat.alloyResult = "---";
+    }
+    return vueStat;
+}
+
+export function vueProgress(JSONStats) {
+    console.log("vueProgress from other page");
+    var output = {
+        coreExerciseTableItems: [],
+        secondaryExerciseTableItems: [],
+    };
+    output.coreExerciseTableItems.push(getVueStat("UB Hor Push", JSONStats["UB Hor Push"]));
+    output.coreExerciseTableItems.push(getVueStat("Squat", JSONStats["Squat"]));
+    output.coreExerciseTableItems.push(getVueStat("Hinge", JSONStats["Hinge"]));
+    
+    for (var EType in JSONStats) {
+        if (EType != "UB Hor Push" && EType != "Squat" && EType != "Hinge"
+        && EType != "Level Up")
+        output.secondaryExerciseTableItems.push(getVueStat(EType, JSONStats[EType]));        
+    }
+    return output;
+}

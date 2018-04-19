@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User, Video} from '../models';
 import {signupUser, assignWorkouts} from './apiFunctions';
+import {vueStats, getVueStat, vueProgress} from './vueFormat';
 var data = require('../data');
     var W3a = data.AllWorkouts[3]["a"];
     var RPETable = data.RPETable;
@@ -225,15 +226,6 @@ router.get('/user/:userId/stats', function(req, res) {
     console.log("USER STATS");
 })
 
-function vueStats(JSON) {
-    output = [];
-    for (var EType in JSON) {
-        if (EType != "Level Up") {
-            output.push(getVueStat(EType, JSON[EType]));
-        }
-    }
-    return output;
-}
 
 router.get('/user/:userId/stats/vue/get', function(req, res) {
     var userId = req.params.userId;
@@ -247,48 +239,27 @@ router.get('/user/:userId/stats/vue/get', function(req, res) {
         var vueData = {
             level: user.level,
             exerciseTableItems: vueStats(JSONStats),
+            nPassed: 0,  
+            nFailed: 0,
+            nTesting: 0,          
         }
+        vueData.exerciseTableItems.forEach(stat => {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed ++;
+            }   
+            else if (stat.alloyVal == -1) {
+                vueData.nFailed ++;
+            }
+            else {
+                vueData.nTesting ++;
+            }
+        })
         res.json(vueData);
     })
     // console.log("25");
     console.log("USER STATS");
 })
 
-function getVueStat(EType, JSONStat) {
-    var vueStat = {
-        value:false,
-    };
-    vueStat.exerciseType = EType;
-    vueStat.exerciseName = JSONStat.name;
-    vueStat.max = JSONStat.Max;
-    if (JSONStat.Status.value == 1) {
-        vueStat.alloyResult = "PASSED";
-    }
-    else if (JSONStat.Status.value == -1) {
-        vueStat.alloyResult = "FAILED";
-    }
-    else {
-        vueStat.alloyResult = "---";
-    }
-    return vueStat;
-}
-
-function vueProgress(JSONStats) {
-    var output = {
-        coreExerciseTableItems: [],
-        secondaryExerciseTableItems: [],
-    };
-    output.coreExerciseTableItems.push(getVueStat("UB Hor Push", JSONStats["UB Hor Push"]));
-    output.coreExerciseTableItems.push(getVueStat("Squat", JSONStats["Squat"]));
-    output.coreExerciseTableItems.push(getVueStat("Hinge", JSONStats["Hinge"]));
-    
-    for (var EType in JSONStats) {
-        if (EType != "UB Hor Push" && EType != "Squat" && EType != "Hinge"
-        && EType != "Level Up")
-        output.secondaryExerciseTableItems.push(getVueStat(EType, JSONStats[EType]));        
-    }
-    return output;
-}
 
 router.get('/user/:userId/progress/vue/get', function(req, res) {
     var userId = req.params.userId;
@@ -298,10 +269,33 @@ router.get('/user/:userId/progress/vue/get', function(req, res) {
         for (var statKey in JSONStats) {
             console.log(statKey);
         }
-        // console.log(JSONStats);
-        // res.json(user.workouts);
         var vueData = vueProgress(JSONStats);
         vueData.level = user.level;
+        vueData.nPassed = 0;
+        vueData.nFailed = 0;
+        vueData.nTesting = 0;
+        vueData.coreExerciseTableItems.forEach(stat => {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed ++;
+            }   
+            else if (stat.alloyVal == -1) {
+                vueData.nFailed ++;
+            }
+            else {
+                vueData.nTesting ++;
+            }
+        })
+        vueData.secondaryExerciseTableItems.forEach(stat => {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed ++;
+            }   
+            else if (stat.alloyVal == -1) {
+                vueData.nFailed ++;
+            }
+            else {
+                vueData.nTesting ++;
+            }
+        })
         res.json(vueData);
     })
 })

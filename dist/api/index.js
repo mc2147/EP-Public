@@ -4,6 +4,8 @@ var _models = require('../models');
 
 var _apiFunctions = require('./apiFunctions');
 
+var _vueFormat = require('./vueFormat');
+
 var session = require('express-session');
 var axios = require('axios');
 var Promise = require("bluebird");
@@ -221,16 +223,6 @@ router.get('/user/:userId/stats', function (req, res) {
     console.log("USER STATS");
 });
 
-function vueStats(JSON) {
-    output = [];
-    for (var EType in JSON) {
-        if (EType != "Level Up") {
-            output.push(getVueStat(EType, JSON[EType]));
-        }
-    }
-    return output;
-}
-
 router.get('/user/:userId/stats/vue/get', function (req, res) {
     var userId = req.params.userId;
     _models.User.findById(userId).then(function (user) {
@@ -242,45 +234,13 @@ router.get('/user/:userId/stats/vue/get', function (req, res) {
         // res.json(user.workouts);
         var vueData = {
             level: user.level,
-            exerciseTableItems: vueStats(JSONStats)
+            exerciseTableItems: (0, _vueFormat.vueStats)(JSONStats)
         };
         res.json(vueData);
     });
     // console.log("25");
     console.log("USER STATS");
 });
-
-function getVueStat(EType, JSONStat) {
-    var vueStat = {
-        value: false
-    };
-    vueStat.exerciseType = EType;
-    vueStat.exerciseName = JSONStat.name;
-    vueStat.max = JSONStat.Max;
-    if (JSONStat.Status.value == 1) {
-        vueStat.alloyResult = "PASSED";
-    } else if (JSONStat.Status.value == -1) {
-        vueStat.alloyResult = "FAILED";
-    } else {
-        vueStat.alloyResult = "---";
-    }
-    return vueStat;
-}
-
-function vueProgress(JSONStats) {
-    var output = {
-        coreExerciseTableItems: [],
-        secondaryExerciseTableItems: []
-    };
-    output.coreExerciseTableItems.push(getVueStat("UB Hor Push", JSONStats["UB Hor Push"]));
-    output.coreExerciseTableItems.push(getVueStat("Squat", JSONStats["Squat"]));
-    output.coreExerciseTableItems.push(getVueStat("Hinge", JSONStats["Hinge"]));
-
-    for (var EType in JSONStats) {
-        if (EType != "UB Hor Push" && EType != "Squat" && EType != "Hinge" && EType != "Level Up") output.secondaryExerciseTableItems.push(getVueStat(EType, JSONStats[EType]));
-    }
-    return output;
-}
 
 router.get('/user/:userId/progress/vue/get', function (req, res) {
     var userId = req.params.userId;
@@ -292,7 +252,7 @@ router.get('/user/:userId/progress/vue/get', function (req, res) {
         }
         // console.log(JSONStats);
         // res.json(user.workouts);
-        var vueData = vueProgress(JSONStats);
+        var vueData = (0, _vueFormat.vueProgress)(JSONStats);
         vueData.level = user.level;
         res.json(vueData);
     });

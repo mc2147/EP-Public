@@ -117,10 +117,10 @@ router.get("/:userId/workouts/:workoutId", function(req, res) {
 })
 
 router.put("/:userId/workouts/:workoutId/save", async function(req, res) {
-     console.log("108 save workout by Id");
+     console.log("108 save workout by Id: ", req.body);
     var _User = await User.findById(req.params.userId);
     var body = req.body;    
-    await saveWorkout(body.submission, _User, req.params.workoutId);
+    await saveWorkout(body, _User, req.params.workoutId);
     res.json(req.body);
 })
 
