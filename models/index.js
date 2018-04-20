@@ -271,7 +271,7 @@ const User = db.define('User', {
     // },  
     username: { //Check for email later
         type: Sequelize.STRING,
-        unique: true,
+        // unique: true,
         allowNull: true, //Change soon
         // defaultValue: "", 
         // primaryKey: true,

@@ -12,6 +12,11 @@ var vueConvert = {
 };
 
 function getVueInfo(refDict) {
+	var _Completed = false;
+	if (refDict.Completed) {
+		_Completed = true;
+		console.log("Workout Completed: ", refDict);
+	}
 	var vueColumns = [["Reps/Time(s)", 1], ["Weights", 2], ["RPE", 3], ["Tempo", 4]];
 	var vueSubworkouts = [];
 	console.log("PATTERNS:");
@@ -127,6 +132,12 @@ function getVueInfo(refDict) {
 							RPEDict.status = 'Fixed';
 						}
 
+			if (_Completed) {
+				repDict.status = 'Fixed';
+				weightDict.status = 'Fixed';
+				RPEDict.status = 'Fixed';
+				tempoDict.status = 'Fixed';
+			}
 			repLists.inputs.push(repDict);
 			weightLists.inputs.push(weightDict);
 			RPELists.inputs.push(RPEDict);
@@ -186,6 +197,12 @@ function getVueInfo(refDict) {
 				weightDict.status = 'Fixed';
 				// repLists.fixed.push(Pattern.alloyperformed + " FAILED");
 				// weightLists.fixed.push(Pattern.alloyweight);
+			}
+			if (_Completed) {
+				repDict.status = 'Fixed';
+				weightDict.status = 'Fixed';
+				RPEDict.status = 'Fixed';
+				alloyTempo.status = 'Fixed';
 			}
 			repLists.inputs.push(repDict);
 			weightLists.inputs.push(weightDict);
@@ -269,7 +286,8 @@ function getVueInfo(refDict) {
 		date: vueConvert.Date(refDict["thisWorkoutDate"]),
 		// date: refDict["thisWorkoutDate"],
 		describer: refDict.Describer,
-		subworkouts: vueSubworkouts
+		subworkouts: vueSubworkouts,
+		completed: _Completed
 	};
 }
 

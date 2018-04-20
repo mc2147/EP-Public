@@ -72,7 +72,12 @@ router.post("/user/login", async function(req, res) {
 
 })
 
-router.post("/user/signup", function(req, res) {
+router.post("/user/signup", async function(req, res) {
+        var axiosPost = await axios.post("/api/users/", req.body,
+        { proxy: { host: '127.0.0.1', port: 3000 } });
+        res.json(axiosPost.data);
+        return
+        
         var input = req.body;
         var P1 = req.body.P1;
         var P2 = req.body.P2;
@@ -194,123 +199,6 @@ router.post('/videos/post', function(req, res) {
 
 router.get('/descriptions/json', function(req, res) {
     res.json(DescriptionsJSON);
-})
-
-router.get("/user/:userId", function(req, res) {
-    var userId = req.params.userId;
-    User.findById(userId).then((user) => {
-        // user.oldstats.push({"test": "test"}),
-        // user.oldstats.push(user.stats)
-        user.save().then(() => {
-            console.log("USER API 148");
-            res.json(user);
-        });
-    })    
-});
-
-router.get("/user/:userId/workouts", function(req, res) {
-    var userId = req.params.userId;
-    User.findById(userId).then((user) => {
-        res.json(user.workouts);
-    })
-    console.log("25");
-});
-
-router.get('/user/:userId/stats', function(req, res) {
-    var userId = req.params.userId;
-    User.findById(userId).then((user) => {
-        // res.json(user.workouts);
-        res.json(user.stats);
-    })
-    // console.log("25");
-    console.log("USER STATS");
-})
-
-
-router.get('/user/:userId/stats/vue/get', function(req, res) {
-    var userId = req.params.userId;
-    User.findById(userId).then((user) => {
-        var JSONStats = user.stats;
-        for (var statKey in JSONStats) {
-            console.log(statKey);
-        }
-        console.log(JSONStats);
-        // res.json(user.workouts);
-        var nWorkoutsComplete = 0;
-        var nWorkouts = 0;
-        for (var K in user.workouts) {
-            if (user.workouts[K].Completed) {
-                nWorkoutsComplete ++;
-            }
-            nWorkouts ++;
-        }
-        // user.
-        var percentComplete = Math.round((nWorkoutsComplete*100)/(nWorkouts));
-        var vueData = {
-            level: user.level,
-            exerciseTableItems: vueStats(JSONStats),
-            nPassed: 0,  
-            nFailed: 0,
-            nTesting: 0,          
-            nWorkoutsComplete: nWorkoutsComplete,
-            nWorkouts: nWorkouts,
-            percentComplete,
-        }
-        vueData.exerciseTableItems.forEach(stat => {
-            if (stat.alloyVal == 1) {
-                vueData.nPassed ++;
-            }   
-            else if (stat.alloyVal == -1) {
-                vueData.nFailed ++;
-            }
-            else {
-                vueData.nTesting ++;
-            }
-        })
-        res.json(vueData);
-    })
-    // console.log("25");
-    console.log("USER STATS");
-})
-
-
-router.get('/user/:userId/progress/vue/get', function(req, res) {
-    var userId = req.params.userId;
-    console.log("USER PROGRESS VUE");
-    User.findById(userId).then((user) => {
-        var JSONStats = user.stats;
-        for (var statKey in JSONStats) {
-            console.log(statKey);
-        }
-        var vueData = vueProgress(JSONStats);
-        vueData.level = user.level;
-        vueData.nPassed = 0;
-        vueData.nFailed = 0;
-        vueData.nTesting = 0;
-        vueData.coreExerciseTableItems.forEach(stat => {
-            if (stat.alloyVal == 1) {
-                vueData.nPassed ++;
-            }   
-            else if (stat.alloyVal == -1) {
-                vueData.nFailed ++;
-            }
-            else {
-                vueData.nTesting ++;
-            }
-        })
-        vueData.secondaryExerciseTableItems.forEach(stat => {
-            if (stat.alloyVal == 1) {
-                vueData.nPassed ++;
-            }   
-            else if (stat.alloyVal == -1) {
-                vueData.nFailed ++;
-            }
-            else {
-                vueData.nTesting ++;
-            }
-        })
-        res.json(vueData);
-    })
 })
 
 router.get('/json/exercises', function(req, res) {

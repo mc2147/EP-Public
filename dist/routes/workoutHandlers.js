@@ -12,7 +12,6 @@ async function saveWorkout(body, userInstance, vWID) {
     var submit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
     console.log("workoutHandler 8");
-
     var lastSets = {};
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];

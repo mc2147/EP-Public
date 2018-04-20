@@ -6,8 +6,7 @@ var globalFuncs = require('../globals/functions');
 	var getWeight = globalFuncs.getWeight;
 
 async function saveWorkout(body, userInstance, vWID, submit=false) {
-    console.log("workoutHandler 8");    
-    
+    console.log("workoutHandler 8");        
     var lastSets = {};
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];

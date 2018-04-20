@@ -9,6 +9,9 @@ const saltRounds = 10;
 function generateSalt(){
     return bcrypt.genSaltSync(saltRounds);
 }
+function generateHash (password, salt){
+    return bcrypt.hashSync(password, salt, null);
+}
 
 export async function signupUser(input) {
     var P1 = input.P1;
@@ -17,41 +20,62 @@ export async function signupUser(input) {
     var salt = generateSalt();
     if (P1 == P2) {
         var hashedPassword = generateHash(P1, salt);
-        User.create({
-            id: 29,
+        var newUser = await User.create({
+            // id: 29,
             username: username,
             salt: salt,
             password: hashedPassword,
-        }).then((user) => {
+        });
+        if (newUser) {
             return({
-                user,
+                newUser,
                 session: {
-                    userId: user.id,
+                    userId: newUser.id,
                     username: username,
-                    User: user,        
+                    User: newUser,        
                 }
             });
-        }).catch((err) => {
+        }
+        else {
             return({
                 error: true,
                 status: "error"
             })
-        })
+        }
     }
     else {
         return false
     }
 }
 
+export async function assignLevel(_User, input) {
+    let {squatWeight, benchWeight, RPEExp, bodyWeight} = input; 
+    if (squatWeight < benchWeight) {
+        _User.level = 1;
+    }
+    else if (squatWeight > bodyWeight*1.5 && benchWeight > bodyWeight && RPEExp) {
+        _User.level = 11;
+    }
+    else {
+        _User.level = 6;
+    }
+    await _User.save();
+}
+
 //Assigns a set of workouts to the user depending on level, start date, and workout days (list) 
 export async function assignWorkouts(_User, input, newUser=false) {
     // console.log("creating workouts from: ", input);
-    var dateSplit = input.startDate.split("-");
-    var dateNow = Date.now();
-    input.dateObj2 = new Date(
-        parseInt(dateSplit[0]), 
-        parseInt(dateSplit[1] - 1), 
-        parseInt(dateSplit[2] - 1)); 
+    if (!newUser) {
+        var dateSplit = input.startDate.split("-");
+        var dateNow = Date.now();
+        input.dateObj2 = new Date(
+            parseInt(dateSplit[0]), 
+            parseInt(dateSplit[1] - 1), 
+            parseInt(dateSplit[2] - 1)); 
+    }
+    if (newUser) {
+        input.dateObj2 = input.startDate;
+    }
     var daysList = [
         parseInt(input["Day-1"]),
         parseInt(input["Day-2"]),
@@ -176,3 +200,43 @@ export async function assignWorkouts(_User, input, newUser=false) {
     _User.resetStats = true;
 }
 
+export async function getblankPatterns(lGroup, block, W, D, level) {
+    var blankPatterns = [];
+    var subsURL = `/api/workout-templates/${lGroup}/block/${block}/week/${W}/day/${D}/subworkouts`;    
+    var subsResponse = await axios.get(subsURL ,{ proxy: { host: 'localhost', port: 3000 }});
+    var subsList = subsResponse.data;
+    subsList.sort(function(a, b) {
+        return a.number - b.number
+    });
+    for (var i = 0; i < subsList.length; i++) {
+        var sub = subsList[i];
+        var patternInstance = sub.patternFormat;
+        var EType = sub.exerciseType;
+        if (EType == "Med Ball") {EType = "Medicine Ball";}
+        else if (EType == "Vert Pull") {EType = "UB Vert Pull";} 	
+        patternInstance.type = EType;
+        var EName = ExerciseDict.Exercises[patternInstance.type][level].name;
+        patternInstance.name = EName;
+        var findVideo = await Video.search(EName, false); 
+        if (findVideo) {
+            patternInstance.hasVideo = true;
+            patternInstance.videoURL = findVideo.url;                        
+            patternInstance.selectedVideo = {
+                URL: findVideo.url,
+                label: findVideo.title,
+                image: "../../static/video_placeholder.png",                        
+                description: findVideo.description,
+                LevelAccess: findVideo.levelAccess,
+            };                            
+
+            var LevelList = [];
+            for (var i = 1; i <= 25; i++) {
+                LevelList.push(i);
+            }
+            patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
+        }
+        blankPatterns.push(patternInstance);
+    }
+    console.log("getBlankPatterns: ", blankPatterns);
+    return blankPatterns;
+}

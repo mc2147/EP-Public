@@ -6,6 +6,7 @@ const Sequelize = require('sequelize');
 // var SubWorkoutTemplate = models.SubWorkoutTemplate;
 // var User = models.User;
 import {WorkoutTemplate, SubWorkoutTemplate, User, Video} from './index';
+import {assignWorkouts} from '../api/apiFunctions';
 
 var globalFuncs = require('../globals/functions');
 var globalEnums = require('../globals/enums');
@@ -114,27 +115,19 @@ async function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) 
     }) 
 }
 
-// var relatedSubsResponse = axios.get("/api/users" ,{ proxy: { host: 'localhost', port: 3000 }});
-// var test = axios.get('/api/users');
-//     ,{ proxy: { host: '127.0.0.1', port: 3000 }}
-// );
 
 async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays) {
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
         thisGroup = thisGroup[blockNum];
     }
-    // console.log("thisGroup", thisGroup);
     var NWorkouts = Object.keys(thisGroup.getWeekDay).length;
-    // console.log("thisGroup: ", thisGroup);
-    // console.log("NWorkouts", NWorkouts);
     var [user, created] = await User.findOrCreate(
         {
          where: {
             username: username,
          }
      });
-    //  return
     user.stats = StatTemplate;
     user.workouts = {};        
     user.levelGroup = levelGroup;
@@ -151,6 +144,19 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     var unHashed = "Password" + user.id;
     user.password = User.generateHash(unHashed, user.salt);
     await user.save();
+    // var inputs = {}; <- DO LATER
+    // inputs["Day-1"] = workoutDays[0];
+    // inputs["Day-2"] = workoutDays[1];
+    // inputs["Day-3"] = workoutDays[2];
+    // if (workoutDays.length == 4) {
+    //     inputs["Day-4"] = workoutDays[3];
+    // }
+    // inputs.startDate = startDate;
+    // inputs.workoutLevel = user.level;
+    // inputs.workoutBlock = user.blockNum;
+    // assignWorkouts (user, inputs, true);
+    // return    
+    
     //  Instance variables
     var workoutDates = getWorkoutDays(startDate, workoutDays, 1, "", NWorkouts);
     user.workoutDates = workoutDates;
@@ -174,12 +180,6 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
             subs.sort(function(a, b) {
                 return a.number - b.number
             });
-        // var subsURL = "/api/users"
-            // var relatedSubsResponse = await axios.get(subsURL ,{ proxy: { host: 'localhost', port: 3000 }});
-            // var relatedSubsResponse = {
-            //     data: [],
-            // }
-            // var relatedSubs  = relatedSubsResponse.data;
             var ID = thisWeek[D].ID;
             user.workouts[ID] = Object.assign({}, WorkoutInstanceTemplate);       
             user.workouts[ID].Patterns = [];          

@@ -4,7 +4,8 @@ import Promise from "bluebird";
 var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
-import {assignWorkouts, signupUser} from './apiFunctions';
+import {assignWorkouts, signupUser, assignLevel, getblankPatterns} from './apiFunctions';
+import {vueStats, getVueStat, vueProgress} from './vueFormat';
 
 var router = express.Router();
 var models = require('../models');
@@ -41,6 +42,7 @@ var vueAPI = require('../routes/vueAPI');
     var getVueInfo = vueAPI.getVueInfo;
 
 router.get("/", function (req, res) {
+    req.session.set = true;
     User.findAll({
         where: {}
     }).then((users) => {
@@ -50,13 +52,25 @@ router.get("/", function (req, res) {
 
 router.post("/", async function(req, res) {
     var newUser = await signupUser(req.body);
-    if (!newUser) {
+    if (newUser == false) {
         res.json({
             error:true,
             status: "passwords no match",
         })
+        return
     }
-    res.json(newUser);
+    else {
+        // req.session
+        req.session.userId = newUser.session.userId;
+        req.session.username = newUser.session.username;
+        req.session.User = newUser.session.User;
+        req.session.test = "test";
+        req.session.save();
+        console.log("user post req.session: ", req.session);
+        // await req.session.save();
+        res.json(newUser);
+    }
+    // res.json(req.session);
 })
 
 router.post("/:username/login", async function (req, res) {
@@ -139,13 +153,12 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
    var _User = await User.findById(req.params.userId);
    var workoutId = req.params.workoutId;
    var body = req.body;    
-   await saveWorkout(body, _User, req.params.workoutId);
+   await saveWorkout(body, _User, req.params.workoutId, true);
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];
         if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
             _User.level ++;
-            // _User.stats["Level Up"].Status = Alloy.Passed;
         }
         _User.stats["Level Up"].Status.Checked = true;
         _User.changed( 'stats', true);
@@ -155,6 +168,22 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
     res.json(body);
 })
 
+router.get("/:userId/workouts/:workoutId/clear", async function(req, res) {
+    let _User = await User.findById(req.params.userId);
+    let workoutId = req.params.workoutId;
+    let thisWorkout = _User.workouts[req.params.workoutId];
+    let W = parseInt(thisWorkout.Week);
+    let D = parseInt(thisWorkout.Day);
+    let level = _User.level;
+    let newPatterns = await getblankPatterns(_User.levelGroup, _User.blockNum, W, D, level);
+    _User.workouts.Patterns = newPatterns;
+    _User.change('workouts', true);
+    await _User.save();
+    console.log("newPatterns: ", newPatterns);
+    res.json(newPatterns);
+     // assignWorkouts(_User, input);
+})
+
 router.get("/:userId/workouts/:workoutId/vue", function(req, res) {
     User.findById(req.params.userId).then((user) => {
         var _Workout = user.workouts[req.params.workoutId];
@@ -162,8 +191,6 @@ router.get("/:userId/workouts/:workoutId/vue", function(req, res) {
         let JSON = _Workout;
         JSON.thisWorkoutDate = _WorkoutDate;
         var vueJSON = getVueInfo(JSON);
-
-		
 		let workoutDatelist = [];
 		var userWorkouts = user.workouts;
 		for (var K in userWorkouts) {
@@ -208,6 +235,87 @@ router.put("/:userId/stats", function(req, res) {
         ).then(user => res.json(user));
     });
 })
+
+router.get('/:userId/stats/vue/get', function(req, res) {
+    var userId = req.params.userId;
+    User.findById(userId).then((user) => {
+        var JSONStats = user.stats;
+        for (var statKey in JSONStats) {
+            console.log(statKey);
+        }
+        console.log(JSONStats);
+        // res.json(user.workouts);
+        var nWorkoutsComplete = 0;
+        var nWorkouts = 0;
+        for (var K in user.workouts) {
+            if (user.workouts[K].Completed) {
+                nWorkoutsComplete ++;
+            }
+            nWorkouts ++;
+        }
+        // user.
+        var percentComplete = Math.round((nWorkoutsComplete*100)/(nWorkouts));
+        var vueData = {
+            level: user.level,
+            exerciseTableItems: vueStats(JSONStats),
+            nPassed: 0,  
+            nFailed: 0,
+            nTesting: 0,          
+            nWorkoutsComplete: nWorkoutsComplete,
+            nWorkouts: nWorkouts,
+            percentComplete,
+        }
+        vueData.exerciseTableItems.forEach(stat => {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed ++;
+            }   
+            else if (stat.alloyVal == -1) {
+                vueData.nFailed ++;
+            }
+            else {
+                vueData.nTesting ++;
+            }
+        })
+        res.json(vueData);
+    })
+})
+
+
+router.get('/:userId/progress/vue/get', function(req, res) {
+    var userId = req.params.userId;
+    User.findById(userId).then((user) => {
+        var JSONStats = user.stats;
+        var vueData = vueProgress(JSONStats);
+        vueData.level = user.level;
+        vueData.nPassed = 0;
+        vueData.nFailed = 0;
+        vueData.nTesting = 0;
+        vueData.coreExerciseTableItems.forEach(stat => {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed ++;
+            }   
+            else if (stat.alloyVal == -1) {
+                vueData.nFailed ++;
+            }
+            else {
+                vueData.nTesting ++;
+            }
+        })
+        vueData.secondaryExerciseTableItems.forEach(stat => {
+            if (stat.alloyVal == 1) {
+                vueData.nPassed ++;
+            }   
+            else if (stat.alloyVal == -1) {
+                vueData.nFailed ++;
+            }
+            else {
+                vueData.nTesting ++;
+            }
+        })
+        res.json(vueData);
+    })
+})
+
 
 router.put("/:userId/workouts", function(req, res) {
     User.findById(req.params.userId).then((user) => {
@@ -255,6 +363,19 @@ router.put("/:userId/submit-workout", async function(req, res) {
     res.json(body);
 })
 
+router.put("/:userId/get-level", async function (req, res) {
+    var _User = await User.findById(req.params.userId);
+    var input = req.body;
+    await assignLevel(_User, input);
+    await _User.save();
+    res.json(
+        {
+            user:_User, 
+            viewingWID:1
+        });
+    return
+})
+
 router.put("/:userId/generate-workouts", async function(req, res) {
     var input = req.body;
     var _User = await User.findById(req.params.userId);
@@ -269,7 +390,7 @@ router.put("/:userId/generate-workouts", async function(req, res) {
         await _User.save();
     }
     assignWorkouts(_User, input);
-    await _User.save();
+    await _User.save(); 
     res.json({input, updatedUser: _User, session: {
         viewingWID: 1,
         User: _User,
@@ -279,14 +400,14 @@ router.put("/:userId/generate-workouts", async function(req, res) {
     return    
 });
 
-// router.post("/:userId/old-stats/clear", async function(req, res) {
-
-// })
+router.post("/:userId/old-stats/clear", async function(req, res) {
+    
+})
 
 router.post("/:userId/get-next-workouts", async function(req, res) {
+    var _User = await User.findById(req.params.userId);
     var input = req.body;
     console.log("91", input);
-    var _User = await User.findById(req.params.userId);
     _User.oldstats = [];
     _User.oldworkouts = [];
     await _User.save();

@@ -4,7 +4,9 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.signupUser = signupUser;
+exports.assignLevel = assignLevel;
 exports.assignWorkouts = assignWorkouts;
+exports.getblankPatterns = getblankPatterns;
 
 var _functions = require('../globals/functions');
 
@@ -29,6 +31,9 @@ var saltRounds = 10;
 function generateSalt() {
     return _bcryptjs2.default.genSaltSync(saltRounds);
 }
+function generateHash(password, salt) {
+    return _bcryptjs2.default.hashSync(password, salt, null);
+}
 
 async function signupUser(input) {
     var P1 = input.P1;
@@ -37,29 +42,46 @@ async function signupUser(input) {
     var salt = generateSalt();
     if (P1 == P2) {
         var hashedPassword = generateHash(P1, salt);
-        _models.User.create({
-            id: 29,
+        var newUser = await _models.User.create({
+            // id: 29,
             username: username,
             salt: salt,
             password: hashedPassword
-        }).then(function (user) {
+        });
+        if (newUser) {
             return {
-                user: user,
+                newUser: newUser,
                 session: {
-                    userId: user.id,
+                    userId: newUser.id,
                     username: username,
-                    User: user
+                    User: newUser
                 }
             };
-        }).catch(function (err) {
+        } else {
             return {
                 error: true,
                 status: "error"
             };
-        });
+        }
     } else {
         return false;
     }
+}
+
+async function assignLevel(_User, input) {
+    var squatWeight = input.squatWeight,
+        benchWeight = input.benchWeight,
+        RPEExp = input.RPEExp,
+        bodyWeight = input.bodyWeight;
+
+    if (squatWeight < benchWeight) {
+        _User.level = 1;
+    } else if (squatWeight > bodyWeight * 1.5 && benchWeight > bodyWeight && RPEExp) {
+        _User.level = 11;
+    } else {
+        _User.level = 6;
+    }
+    await _User.save();
 }
 
 //Assigns a set of workouts to the user depending on level, start date, and workout days (list) 
@@ -67,9 +89,14 @@ async function assignWorkouts(_User, input) {
     var newUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
     // console.log("creating workouts from: ", input);
-    var dateSplit = input.startDate.split("-");
-    var dateNow = Date.now();
-    input.dateObj2 = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1] - 1), parseInt(dateSplit[2] - 1));
+    if (!newUser) {
+        var dateSplit = input.startDate.split("-");
+        var dateNow = Date.now();
+        input.dateObj2 = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1] - 1), parseInt(dateSplit[2] - 1));
+    }
+    if (newUser) {
+        input.dateObj2 = input.startDate;
+    }
     var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
     var Level = parseInt(input.workoutLevel); //Determine N Workouts based on that
     var Group = 0;
@@ -187,4 +214,48 @@ async function assignWorkouts(_User, input) {
     _User.currentWorkoutID = 1;
     _User.workoutDates = workoutDates;
     _User.resetStats = true;
+}
+
+async function getblankPatterns(lGroup, block, W, D, level) {
+    var blankPatterns = [];
+    var subsURL = '/api/workout-templates/' + lGroup + '/block/' + block + '/week/' + W + '/day/' + D + '/subworkouts';
+    var subsResponse = await _axios2.default.get(subsURL, { proxy: { host: 'localhost', port: 3000 } });
+    var subsList = subsResponse.data;
+    subsList.sort(function (a, b) {
+        return a.number - b.number;
+    });
+    for (var i = 0; i < subsList.length; i++) {
+        var sub = subsList[i];
+        var patternInstance = sub.patternFormat;
+        var EType = sub.exerciseType;
+        if (EType == "Med Ball") {
+            EType = "Medicine Ball";
+        } else if (EType == "Vert Pull") {
+            EType = "UB Vert Pull";
+        }
+        patternInstance.type = EType;
+        var EName = _data.ExerciseDict.Exercises[patternInstance.type][level].name;
+        patternInstance.name = EName;
+        var findVideo = await _models.Video.search(EName, false);
+        if (findVideo) {
+            patternInstance.hasVideo = true;
+            patternInstance.videoURL = findVideo.url;
+            patternInstance.selectedVideo = {
+                URL: findVideo.url,
+                label: findVideo.title,
+                image: "../../static/video_placeholder.png",
+                description: findVideo.description,
+                LevelAccess: findVideo.levelAccess
+            };
+
+            var LevelList = [];
+            for (var i = 1; i <= 25; i++) {
+                LevelList.push(i);
+            }
+            patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
+        }
+        blankPatterns.push(patternInstance);
+    }
+    console.log("getBlankPatterns: ", blankPatterns);
+    return blankPatterns;
 }
