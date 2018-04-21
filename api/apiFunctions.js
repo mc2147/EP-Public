@@ -63,6 +63,11 @@ export async function assignLevel(_User, input) {
 }
 
 //Assigns a set of workouts to the user depending on level, start date, and workout days (list) 
+    // Required format:
+        // ["Day-1"], ["Day-2"], ["Day-3"], ["Day-4"]
+        // .startDate -> "YYYY-M-D" 
+        // .workoutLevel = level
+        // .workoutBlock = user.blockNum
 export async function assignWorkouts(_User, input, newUser=false) {
     // console.log("creating workouts from: ", input);
     if (!newUser) {
@@ -84,6 +89,9 @@ export async function assignWorkouts(_User, input, newUser=false) {
     var Level = parseInt(input.workoutLevel); //Determine N Workouts based on that
     var Group = 0;
     var Block = parseInt(input.workoutBlock);
+    Level = _User.level;
+    Block = _User.blockNum;
+
     var TemplatesJSON = {};
     input.level = Level;
     if (Level <= 5) {
