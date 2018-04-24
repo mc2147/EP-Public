@@ -16,7 +16,7 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
-var _apiFunctions = require('./apiFunctions');
+var _workoutFunctions = require('./apiFunctions/workoutFunctions');
 
 var _levelupMessages = require('../content/levelupMessages');
 

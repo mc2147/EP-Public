@@ -6,7 +6,7 @@ const Sequelize = require('sequelize');
 // var SubWorkoutTemplate = models.SubWorkoutTemplate;
 // var User = models.User;
 import {WorkoutTemplate, SubWorkoutTemplate, User, Video} from './index';
-import {assignWorkouts} from '../api/apiFunctions';
+import {assignWorkouts} from '../api/apiFunctions/workoutFunctions';
 
 var globalFuncs = require('../globals/functions');
 var globalEnums = require('../globals/enums');
@@ -144,114 +144,21 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     var unHashed = "Password" + user.id;
     user.password = User.generateHash(unHashed, user.salt);
     await user.save();
-    // var inputs = {}; <- DO LATER
-    // inputs["Day-1"] = workoutDays[0];
-    // inputs["Day-2"] = workoutDays[1];
-    // inputs["Day-3"] = workoutDays[2];
-    // if (workoutDays.length == 4) {
-    //     inputs["Day-4"] = workoutDays[3];
-    // }
-    // inputs.startDate = startDate;
-    // inputs.workoutLevel = user.level;
-    // inputs.workoutBlock = user.blockNum;
-    // assignWorkouts (user, inputs, true);
-    // return    
-    
-    //  Instance variables
-    var workoutDates = getWorkoutDays(startDate, workoutDays, 1, "", NWorkouts);
-    user.workoutDates = workoutDates;
-    user.currentWorkoutID = 1;
-    console.log("CU 158");
-        // Sort workouts by LGroups and blocks -> ID
-    for (var W in thisGroup.Templates) {
-        var thisWeek = thisGroup.Templates[W];
-        for (var D in thisWeek) {
-            // console.log("105", W, D, thisWeek[D]);
-            var relatedTemplate = await WorkoutTemplate.findOne({
-                where: {
-                    levelGroup:levelGroup,
-                    block:blockNum,
-                    week: W,
-                    day: D,
-                }
-            });
-            var subsURL = `/api/workout-templates/${levelGroup}/block/${blockNum}/week/${W}/day/${D}/subworkouts`;    
-            var subs = await relatedTemplate.getSubWorkouts();
-            subs.sort(function(a, b) {
-                return a.number - b.number
-            });
-            var ID = thisWeek[D].ID;
-            user.workouts[ID] = Object.assign({}, WorkoutInstanceTemplate);       
-            user.workouts[ID].Patterns = [];          
-            
-            for (var i = 0; i < subs.length; i ++) {
-                var elem = subs[i];
-                var _Type = elem.exerciseType;            
-                if (_Type == "Med Ball") {_Type = "Medicine Ball";}
-                else if (_Type == "Vert Pull") {_Type = "UB Vert Pull";} 	
-                var eName = ExerciseDict[_Type][user.level].name;
-                var userPattern = elem.patternFormat;
-                var findVideo = await Video.search(eName, false); 
-                if (findVideo) {
-                    userPattern.hasVideo = true;
-                    userPattern.videoURL = findVideo.url;
-                    userPattern.selectedVideo = {
-                        URL: findVideo.url,
-                        label: findVideo.title,
-                        image: "../../static/video_placeholder.png",                        
-                        description: findVideo.description,
-                        LevelAccess: findVideo.levelAccess,
-                    };                            
-
-                    var LevelList = [];
-                    for (var i = 1; i <= 25; i++) {
-                        LevelList.push(i);
-                    }
-                    userPattern.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
-                }            
-                userPattern.name = eName;
-                user.workouts[ID].Patterns.push(userPattern);
-            }
-
-            user.workouts[ID].Week = W;
-            user.workouts[ID].Day = D;
-            user.workouts[ID].ID = ID;
-            user.workouts[ID].Date = workoutDates[ID - 1];
-
-            var describerPrefix = "Level " + user.level;
-            var blockString = "";
-            if (user.blockNum != 0) {
-                if (user.blockNum == 1) {
-                    blockString = ", Block 1: Volume";
-                }
-                else if (user.blockNum == 2) {
-                    blockString = ", Block 2: Strength/Power";
-                }
-            } 
-            var Describer = describerPrefix + blockString + " - " + " Week: " + W + " Day: " + D;
-            user.workouts[ID].Describer = Describer;
-        
-            if (user.workouts[ID].Date >= thisDate && !user.currentWorkoutID) {
-                user.currentWorkoutID = ID;
-            }
-            user.changed("workouts", true);
-            await user.save();
-            // console.log("192", user.workouts);
-        }
+    // <- DO LATER
+    var inputs = {}; 
+    inputs["Day-1"] = workoutDays[0];
+    inputs["Day-2"] = workoutDays[1];
+    inputs["Day-3"] = workoutDays[2];
+    if (workoutDays.length == 4) {
+        inputs["Day-4"] = workoutDays[3];
     }
-        //  user.workouts[13] = WorkoutInstanceTemplate;
-        // Workout Completion Code
-        //  missedWorkouts(user, new Date(2018, 02, 15, 00, 0, 0, 0), new Date(2018, 02, 22, 00, 0, 0, 0));
+    inputs.formattedDate = startDate;
+    // inputs.startDate = startDate;
+    inputs.workoutLevel = user.level;
+    inputs.workoutBlock = user.blockNum;
+    assignWorkouts (user, inputs, true);
     await user.save();
-        console.log("USER CREATED");
-    return
-        // console.log("User.workouts: ", user.workouts);
-		// console.log("# of workoutDates: ", user.workoutDates.length);
-    //  })
-    //  .then(() => {
-    //     //  console.log("User PROMISE RESOLVED");
-    //  })
-    //  return
+    return        
 }
 
 module.exports = {

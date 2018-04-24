@@ -8,13 +8,13 @@ exports.assignLevel = assignLevel;
 exports.assignWorkouts = assignWorkouts;
 exports.getblankPatterns = getblankPatterns;
 
-var _functions = require('../globals/functions');
+var _functions = require('../../globals/functions');
 
-var _data = require('../data');
+var _data = require('../../data');
 
-var _enums = require('../globals/enums');
+var _enums = require('../../globals/enums');
 
-var _models = require('../models');
+var _models = require('../../models');
 
 var _axios = require('axios');
 
@@ -85,22 +85,43 @@ async function assignLevel(_User, input) {
 }
 
 //Assigns a set of workouts to the user depending on level, start date, and workout days (list) 
+// Required format:
+// ["Day-1"], ["Day-2"], ["Day-3"], ["Day-4"]
+// .startDate -> "YYYY-M-D" 
+// .workoutLevel = level
+// .workoutBlock = user.blockNum
 async function assignWorkouts(_User, input) {
     var newUser = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
     // console.log("creating workouts from: ", input);
-    if (!newUser) {
+    // if (!newUser) {
+    //     var dateSplit = input.startDate.split("-");
+    //     var dateNow = Date.now();
+    //     input.dateObj2 = new Date(
+    //         parseInt(dateSplit[0]), 
+    //         parseInt(dateSplit[1] - 1), 
+    //         parseInt(dateSplit[2] - 1)); 
+    // }
+    // if (newUser) {
+    //     input.dateObj2 = input.startDate;
+    // }'
+    console.log("assigning workouts for: ", _User.username);
+    if (input.startDate) {
         var dateSplit = input.startDate.split("-");
         var dateNow = Date.now();
         input.dateObj2 = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1] - 1), parseInt(dateSplit[2] - 1));
     }
-    if (newUser) {
-        input.dateObj2 = input.startDate;
-    }
     var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
+    if (input.formattedDate) {
+        input.dateObj2 = input.formattedDate;
+    }
+
     var Level = parseInt(input.workoutLevel); //Determine N Workouts based on that
     var Group = 0;
     var Block = parseInt(input.workoutBlock);
+    Level = _User.level;
+    Block = _User.blockNum;
+
     var TemplatesJSON = {};
     input.level = Level;
     if (Level <= 5) {
@@ -124,7 +145,7 @@ async function assignWorkouts(_User, input) {
     var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
     input.nWorkouts = nWorkouts;
     input.daysList = daysList;
-
+    console.log("input.dateObj2: ", input.dateObj2);
     var workoutDates = (0, _functions.getWorkoutDays)(input.dateObj2, daysList, Level, "", nWorkouts);
     input.workoutDates = workoutDates;
     input.detailedworkoutDates = [];
@@ -139,6 +160,7 @@ async function assignWorkouts(_User, input) {
         var thisWeek = Templates[W];
         for (var D in thisWeek) {
             var ID = thisWeek[D].ID;
+            console.log("assigning workout #: ", ID, " to user: ", _User.username);
             input.workouts[ID] = {
                 ID: null,
                 Week: null,
@@ -163,9 +185,19 @@ async function assignWorkouts(_User, input) {
             }
             var Describer = describerPrefix + blockString + " - " + " Week " + W + ", Day " + D;
             input.workouts[ID].Describer = Describer;
-            var subsURL = '/api/workout-templates/' + _User.levelGroup + '/block/' + _User.blockNum + '/week/' + W + '/day/' + D + '/subworkouts';
-            var subsResponse = await _axios2.default.get(subsURL, { proxy: { host: 'localhost', port: 3000 } });
-            var subsList = subsResponse.data;
+            // var subsURL = `/api/workout-templates/${_User.levelGroup}/block/${_User.blockNum}/week/${W}/day/${D}/subworkouts`;    
+            // console.log("line 174");
+            // var subsResponse = await axios.get(process.env.BASE_URL + subsURL);
+            // var subsList = subsResponse.data;
+            var relatedTemplate = await _models.WorkoutTemplate.findOne({
+                where: {
+                    levelGroup: _User.levelGroup,
+                    block: _User.blockNum,
+                    week: W,
+                    day: D
+                }
+            });
+            var subsList = await relatedTemplate.getSubWorkouts();
             console.log("subList for: ", W, D, subsList.length);
             // input.workouts[ID].Patterns = subsList;
             // console.log("line 80 subsList",subsList);
@@ -184,9 +216,9 @@ async function assignWorkouts(_User, input) {
                 patternInstance.type = EType;
                 var EName = _data.ExerciseDict.Exercises[patternInstance.type][Level].name;
                 patternInstance.name = EName;
-                console.log("97");
+                // console.log("97");
                 var findVideo = await _models.Video.search(EName, false);
-                console.log("99");
+                // console.log("99");
                 if (findVideo) {
                     patternInstance.hasVideo = true;
                     patternInstance.videoURL = findVideo.url;
@@ -205,15 +237,17 @@ async function assignWorkouts(_User, input) {
                     patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
                 }
                 input.workouts[ID].Patterns.push(patternInstance);
-                console.log("Pushing sub for Pattern: ", ID);
+                // console.log("Pushing sub for Pattern: ", ID);                   
             }
-            console.log(ID, "Patterns: ", input.workouts[ID].Patterns.length);
+            // console.log(ID, "Patterns: ", input.workouts[ID].Patterns.length);
         }
     }
     _User.workouts = input.workouts;
     _User.currentWorkoutID = 1;
     _User.workoutDates = workoutDates;
     _User.resetStats = true;
+    console.log("User (line 233): ", _User);
+    _User.save();
 }
 
 async function getblankPatterns(lGroup, block, W, D, level) {

@@ -282,6 +282,10 @@ var User = db.define('User', {
         allowNull: true,
         defaultValue: ""
     },
+    isAdmin: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
     level: {
         type: Sequelize.INTEGER,
         defaultValue: 1,

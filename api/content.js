@@ -2,7 +2,7 @@ import session from 'express-session';
 import Promise from "bluebird";
 import bodyParser from 'body-parser';
 import express from 'express';
-import {assignWorkouts} from './apiFunctions';
+import {assignWorkouts} from './apiFunctions/workoutFunctions';
 import {LevelUpMesssages} from '../content/levelupMessages';
 import {tutorialContentList} from '../content/tutorialContent';
 

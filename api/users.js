@@ -4,16 +4,18 @@ import Promise from "bluebird";
 var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
-import {assignWorkouts, signupUser, assignLevel, getblankPatterns} from './apiFunctions';
+import {signupUser} from './apiFunctions/userFunctions';
+import {assignWorkouts, assignLevel, getblankPatterns} from './apiFunctions/workoutFunctions';
 import {vueStats, getVueStat, vueProgress} from './vueFormat';
 
 var router = express.Router();
-var models = require('../models');
-	var Exercise = models.Exercise;
-	var WorkoutTemplate = models.WorkoutTemplate;
-	var SubWorkoutTemplate = models.SubWorkoutTemplate;
-	var Workout = models.Workout;
-	var User = models.User;
+import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
+// var models = require('../models');
+// 	var Exercise = models.Exercise;
+// 	var WorkoutTemplate = models.WorkoutTemplate;
+// 	var SubWorkoutTemplate = models.SubWorkoutTemplate;
+// 	var Workout = models.Workout;
+// 	var User = models.User;
 
 // let data = require('../data');
 import data from '../data';
@@ -401,6 +403,7 @@ router.put("/:userId/generate-workouts", async function(req, res) {
 });
 
 router.post("/:userId/get-next-workouts", async function(req, res) {
+    console.log("userId: ", req.params.userId);
     var _User = await User.findById(req.params.userId);
     var input = req.body;
     console.log("91", input);
@@ -422,8 +425,13 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
         _User.changed( 'oldworkouts', true);
         await _User.save(); 
     }
-    await assignWorkouts(_User, input);
+    if (input.workoutLevel != '') {
+        _User.level = parseInt(input.workoutLevel);
+        await _User.save();
+    }
+    await assignWorkouts(_User, input);        
     await _User.save();
+    
     res.json({input, updatedUser: _User, session: {
         viewingWID: 1,
         User: _User,
@@ -432,6 +440,14 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
     }});
     return
 }) 
+
+router.post(":/userId/set-level", async function(req, res) {
+    var newLevel = parseInt(req.body.level);
+    var user = await User.findById(req.params.userId);
+    user.level = newLevel;
+    await user.save();
+    res.json(user);
+})
 
 
 router.post("/:userId/old-stats/clear", async function(req, res) {

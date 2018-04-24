@@ -1,7 +1,7 @@
-import {getWorkoutDays} from '../globals/functions';
-import {AllWorkouts, ExerciseDict} from '../data';
-import {DaysofWeekDict} from '../globals/enums';
-import {User, Video} from '../models';
+import {getWorkoutDays} from '../../globals/functions';
+import {AllWorkouts, ExerciseDict} from '../../data';
+import {DaysofWeekDict} from '../../globals/enums';
+import {User, Video, WorkoutTemplate} from '../../models';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 const saltRounds = 10;
@@ -70,7 +70,19 @@ export async function assignLevel(_User, input) {
         // .workoutBlock = user.blockNum
 export async function assignWorkouts(_User, input, newUser=false) {
     // console.log("creating workouts from: ", input);
-    if (!newUser) {
+    // if (!newUser) {
+    //     var dateSplit = input.startDate.split("-");
+    //     var dateNow = Date.now();
+    //     input.dateObj2 = new Date(
+    //         parseInt(dateSplit[0]), 
+    //         parseInt(dateSplit[1] - 1), 
+    //         parseInt(dateSplit[2] - 1)); 
+    // }
+    // if (newUser) {
+    //     input.dateObj2 = input.startDate;
+    // }'
+    console.log("assigning workouts for: ", _User.username);
+    if (input.startDate) {
         var dateSplit = input.startDate.split("-");
         var dateNow = Date.now();
         input.dateObj2 = new Date(
@@ -78,14 +90,15 @@ export async function assignWorkouts(_User, input, newUser=false) {
             parseInt(dateSplit[1] - 1), 
             parseInt(dateSplit[2] - 1)); 
     }
-    if (newUser) {
-        input.dateObj2 = input.startDate;
-    }
     var daysList = [
         parseInt(input["Day-1"]),
         parseInt(input["Day-2"]),
         parseInt(input["Day-3"]),
     ];
+    if (input.formattedDate) {
+        input.dateObj2 = input.formattedDate;
+    }
+    
     var Level = parseInt(input.workoutLevel); //Determine N Workouts based on that
     var Group = 0;
     var Block = parseInt(input.workoutBlock);
@@ -118,7 +131,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
     var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
     input.nWorkouts = nWorkouts;
     input.daysList = daysList;
-    
+    console.log("input.dateObj2: ", input.dateObj2);    
     var workoutDates = getWorkoutDays(input.dateObj2, daysList, Level, "", nWorkouts);
     input.workoutDates = workoutDates;
     input.detailedworkoutDates = [];
@@ -133,6 +146,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
         var thisWeek = Templates[W];
         for (var D in thisWeek) {
                 var ID = thisWeek[D].ID;
+                console.log("assigning workout #: ", ID, " to user: ", _User.username);
                 input.workouts[ID] = {
                     ID: null,
                     Week: null,
@@ -158,9 +172,19 @@ export async function assignWorkouts(_User, input, newUser=false) {
                 } 
                 var Describer = describerPrefix + blockString + " - " + " Week " + W + ", Day " + D;
                 input.workouts[ID].Describer = Describer;
-                var subsURL = `/api/workout-templates/${_User.levelGroup}/block/${_User.blockNum}/week/${W}/day/${D}/subworkouts`;    
-                var subsResponse = await axios.get(subsURL ,{ proxy: { host: 'localhost', port: 3000 }});
-                var subsList = subsResponse.data;
+                // var subsURL = `/api/workout-templates/${_User.levelGroup}/block/${_User.blockNum}/week/${W}/day/${D}/subworkouts`;    
+                // console.log("line 174");
+                // var subsResponse = await axios.get(process.env.BASE_URL + subsURL);
+                // var subsList = subsResponse.data;
+                var relatedTemplate = await WorkoutTemplate.findOne({
+                    where: {
+                        levelGroup:_User.levelGroup,
+                        block:_User.blockNum,
+                        week: W,
+                        day: D,
+                    }
+                });
+                    var subsList = await relatedTemplate.getSubWorkouts();
                 console.log("subList for: ", W, D, subsList.length);
                 // input.workouts[ID].Patterns = subsList;
                 // console.log("line 80 subsList",subsList);
@@ -176,9 +200,9 @@ export async function assignWorkouts(_User, input, newUser=false) {
                     patternInstance.type = EType;
                     var EName = ExerciseDict.Exercises[patternInstance.type][Level].name;
                     patternInstance.name = EName;
-                    console.log("97");
+                    // console.log("97");
                     var findVideo = await Video.search(EName, false); 
-                    console.log("99");
+                    // console.log("99");
                     if (findVideo) {
                         patternInstance.hasVideo = true;
                         patternInstance.videoURL = findVideo.url;                        
@@ -197,15 +221,17 @@ export async function assignWorkouts(_User, input, newUser=false) {
                         patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
                     }
                     input.workouts[ID].Patterns.push(patternInstance);
-                    console.log("Pushing sub for Pattern: ", ID);                   
+                    // console.log("Pushing sub for Pattern: ", ID);                   
                 }
-                console.log(ID, "Patterns: ", input.workouts[ID].Patterns.length);
+                // console.log(ID, "Patterns: ", input.workouts[ID].Patterns.length);
             }
     }
     _User.workouts = input.workouts;
     _User.currentWorkoutID = 1;
     _User.workoutDates = workoutDates;
     _User.resetStats = true;
+    console.log("User (line 233): ", _User);
+    _User.save();
 }
 
 export async function getblankPatterns(lGroup, block, W, D, level) {

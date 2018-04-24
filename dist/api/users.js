@@ -8,9 +8,13 @@ var _bluebird = require('bluebird');
 
 var _bluebird2 = _interopRequireDefault(_bluebird);
 
-var _apiFunctions = require('./apiFunctions');
+var _userFunctions = require('./apiFunctions/userFunctions');
+
+var _workoutFunctions = require('./apiFunctions/workoutFunctions');
 
 var _vueFormat = require('./vueFormat');
+
+var _models = require('../models');
 
 var _data = require('../data');
 
@@ -25,12 +29,12 @@ var bcrypt = require('bcryptjs');
 
 
 var router = express.Router();
-var models = require('../models');
-var Exercise = models.Exercise;
-var WorkoutTemplate = models.WorkoutTemplate;
-var SubWorkoutTemplate = models.SubWorkoutTemplate;
-var Workout = models.Workout;
-var User = models.User;
+// var models = require('../models');
+// 	var Exercise = models.Exercise;
+// 	var WorkoutTemplate = models.WorkoutTemplate;
+// 	var SubWorkoutTemplate = models.SubWorkoutTemplate;
+// 	var Workout = models.Workout;
+// 	var User = models.User;
 
 // let data = require('../data');
 
@@ -60,7 +64,7 @@ var getVueInfo = vueAPI.getVueInfo;
 
 router.get("/", function (req, res) {
     req.session.set = true;
-    User.findAll({
+    _models.User.findAll({
         where: {}
     }).then(function (users) {
         res.json(users);
@@ -68,7 +72,7 @@ router.get("/", function (req, res) {
 });
 
 router.post("/", async function (req, res) {
-    var newUser = await (0, _apiFunctions.signupUser)(req.body);
+    var newUser = await (0, _userFunctions.signupUser)(req.body);
     if (newUser == false) {
         res.json({
             error: true,
@@ -93,7 +97,7 @@ router.post("/:username/login", async function (req, res) {
     var username = req.params.username;
     var passwordInput = req.body.password;
     console.log("username/login route hit", req.body);
-    var loginUser = await User.findOne({
+    var loginUser = await _models.User.findOne({
         where: {
             username: username
         }
@@ -106,7 +110,7 @@ router.post("/:username/login", async function (req, res) {
             Status: "No user found"
         });
     } else {
-        var hashed = User.generateHash(passwordInput, loginUser.salt);
+        var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
             res.json({
                 Success: true,
@@ -125,19 +129,19 @@ router.post("/:username/login", async function (req, res) {
 });
 
 router.get("/:userId", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         res.json(user);
     });
 });
 
 router.get("/:userId/workouts", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         res.json(user.workouts);
     });
 });
 
 router.get("/:userId/workouts/:workoutId", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         var _Workout = user.workouts[req.params.workoutId];
         // _Workout
         res.json(_Workout);
@@ -146,7 +150,7 @@ router.get("/:userId/workouts/:workoutId", function (req, res) {
 
 router.put("/:userId/workouts/:workoutId/save", async function (req, res) {
     console.log("108 save workout by Id: ", req.body);
-    var _User = await User.findById(req.params.userId);
+    var _User = await _models.User.findById(req.params.userId);
     var body = req.body;
     await saveWorkout(body, _User, req.params.workoutId);
     res.json(req.body);
@@ -154,7 +158,7 @@ router.put("/:userId/workouts/:workoutId/save", async function (req, res) {
 
 router.post("/:userId/workouts/:workoutId/save", async function (req, res) {
     console.log("128 save workout by Id!!!!");
-    var _User = await User.findById(req.params.userId);
+    var _User = await _models.User.findById(req.params.userId);
     //    console.log("found User?: ", _User);
     var body = req.body;
     await saveWorkout(body, _User, req.params.workoutId);
@@ -163,7 +167,7 @@ router.post("/:userId/workouts/:workoutId/save", async function (req, res) {
 
 router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
     // console.log("108 save workout by Id");
-    var _User = await User.findById(req.params.userId);
+    var _User = await _models.User.findById(req.params.userId);
     var workoutId = req.params.workoutId;
     var body = req.body;
     await saveWorkout(body, _User, req.params.workoutId, true);
@@ -182,13 +186,13 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
 });
 
 router.get("/:userId/workouts/:workoutId/clear", async function (req, res) {
-    var _User = await User.findById(req.params.userId);
+    var _User = await _models.User.findById(req.params.userId);
     var workoutId = req.params.workoutId;
     var thisWorkout = _User.workouts[req.params.workoutId];
     var W = parseInt(thisWorkout.Week);
     var D = parseInt(thisWorkout.Day);
     var level = _User.level;
-    var newPatterns = await (0, _apiFunctions.getblankPatterns)(_User.levelGroup, _User.blockNum, W, D, level);
+    var newPatterns = await (0, _workoutFunctions.getblankPatterns)(_User.levelGroup, _User.blockNum, W, D, level);
     _User.workouts.Patterns = newPatterns;
     _User.change('workouts', true);
     await _User.save();
@@ -198,7 +202,7 @@ router.get("/:userId/workouts/:workoutId/clear", async function (req, res) {
 });
 
 router.get("/:userId/workouts/:workoutId/vue", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         var _Workout = user.workouts[req.params.workoutId];
         var _WorkoutDate = user.workoutDates[req.params.workoutId - 1];
         var JSON = _Workout;
@@ -227,7 +231,7 @@ router.get("/:userId/workouts/:workoutId/vue", function (req, res) {
 });
 
 router.put("/:userId", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         user.update(req.body).then(function (user) {
             return res.json(user);
         });
@@ -235,13 +239,13 @@ router.put("/:userId", function (req, res) {
 });
 
 router.get("/:userId/stats", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         res.json(user.stats);
     });
 });
 
 router.put("/:userId/stats", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         user.update({
             stats: req.body
         }).then(function (user) {
@@ -252,7 +256,7 @@ router.put("/:userId/stats", function (req, res) {
 
 router.get('/:userId/stats/vue/get', function (req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(function (user) {
         var JSONStats = user.stats;
         for (var statKey in JSONStats) {
             console.log(statKey);
@@ -294,7 +298,7 @@ router.get('/:userId/stats/vue/get', function (req, res) {
 
 router.get('/:userId/progress/vue/get', function (req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(function (user) {
         var JSONStats = user.stats;
         var vueData = (0, _vueFormat.vueProgress)(JSONStats);
         vueData.level = user.level;
@@ -324,7 +328,7 @@ router.get('/:userId/progress/vue/get', function (req, res) {
 });
 
 router.put("/:userId/workouts", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         user.update({
             workouts: req.body
         }).then(function (user) {
@@ -334,7 +338,7 @@ router.put("/:userId/workouts", function (req, res) {
 });
 
 router.post("/:userId/oldstats", function (req, res) {
-    User.findById(req.params.userId).then(function (user) {
+    _models.User.findById(req.params.userId).then(function (user) {
         user.oldstats.push(req.body);
         user.changed('oldstats', true);
         user.save().then(function (user) {
@@ -345,7 +349,7 @@ router.post("/:userId/oldstats", function (req, res) {
 
 router.put("/:userId/save-workout", async function (req, res) {
     console.log("save-workout put: ", req.body);
-    var updateUser = await User.findById(req.params.userId);
+    var updateUser = await _models.User.findById(req.params.userId);
     var body = req.body;
     await saveWorkout(body.submission, updateUser, body.viewingWID);
     res.json(req.body);
@@ -353,7 +357,7 @@ router.put("/:userId/save-workout", async function (req, res) {
 
 router.put("/:userId/submit-workout", async function (req, res) {
     console.log("submit-workout put: ", req.body);
-    var updateUser = await User.findById(req.params.userId);
+    var updateUser = await _models.User.findById(req.params.userId);
     var body = req.body;
     await saveWorkout(body.submission, updateUser, body.viewingWID, true);
     if (parseInt(body.viewingWID) == updateUser.workoutDates.length) {
@@ -372,9 +376,9 @@ router.put("/:userId/submit-workout", async function (req, res) {
 });
 
 router.put("/:userId/get-level", async function (req, res) {
-    var _User = await User.findById(req.params.userId);
+    var _User = await _models.User.findById(req.params.userId);
     var input = req.body;
-    await (0, _apiFunctions.assignLevel)(_User, input);
+    await (0, _workoutFunctions.assignLevel)(_User, input);
     await _User.save();
     res.json({
         user: _User,
@@ -385,7 +389,7 @@ router.put("/:userId/get-level", async function (req, res) {
 
 router.put("/:userId/generate-workouts", async function (req, res) {
     var input = req.body;
-    var _User = await User.findById(req.params.userId);
+    var _User = await _models.User.findById(req.params.userId);
     if (_User.workoutDates.length > 0) {
         var _oldStat = {
             finishDate: _User.workoutDates[-1],
@@ -396,7 +400,7 @@ router.put("/:userId/generate-workouts", async function (req, res) {
         _User.changed('oldstats', true);
         await _User.save();
     }
-    (0, _apiFunctions.assignWorkouts)(_User, input);
+    (0, _workoutFunctions.assignWorkouts)(_User, input);
     await _User.save();
     res.json({ input: input, updatedUser: _User, session: {
             viewingWID: 1,
@@ -407,10 +411,9 @@ router.put("/:userId/generate-workouts", async function (req, res) {
     return;
 });
 
-router.post("/:userId/old-stats/clear", async function (req, res) {});
-
 router.post("/:userId/get-next-workouts", async function (req, res) {
-    var _User = await User.findById(req.params.userId);
+    console.log("userId: ", req.params.userId);
+    var _User = await _models.User.findById(req.params.userId);
     var input = req.body;
     console.log("91", input);
     _User.oldstats = [];
@@ -431,8 +434,13 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
         _User.changed('oldworkouts', true);
         await _User.save();
     }
-    await (0, _apiFunctions.assignWorkouts)(_User, input);
+    if (input.workoutLevel != '') {
+        _User.level = parseInt(input.workoutLevel);
+        await _User.save();
+    }
+    await (0, _workoutFunctions.assignWorkouts)(_User, input);
     await _User.save();
+
     res.json({ input: input, updatedUser: _User, session: {
             viewingWID: 1,
             User: _User,
@@ -442,8 +450,18 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
     return;
 });
 
+router.post(":/userId/set-level", async function (req, res) {
+    var newLevel = parseInt(req.body.level);
+    var user = await _models.User.findById(req.params.userId);
+    user.level = newLevel;
+    await user.save();
+    res.json(user);
+});
+
+router.post("/:userId/old-stats/clear", async function (req, res) {});
+
 router.get("/:userId/videos", async function (req, res) {
-    var videosUser = await User.findById(req.params.userId);
+    var videosUser = await _models.User.findById(req.params.userId);
     var videos = VideosVue(VideosJSON, videosUser.level);
     res.json(videos);
 });
