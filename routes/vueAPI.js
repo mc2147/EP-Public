@@ -256,22 +256,29 @@ function getVueInfo(refDict) {
 			sets: Pattern.sets, //N Sets
 		}	
 		var repString = 
-		subDict.describer = Pattern.sets + " x " + Pattern.reps;
+		// if ()
+		subDict.describer = Pattern.sets + " x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
 
 		if (Pattern.hasVideo) {
 			subDict.hasVideo = true;
 			subDict.videoURL = Pattern.videoURL;
 			subDict.selectedVideo = Pattern.selectedVideo;
 		}
-		
+		if (Pattern.workoutType == 'bodyweight') {
+			subDict.describer = `${Pattern.reps} x bodyweight @ ${Pattern.RPE} RPE`			
+		}
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
 			if (Pattern.workoutType == 'stop') {
 				subDict.minRPE = parseInt(Pattern.specialValue);
 				subDict.describer += " (Strength Stop)";
+				subDict.longDescriber = `Strength Stop @ ${Pattern.specialValue} RPE from 1 x ${Pattern.reps} @ ${Pattern.RPE} RPE`
+				subDict.describer = `Strength Stop @ ${Pattern.specialValue} RPE`
 			}
 			else if (Pattern.workoutType == 'drop') {
 				subDict.minRPE = parseInt(Pattern.dropRPE);
 				subDict.describer += " (Strength Drop)";
+				subDict.longDescriber = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE from 1 x ${Pattern.reps}`
+				subDict.describer = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE`
 			}
 			var newRPEOptions = [];
 			subDict.RPEOptions.forEach(elem => {
@@ -283,11 +290,11 @@ function getVueInfo(refDict) {
 		} 
 		
 		if (Pattern.alloy) {
-			subDict.describer += " (Alloy)";
+			subDict.describer = "ALLOY SET";
 			subDict.alloyStage = Pattern.alloystatus.value;
 		}	
 		if (Pattern.workoutType == 'carry') {
-			subDict.describer += " (seconds)";
+			subDict.describer += " second carry";
 		}
 		
 	vueSubworkouts.push(subDict);			

@@ -185,7 +185,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
     res.json(body);
 });
 
-router.get("/:userId/workouts/:workoutId/clear", async function (req, res) {
+router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
     var _User = await _models.User.findById(req.params.userId);
     var workoutId = req.params.workoutId;
     var thisWorkout = _User.workouts[req.params.workoutId];

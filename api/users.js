@@ -170,7 +170,8 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
     res.json(body);
 })
 
-router.get("/:userId/workouts/:workoutId/clear", async function(req, res) {
+router.put("/:userId/workouts/:workoutId/clear", async function(req, res) {
+    console.log("CLEAR ROUTE HIT: ", req.params.userId, req.params.workoutId);
     let _User = await User.findById(req.params.userId);
     let workoutId = req.params.workoutId;
     let thisWorkout = _User.workouts[req.params.workoutId];
@@ -178,10 +179,11 @@ router.get("/:userId/workouts/:workoutId/clear", async function(req, res) {
     let D = parseInt(thisWorkout.Day);
     let level = _User.level;
     let newPatterns = await getblankPatterns(_User.levelGroup, _User.blockNum, W, D, level);
-    _User.workouts.Patterns = newPatterns;
-    _User.change('workouts', true);
+    _User.workouts[req.params.workoutId].Patterns = newPatterns;
+    _User.changed('workouts', true);
     await _User.save();
-    console.log("newPatterns: ", newPatterns);
+    console.log("newPatterns for: ", newPatterns.number);
+    // let newPatterns = {};
     res.json(newPatterns);
      // assignWorkouts(_User, input);
 })
