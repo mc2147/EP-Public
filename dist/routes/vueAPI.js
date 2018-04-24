@@ -262,11 +262,13 @@ function getVueInfo(refDict) {
 			if (Pattern.workoutType == 'stop') {
 				subDict.minRPE = parseInt(Pattern.specialValue);
 				subDict.describer += " (Strength Stop)";
-				subDict.describer = "Strength Stop @ " + Pattern.specialValue + " RPE from 1 x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
+				subDict.longDescriber = "Strength Stop @ " + Pattern.specialValue + " RPE from 1 x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
+				subDict.describer = "Strength Stop @ " + Pattern.specialValue + " RPE";
 			} else if (Pattern.workoutType == 'drop') {
 				subDict.minRPE = parseInt(Pattern.dropRPE);
 				subDict.describer += " (Strength Drop)";
-				subDict.describer = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE from 1 x " + Pattern.reps;
+				subDict.longDescriber = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE from 1 x " + Pattern.reps;
+				subDict.describer = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE";
 			}
 			var newRPEOptions = [];
 			subDict.RPEOptions.forEach(function (elem) {

@@ -6,6 +6,7 @@ var express = require('express');
 const bcrypt    = require('bcryptjs');
 import {signupUser} from './apiFunctions/userFunctions';
 import {assignWorkouts, assignLevel, getblankPatterns} from './apiFunctions/workoutFunctions';
+import {generateWorkouts} from './apiFunctions/generateWorkouts';
 import {vueStats, getVueStat, vueProgress} from './vueFormat';
 
 var router = express.Router();
@@ -442,6 +443,23 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
     }});
     return
 }) 
+
+router.post("/:userId/admin/generate-workouts", async function(req, res) {
+    var _User = await User.findById(req.params.userId);
+    if (req.body.newLevel) {
+        _User.level = parseInt(req.body.newLevel);
+        await _User.save();
+    }
+    var stringDate = false;
+    if (req.body.stringDate) {
+        stringDate = true;
+    }
+    let startDate = req.body.startDate;
+    let daysList = req.body.daysList;
+    var output = await generateWorkouts(_User, startDate, daysList, stringDate);
+    // res.json(output);
+    res.json(_User);
+});
 
 router.post(":/userId/set-level", async function(req, res) {
     var newLevel = parseInt(req.body.level);

@@ -12,6 +12,8 @@ var _userFunctions = require('./apiFunctions/userFunctions');
 
 var _workoutFunctions = require('./apiFunctions/workoutFunctions');
 
+var _generateWorkouts = require('./apiFunctions/generateWorkouts');
+
 var _vueFormat = require('./vueFormat');
 
 var _models = require('../models');
@@ -186,6 +188,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
 });
 
 router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
+    console.log("CLEAR ROUTE HIT: ", req.params.userId, req.params.workoutId);
     var _User = await _models.User.findById(req.params.userId);
     var workoutId = req.params.workoutId;
     var thisWorkout = _User.workouts[req.params.workoutId];
@@ -193,10 +196,11 @@ router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
     var D = parseInt(thisWorkout.Day);
     var level = _User.level;
     var newPatterns = await (0, _workoutFunctions.getblankPatterns)(_User.levelGroup, _User.blockNum, W, D, level);
-    _User.workouts.Patterns = newPatterns;
-    _User.change('workouts', true);
+    _User.workouts[req.params.workoutId].Patterns = newPatterns;
+    _User.changed('workouts', true);
     await _User.save();
-    console.log("newPatterns: ", newPatterns);
+    console.log("newPatterns for: ", newPatterns.number);
+    // let newPatterns = {};
     res.json(newPatterns);
     // assignWorkouts(_User, input);
 });
@@ -448,6 +452,18 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
             userId: _User.id
         } });
     return;
+});
+
+router.post("/:userId/admin/generate-workouts", async function (req, res) {
+    var _User = await _models.User.findById(req.params.userId);
+    if (req.body.newLevel) {
+        _User.level = parseInt(req.body.newLevel);
+        await _User.save();
+    }
+    var startDate = req.body.startDate;
+    var daysList = req.body.daysList;
+    var output = await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList);
+    res.json(output);
 });
 
 router.post(":/userId/set-level", async function (req, res) {

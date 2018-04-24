@@ -26,7 +26,7 @@ async function saveWorkout(body, userInstance, vWID) {
         if (!K.includes("|") || !inputCode) {
             continue;
         }
-        console.log("inputCode: ", inputCode);
+        console.log("inputCode: ", inputCode, "body[K]:", body[K]);
         var patternID = parseInt(inputCode[0]); //Number (index + 1)
         var patternIndex = patternID - 1;
 
@@ -51,7 +51,7 @@ async function saveWorkout(body, userInstance, vWID) {
             if (setDict.RPE || thisPattern.workoutType == 'carry') {
                 setDict.Filled = true;
             }
-        } else if (inputType == "RPE" && input && setNum <= _nSets) {
+        } else if (inputType == "RPE" && input && setNum <= _nSets && body[K] != "0" && parseInt(body[K]) != 0) {
             setDict.RPE = body[K];
             if (setDict.Weight) {
                 setDict.Filled = true;
