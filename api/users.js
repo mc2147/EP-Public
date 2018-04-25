@@ -304,10 +304,20 @@ router.get('/:userId/progress/vue/get', function(req, res) {
     User.findById(userId).then((user) => {
         var JSONStats = user.stats;
         var vueData = vueProgress(JSONStats);
-        vueData.level = user.level;
+        vueData.newLevel = user.level;
+        vueData.oldLevel = (vueData.levelUpVal == 1) ? user.level - 1 : user.level;
         vueData.nPassed = 0;
         vueData.nFailed = 0;
         vueData.nTesting = 0;
+        if (vueData.levelUpVal == 1) {
+            vueData.statusText = "You have PASSED Level " + vueData.oldLevel;
+        }
+        else if (vueData.levelUpVal == -1) {
+            vueData.statusText = "You have FAILED Level " + vueData.oldLevel;            
+        }
+        else {
+            vueData.statusText = "Still In Progress";                        
+        }
         vueData.coreExerciseTableItems.forEach(stat => {
             if (stat.alloyVal == 1) {
                 vueData.nPassed ++;
