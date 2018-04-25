@@ -252,8 +252,8 @@ async function assignWorkouts(_User, input) {
 
 async function getblankPatterns(lGroup, block, W, D, level) {
     var blankPatterns = [];
-    var subsURL = '/api/workout-templates/' + lGroup + '/block/' + block + '/week/' + W + '/day/' + D + '/subworkouts';
-    var subsResponse = await _axios2.default.get(subsURL, { proxy: { host: 'localhost', port: 3000 } });
+    var subsURL = process.env.BASE_URL + '/api/workout-templates/' + lGroup + '/block/' + block + '/week/' + W + '/day/' + D + '/subworkouts';
+    var subsResponse = await _axios2.default.get(subsURL);
     var subsList = subsResponse.data;
     subsList.sort(function (a, b) {
         return a.number - b.number;

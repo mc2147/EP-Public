@@ -237,7 +237,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
 export async function getblankPatterns(lGroup, block, W, D, level) {
     var blankPatterns = [];
     var subsURL = `/api/workout-templates/${lGroup}/block/${block}/week/${W}/day/${D}/subworkouts`;    
-    var subsResponse = await axios.get(subsURL ,{ proxy: { host: 'localhost', port: 3000 }});
+    var subsResponse = await axios.get(process.env.BASE_URL + subsURL);
     var subsList = subsResponse.data;
     subsList.sort(function(a, b) {
         return a.number - b.number
