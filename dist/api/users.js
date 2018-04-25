@@ -468,6 +468,21 @@ router.post("/:userId/admin/generate-workouts", async function (req, res) {
     // console.log("req.body: ", req.body);
     console.log("startDate: ", req.body.startDate);
     var _User = await _models.User.findById(req.params.userId);
+    if (_User.workoutDates.length > 0) {
+        var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
+        console.log("last workout date in list: ", _User.workoutDates[_User.workoutDates.length - 1]);
+        var _oldStat = {
+            finishDate: lastWDate,
+            level: _User.level
+        };
+        var _oldWorkouts = _User.workouts;
+        _oldStat.statDict = _User.stats;
+        _User.oldstats.push(_oldStat);
+        _User.oldworkouts.push(_oldWorkouts);
+        _User.changed('oldstats', true);
+        _User.changed('oldworkouts', true);
+        await _User.save();
+    }
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
         await _User.save();

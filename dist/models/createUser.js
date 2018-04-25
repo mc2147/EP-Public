@@ -94,6 +94,7 @@ CreateUser("UserName4", 4, 1, 11, thisDate, [1, 2, 3, 5]);
 CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5]);
 CreateUser("UserName6", 4, 2, 11, thisDate, [1, 2, 3, 5]);
 
+
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
 // CreateUser(4, 1, 16, thisDate);
@@ -121,7 +122,7 @@ async function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) 
     });
 }
 
-async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays) {
+async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays, admin = false) {
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
         thisGroup = thisGroup[blockNum];

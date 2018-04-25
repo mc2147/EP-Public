@@ -141,7 +141,8 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     if (!user.password || user.password == "") {
         // user.password = "Password" + user.id; 
     }
-    var unHashed = "Password" + user.id;
+    // var unHashed = "Password" + user.id;
+    var unHashed = user.username;
     user.password = User.generateHash(unHashed, user.salt);
     await user.save();
     // <- DO LATER

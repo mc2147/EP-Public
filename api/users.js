@@ -158,6 +158,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
    var _User = await User.findById(req.params.userId);
    var workoutId = req.params.workoutId;
    var body = req.body;    
+   body.lastWorkout = false;
    await saveWorkout(body, _User, req.params.workoutId, true);
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
