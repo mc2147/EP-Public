@@ -392,7 +392,7 @@ const Workout = db.define('Workout', {
     },
 });
 
-db.sync({force: true});
+// db.sync({force: true});
 // db.sync();
 
 module.exports = {
