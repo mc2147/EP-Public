@@ -30,7 +30,7 @@ async function generateWorkouts(user, startDate, dayList) {
     var dateObj = startDate;
     if (stringDate) {
         var dateSplit = startDate.split("-");
-        dateObj = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1]), parseInt(dateSplit[2]));
+        dateObj = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1]) - 1, parseInt(dateSplit[2]) - 1);
     }
     var workoutDays = [parseInt(dayList[0]), parseInt(dayList[1]), parseInt(dayList[2])];
 
@@ -102,7 +102,7 @@ async function generateWorkouts(user, startDate, dayList) {
 
             var relatedTemplate = await _models.WorkoutTemplate.findOne({
                 where: {
-                    levelGroup: Level,
+                    levelGroup: Group,
                     block: Block,
                     week: W,
                     day: D

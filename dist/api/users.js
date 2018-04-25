@@ -114,11 +114,13 @@ router.post("/:username/login", async function (req, res) {
     } else {
         var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
+            var hasWorkouts = Object.keys(login.User.workouts).length > 0;
             res.json({
                 Success: true,
                 Found: true,
                 Status: "Success",
-                User: loginUser
+                User: loginUser,
+                hasWorkouts: hasWorkouts
             });
         } else {
             res.json({
@@ -454,16 +456,28 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
     return;
 });
 
+// admin set-level post info:
+// {
+// startDate: "YYYY-MM-DD",
+// daysList: [1, 3, 5],
+// newLevel: 18,
+// }
+
 router.post("/:userId/admin/generate-workouts", async function (req, res) {
     var _User = await _models.User.findById(req.params.userId);
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
         await _User.save();
     }
+    var stringDate = false;
+    if (req.body.stringDate) {
+        stringDate = true;
+    }
     var startDate = req.body.startDate;
     var daysList = req.body.daysList;
-    var output = await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList);
-    res.json(output);
+    var output = await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
+    // res.json(output);
+    res.json(_User);
 });
 
 router.post(":/userId/set-level", async function (req, res) {

@@ -96,11 +96,13 @@ router.post("/:username/login", async function (req, res) {
     else {
         var hashed = User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
+            let hasWorkouts = (Object.keys(login.User.workouts).length > 0);
             res.json({
                 Success: true,
                 Found: true,
                 Status: "Success",
                 User:loginUser,
+                hasWorkouts,
             });
         }
         else {
@@ -443,6 +445,13 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
     }});
     return
 }) 
+
+// admin set-level post info:
+    // {
+        // startDate: "YYYY-MM-DD",
+        // daysList: [1, 3, 5],
+        // newLevel: 18,
+    // }
 
 router.post("/:userId/admin/generate-workouts", async function(req, res) {
     var _User = await User.findById(req.params.userId);
