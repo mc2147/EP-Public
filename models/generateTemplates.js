@@ -68,6 +68,7 @@ function MakeTemplates(LGroup, BlockNum) {
         }
     }
 }
+console.log("LINE 71 GENERATE TEMPLATES");
 
 MakeTemplates(1, 0);
 MakeTemplates(2, 0);
@@ -155,7 +156,6 @@ var N4b = 0;
 //     console.log("N4b", N4b);
 // })
 
-
 function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
     var WorkoutBlock = JSONTemplates;
     var thisTemplate = WorkoutBlock.Templates[week][day];
@@ -163,7 +163,7 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
     var thisID = thisTemplate.ID;
     // return thisPatterns;
     // if (levelGroup == 3) {
-    // console.log("Creating Template: " + blockNum, week, day);
+    console.log("Creating Template: " + blockNum, week, day);
     // }
     WorkoutTemplate.findOrCreate({
         where: {
