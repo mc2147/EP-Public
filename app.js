@@ -23,7 +23,8 @@ var models = require('./models');
     var cors = require('cors');
     
     var loadData = require('./data');
-   
+
+    console.log("line 27 app.js");
     // app.get('/', (req, res) => res.send('New Alloy Strength'))
     
     app.use(bodyParser.json()); // would be for AJAX requests
