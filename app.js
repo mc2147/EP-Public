@@ -1,4 +1,4 @@
-var herokuURL = "https://obscure-citadel-34419.herokuapp.com";
+var herokuURL = "https://immense-mesa-37246.herokuapp.com";
 var localURL = "http://localhost:3000";
 
 var herokuCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';

@@ -59,7 +59,7 @@ var UserLevel = 1;
 var postURL = "postWorkout";
 var getURL = "getWorkout";
 
-var herokuURL = "https://obscure-citadel-34419.herokuapp.com/";
+var herokuURL = "https://immense-mesa-37246.herokuapp.com/";
 var localURL = "http://localhost:3000/";
 var baseURL = process.env.PORT ? herokuURL : localURL;
 
