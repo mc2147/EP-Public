@@ -157,7 +157,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
     // console.log("108 save workout by Id");
    var _User = await User.findById(req.params.userId);
    var workoutId = req.params.workoutId;
-   var body = req.body;    
+   var body = req.body;
    body.lastWorkout = false;
    await saveWorkout(body, _User, req.params.workoutId, true);
     if (parseInt(workoutId) == _User.workoutDates.length) {
@@ -496,6 +496,9 @@ router.post("/:userId/admin/generate-workouts", async function(req, res) {
     }
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
+        if (_User.level >= 11) {
+            _User.blockNum = parseInt(req.body.blockNum);
+        }
         await _User.save();
     }
     var stringDate = false;
