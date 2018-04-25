@@ -100,4 +100,3 @@ models.db.sync()
 })
 .catch(console.error.bind(console));
 
-// app.listen(3000, () => console.log('Alloy Strength on port ' + 3000))
