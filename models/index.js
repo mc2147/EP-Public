@@ -10,8 +10,7 @@ const {Alloy} = require('../globals/enums');
 // var data = require('../data');
 	// var ExerciseDict = data.ExerciseDict.Exercises;
 
-
-const db = new Sequelize('postgres://localhost:5432/AS_db', {
+const db = new Sequelize(process.env.DATABASE_URL || 'postgres://localhost:5432/AS_db', {
     logging: false,
     dialectOptions: { decimalNumbers: true }
 });
