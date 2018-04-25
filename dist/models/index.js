@@ -19,6 +19,8 @@ var db = new Sequelize(process.env.DATABASE_URL || 'postgres://localhost:5432/AS
     dialectOptions: { decimalNumbers: true }
 });
 
+console.log("DATABASE URL: ", process.env.DATABASE_URL);
+
 var Exercise = db.define('Exercise', {
     type: {
         type: Sequelize.STRING
