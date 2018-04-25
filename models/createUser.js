@@ -90,6 +90,9 @@ CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5]);
 CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274");
 CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368");
 
+CreateUser("AdminChan", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "AChan2147");
+CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9");
+
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
 // CreateUser(4, 1, 16, thisDate);
