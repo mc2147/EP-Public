@@ -496,10 +496,13 @@ router.post("/:userId/admin/generate-workouts", async function(req, res) {
     }
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
-        if (_User.level >= 11) {
-            _User.blockNum = parseInt(req.body.blockNum);
-        }
         await _User.save();
+    }
+    if (_User.level >= 11) {
+        _User.blockNum = parseInt(req.body.blockNum);
+    }
+    else {
+        _User.blockNum = 0;
     }
     var stringDate = false;
     if (req.body.stringDate) {
