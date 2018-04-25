@@ -96,7 +96,7 @@ router.post("/:username/login", async function (req, res) {
     else {
         var hashed = User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
-            let hasWorkouts = (Object.keys(login.User.workouts).length > 0);
+            let hasWorkouts = (Object.keys(loginUser.workouts).length > 0);
             res.json({
                 Success: true,
                 Found: true,
@@ -454,7 +454,25 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
     // }
 
 router.post("/:userId/admin/generate-workouts", async function(req, res) {
+    console.log("ADMIN GENERATE WORKOUTS: (LINE 457)");
+    // console.log("req.body: ", req.body);
+    console.log("startDate: ", req.body.startDate);
     var _User = await User.findById(req.params.userId);
+    if (_User.workoutDates.length > 0) {
+        var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
+        console.log("last workout date in list: ", _User.workoutDates[_User.workoutDates.length - 1]);
+        var _oldStat = {
+            finishDate : lastWDate,
+            level : _User.level,
+        };
+        var _oldWorkouts = _User.workouts;
+        _oldStat.statDict = _User.stats
+        _User.oldstats.push(_oldStat);
+        _User.oldworkouts.push(_oldWorkouts);
+        _User.changed( 'oldstats', true);
+        _User.changed( 'oldworkouts', true);
+        await _User.save(); 
+    }
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
         await _User.save();
@@ -465,7 +483,7 @@ router.post("/:userId/admin/generate-workouts", async function(req, res) {
     }
     let startDate = req.body.startDate;
     let daysList = req.body.daysList;
-    var output = await generateWorkouts(_User, startDate, daysList, stringDate);
+    var output = await generateWorkouts(_User, startDate, daysList, true);
     // res.json(output);
     res.json(_User);
 });

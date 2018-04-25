@@ -52,7 +52,7 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
     }
 
     var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
-
+    console.log("dateObj: ", dateObj);
     var workoutDates = getWorkoutDays(dateObj, workoutDays, Level, "", nWorkouts);
     workoutDates.forEach((elem) => {
         var describer = [elem];
@@ -94,11 +94,11 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                 } 
                 var Describer = describerPrefix + blockString + " - " + " Week " + W + ", Day " + D;
                 output.workouts[ID].Describer = Describer;
-
+                console.log("Group, Block, W, D", Group, Block, W, D);
                 var relatedTemplate = await WorkoutTemplate.findOne({
                     where: {
-                        levelGroup: Group,
-                        block: Block,
+                        levelGroup: user.levelGroup,
+                        block: user.blockNum,
                         week: W,
                         day: D,
                     }

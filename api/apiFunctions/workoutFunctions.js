@@ -230,7 +230,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
     _User.currentWorkoutID = 1;
     _User.workoutDates = workoutDates;
     _User.resetStats = true;
-    console.log("User (line 233): ", _User);
+    // console.log("User (line 233): ", _User);
     _User.save();
 }
 

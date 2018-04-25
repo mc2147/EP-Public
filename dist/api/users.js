@@ -114,7 +114,7 @@ router.post("/:username/login", async function (req, res) {
     } else {
         var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
-            var hasWorkouts = Object.keys(login.User.workouts).length > 0;
+            var hasWorkouts = Object.keys(loginUser.workouts).length > 0;
             res.json({
                 Success: true,
                 Found: true,
@@ -464,6 +464,9 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
 // }
 
 router.post("/:userId/admin/generate-workouts", async function (req, res) {
+    console.log("ADMIN GENERATE WORKOUTS: (LINE 457)");
+    // console.log("req.body: ", req.body);
+    console.log("startDate: ", req.body.startDate);
     var _User = await _models.User.findById(req.params.userId);
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
@@ -475,7 +478,7 @@ router.post("/:userId/admin/generate-workouts", async function (req, res) {
     }
     var startDate = req.body.startDate;
     var daysList = req.body.daysList;
-    var output = await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
+    var output = await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, true);
     // res.json(output);
     res.json(_User);
 });

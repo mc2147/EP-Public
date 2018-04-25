@@ -58,7 +58,7 @@ async function generateWorkouts(user, startDate, dayList) {
     }
 
     var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
-
+    console.log("dateObj: ", dateObj);
     var workoutDates = (0, _functions.getWorkoutDays)(dateObj, workoutDays, Level, "", nWorkouts);
     workoutDates.forEach(function (elem) {
         var describer = [elem];
