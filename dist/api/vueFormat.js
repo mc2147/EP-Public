@@ -45,7 +45,8 @@ function vueProgress(JSONStats) {
     output.coreExerciseTableItems.push(getVueStat("UB Hor Push", JSONStats["UB Hor Push"]));
     output.coreExerciseTableItems.push(getVueStat("Squat", JSONStats["Squat"]));
     output.coreExerciseTableItems.push(getVueStat("Hinge", JSONStats["Hinge"]));
-
+    output.levelUpTotal = JSONStats["Level Up"];
+    output.levelUpVal = output.levelUpTotal.Status.value;
     for (var EType in JSONStats) {
         if (EType != "UB Hor Push" && EType != "Squat" && EType != "Hinge" && EType != "Level Up") output.secondaryExerciseTableItems.push(getVueStat(EType, JSONStats[EType]));
     }

@@ -189,6 +189,3 @@ module.exports = {
 };
 
 var Patterns = [];
-
-// if (!WorkouthasData) {};
-

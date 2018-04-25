@@ -105,7 +105,7 @@ async function assignWorkouts(_User, input) {
     // if (newUser) {
     //     input.dateObj2 = input.startDate;
     // }'
-    console.log("assigning workouts for: ", _User.username);
+    // console.log("assigning workouts for: ", _User.username);
     if (input.startDate) {
         var dateSplit = input.startDate.split("-");
         var dateNow = Date.now();
@@ -160,7 +160,7 @@ async function assignWorkouts(_User, input) {
         var thisWeek = Templates[W];
         for (var D in thisWeek) {
             var ID = thisWeek[D].ID;
-            console.log("assigning workout #: ", ID, " to user: ", _User.username);
+            // console.log("assigning workout #: ", ID, " to user: ", _User.username);
             input.workouts[ID] = {
                 ID: null,
                 Week: null,
@@ -198,7 +198,7 @@ async function assignWorkouts(_User, input) {
                 }
             });
             var subsList = await relatedTemplate.getSubWorkouts();
-            console.log("subList for: ", W, D, subsList.length);
+            // console.log("subList for: ", W, D, subsList.length);
             // input.workouts[ID].Patterns = subsList;
             // console.log("line 80 subsList",subsList);
             subsList.sort(function (a, b) {
@@ -252,8 +252,8 @@ async function assignWorkouts(_User, input) {
 
 async function getblankPatterns(lGroup, block, W, D, level) {
     var blankPatterns = [];
-    var subsURL = process.env.BASE_URL + '/api/workout-templates/' + lGroup + '/block/' + block + '/week/' + W + '/day/' + D + '/subworkouts';
-    var subsResponse = await _axios2.default.get(subsURL);
+    var subsURL = '/api/workout-templates/' + lGroup + '/block/' + block + '/week/' + W + '/day/' + D + '/subworkouts';
+    var subsResponse = await _axios2.default.get(process.env.BASE_URL + subsURL);
     var subsList = subsResponse.data;
     subsList.sort(function (a, b) {
         return a.number - b.number;

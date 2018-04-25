@@ -1,6 +1,6 @@
 "use strict";
 
-var herokuURL = "https://obscure-citadel-34419.herokuapp.com";
+var herokuURL = "https://immense-mesa-37246.herokuapp.com";
 var localURL = "http://localhost:3000";
 
 var herokuCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
@@ -91,7 +91,7 @@ nunjucks.configure('views', { noCache: true });
 models.db.sync().then(function () {
     console.log('All tables created!');
     app.listen(process.env.PORT || 3000, function () {
-        console.log('Server is listening on port: ' + (process.env.PORT || 3000));
+        console.log('Server is listening on port 3000!');
     });
 }).catch(console.error.bind(console));
 

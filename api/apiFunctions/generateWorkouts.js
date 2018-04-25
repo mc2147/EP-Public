@@ -68,7 +68,6 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
         var thisWeek = Templates[W];
         for (var D in thisWeek) {
                 var ID = thisWeek[D].ID;
-                console.log("generateWorkouts assigning workout #: ", ID, " to user: ", user.username);
                 output.workouts[ID] = {
                     ID: null,
                     Week: null,
@@ -94,7 +93,7 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                 } 
                 var Describer = describerPrefix + blockString + " - " + " Week " + W + ", Day " + D;
                 output.workouts[ID].Describer = Describer;
-                console.log("Group, Block, W, D", Group, Block, W, D);
+                // console.log("Group, Block, W, D", Group, Block, W, D);
                 var relatedTemplate = await WorkoutTemplate.findOne({
                     where: {
                         levelGroup: user.levelGroup,

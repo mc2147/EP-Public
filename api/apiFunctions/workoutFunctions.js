@@ -81,7 +81,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
     // if (newUser) {
     //     input.dateObj2 = input.startDate;
     // }'
-    console.log("assigning workouts for: ", _User.username);
+    // console.log("assigning workouts for: ", _User.username);
     if (input.startDate) {
         var dateSplit = input.startDate.split("-");
         var dateNow = Date.now();
@@ -146,7 +146,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
         var thisWeek = Templates[W];
         for (var D in thisWeek) {
                 var ID = thisWeek[D].ID;
-                console.log("assigning workout #: ", ID, " to user: ", _User.username);
+                // console.log("assigning workout #: ", ID, " to user: ", _User.username);
                 input.workouts[ID] = {
                     ID: null,
                     Week: null,
@@ -185,7 +185,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
                     }
                 });
                     var subsList = await relatedTemplate.getSubWorkouts();
-                console.log("subList for: ", W, D, subsList.length);
+                // console.log("subList for: ", W, D, subsList.length);
                 // input.workouts[ID].Patterns = subsList;
                 // console.log("line 80 subsList",subsList);
                 subsList.sort(function(a, b) {

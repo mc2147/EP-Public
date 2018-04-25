@@ -15,6 +15,8 @@ const db = new Sequelize(process.env.DATABASE_URL || 'postgres://localhost:5432/
     dialectOptions: { decimalNumbers: true }
 });
 
+console.log("DATABASE URL: ", process.env.DATABASE_URL);
+
 const Exercise = db.define('Exercise', {
     type: {
         type: Sequelize.STRING
@@ -390,7 +392,7 @@ const Workout = db.define('Workout', {
     },
 });
 
-// db.sync({force: true});
+db.sync({force: true});
 // db.sync();
 
 module.exports = {
