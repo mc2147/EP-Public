@@ -163,7 +163,7 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
     var thisID = thisTemplate.ID;
     // return thisPatterns;
     // if (levelGroup == 3) {
-    console.log("Creating Template: " + blockNum, week, day);
+    // console.log("Creating Template: " + blockNum, week, day);
     // }
     WorkoutTemplate.findOrCreate({
         where: {

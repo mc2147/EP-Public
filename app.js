@@ -6,6 +6,7 @@ var localCORS = "http://localhost:8080";
 
 console.log("process.env.PORT: ", process.env.PORT);
 
+console.log("LINE 10 APP.JS");
 process.env.BASE_URL = (process.env.PORT) ? herokuURL : localURL;
 process.env.CORS_ORIGIN = (process.env.PORT) ? herokuCORS : localCORS;
 console.log("process.env.   BASE_URL SET: ", process.env.BASE_URL);

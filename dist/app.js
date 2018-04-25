@@ -7,7 +7,7 @@ var herokuCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
 var localCORS = "http://localhost:8080";
 
 
-console.log("LINE 10 APP.JS");
+console.log("LINE 10 APP.JS (dist)");
 process.env.BASE_URL = process.env.PORT ? herokuURL : localURL;
 process.env.CORS_ORIGIN = process.env.PORT ? herokuCORS : localCORS;
 console.log("process.env.   BASE_URL SET: ", process.env.BASE_URL);
