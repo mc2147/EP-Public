@@ -4,6 +4,8 @@ var localURL = "http://localhost:3000";
 var herokuCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
 var localCORS = "http://localhost:8080";
 
+console.log("process.env.PORT: ", process.env.PORT);
+
 process.env.BASE_URL = (process.env.PORT) ? herokuURL : localURL;
 process.env.CORS_ORIGIN = (process.env.PORT) ? herokuCORS : localCORS;
 console.log("process.env.   BASE_URL SET: ", process.env.BASE_URL);
