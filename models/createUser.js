@@ -84,9 +84,11 @@ var thisDate = new Date(Date.now());
 CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5]);
 CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5]);
 CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5]);
-CreateUser("UserName4", 4, 1, 11, thisDate, [1, 2, 3, 5]);
+CreateUser("UserName4", 4, 1, 16, thisDate, [1, 2, 3, 5]);
 CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5]);
-CreateUser("UserName6", 4, 2, 11, thisDate, [1, 2, 3, 5]);
+CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5]);
+CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274");
+CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368");
 
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
@@ -116,7 +118,7 @@ async function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) 
 }
 
 
-async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays) {
+async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays, admin=false, password="") {
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
         thisGroup = thisGroup[blockNum];
@@ -140,6 +142,13 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     }
     if (!user.password || user.password == "") {
         // user.password = "Password" + user.id; 
+    }
+    if (admin) {
+        var unHashed = password;
+        user.password = User.generateHash(unHashed, user.salt);
+        user.isAdmin = true;
+        await user.save();
+        return
     }
     // var unHashed = "Password" + user.id;
     var unHashed = user.username;

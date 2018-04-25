@@ -174,6 +174,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
     var _User = await _models.User.findById(req.params.userId);
     var workoutId = req.params.workoutId;
     var body = req.body;
+    body.lastWorkout = false;
     await saveWorkout(body, _User, req.params.workoutId, true);
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
@@ -208,9 +209,19 @@ router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
 });
 
 router.get("/:userId/workouts/:workoutId/vue", function (req, res) {
+    console.log("req.params.userId:", req.params.userId);
+    console.log("req.params.workoutId", req.params.workoutId);
+    var thisID = req.params.workoutId;
+    if (req.params.workoutId == "0") {
+        thisID = '2';
+    }
+    console.log("thisID: ", thisID);
     _models.User.findById(req.params.userId).then(function (user) {
-        var _Workout = user.workouts[req.params.workoutId];
-        var _WorkoutDate = user.workoutDates[req.params.workoutId - 1];
+        // console.log("user: ", user);
+        console.log("user.workouts", user.workouts, "thisID", thisID);
+        var _Workout = user.workouts[thisID];
+        console.log("_Workout: ", _Workout, "thisID", thisID);
+        var _WorkoutDate = user.workoutDates[thisID - 1];
         var JSON = _Workout;
         JSON.thisWorkoutDate = _WorkoutDate;
         var vueJSON = getVueInfo(JSON);
