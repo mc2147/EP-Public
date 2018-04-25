@@ -279,10 +279,10 @@ router.get('/',
 	// req.session.userId -> find user -> get information as req.session.user
 	// req.session.userId = 1;
 	// req.session.userId = thisUserID;
-	console.log("process.env.baseurl: ", process.env.BASE_URL);
-	console.log("process.env.port: ", process.env.PORT);
+	// console.log("process.env.baseurl: ", process.env.BASE_URL);
+	// console.log("process.env.port: ", process.env.PORT);
 
-	console.log("req.session: ", req.session);
+	// console.log("req.session: ", req.session);
 	if (!req.session.username) {
 		req.session.username = thisUserName;
 		console.log("line 284 getting hit: ", thisUserName);
@@ -292,21 +292,21 @@ router.get('/',
 			// console.log("ALL USERS: ", users);
 		})
 	}
-	console.log("username: ", req.session.username);
+	// console.log("username: ", req.session.username);
 	req.session.User = await User.findOne({where: {username: req.session.username}});
 	req.session.userId = req.session.User.id;
-	console.log("LINE 295 (BEFORE AXIOS)");
+	// console.log("LINE 295 (BEFORE AXIOS)");
 
 	// axios({
 	// 	method:'get',
 	// 	url: herokuURL + "/api/users",
 	// })
 	var thisUserURL = process.env.BASE_URL + "/api/users/" + req.session.userId;
-	console.log("thisUserURL", thisUserURL);
+	// console.log("thisUserURL", thisUserURL);
 	axios.get(thisUserURL)
 	.then(res => res.data)
 	.then(user => {
-			console.log("FINDING CURRENT USER: ", user);
+			// console.log("FINDING CURRENT USER: ", user);
 		} 
 	);
 	var loginTestURL = process.env.BASE_URL + "/api/users/" + req.session.username + "/login";
@@ -315,7 +315,7 @@ router.get('/',
 		password: "Password5",
 	}).then(res => res.data)
 	.then(status => {
-		console.log("LOGIN POST WORKS!!!", status);
+		// console.log("LOGIN POST WORKS!!!", status);
 	})
 	
 
@@ -326,7 +326,7 @@ router.get('/',
 	// 	} 
 	// );
 
-	console.log("LINE 304 (AFTER AXIOS)");
+	// console.log("LINE 304 (AFTER AXIOS)");
 // console.log("390", req.session)c
 		// (req.session.userId);
 	// req.session.User = await User.findById(req.session.userId);
@@ -339,8 +339,8 @@ router.get('/',
 	req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];
 	// console.log("index.js 189 thisPatterns", req.session.User.workouts[req.session.viewingWID]);
 	// console.log("router.get stats", req.session.User.stats);
-	console.log("line 342", req.session);
-	console.log("router.get patterns \n");
+	// console.log("line 342", req.session);
+	// console.log("router.get patterns \n");
     req.session.viewingWorkout.Patterns.forEach((elem) => {
         // console.log("alloy Status: ", elem.alloystatus);
     })
@@ -353,7 +353,7 @@ router.get('/',
 		render();
 		return
 	}
-	console.log("LINE 335");
+	// console.log("LINE 335");
 	
 	var TemplateID = req.session.viewingWID;
 	var wDateIndex = req.session.viewingWID - 1;
