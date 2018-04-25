@@ -93,7 +93,7 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                 } 
                 var Describer = describerPrefix + blockString + " - " + " Week " + W + ", Day " + D;
                 output.workouts[ID].Describer = Describer;
-                // console.log("Group, Block, W, D", user.levelGroup, user.blockNum, W, D);
+                console.log("Group, Block, W, D", user.levelGroup, user.blockNum, W, D);
                 var relatedTemplate = await WorkoutTemplate.findOne({
                     where: {
                         levelGroup: user.levelGroup,
