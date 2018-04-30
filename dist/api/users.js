@@ -426,6 +426,23 @@ router.put("/:userId/generate-workouts", async function (req, res) {
         _User.changed('oldstats', true);
         await _User.save();
     }
+    if (_User.level >= 11) {
+        _User.blockNum = parseInt(req.body.blockNum);
+        if (_User.level >= 16) {
+            _User.levelGroup = 4;
+        } else {
+            _User.levelGroup = 3;
+        }
+    } else {
+        if (_User.level >= 6) {
+            _User.levelGroup = 2;
+        } else {
+            _User.levelGroup = 1;
+        }
+        _User.blockNum = 0;
+    }
+    await _User.save();
+
     (0, _workoutFunctions.assignWorkouts)(_User, input);
     await _User.save();
     // res.json("Test")
@@ -525,7 +542,9 @@ router.post("/:userId/admin/generate-workouts", async function (req, res) {
     }
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
+        await _User.save();
     }
+
     if (_User.level >= 11) {
         _User.blockNum = parseInt(req.body.blockNum);
         if (_User.level >= 16) {

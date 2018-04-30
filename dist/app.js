@@ -1,7 +1,7 @@
 "use strict";
 
-var onlineVersion = false;
-var herokuLocal = true;
+var onlineVersion = true;
+var herokuLocal = false;
 
 var herokuURL = "https://immense-mesa-37246.herokuapp.com";
 var localURL = herokuLocal ? "http://localhost:5000" : "http://localhost:3000";
