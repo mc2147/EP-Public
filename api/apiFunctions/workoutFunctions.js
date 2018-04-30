@@ -220,7 +220,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
                         var LevelList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
                         console.log("   LevelAccess: " + findVideo.LevelAccess);
                         let levelFilter = (findVideo.LevelAccess) ? findVideo.LevelAccess : 1;
-                        // patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
+                        // patternInstance.selectedVideo.levels = LevelList.slice(levelFilter - 1);
                     }
                     input.workouts[ID].Patterns.push(patternInstance);
 
