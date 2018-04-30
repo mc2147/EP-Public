@@ -184,14 +184,17 @@ export async function assignWorkouts(_User, input, newUser=false) {
                         day: D,
                     }
                 });
-                    var subsList = await relatedTemplate.getSubWorkouts();
-                // console.log("subList for: ", W, D, subsList.length);
+                var subsList = await relatedTemplate.getSubWorkouts();
+                console.log("subList for: ", _User.levelGroup, _User.blockNum, W, D, subsList.length);
                 // input.workouts[ID].Patterns = subsList;
                 // console.log("line 80 subsList",subsList);
                 subsList.sort(function(a, b) {
                     return a.number - b.number
                 });
+                console.log("subList length after sort: ", subsList.length);
                 for (var i = 0; i < subsList.length; i++) {
+                    console.log("   i: ", i);
+
                     var sub = subsList[i];
                     var patternInstance = sub.patternFormat;
                     var EType = sub.exerciseType;
@@ -200,9 +203,9 @@ export async function assignWorkouts(_User, input, newUser=false) {
                     patternInstance.type = EType;
                     var EName = ExerciseDict.Exercises[patternInstance.type][Level].name;
                     patternInstance.name = EName;
-                    // console.log("97");
+                    // console.log("   97");
                     var findVideo = await Video.search(EName, false); 
-                    // console.log("99");
+                    // // console.log("   99");
                     if (findVideo) {
                         patternInstance.hasVideo = true;
                         patternInstance.videoURL = findVideo.url;                        
@@ -214,15 +217,19 @@ export async function assignWorkouts(_User, input, newUser=false) {
                             LevelAccess: findVideo.levelAccess,
                         };                            
 
-                        var LevelList = [];
-                        for (var i = 1; i <= 25; i++) {
-                            LevelList.push(i);
-                        }
-                        patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
+                        var LevelList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+                        console.log("   LevelAccess: " + findVideo.LevelAccess);
+                        let levelFilter = (findVideo.LevelAccess) ? findVideo.LevelAccess : 1;
+                        // patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
                     }
                     input.workouts[ID].Patterns.push(patternInstance);
+
                     // console.log("Pushing sub for Pattern: ", ID);                   
                 }
+                console.log("Patterns.length for: ", _User.levelGroup, _User.blockNum, W, D, input.workouts[ID].Patterns.length);
+                _User.workouts[ID] = input.workouts[ID];
+                // _User.changed('workouts', true);
+                // await _User.save();
                 // console.log(ID, "Patterns: ", input.workouts[ID].Patterns.length);
             }
     }
@@ -231,7 +238,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
     _User.workoutDates = workoutDates;
     _User.resetStats = true;
     // console.log("User (line 233): ", _User);
-    _User.save();
+    await _User.save();
 }
 
 export async function getblankPatterns(lGroup, block, W, D, level) {

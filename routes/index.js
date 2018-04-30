@@ -253,8 +253,8 @@ router.get('/get-next-workouts',
 			date = "0" + date;
 		}
 		var currDate = dateNow.getFullYear() + "-" + month + "-" + date;
-		console.log("currDate: ", currDate);
-		console.log("req.session", req.session);
+		// console.log("currDate: ", currDate);
+		// console.log("req.session", req.session);
 		res.render("createWorkouts", {allLevels, daysOfWeek, User: _User, currDate});
 	}
 )
@@ -264,10 +264,12 @@ router.post('/get-next-workouts',
 		if (!req.session.userId) {
 			req.session.userId = 8;
 		}
+		console.log("posting to api with user id: ", req.session.userId);
 		// 
-		console.log("req.session", req.session);
+		// console.log("req.session", req.session);
 		var axiosPost = await axios.post(process.env.BASE_URL + `/api/users/${req.session.userId}/get-next-workouts`, req.body);
 		res.json(axiosPost.data);
+		// res.send("test from routes");
 		return		
 	}
 )

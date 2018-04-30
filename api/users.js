@@ -405,6 +405,7 @@ router.put("/:userId/get-level", async function (req, res) {
 })
 
 router.put("/:userId/generate-workouts", async function(req, res) {
+    console.log("put to generate-workouts (line 408): ");
     var input = req.body;
     var _User = await User.findById(req.params.userId);
     if (_User.workoutDates.length > 0) {
@@ -417,8 +418,29 @@ router.put("/:userId/generate-workouts", async function(req, res) {
         _User.changed( 'oldstats', true);
         await _User.save();
     }
+    if (_User.level >= 11) {
+        _User.blockNum = parseInt(req.body.blockNum);
+        if (_User.level >= 16) {
+            _User.levelGroup = 4;
+        }
+        else {
+            _User.levelGroup = 3;            
+        }
+    }
+    else {
+        if (_User.level >= 6) {
+            _User.levelGroup = 2;
+        }
+        else {
+            _User.levelGroup = 1;            
+        }
+        _User.blockNum = 0;
+    }
+    await _User.save();
+    
     assignWorkouts(_User, input);
     await _User.save(); 
+    // res.json("Test")
     res.json({input, updatedUser: _User, session: {
         viewingWID: 1,
         User: _User,
@@ -429,9 +451,12 @@ router.put("/:userId/generate-workouts", async function(req, res) {
 });
 
 router.post("/:userId/get-next-workouts", async function(req, res) {
-    console.log("userId: ", req.params.userId);
+    console.log("posting to get-next-workouts (line 432): ");
+    // console.log("userId: ", req.params.userId);
     var _User = await User.findById(req.params.userId);
     var input = req.body;
+    console.log("input.workoutLevel: ", input.workoutLevel)
+    input.userId = req.params.userId;
     console.log("91", input);
     _User.oldstats = [];
     _User.oldworkouts = [];
@@ -453,6 +478,24 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
     }
     if (input.workoutLevel != '') {
         _User.level = parseInt(input.workoutLevel);
+        if (_User.level >= 11) {
+            _User.blockNum = parseInt(req.body.blockNum);
+            if (_User.level >= 16) {
+                _User.levelGroup = 4;
+            }
+            else {
+                _User.levelGroup = 3;            
+            }
+        }
+        else {
+            if (_User.level >= 6) {
+                _User.levelGroup = 2;
+            }
+            else {
+                _User.levelGroup = 1;            
+            }
+            _User.blockNum = 0;
+        }
         await _User.save();
     }
     await assignWorkouts(_User, input);        
@@ -464,6 +507,7 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
         username: _User.username,
         userId: _User.id,
     }});
+    // res.send("test");
     return
 }) 
 
@@ -497,6 +541,7 @@ router.post("/:userId/admin/generate-workouts", async function(req, res) {
     if (req.body.newLevel) {
         _User.level = parseInt(req.body.newLevel);
     }
+    
     if (_User.level >= 11) {
         _User.blockNum = parseInt(req.body.blockNum);
         if (_User.level >= 16) {
