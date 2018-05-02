@@ -15,8 +15,10 @@ export function getVueStat(EType, JSONStat) {
     };
     console.log("getVueStat from other page test");
     vueStat.exerciseType = EType;
-    vueStat.exerciseName = JSONStat.name;
+    vueStat.exerciseName = JSONStat.Name;
+    vueStat.lastSet = JSONStat.LastSet;
     vueStat.max = JSONStat.Max;
+    // vueStat.exerc
     vueStat.alloyVal = JSONStat.Status.value;
     if (JSONStat.Status.value == 1) {
         vueStat.alloyResult = "PASSED";

@@ -331,6 +331,7 @@ router.get('/:userId/progress/vue/get', function(req, res) {
         vueData.nTesting = 0;
         vueData.levelUpMessage = "";
         vueData.levelUpImage = "";
+        vueData.blockNum = user.blockNum;
         if (user.level == 6) {
             vueData.levelUpMessage = LevelUpMesssages[6];
         }
