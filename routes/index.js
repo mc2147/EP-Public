@@ -321,32 +321,11 @@ router.get('/',
 	})
 	
 
-	// axios.get("/api/users/" + req.session.userId)
-	// .then(res => res.data)
-	// .then(user => {
-	// 		console.log("FINDING CURRENT USER: ", user);
-	// 	} 
-	// );
-
-	// console.log("LINE 304 (AFTER AXIOS)");
-// console.log("390", req.session)c
-		// (req.session.userId);
-	// req.session.User = await User.findById(req.session.userId);
-	// thisUser = req.session.User;
-
 	if (!req.session.viewingWID) {
 		req.session.viewingWID = req.session.User.currentWorkoutID;
 	}
 
-	req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];
-	// console.log("index.js 189 thisPatterns", req.session.User.workouts[req.session.viewingWID]);
-	// console.log("router.get stats", req.session.User.stats);
-	// console.log("line 342", req.session);
-	// console.log("router.get patterns \n");
-    req.session.viewingWorkout.Patterns.forEach((elem) => {
-        // console.log("alloy Status: ", elem.alloystatus);
-    })
-	
+	req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];	
 	// G_UserInfo = userRefDict(thisUser, req.session.viewingWID);
 	// G_UserInfo["thisWorkoutID"] = req.session.viewingWID;
 	// console.log("req.session 204", req.session);
