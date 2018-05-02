@@ -1,10 +1,14 @@
 "use strict";
 
-var onlineVersion = true;
-var herokuLocal = false;
+// Live deployment: onlineVersion && herokuLocal
+// Heroku Local: !onlineVersion && herokuLocal
+// Local local: !onlineVersion && !herokuLocal
+var onlineVersion = false;
+var herokuLocal = true;
 
 var herokuURL = "https://immense-mesa-37246.herokuapp.com";
-var localURL = herokuLocal ? "http://localhost:5000" : "http://localhost:3000";
+// var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
+var localURL = "http://localhost:5000";
 
 var herokuCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
 var localCORS = "http://localhost:8080";
@@ -98,7 +102,7 @@ nunjucks.configure('views', { noCache: true });
 
 models.db.sync().then(function () {
     console.log('All tables created!');
-    app.listen(process.env.PORT || 3000, function () {
-        console.log('Server is listening on port 3000!');
+    app.listen(process.env.PORT || 5000, function () {
+        console.log('Server is listening on port 5000!');
     });
 }).catch(console.error.bind(console));

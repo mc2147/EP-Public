@@ -185,15 +185,15 @@ export async function assignWorkouts(_User, input, newUser=false) {
                     }
                 });
                 var subsList = await relatedTemplate.getSubWorkouts();
-                console.log("subList for: ", _User.levelGroup, _User.blockNum, W, D, subsList.length);
+                // console.log("subList for: ", _User.levelGroup, _User.blockNum, W, D, subsList.length);
                 // input.workouts[ID].Patterns = subsList;
                 // console.log("line 80 subsList",subsList);
                 subsList.sort(function(a, b) {
                     return a.number - b.number
                 });
-                console.log("subList length after sort: ", subsList.length);
+                // console.log("subList length after sort: ", subsList.length);
                 for (var i = 0; i < subsList.length; i++) {
-                    console.log("   i: ", i);
+                    // console.log("   i: ", i);
 
                     var sub = subsList[i];
                     var patternInstance = sub.patternFormat;
@@ -218,7 +218,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
                         };                            
 
                         var LevelList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
-                        console.log("   LevelAccess: " + findVideo.LevelAccess);
+                        // console.log("   LevelAccess: " + findVideo.LevelAccess);
                         let levelFilter = (findVideo.LevelAccess) ? findVideo.LevelAccess : 1;
                         // patternInstance.selectedVideo.levels = LevelList.slice(levelFilter - 1);
                     }
@@ -226,7 +226,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
 
                     // console.log("Pushing sub for Pattern: ", ID);                   
                 }
-                console.log("Patterns.length for: ", _User.levelGroup, _User.blockNum, W, D, input.workouts[ID].Patterns.length);
+                // console.log("Patterns.length for: ", _User.levelGroup, _User.blockNum, W, D, input.workouts[ID].Patterns.length);
                 _User.workouts[ID] = input.workouts[ID];
                 // _User.changed('workouts', true);
                 // await _User.save();

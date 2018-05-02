@@ -16,6 +16,8 @@ var _generateWorkouts = require('./apiFunctions/generateWorkouts');
 
 var _vueFormat = require('./vueFormat');
 
+var _levelupMessages = require('../content/levelupMessages');
+
 var _models = require('../models');
 
 var _data = require('../data');
@@ -28,7 +30,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var bodyParser = require('body-parser');
 var express = require('express');
 var bcrypt = require('bcryptjs');
-
 
 var router = express.Router();
 // var models = require('../models');
@@ -179,8 +180,24 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];
-        if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
+        if (_User.level >= 11 && _User.blockNum == 1) {
+            _User.blockNum = 2;
+        } else if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
             _User.level++;
+            if (_User.level >= 11) {
+                if (_User.level >= 16) {
+                    _User.levelGroup = 4;
+                } else {
+                    _User.levelGroup = 3;
+                }
+            } else {
+                if (_User.level >= 6) {
+                    _User.levelGroup = 2;
+                } else {
+                    _User.levelGroup = 1;
+                }
+                _User.blockNum = 0;
+            }
         }
         _User.stats["Level Up"].Status.Checked = true;
         _User.changed('stats', true);
@@ -323,6 +340,16 @@ router.get('/:userId/progress/vue/get', function (req, res) {
         vueData.nPassed = 0;
         vueData.nFailed = 0;
         vueData.nTesting = 0;
+        vueData.levelUpMessage = "";
+        vueData.levelUpImage = "";
+        if (user.level == 6) {
+            vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[6];
+        } else if (user.level == 11) {
+            vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[11];
+        } else if (user.level == 16) {
+            vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[16];
+        }
+
         if (vueData.levelUpVal == 1) {
             vueData.statusText = "You have PASSED Level " + vueData.oldLevel;
         } else if (vueData.levelUpVal == -1) {
@@ -370,34 +397,6 @@ router.post("/:userId/oldstats", function (req, res) {
             return res.json(user);
         });
     });
-});
-
-router.put("/:userId/save-workout", async function (req, res) {
-    console.log("save-workout put: ", req.body);
-    var updateUser = await _models.User.findById(req.params.userId);
-    var body = req.body;
-    await saveWorkout(body.submission, updateUser, body.viewingWID);
-    res.json(req.body);
-});
-
-router.put("/:userId/submit-workout", async function (req, res) {
-    console.log("submit-workout put: ", req.body);
-    var updateUser = await _models.User.findById(req.params.userId);
-    var body = req.body;
-    await saveWorkout(body.submission, updateUser, body.viewingWID, true);
-    if (parseInt(body.viewingWID) == updateUser.workoutDates.length) {
-        console.log("LEVEL CHECK! ", body.viewingWID);
-        var levelUpStats = updateUser.stats["Level Up"];
-        if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
-            updateUser.level++;
-            // updateUser.stats["Level Up"].Status = Alloy.Passed;
-        }
-        updateUser.stats["Level Up"].Status.Checked = true;
-        updateUser.changed('stats', true);
-        await updateUser.save();
-        body.lastWorkout = true;
-    }
-    res.json(body);
 });
 
 router.put("/:userId/get-level", async function (req, res) {
@@ -548,7 +547,9 @@ router.post("/:userId/admin/generate-workouts", async function (req, res) {
     }
 
     if (_User.level >= 11) {
-        _User.blockNum = parseInt(req.body.blockNum);
+        if (req.body.blockNum) {
+            _User.blockNum = parseInt(req.body.blockNum);
+        }
         if (_User.level >= 16) {
             _User.levelGroup = 4;
         } else {
