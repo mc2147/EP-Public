@@ -462,7 +462,7 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
     var input = req.body;
     console.log("input.workoutLevel: ", input.workoutLevel);
     input.userId = req.params.userId;
-    console.log("91", input);
+    // console.log("91", input);
     _User.oldstats = [];
     _User.oldworkouts = [];
     await _User.save();
@@ -483,8 +483,9 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
     }
     if (input.workoutLevel != '') {
         _User.level = parseInt(input.workoutLevel);
+        console.log("line 481, user.level: ", _User.level);
         if (_User.level >= 11) {
-            _User.blockNum = parseInt(req.body.blockNum);
+            _User.blockNum = parseInt(req.body.workoutBlock);
             if (_User.level >= 16) {
                 _User.levelGroup = 4;
             } else {
@@ -500,6 +501,7 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
         }
         await _User.save();
     }
+    console.log("line 501");
     await (0, _workoutFunctions.assignWorkouts)(_User, input);
     await _User.save();
 
