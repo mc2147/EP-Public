@@ -82,15 +82,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With']
 }));
 
-// app.use(function)
-    
-    // var thisUser = await User.findById(1).then(user => {
-        // 	console.log("USER FOUND!!! USER ID: " + user.id);
-        // 	console.log("User's stats: ");
-        // 	console.log(user.stats);
-        // 	thisUser = user;
-        // 	userFound = true;
-        // });
+
 app.use('/api', api);
         
         
