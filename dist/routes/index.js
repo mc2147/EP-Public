@@ -170,31 +170,10 @@ router.get('/' + getURL, function (req, res) {
 	res.json(G_vueOutput);
 });
 
-// router.get('/test-route', 
-// 	async(req, res, next) => {	
-// 		req.session.userId = 1;
-// 		req.session.User = await User.findById(req.session.userId);
-// 		req.session.User.workouts = {"test": "test"};
-// 		await req.session.User.save();		
-// 		var realUser = 	await User.findById(req.session.userId);
-// 		console.log("==: ", 
-// 		realUser === req.session.User);
-// 		res.json({"test": "test"});
-// 	})
-
-//ADD to req.session
-//User.WorkoutDates
-//currentWorkoutID
-//viewingWID
-//workouts
-//current workout patterns 
-//^^HIGH LEVEL REQUIREMENTS
-//req.session.viewingWorkout
-//req.session.User
-
 var thisUserID = 5;
 
 var thisUserName = "UserName5";
+// var thisUserName = "UserName4";
 
 var allLevels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
 var daysOfWeek = [[1, "Monday"], [2, "Tuesday"], [3, "Wednesday"], [4, "Thursday"], [5, "Friday"], [6, "Saturday"], [0, "Sunday"]];
@@ -258,13 +237,6 @@ router.post('/get-next-workouts', async function (req, res, next) {
 var G_vueOutput = {};
 
 router.get('/', async function (req, res, next) {
-	// req.session.userId -> find user -> get information as req.session.user
-	// req.session.userId = 1;
-	// req.session.userId = thisUserID;
-	// console.log("process.env.baseurl: ", process.env.BASE_URL);
-	// console.log("process.env.port: ", process.env.PORT);
-
-	// console.log("req.session: ", req.session);
 	if (!req.session.username) {
 		req.session.username = thisUserName;
 		console.log("line 284 getting hit: ", thisUserName);
@@ -277,59 +249,26 @@ router.get('/', async function (req, res, next) {
 	// console.log("username: ", req.session.username);
 	req.session.User = await User.findOne({ where: { username: req.session.username } });
 	req.session.userId = req.session.User.id;
-	// console.log("LINE 295 (BEFORE AXIOS)");
-
-	// axios({
-	// 	method:'get',
-	// 	url: herokuURL + "/api/users",
-	// })
 	var thisUserURL = process.env.BASE_URL + "/api/users/" + req.session.userId;
-	// console.log("thisUserURL", thisUserURL);
 	axios.get(thisUserURL).then(function (res) {
 		return res.data;
-	}).then(function (user) {
-		// console.log("FINDING CURRENT USER: ", user);
+	}).then(function (user) {// console.log("FINDING CURRENT USER: ", user);
 	});
 	var loginTestURL = process.env.BASE_URL + "/api/users/" + req.session.username + "/login";
-	axios.post(loginTestURL, {
-		username: req.session.username,
-		password: "Password5"
-	}).then(function (res) {
-		return res.data;
-	}).then(function (status) {
-		// console.log("LOGIN POST WORKS!!!", status);
-	});
+	// axios.post(loginTestURL, {
+	// 	username: req.session.username,
+	// 	password: "Password5",
+	// }).then(res => res.data)
+	// .then(status => {
+	// 	// console.log("LOGIN POST WORKS!!!", status);
+	// })
 
-	// axios.get("/api/users/" + req.session.userId)
-	// .then(res => res.data)
-	// .then(user => {
-	// 		console.log("FINDING CURRENT USER: ", user);
-	// 	} 
-	// );
-
-	// console.log("LINE 304 (AFTER AXIOS)");
-	// console.log("390", req.session)c
-	// (req.session.userId);
-	// req.session.User = await User.findById(req.session.userId);
-	// thisUser = req.session.User;
 
 	if (!req.session.viewingWID) {
 		req.session.viewingWID = req.session.User.currentWorkoutID;
 	}
 
 	req.session.viewingWorkout = req.session.User.workouts[req.session.viewingWID];
-	// console.log("index.js 189 thisPatterns", req.session.User.workouts[req.session.viewingWID]);
-	// console.log("router.get stats", req.session.User.stats);
-	// console.log("line 342", req.session);
-	// console.log("router.get patterns \n");
-	req.session.viewingWorkout.Patterns.forEach(function (elem) {
-		// console.log("alloy Status: ", elem.alloystatus);
-	});
-
-	// G_UserInfo = userRefDict(thisUser, req.session.viewingWID);
-	// G_UserInfo["thisWorkoutID"] = req.session.viewingWID;
-	// console.log("req.session 204", req.session);
-	//On Reset: req.session.userInfo = {};
 	if (!req.session.User) {
 		render();
 		return;
@@ -454,6 +393,21 @@ router.post('/' + postURL, async function (req, res) {
 	// putBody.viewingWID = _WID;
 	// console.log("567", axiosPutResponse.data);
 	var WorkoutURL = process.env.BASE_URL + ('/api/users/' + _User.id + '/workouts/' + _WID);
+	for (var K in req.body) {
+		if (K.startsWith("g")) {
+			console.log("found K: ", K);
+			console.log("getNextSet Code: ", K.split("|"));
+			var codeList = K.split("|");
+			var patternNum = parseInt(codeList[2]);
+			var specialType = parseInt(codeList[1]);
+			putBody.patternNum = patternNum;
+			putBody.specialType = specialType;
+			// putBody.saveAlso = true;
+			var axiosPutResponse = await axios.put(WorkoutURL + '/pattern/' + patternNum + '/update', putBody);
+			res.redirect('/');
+			return;
+		}
+	}
 
 	if (req.body.SaveBtn) {
 		var axiosPutResponse = await axios.put(WorkoutURL + "/save", putBody);

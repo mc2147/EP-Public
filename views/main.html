@@ -77,6 +77,23 @@ Current/Next Workout Date:
           <br>
           <a href={{P.videoURL}}>Watch Video</a>
           {% endif %}
+          {% if P.workoutType == 'stop' and P.specialStage < 1 %}
+            <div style="text-align:center;">
+              <br/>
+              <input style="margin:auto;" type='submit' onclick="" value='Get Next Set' name="getNextSet|Drop|{{P.number}}" id='btn'></input>
+            </div>
+          {% elif P.workoutType == 'drop' and P.specialStage < 2 %}
+            <div style="text-align:center;">
+              <br/>
+              <input style="margin:auto;" type='submit' onclick="" value='Get Next Set' name="getNextSet|Drop|{{P.number}}" id='btn'></input>
+            </div>
+          {% elif P.alloy and P.alloystatus.value == 0 %}
+            <div style="text-align:center;">
+              <br/>
+              <input style="margin:auto;" type='submit' onclick="" value='Get Alloy Set' name="getNextSet|Alloy|{{P.number}}" id='btn'></input>
+            </div>
+          {% endif %}
+          
         </td> 
           <!-- Reps Column -->
           <td style="padding:0px; width:200px;">
@@ -113,6 +130,7 @@ Current/Next Workout Date:
             {% endif %}
             </div>
           {% endif %}
+    
           </td>
           <!-- Weight Column -->
           <td style="padding:0px; width:200px;">

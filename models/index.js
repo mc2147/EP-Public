@@ -195,13 +195,13 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
             pattern.setList = [];
             pattern.sets = this.sets;
             pattern.workoutType = this.type;
-            
             // Alloy Condition
             pattern.alloy = this.alloy;
             if (pattern.alloy) {
                 pattern.alloyreps = this.alloyreps;
                 pattern.alloystatus = Alloy.None;					
                 pattern.sets -= 1;
+                pattern.specialDescriber = "ALLOY SET";
             }
             // Name Exceptions Condition        
             if (pattern.type == "Med Ball") {
@@ -231,7 +231,11 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
             if (this.RPE) {
                 pattern.RPE = this.RPE;
             }
-        
+
+            let setString = "";
+            let repString = "";
+            let RPEString = "";
+
             for (var i = 0; i < pattern.sets; i ++) {
                 var Reps = this.reps;
                 var RPE = this.RPE;
@@ -240,10 +244,19 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
                     if (this.RPERange.length > 0) {
                         RPE = this.RPERange[0] + "-" + this.RPERange[1];
                         pattern.RPE = RPE;
+                        RPEString = RPE;
                     }
                     else if (this.repsList.length > 0) {
                         Reps = parseInt(this.repsList[i]);
                         RPE = this.RPEList[i];
+                        if (i < pattern.sets - 1) {
+                            repString += Reps + "|";
+                            RPEString += RPE + "|";
+                        }
+                        else {
+                            repString += Reps;                            
+                            RPEString += RPE;
+                        }
                     }
                     else {
                         RPE = "---";							
@@ -259,7 +272,39 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
                     Filled: false,
                 });
             }
-            return pattern;        }
+            if (pattern.alloy) {
+                setString = pattern.sets + 1;
+                RPEString += "|10";
+                repString += "|X";
+            }
+            else {
+                setString = pattern.sets;
+            }
+            
+            if (repString == "") {
+                repString = pattern.reps;
+            }
+            if (RPEString == "") {
+                if (pattern.RPE) {
+                    RPEString = pattern.RPE;
+                }
+            }
+            RPEString += " RPE";
+            // if (pattern.alloy) {
+                pattern.describer = setString + " x " + repString + " @ " + RPEString;
+            // }
+            if (!this.reps && (!this.repsList || this.repsList.length < 1)) {
+                pattern.describer = setString + " sets @ " + RPEString + " (bodyweight)";
+            }
+            if (pattern.type == "Carry" || pattern.workoutType == "carry") {
+                pattern.describer = setString + " x " + repString + " seconds";                
+                // pattern.describer = setString + " x " + repString + "-second carry";
+            }
+            // else {
+            //     pattern.describer = setString + " x " + repString + " @ " + RPEString;                
+            // }
+            return pattern;
+        }
     }
 },
 );

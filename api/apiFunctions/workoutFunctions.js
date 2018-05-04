@@ -131,7 +131,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
     var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
     input.nWorkouts = nWorkouts;
     input.daysList = daysList;
-    console.log("input.dateObj2: ", input.dateObj2);    
+    // console.log("input.dateObj2: ", input.dateObj2);    
     var workoutDates = getWorkoutDays(input.dateObj2, daysList, Level, "", nWorkouts);
     input.workoutDates = workoutDates;
     input.detailedworkoutDates = [];

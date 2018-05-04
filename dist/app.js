@@ -4,7 +4,10 @@
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
 var onlineVersion = false;
-var herokuLocal = true;
+// let herokuLocal = false;
+// Seed bools
+var seedWorkouts = true;
+var seedUsers = true;
 
 var herokuURL = "https://immense-mesa-37246.herokuapp.com";
 // var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
@@ -14,7 +17,6 @@ var herokuCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
 var localCORS = "http://localhost:8080";
 
 console.log("process.env.PORT: ", process.env.PORT);
-
 console.log("LINE 10 APP.JS");
 
 process.env.BASE_URL = process.env.PORT && onlineVersion ? herokuURL : localURL;
@@ -24,7 +26,9 @@ console.log("process.env.   BASE_URL SET: ", process.env.BASE_URL);
 var path = require('path');
 var api = require('./api');
 var models = require('./models');
-var generateTemplates = require('./models/generateTemplates');
+if (seedWorkouts) {
+    var generateTemplates = require('./models/generateTemplates');
+}
 
 var express = require('express');
 var session = require('express-session');
@@ -88,7 +92,9 @@ app.use(cors({
 // });
 app.use('/api', api);
 
-var createUser = require('./models/createUser');
+if (seedUsers) {
+    var createUser = require('./models/createUser');
+}
 app.use('/', routes);
 
 app.use(express.static(path.join(__dirname, '..', 'views')));

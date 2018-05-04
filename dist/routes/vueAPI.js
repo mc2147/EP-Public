@@ -72,6 +72,12 @@ function getVueInfo(refDict) {
 				status: 'Empty',
 				code: Pattern.number + "|W|" + (L + 1)
 			};
+			if (set.suggestedWeight) {
+				weightDict.suggestedWeight = set.suggestedWeight;
+			} else {
+				weightDict.suggestedWeight = "--";
+			}
+
 			var RPEDict = {
 				value: set.RPE,
 				status: 'Empty',
@@ -79,6 +85,9 @@ function getVueInfo(refDict) {
 				code: Pattern.number + "|RPE|" + (L + 1)
 				// test: "test",
 			};
+			if (set.SuggestedRPE && set.SuggestedRPE != "---") {
+				RPEDict.suggested = set.SuggestedRPE;
+			}
 			var tempoDict = {
 				stringValue: "3|2|X",
 				value: ["3", "2", "X"],
@@ -110,6 +119,17 @@ function getVueInfo(refDict) {
 					if (set.Filled) {
 						weightDict.status = 'Fixed';
 						RPEDict.status = 'Fixed';
+					}
+					if (Pattern.stop && setNum == 1) {
+						RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
+						// RPEDict.status = 'Empty';
+					}
+					if (Pattern.drop && setNum == 1) {
+						RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
+						// RPEDict.status = 'Empty';					
+					}
+					if (Pattern.drop && Pattern.specialStage >= 1) {
+						weightDict.status = 'Fixed';
 					}
 				}
 				//Bodyweight Workouts
@@ -149,7 +169,7 @@ function getVueInfo(refDict) {
 		// Final Alloy Set
 		if (Pattern.alloy) {
 			var repDict = {
-				value: Pattern.alloyreps,
+				value: Pattern.alloyreps + "+",
 				status: 'Fixed',
 				// code: Pattern.number + "|Reps|" + "Alloy",
 				code: Pattern.number + "|X|" + "Alloy",
@@ -179,6 +199,7 @@ function getVueInfo(refDict) {
 				// weightLists.fixed.push("Alloy Weight");
 			} else if (Pattern.alloystatus.value == 2) {
 				repDict.status = 'Empty';
+				repDict.value = null;
 				weightDict.value = Pattern.alloyweight;
 				weightDict.status = 'Fixed';
 				// repLists.inputs.push(Pattern.alloyreps);
@@ -249,6 +270,47 @@ function getVueInfo(refDict) {
 		var repString =
 		// if ()
 		subDict.describer = Pattern.sets + " x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
+		subDict.number = Pattern.number;
+		if (Pattern.workoutType == 'stop' && Pattern.specialStage < 1) {
+			subDict.hasButton = true;
+			subDict.buttonDisplay = "Get Next Set";
+			subDict.buttonName = "getNextSet|Stop|" + Pattern.number;
+		} else if (Pattern.workoutType == 'drop' && Pattern.specialStage < 2) {
+			subDict.hasButton = true;
+			subDict.buttonDisplay = "Get Next Set";
+			subDict.buttonName = "getNextSet|Drop|" + Pattern.number;
+		} else if (Pattern.alloy && Pattern.alloystatus.value == 0) {
+			subDict.hasButton = true;
+			subDict.buttonDisplay = "Get Alloy Set";
+			subDict.buttonName = "getNextSet|Alloy|" + Pattern.number;
+		}
+		// 
+		if (Pattern.alloy) {
+			subDict.alloyReps = Pattern.alloyreps;
+		}
+		// if (Pattern.suggestedWeight) {
+		// 	subDict.suggestedWeight = Pattern.suggestedWeight;
+		// }
+		// else {
+		// 	subDict.suggestedWeight = "--";			
+		// }
+		// 	{% if P.workoutType == 'stop' and P.specialStage < 1 %}
+		// 	<div style="text-align:center;">
+		// 	  <br/>
+		// 	  <input style="margin:auto;" type='submit' onclick="" value='Get Next Set' name="getNextSet|Drop|{{P.number}}" id='btn'></input>
+		// 	</div>
+		//   {% elif P.workoutType == 'drop' and P.specialStage < 2 %}
+		// 	<div style="text-align:center;">
+		// 	  <br/>
+		// 	  <input style="margin:auto;" type='submit' onclick="" value='Get Next Set' name="getNextSet|Drop|{{P.number}}" id='btn'></input>
+		// 	</div>
+		//   {% elif P.alloy and P.alloystatus.value == 0 %}
+		// 	<div style="text-align:center;">
+		// 	  <br/>
+		// 	  <input style="margin:auto;" type='submit' onclick="" value='Get Alloy Set' name="getNextSet|Alloy|{{P.number}}" id='btn'></input>
+		// 	</div>
+		//   {% endif %}
+
 
 		if (Pattern.hasVideo) {
 			subDict.hasVideo = true;
@@ -259,24 +321,51 @@ function getVueInfo(refDict) {
 			subDict.describer = Pattern.reps + " x bodyweight @ " + Pattern.RPE + " RPE";
 		}
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
+			// subDict.RPEOptions = newRPEOptions;			
 			if (Pattern.workoutType == 'stop') {
-				subDict.minRPE = parseInt(Pattern.specialValue);
+				subDict.minRPE = parseInt(Pattern.RPE); //Starting RPE
 				subDict.describer += " (Strength Stop)";
 				subDict.longDescriber = "Strength Stop @ " + Pattern.specialValue + " RPE from 1 x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
 				subDict.describer = "Strength Stop @ " + Pattern.specialValue + " RPE";
+				if (Pattern.specialStage == 0 && Pattern.sets == 1) {
+					subDict.RPEOptions = [Pattern.RPE];
+				} else {
+					var newRPEOptions = [];
+					subDict.RPEOptions.forEach(function (elem) {
+						if (elem >= subDict.minRPE) {
+							newRPEOptions.push(elem);
+						}
+					});
+					subDict.RPEOptions = newRPEOptions;
+				}
 			} else if (Pattern.workoutType == 'drop') {
 				subDict.minRPE = parseInt(Pattern.dropRPE);
 				subDict.describer += " (Strength Drop)";
 				subDict.longDescriber = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE from 1 x " + Pattern.reps;
 				subDict.describer = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE";
-			}
-			var newRPEOptions = [];
-			subDict.RPEOptions.forEach(function (elem) {
-				if (elem >= subDict.minRPE) {
-					newRPEOptions.push(elem);
+				if (Pattern.specialStage == 0) {
+					subDict.RPEOptions = [Pattern.dropRPE];
+				} else {
+					var newRPEOptions = [];
+					subDict.RPEOptions.forEach(function (elem) {
+						if (elem >= subDict.minRPE) {
+							newRPEOptions.push(elem);
+						}
+					});
 				}
-			});
-			subDict.RPEOptions = newRPEOptions;
+			}
+			// subDict.RPEOptions = newRPEOptions;
+			// if (Pattern.workoutType == 'stop' && Pattern.specialStage == 0) {
+			// 	subDict.RPEOptions = [Pattern.RPE]; //Starting RPE
+			// }
+			// if (Pattern.stop && setNum == 1) {
+			// 	RPEDict.value = Pattern.RPE;
+			// 	RPEDict.status = 'Fixed';
+			// }
+			// if (Pattern.drop && setNum == 1) {
+			// 	RPEDict.value = Pattern.dropRPE;
+			// 	RPEDict.status = 'Fixed';					
+			// }
 		}
 
 		if (Pattern.alloy) {
@@ -286,6 +375,8 @@ function getVueInfo(refDict) {
 		if (Pattern.workoutType == 'carry') {
 			subDict.describer += " second carry";
 		}
+		subDict.specialDescriber = Pattern.specialDescriber;
+		subDict.describer = Pattern.describer;
 
 		vueSubworkouts.push(subDict);
 	}

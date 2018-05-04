@@ -163,6 +163,9 @@ function getMax(weight, reps, RPE) {
 
 function getWeight(max, reps, RPE) {
     var Estimate = 0;
+    if (!(RPE in RPE_Dict) || !Number.isInteger(reps) || Number.isNaN(max)) {
+        return 0;
+    }
     var Percentage = RPE_Dict[RPE][reps - 1];
     Estimate = max * Percentage / 100;
     return Estimate - Estimate % 5;

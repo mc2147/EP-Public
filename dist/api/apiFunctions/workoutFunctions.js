@@ -145,7 +145,7 @@ async function assignWorkouts(_User, input) {
     var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
     input.nWorkouts = nWorkouts;
     input.daysList = daysList;
-    console.log("input.dateObj2: ", input.dateObj2);
+    // console.log("input.dateObj2: ", input.dateObj2);    
     var workoutDates = (0, _functions.getWorkoutDays)(input.dateObj2, daysList, Level, "", nWorkouts);
     input.workoutDates = workoutDates;
     input.detailedworkoutDates = [];

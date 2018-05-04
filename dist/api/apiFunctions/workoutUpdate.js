@@ -1,39 +1,49 @@
 'use strict';
 
-var _enums = require('../globals/enums');
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.updateSpecial = updateSpecial;
 
-var axios = require('axios');
+var _functions = require('../../globals/functions');
 
-var globalFuncs = require('../globals/functions');
-var getMax = globalFuncs.getMax;
-var getWeight = globalFuncs.getWeight;
+var _data = require('../../data');
 
-var maxStopSets = 3;
-var maxDropSets = 3;
+var _enums = require('../../globals/enums');
 
-async function saveWorkout(body, userInstance, vWID) {
-    var submit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+var _models = require('../../models');
 
-    console.log("workoutHandler 8");
-    var lastSets = {};
+var _axios = require('axios');
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// var globalFuncs = require('../globals/functions');
+// 	var getMax = globalFuncs.getMax;
+// 	var getWeight = globalFuncs.getWeight;
+// 	var getWorkoutDates = globalFuncs.getWorkoutDays;
+//     var G_getPattern = globalFuncs.getPattern;
+//     var dateString = globalFuncs.dateString;
+async function updateSpecial(body, userInstance, vWID, PNum, type) {
+    // 3 cases: alloy, stop, drop
+    var maxStopSets = 3;
+    var maxDropSets = 3;
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];
-    if (submit) {
-        thisWorkout.Completed = true;
-    }
-    var selectedPatterns = allWorkouts[vWID].Patterns;
+    var thisPattern = thisWorkout.Patterns[PNum - 1]; //Patterns are sorted
+
+    var lastSets = {};
     var allStats = userInstance.stats;
     for (var K in body) {
         var inputCode = K.split("|");
-        console.log("K 21: ", K);
-        if (!K.includes("|") || !inputCode || inputCode[0].startsWith("g")) {
+        console.log("K updateSpecial: ", K);
+        if (!K.includes("|") || !inputCode) {
             continue;
         }
         console.log("inputCode: ", inputCode, "body[K]:", body[K]);
         var patternID = parseInt(inputCode[0]); //Number (index + 1)
         var patternIndex = patternID - 1;
-
-        var thisPattern = selectedPatterns[patternIndex];
 
         var _EType = thisPattern.type; //Getting undefined error
         var _nSets = thisPattern.sets;
@@ -59,14 +69,12 @@ async function saveWorkout(body, userInstance, vWID) {
             // STOP: FIRST SET MUST NOT BE STOP RPE
             // DROP: FIRST SET MUST BE DROP RPE
             if (setNum == 1) {
-                //SpecialStage == 0
                 if (thisPattern.workoutType == 'stop' && (parseFloat(body[K]) >= parseFloat(thisPattern.specialValue) || parseFloat(body[K]) < parseFloat(thisPattern.RPE))) {
                     continue;
                 } else if (thisPattern.workoutType == 'drop' && parseFloat(body[K]) < parseFloat(thisPattern.dropRPE)) {
                     continue;
                 }
             }
-
             setDict.RPE = body[K];
             if (setDict.Weight) {
                 setDict.Filled = true;
@@ -74,12 +82,9 @@ async function saveWorkout(body, userInstance, vWID) {
             if (thisPattern.workoutType == "bodyweight" && setDict.Reps) {
                 setDict.Filled = true;
             }
-        } else if (inputType.includes("T") && input && setNum <= _nSets) {
-            setDict.Tempo.push(parseInt(body[K]));
         } else if (inputType == "Reps") {
             setDict.Reps = parseInt(body[K]);
             if (thisPattern.workoutType == 'bodyweight' && setDict.RPE) {
-                console.log("395");
                 setDict.Filled = true;
             }
         }
@@ -145,34 +150,34 @@ async function saveWorkout(body, userInstance, vWID) {
         // If last set was filled completely
         if (Val.Weight && Val.RPE && Val.Reps) {
             var setDescription = Val.Reps + " Reps x " + Val.Weight + " lbs @ " + Val.RPE + " RPE";
-            var lastSetPattern = selectedPatterns[Val.ID - 1];
+            var lastSetPattern = thisPattern;
             // Stop & Drop Sets
             //STOP SETS - starting RPE is pattern.RPE, stop RPE is pattern.specialValue
-            if (lastSetPattern.stop) {
-                var startingRPE = parseFloat(lastSetPattern.RPE);
-                var stopRPE = parseFloat(lastSetPattern.specialValue);
-                console.log("stop set submitted ", lastSetPattern.specialValue);
-                console.log('lastsetPattern.sets: ', lastSetPattern.sets);
-                if (lastSetPattern.specialStage == 0) {
+            if (thisPattern.stop) {
+                var startingRPE = parseFloat(thisPattern.RPE);
+                var stopRPE = parseFloat(thisPattern.specialValue);
+                console.log("stop set submitted ", thisPattern.specialValue);
+                console.log('lastsetPattern.sets: ', thisPattern.sets);
+                if (thisPattern.specialStage == 0) {
                     //Stop RPE has not been hit 
                     // Non-stop-RPE case
-                    if (lastSetPattern.sets <= maxStopSets + 1 && parseFloat(Val.RPE) < stopRPE) {
-                        // if (lastSetPattern.sets != 0) {
-                        lastSetPattern.sets += 1;
-                        lastSetPattern.setList.push({
-                            SetNum: lastSetPattern.sets,
+                    if (thisPattern.sets <= maxStopSets && parseFloat(Val.RPE) < stopRPE) {
+                        // if (thisPattern.sets != 0) {
+                        thisPattern.sets += 1;
+                        thisPattern.setList.push({
+                            SetNum: thisPattern.sets,
                             Weight: null,
                             RPE: null,
-                            Reps: lastSetPattern.reps,
+                            Reps: thisPattern.reps,
                             // Tempo: [null, null, null],
                             Filled: false
                         });
                         // }
                     }
                     // Stop-RPE case
-                    else if (lastSetPattern.sets > 1) {
+                    else if (thisPattern.sets > 1) {
                             console.log("line 169");
-                            lastSetPattern.specialStage += 1;
+                            thisPattern.specialStage += 1;
                         } else {
                             console.log("continuing...");
                             continue;
@@ -180,73 +185,73 @@ async function saveWorkout(body, userInstance, vWID) {
                 }
             }
             //DROP SETS
-            else if (lastSetPattern.drop) {
-                    console.log("drop set submitted. Drop Stage: " + lastSetPattern.specialStage, lastSetPattern.SuggestedRPE, parseFloat(Val.RPE));
-                    if (lastSetPattern.specialStage == 0) {
+            else if (thisPattern.drop) {
+                    console.log("drop set submitted. Drop Stage: " + thisPattern.specialStage, thisPattern.SuggestedRPE, parseFloat(Val.RPE));
+                    if (thisPattern.specialStage == 0) {
                         // Add another set case (max of 3)
-                        // if (lastSetPattern.sets <= (maxDropSets)
-                        //     && parseFloat(Val.RPE) < lastSetPattern.dropRPE) {
-                        //     lastSetPattern.sets += 1;
-                        //     lastSetPattern.setList.push({
-                        //         SetNum: lastSetPattern.sets,
+                        // if (thisPattern.sets <= (maxDropSets)
+                        //     && parseFloat(Val.RPE) < thisPattern.dropRPE) {
+                        //     thisPattern.sets += 1;
+                        //     thisPattern.setList.push({
+                        //         SetNum: thisPattern.sets,
                         //         Weight: null,
                         //         RPE: null,
-                        //         SuggestedRPE: lastSetPattern.dropRPE,
-                        //         Reps: lastSetPattern.reps,
+                        //         SuggestedRPE: thisPattern.dropRPE,
+                        //         Reps: thisPattern.reps,
                         //         Filled: false,
                         //     });				 
                         // }
                         // else {
-                        lastSetPattern.specialStage += 1;
-                        lastSetPattern.dropWeight = Math.round((100 - lastSetPattern.specialValue) / 100 * Val.Weight);
-                        lastSetPattern.sets += 1;
-                        lastSetPattern.setList.push({
-                            SetNum: lastSetPattern.sets,
-                            Weight: lastSetPattern.dropWeight,
+                        thisPattern.specialStage += 1;
+                        thisPattern.dropWeight = Math.round((100 - thisPattern.specialValue) / 100 * Val.Weight);
+                        thisPattern.sets += 1;
+                        thisPattern.setList.push({
+                            SetNum: thisPattern.sets,
+                            Weight: thisPattern.dropWeight,
                             RPE: null,
-                            SuggestedRPE: lastSetPattern.dropRPE,
-                            Reps: lastSetPattern.reps,
+                            SuggestedRPE: thisPattern.dropRPE,
+                            Reps: thisPattern.reps,
                             Filled: false
                         });
                         // }
-                    } else if (lastSetPattern.specialStage == 1) {
-                        if (lastSetPattern.sets <= maxDropSets && parseFloat(Val.RPE) < lastSetPattern.dropRPE) {
-                            lastSetPattern.sets += 1;
-                            lastSetPattern.setList.push({
-                                SetNum: lastSetPattern.sets,
-                                Weight: lastSetPattern.dropWeight,
+                    } else if (thisPattern.specialStage == 1) {
+                        if (thisPattern.sets <= maxDropSets && parseFloat(Val.RPE) < thisPattern.dropRPE) {
+                            thisPattern.sets += 1;
+                            thisPattern.setList.push({
+                                SetNum: thisPattern.sets,
+                                Weight: thisPattern.dropWeight,
                                 RPE: null,
-                                SuggestedRPE: lastSetPattern.dropRPE,
-                                Reps: lastSetPattern.reps,
+                                SuggestedRPE: thisPattern.dropRPE,
+                                Reps: thisPattern.reps,
                                 Filled: false
                             });
                         } else {
-                            lastSetPattern.specialStage += 1;
+                            thisPattern.specialStage += 1;
                         }
                     }
                 }
 
             lastSetStat.LastSet = setDescription;
             lastSetStat.Name = thisPattern.name;
-            lastSetPattern.LastSet = setDescription;
+            thisPattern.LastSet = setDescription;
 
             console.log("	Calculating new max with inputs: " + Val.Weight + ", " + Val.Reps + ", " + Val.RPE);
-            var newMax = getMax(Val.Weight, Val.Reps, Val.RPE);
-            console.log("	New MAX: " + getMax(Val.Weight, Val.Reps, Val.RPE));
+            var newMax = (0, _functions.getMax)(Val.Weight, Val.Reps, Val.RPE);
+            console.log("	New MAX: " + (0, _functions.getMax)(Val.Weight, Val.Reps, Val.RPE));
 
             lastSetStat.Max = newMax;
-            lastSetPattern.Max = newMax;
+            thisPattern.Max = newMax;
 
             // Alloy Set Case
             if (Val.Alloy) {
                 var AlloyReps = Val.AlloyReps;
-                var AlloyWeight = getWeight(newMax, AlloyReps, 10);
+                var AlloyWeight = (0, _functions.getWeight)(newMax, AlloyReps, 10);
 
-                lastSetPattern.alloyweight = AlloyWeight;
-                lastSetPattern.alloystatus = _enums.Alloy.Testing;
+                thisPattern.alloyweight = AlloyWeight;
+                thisPattern.alloystatus = _enums.Alloy.Testing;
                 lastSetStat.Status = _enums.Alloy.Testing;
 
-                console.log("Alloy Show: ", lastSetPattern.alloystatus, " last set: ", EType, Val.ID);
+                console.log("Alloy Show: ", thisPattern.alloystatus, " last set: ", EType, Val.ID);
             }
         }
     }
@@ -279,16 +284,16 @@ async function saveWorkout(body, userInstance, vWID) {
     console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
 
     userInstance.stats = copiedStats;
-    await axios.put(process.env.BASE_URL + ('/api/users/' + userInstance.id + '/stats'), copiedStats);
-    await axios.put(process.env.BASE_URL + ('/api/users/' + userInstance.id + '/workouts'), allWorkouts);
-    // await userInstance.save();
+    userInstance.workouts = allWorkouts;
+    await userInstance.save();
 
+    // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/stats`, copiedStats);
+    // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/workouts`, allWorkouts);
+    // await userInstance.save();
     // console.log("WH 312 Patterns \n");
     // userInstance.workouts[vWID].Patterns.forEach((elem) => {
     //     console.log("alloy Status: ", elem.alloystatus);
     // })
-}
 
-module.exports = {
-    saveWorkout: saveWorkout
-};
+    //Find the special set, update it appropriately, and save the user
+}
