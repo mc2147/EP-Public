@@ -125,6 +125,9 @@ CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9");
 CreateUser("mc2147", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "AChan2147");
 CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9");
 
+// CREATING NON-ADMIN BETA TESTERS
+// CreateUser("BetaUser", levelGroup, blockNum, level, startDate, [Day 1, Day 2...], false, "Password", false -> (filledStats));
+
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
 // CreateUser(4, 1, 16, thisDate);
@@ -153,7 +156,7 @@ async function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) 
 }
 
 
-async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays, admin=false, password="") {
+async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays, admin=false, password="", filledStats = true) {
     console.log("creating user: 128");
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
@@ -206,7 +209,7 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     // inputs.formattedDate = startDate;
     // inputs.workoutLevel = user.level;
     // inputs.workoutBlock = user.blockNum;
-    await generateWorkouts(user, startDate, daysList, false, !admin); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
+    await generateWorkouts(user, startDate, daysList, false, !filledStats); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
     // assignWorkouts (user, inputs, true);
     await user.save();
     return        

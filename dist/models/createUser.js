@@ -162,6 +162,7 @@ async function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) 
 async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays) {
     var admin = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
     var password = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : "";
+    var filledStats = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : true;
 
     console.log("creating user: 128");
     var thisGroup = AllWorkouts[levelGroup];
@@ -220,7 +221,7 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     // inputs.formattedDate = startDate;
     // inputs.workoutLevel = user.level;
     // inputs.workoutBlock = user.blockNum;
-    await (0, _generateWorkouts.generateWorkouts)(user, startDate, daysList, false, false); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
+    await (0, _generateWorkouts.generateWorkouts)(user, startDate, daysList, false, !filledStats); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
     // assignWorkouts (user, inputs, true);
     await user.save();
     return;

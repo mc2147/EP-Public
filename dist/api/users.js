@@ -359,7 +359,6 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
         if (Number.isNaN(relatedMax)) {
             return 'continue';
         }
-        console.log("line 575");
         var minSuggestedWeight = 0;
         var maxSuggestedWeight = 0;
         // gwParams
@@ -395,6 +394,7 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
                     }
                 }
                 console.log("suggestedWeight: ", set.suggestedWeight);
+                set.relatedMax = relatedMax;
             }
         });
         if (minSuggestedWeight == 0 || maxSuggestedWeight == 0) {} else if (minSuggestedWeight == maxSuggestedWeight) {

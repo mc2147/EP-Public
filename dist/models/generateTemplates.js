@@ -206,9 +206,9 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
                     template.NSubworkouts++;
                     var Key = result.number;
                     var thisSub = thisPatterns[Key];
-                    console.log(levelGroup, blockNum, week, day, "thisSub #: ", Key, thisPatterns[Key]);
+                    // console.log(levelGroup, blockNum, week, day, "thisSub #: ", Key, thisPatterns[Key]);
                     setPatternInfo(thisSub, result);
-                    console.log("thisSub (new): ", result);
+                    // console.log("thisSub (new): ", result);
                     template.save();
                     // console.log("149");
                 });
