@@ -222,7 +222,7 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
                 pattern.specialString = this.specialValue + " RPE";
                 pattern.sets = 1;
                 pattern.specialStage = 0;
-                pattern.specialDescriber = "STRENGTH STOP";
+                pattern.specialDescriber = "STRENGTH STOP: " + this.specialValue + " RPE";
             }
             else if (pattern.workoutType == "drop") {
                 pattern.drop = true;
@@ -231,7 +231,7 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
                 pattern.dropRPE = this.RPE;
                 pattern.sets = 1;
                 pattern.specialStage = 0;
-                pattern.specialDescriber = "STRENGTH DROP";
+                pattern.specialDescriber = "STRENGTH DROP: " + this.specialValue + " %"; 
             }
         
             if (this.RPE) {
@@ -309,6 +309,12 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
             if (pattern.type == "Carry" || pattern.workoutType == "carry") {
                 pattern.describer = setString + " x " + repString + " seconds";                
                 // pattern.describer = setString + " x " + repString + "-second carry";
+            }
+            if (pattern.workoutType == "stop") {
+                pattern.describer += ", stop @ " + this.specialValue + " RPE";
+            }
+            else if (pattern.workoutType == "drop") {
+                pattern.describer += ", drop by " + this.specialValue + " %";                
             }
             // else {
             //     pattern.describer = setString + " x " + repString + " @ " + RPEString;                
