@@ -78,7 +78,7 @@ module.exports = {
                 //    Type:"drop",
                    Type:"bodyweight",
                    DropValue:null,
-                   Special:"Strength Drop",
+                   Special:"Strength Stop",
  
                 },
                 3:{  

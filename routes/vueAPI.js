@@ -134,9 +134,11 @@ function getVueInfo(refDict) {
 				}
 				if (Pattern.stop && setNum == 1) {
 					RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
+					RPEDict.status = 'Fixed';
 					// RPEDict.status = 'Empty';
 				}
 				if (Pattern.drop && setNum == 1) {
+					RPEDict.status = 'Fixed';
 					RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
 					// RPEDict.status = 'Empty';					
 				}
@@ -346,6 +348,7 @@ function getVueInfo(refDict) {
 			// subDict.RPEOptions = newRPEOptions;			
 			if (Pattern.workoutType == 'stop') {
 				subDict.minRPE = parseInt(Pattern.RPE); //Starting RPE
+				subDict.maxRPE = Pattern.specialValue;
 				subDict.describer += " (Strength Stop)";
 				subDict.longDescriber = `Strength Stop @ ${Pattern.specialValue} RPE from 1 x ${Pattern.reps} @ ${Pattern.RPE} RPE`
 				subDict.describer = `Strength Stop @ ${Pattern.specialValue} RPE`
@@ -355,7 +358,8 @@ function getVueInfo(refDict) {
 				else {
 					var newRPEOptions = [];
 					subDict.RPEOptions.forEach(elem => {
-						if (elem >= subDict.minRPE) {
+						if (elem >= subDict.minRPE
+						&& elem <= subDict.maxRPE) {
 							newRPEOptions.push(elem);
 						}
 					});
@@ -367,16 +371,16 @@ function getVueInfo(refDict) {
 				subDict.describer += " (Strength Drop)";
 				subDict.longDescriber = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE from 1 x ${Pattern.reps}`
 				subDict.describer = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE`
-				if (Pattern.specialStage == 0) {
+				if (Pattern.specialStage == 0) { //First set (deprecated?)
 					subDict.RPEOptions = [Pattern.dropRPE];
 				}
-				else {
-					var newRPEOptions = [];
-					subDict.RPEOptions.forEach(elem => {
-						if (elem >= subDict.minRPE) {
-							newRPEOptions.push(elem);
-						}
-					});
+				else { //Nothing(?)
+					// var newRPEOptions = [];
+					// subDict.RPEOptions.forEach(elem => {
+					// 	if (elem >= subDict.minRPE) {
+					// 		newRPEOptions.push(elem);
+					// 	}
+					// });
 				}
 			}
 			// subDict.RPEOptions = newRPEOptions;
