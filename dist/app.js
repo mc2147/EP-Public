@@ -3,7 +3,7 @@
 // Live deployment: onlineVersion && herokuLocal
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
-var onlineVersion = false;
+var onlineVersion = true;
 // let herokuLocal = false;
 // Seed bools
 var seedWorkouts = true;
@@ -81,15 +81,6 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With']
 }));
 
-// app.use(function)
-
-// var thisUser = await User.findById(1).then(user => {
-// 	console.log("USER FOUND!!! USER ID: " + user.id);
-// 	console.log("User's stats: ");
-// 	console.log(user.stats);
-// 	thisUser = user;
-// 	userFound = true;
-// });
 app.use('/api', api);
 
 if (seedUsers) {

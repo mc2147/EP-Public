@@ -168,308 +168,6 @@ router.put("/:userId/workouts/:workoutId/save", async function (req, res) {
     res.json(req.body);
 });
 
-// async function updateSpecial(body, userInstance, vWID, PNum, type) {
-//     // 3 cases: alloy, stop, drop
-//     let maxStopSets = 3;
-//     let maxDropSets = 3;
-//     var allWorkouts = userInstance.workouts;
-//     var thisWorkout = allWorkouts[vWID];
-//     var thisPattern = thisWorkout.Patterns[PNum - 1]; //Patterns are sorted
-
-//     var lastSets = {};
-//     var allStats = userInstance.stats;
-//     for (var K in body) {
-//         var inputCode = K.split("|");
-//         console.log("K updateSpecial: ", K);
-//         if (!K.includes("|") || !inputCode) {
-//             continue;
-//         }
-//         console.log("inputCode: ", inputCode, "body[K]:", body[K]);
-//         var patternID = parseInt(inputCode[0]); //Number (index + 1)
-//         var patternIndex = patternID - 1;
-
-
-//         var _EType = thisPattern.type; //Getting undefined error
-//         var _nSets = thisPattern.sets;
-
-//         var inputType = inputCode[1];
-//         var setNum = parseInt(inputCode[2]);
-//         var setIndex = setNum - 1;
-
-
-//         var setDict = thisPattern.setList[setIndex];
-
-//         var input = parseInt(body[K]);
-
-//         var thisStats = allStats[_EType];
-
-//         // Getting Input types: Weight, RPE, Tempo, Reps 
-//         if (inputType == "W" 
-//             && input && setNum <= _nSets) {
-//             setDict.Weight = parseInt(body[K]);
-//             if (setDict.RPE || thisPattern.workoutType == 'carry') {
-//                 setDict.Filled = true;
-//             } 
-//         }
-//         else if (inputType == "RPE" 
-//             && input && setNum <= _nSets
-//             && body[K] != "0" && parseInt(body[K]) != 0) {
-//             // Stop & drop first-set case: prevent first set from being the stop, first set from NOT being drop
-//             // STOP: FIRST SET MUST NOT BE STOP RPE
-//             // DROP: FIRST SET MUST BE DROP RPE
-//             if (setNum == 1) {
-//                 if (thisPattern.workoutType == 'stop' 
-//                 && (parseFloat(body[K]) >= parseFloat(thisPattern.specialValue)
-//                 || parseFloat(body[K]) < parseFloat(thisPattern.RPE))) {
-//                     continue;
-//                 }
-//                 else if (thisPattern.workoutType == 'drop' 
-//                 && parseFloat(body[K]) < parseFloat(thisPattern.dropRPE)) {
-//                     continue;
-//                 }    
-//             }
-//             setDict.RPE = body[K];
-//             if (setDict.Weight) {
-//                 setDict.Filled = true;
-//             }
-//             if (thisPattern.workoutType == "bodyweight" && setDict.Reps) {
-//                 setDict.Filled = true;
-//             }
-//         }
-//         else if (inputType == "Reps") {
-//             setDict.Reps = parseInt(body[K]);
-//             if (thisPattern.workoutType == 'bodyweight' && setDict.RPE) {
-//                 setDict.Filled = true;
-//             }
-//         }
-
-//         // Check if last set
-//         if (setNum == _nSets) {
-//             if (!(_EType in lastSets)) {
-//                 lastSets[_EType] = {
-//                     Tempo: [],
-//                     Name: thisPattern.name, 
-//                     Reps: setDict.Reps,
-//                     Alloy: thisPattern.alloy,
-//                     AlloyReps: thisPattern.alloyreps,
-//                     ID: patternID,
-//                 };
-//             }
-//             if (inputType == "W") {
-//                 lastSets[_EType].Weight = parseInt(body[K]);
-//             }
-//             else if (inputType == "RPE") {
-//                 lastSets[_EType].RPE = body[K];
-//                 if(thisPattern.drop && thisPattern.specialStage) {
-//                     lastSets[_EType].Weight = thisPattern.dropWeight;
-//                 }
-//             }
-//             else if (inputType.includes("T")) {
-//                 lastSets[_EType].Tempo.push(parseInt(body[K]));
-//             }
-//         }
-//         // Check if alloy
-//         else if (inputCode[2] == "Alloy") {
-//             var RepPerformance = parseInt(body[K]);
-//             thisPattern.alloyperformed = RepPerformance;
-//             if (RepPerformance >= thisPattern.alloyreps) {
-
-//                 thisStats.Status = Alloy.Passed;
-//                 thisPattern.alloystatus = Alloy.Passed;
-
-//                 console.log("ALLOY PASSED");				
-//             }
-//             else {
-
-//                 thisStats.Status = Alloy.Failed;
-//                 thisPattern.alloystatus = Alloy.Failed;
-
-//                 console.log("ALLOY FAILED");				
-//             }
-
-//             var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight 
-//             + " lbs @ " + 10 + " RPE (Alloy) " + allStats[_EType].Status.string;
-//             console.log("_EType Error: " + _EType);
-//             thisStats.LastSet = setDescription;
-//             thisPattern.LastSet = setDescription;
-
-//             thisStats.Name = thisPattern.name;
-//         }
-//     }
-
-//     // userInstance.workouts = allWorkouts;    
-//     // userInstance.stats = allStats;
-
-//     // await userInstance.save();
-
-//     for (var EType in lastSets) {
-//         var Val = lastSets[EType];
-//         var lastSetStat = allStats[EType];
-//         // If last set was filled completely
-//         if (Val.Weight && Val.RPE && Val.Reps) {
-//             var setDescription = Val.Reps + " Reps x " + Val.Weight + " lbs @ " + Val.RPE + " RPE";
-//             var lastSetPattern = thisPattern;
-//             // Stop & Drop Sets
-//             //STOP SETS - starting RPE is pattern.RPE, stop RPE is pattern.specialValue
-//             if (thisPattern.stop) {
-//                 let startingRPE = parseFloat(thisPattern.RPE);
-//                 let stopRPE = parseFloat(thisPattern.specialValue);
-//                 console.log("stop set submitted ", thisPattern.specialValue);
-//                 console.log('lastsetPattern.sets: ', thisPattern.sets);
-//                 if (thisPattern.specialStage == 0) { //Stop RPE has not been hit 
-//                      // Non-stop-RPE case
-//                     if (thisPattern.sets <= (maxStopSets)
-//                         && parseFloat(Val.RPE) < stopRPE) {
-//                         // if (thisPattern.sets != 0) {
-//                             thisPattern.sets += 1;
-//                             thisPattern.setList.push({
-//                                 SetNum: thisPattern.sets,
-//                                 Weight: null,
-//                                 RPE: null,
-//                                 Reps: thisPattern.reps,
-//                                 // Tempo: [null, null, null],
-//                                 Filled: false,
-//                             });				 
-//                         // }
-//                     }
-//                     // Stop-RPE case
-//                     else if (thisPattern.sets > 1) {
-//                         console.log("line 169");
-//                         thisPattern.specialStage += 1;
-//                     }
-//                     else {
-//                         console.log("continuing...");
-//                         continue;
-//                     }
-//                 }
-//             }
-//             //DROP SETS
-//             else if (thisPattern.drop) {
-//                 console.log("drop set submitted. Drop Stage: " + thisPattern.specialStage, thisPattern.SuggestedRPE, parseFloat(Val.RPE));
-//                 if (thisPattern.specialStage == 0) {
-//                     // Add another set case (max of 3)
-//                     // if (thisPattern.sets <= (maxDropSets)
-//                     //     && parseFloat(Val.RPE) < thisPattern.dropRPE) {
-//                     //     thisPattern.sets += 1;
-//                     //     thisPattern.setList.push({
-//                     //         SetNum: thisPattern.sets,
-//                     //         Weight: null,
-//                     //         RPE: null,
-//                     //         SuggestedRPE: thisPattern.dropRPE,
-//                     //         Reps: thisPattern.reps,
-//                     //         Filled: false,
-//                     //     });				 
-//                     // }
-//                     // else {
-//                         thisPattern.specialStage += 1;
-//                         thisPattern.dropWeight =  Math.round(((100 - thisPattern.specialValue)/100)*Val.Weight);
-//                         thisPattern.sets += 1;
-//                         thisPattern.setList.push({
-//                             SetNum: thisPattern.sets,
-//                             Weight: thisPattern.dropWeight,
-//                             RPE: null,
-//                             SuggestedRPE: thisPattern.dropRPE,
-//                             Reps: thisPattern.reps,
-//                             Filled: false,
-//                         });				  					
-//                     // }
-//                 }
-//                 else if (thisPattern.specialStage == 1) {
-//                     if (thisPattern.sets <= (maxDropSets)
-//                         && parseFloat(Val.RPE) < thisPattern.dropRPE) {
-//                         thisPattern.sets += 1;
-//                         thisPattern.setList.push({
-//                             SetNum: thisPattern.sets,
-//                             Weight: thisPattern.dropWeight,
-//                             RPE: null,
-//                             SuggestedRPE: thisPattern.dropRPE,
-//                             Reps: thisPattern.reps,
-//                             Filled: false,
-//                         })
-//                     }
-//                     else {
-//                         thisPattern.specialStage += 1;
-//                     }
-//                 }
-//             }
-
-//             lastSetStat.LastSet = setDescription; 
-//             lastSetStat.Name = thisPattern.name;
-//             thisPattern.LastSet = setDescription;
-
-//             console.log("	Calculating new max with inputs: " + Val.Weight + ", " + Val.Reps + ", " + Val.RPE);
-//             var newMax = getMax(Val.Weight, Val.Reps, Val.RPE);
-//             console.log("	New MAX: " + getMax(Val.Weight, Val.Reps, Val.RPE));
-
-//             lastSetStat.Max = newMax;
-//             thisPattern.Max = newMax;			
-
-//             // Alloy Set Case
-//             if (Val.Alloy) {
-//                 var AlloyReps = Val.AlloyReps; 
-//                 var AlloyWeight = getWeight(newMax, AlloyReps, 10);
-
-//                 thisPattern.alloyweight = AlloyWeight;
-//                 thisPattern.alloystatus = Alloy.Testing;
-//                 lastSetStat.Status = Alloy.Testing;
-
-//                 console.log("Alloy Show: ", thisPattern.alloystatus, " last set: ", EType, Val.ID);
-//             }
-//         }
-//     }    
-
-//     userInstance.stats = allStats;
-//     userInstance.workouts = allWorkouts;    
-
-//     // await userInstance.save();
-
-//     var squatStatus = userInstance.stats["Squat"].Status;
-//     var benchStatus = userInstance.stats["UB Hor Push"].Status;
-//     var hingeStatus = userInstance.stats["Hinge"].Status;
-
-//     var copiedStats = userInstance.stats;
-
-//     copiedStats["Level Up"].Squat = squatStatus;
-//     copiedStats["Level Up"].UBHorPush = benchStatus;
-//     copiedStats["Level Up"].Hinge = hingeStatus;
-
-//     // console.log("copied Level Up: \n\n", copiedStats["Level Up"]);
-//     // console.log("Level UP?", squatStatus.value == 1, benchStatus.value == 1, hingeStatus.value == 1)
-
-//     if (squatStatus.value == 1
-//         && benchStatus.value == 1
-//         && hingeStatus.value == 1) {
-//             copiedStats["Level Up"].Status = Alloy.Passed;
-//     }
-//     else if (squatStatus == Alloy.Failed
-//         || benchStatus == Alloy.Failed
-//         || hingeStatus == Alloy.Failed) {
-//             copiedStats["Level Up"].Status = Alloy.Failed;
-//     }
-//     else if (
-//         (squatStatus == Alloy.None || squatStatus == Alloy.Testing)
-//         || (benchStatus == Alloy.None || benchStatus == Alloy.Testing)
-//         || (hingeStatus == Alloy.None || hingeStatus == Alloy.Testing)
-//         ) {
-//             copiedStats["Level Up"].Status = Alloy.Testing;
-//     }
-//     console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
-
-//     userInstance.stats = copiedStats;
-//     userInstance.workouts = allWorkouts;
-//     await userInstance.save();
-
-//     // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/stats`, copiedStats);
-//     // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/workouts`, allWorkouts);
-//     // await userInstance.save();
-//     // console.log("WH 312 Patterns \n");
-//     // userInstance.workouts[vWID].Patterns.forEach((elem) => {
-//     //     console.log("alloy Status: ", elem.alloystatus);
-//     // })
-
-//     //Find the special set, update it appropriately, and save the user
-// }
-
 router.put("/:userId/workouts/:workoutId/pattern/:patternId/update", async function (req, res) {
     console.log("UPDATE route hit for set #: ", req.params.patternId);
     console.log("req.body: ", req.body);
@@ -589,6 +287,8 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
             return 'continue';
         }
         console.log("line 575");
+        var minSuggestedWeight = 0;
+        var maxSuggestedWeight = 0;
         Pattern.setList.forEach(function (set) {
             console.log("set: ", set);
             if (Number.isInteger(set.Reps) && set.SuggestedRPE) {
@@ -598,12 +298,20 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
                     var RPE2 = RPERange[1];
                     var weight1 = getWeight(relatedMax, set.Reps, RPE1);
                     var weight2 = getWeight(relatedMax, set.Reps, RPE2);
+                    minSuggestedWeight = weight1;
+                    maxSuggestedWeight = weight2;
                     set.suggestedWeight = weight1 + "-" + weight2;
                     if (weight1 == 0 || weight2 == 0) {
                         set.suggestedWeight = "--";
                     }
                 } else {
                     set.suggestedWeight = getWeight(relatedMax, set.Reps, set.SuggestedRPE);
+                    if (minSuggestedWeight == 0 || set.suggestedWeight < minSuggestedWeight) {
+                        minSuggestedWeight = set.suggestedWeight;
+                    }
+                    if (maxSuggestedWeight == 0 || set.suggestedWeight > maxSuggestedWeight) {
+                        maxSuggestedWeight = set.suggestedWeight;
+                    }
                     if (set.suggestedWeight == 0) {
                         set.suggestedWeight = "--";
                     }
@@ -611,6 +319,11 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
                 console.log("suggestedWeight: ", set.suggestedWeight);
             }
         });
+        if (minSuggestedWeight == 0 || maxSuggestedWeight == 0) {} else if (minSuggestedWeight == maxSuggestedWeight) {
+            Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + " lbs";
+        } else {
+            Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
+        }
     };
 
     for (var i = 0; i < Patterns.length; i++) {
@@ -623,7 +336,6 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
     await user.save();
     // console.log("new Patterns: ", Patterns);
     return;
-    // if ()
 };
 
 router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
@@ -634,6 +346,14 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         thisID = '2';
     }
     console.log("thisID: ", thisID);
+    var pasthiddenResponse = {
+        hidden: true,
+        hiddenText: "This workout is no longer accessible!"
+    };
+    var futureHidden = {
+        hidden: true,
+        hiddenText: "This workout is not accessible yet!"
+    };
     _models.User.findById(req.params.userId).then(async function (user) {
         await suggestWeights(user, req.params.workoutId);
         // console.log("user: ", user);
@@ -643,6 +363,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         var _WorkoutDate = user.workoutDates[thisID - 1];
         var JSON = _Workout;
         JSON.thisWorkoutDate = _WorkoutDate;
+        console.log("this Workout Date get time: ", _WorkoutDate.getTime());
         var vueJSON = getVueInfo(JSON);
         var workoutDatelist = [];
         var userWorkouts = user.workouts;
@@ -659,7 +380,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
             // console.log("date", date, _W, _D, K);
             workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
         }
-
         vueJSON.workoutDates = workoutDatelist;
 
         res.json(vueJSON);

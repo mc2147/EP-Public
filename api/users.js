@@ -130,6 +130,84 @@ router.get("/:userId/workouts", function(req, res) {
     });
 })
 
+router.get("/:userId/last-workout", async function(req, res) {
+    console.log("last-workout route hit!");
+    let _User = await User.findById(req.params.userId);
+    let response = {
+        notFound: true,
+        text: "You have no completed workouts!"
+    }
+    let thisDate = new Date(Date.now());
+    console.log("thisDate 1: ", thisDate);
+    thisDate.setDate(thisDate.getDate() + 7);
+    console.log("thisDate: ", thisDate);
+    _User.workoutDates.forEach(function(date, index) {
+        if (date.getTime() < thisDate.getTime()
+        && date.getDate() < thisDate.getDate()) {
+            console.log(date.getDate(), new Date(Date.now()).getDate());
+            let wID = index + 1;
+            let relatedWorkout = _User.workouts[wID];
+            response = relatedWorkout;
+        }
+    }) 
+    res.json(response);
+    return
+});
+
+router.get("/:userId/last-workout/vue", async function(req, res) {
+    console.log("last-workout route hit!");
+    let _User = await User.findById(req.params.userId);
+    let response = {
+        notFound: true,
+        text: "You have no completed workouts!"
+    }
+    let thisDate = new Date(Date.now());
+    let lastworkoutDate = {};
+    console.log("thisDate 1: ", thisDate);
+    // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
+    console.log("thisDate: ", thisDate);
+    _User.workoutDates.forEach(function(date, index) {
+        if (date.getTime() < thisDate.getTime()
+        && date.getDate() < thisDate.getDate()) {
+            console.log(date.getDate(), new Date(Date.now()).getDate());
+            let wID = index + 1;
+            let relatedWorkout = _User.workouts[wID];
+            response = relatedWorkout;
+            lastworkoutDate = date;
+        }
+    }) 
+    if (!response.notFound) {
+        response.thisWorkoutDate = lastworkoutDate;
+        response = getVueInfo(response);
+    }
+    res.json(response);
+    return
+});
+
+router.get("/:userId/workouts/last", async function(req, res) {
+    console.log("last workout route hit!");
+    let _User = await User.findById(req.params.userId);
+    let response = {
+        notFound: true,
+        text: "You have no completed workouts!"
+    }
+    let thisDate = new Date(Date.now());
+    console.log("thisDate 1: ", thisDate);
+    thisDate.setDate(thisDate.getDate() + 7);
+    console.log("thisDate: ", thisDate);
+    _User.workoutDates.forEach(function(date, index) {
+        if (date.getTime() < thisDate.getTime()
+        && date.getDate() < thisDate.getDate()) {
+            console.log(date.getDate(), new Date(Date.now()).getDate());
+            let wID = index + 1;
+            let relatedWorkout = _User.workouts[wID];
+            response = relatedWorkout;
+        }
+    }) 
+    res.json(response);
+    return
+});
+
 router.get("/:userId/workouts/:workoutId", function(req, res) {
     User.findById(req.params.userId).then((user) => {
         var _Workout = user.workouts[req.params.workoutId];
@@ -319,8 +397,8 @@ let suggestWeights = async function (user, workoutId) {
     await user.save();
     // console.log("new Patterns: ", Patterns);
     return
-    // if ()
 }
+
 
 router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     console.log("req.params.userId:", req.params.userId);
@@ -330,6 +408,14 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         thisID = '2';
     }
     console.log("thisID: ", thisID);
+    let pasthiddenResponse = {
+        hidden: true,
+        hiddenText: "This workout is no longer accessible!"
+    }
+    let futureHiddenResponse = {
+        hidden: true,
+        hiddenText: "This workout is not accessible yet!"
+    }
     User.findById(req.params.userId).then(async (user)  => {
         await suggestWeights(user, req.params.workoutId);
         // console.log("user: ", user);
@@ -339,6 +425,22 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         var _WorkoutDate = user.workoutDates[thisID - 1];
         let JSON = _Workout;
         JSON.thisWorkoutDate = _WorkoutDate;
+        // console.log("this Workout Date get time: ", _WorkoutDate.getTime());
+        // console.log("Date.now: ", Date.now());
+        // console.log("> Comparison: ", _WorkoutDate.getTime() > Date.now());
+        let ahead = _WorkoutDate.getTime() > Date.now();
+        let timeDiff = Math.abs(_WorkoutDate.getTime() - Date.now());
+        let daysDiff = new Date(timeDiff).getDate();
+        // console.log("time difference: ", timeDiff);
+        // console.log("N Days: ", new Date(timeDiff).getDate());
+        if (ahead && daysDiff > 30) {
+            res.json(futureHiddenResponse);
+
+        }
+        else if (!ahead && daysDiff > 30) {
+            res.json(pasthiddenResponse);
+        }
+
         var vueJSON = getVueInfo(JSON);
 		let workoutDatelist = [];
 		var userWorkouts = user.workouts;
@@ -354,8 +456,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
 			var date = dateString(user.workoutDates[wID - 1]);
 			// console.log("date", date, _W, _D, K);
 			workoutDatelist.push({Week: _W, Day: _D, Date: date, ID: wID});		
-		}
-        
+		}        
         vueJSON.workoutDates = workoutDatelist;
 
         res.json(vueJSON);
