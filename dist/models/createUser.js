@@ -6,6 +6,8 @@ var _index = require('./index');
 
 var _workoutFunctions = require('../api/apiFunctions/workoutFunctions');
 
+var _generateWorkouts = require('../api/apiFunctions/generateWorkouts');
+
 var axios = require('axios');
 // import axios from 'axios';
 var Sequelize = require('sequelize');
@@ -132,6 +134,7 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     var admin = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
     var password = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : "";
 
+    console.log("creating user: 128");
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
         thisGroup = thisGroup[blockNum];
@@ -161,6 +164,7 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
         // user.password = "Password" + user.id; 
     }
     if (admin) {
+        //admins have no workouts
         var unHashed = password;
         user.password = _index.User.generateHash(unHashed, user.salt);
         user.isAdmin = true;
@@ -172,18 +176,23 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     user.password = _index.User.generateHash(unHashed, user.salt);
     await user.save();
     // <- DO LATER
-    var inputs = {};
-    inputs["Day-1"] = workoutDays[0];
-    inputs["Day-2"] = workoutDays[1];
-    inputs["Day-3"] = workoutDays[2];
+    // var inputs = {}; 
+    var daysList = [];
+    daysList.push(workoutDays[0]);
+    daysList.push(workoutDays[1]);
+    daysList.push(workoutDays[2]);
+    // inputs["Day-1"] = workoutDays[0];
+    // inputs["Day-2"] = workoutDays[1];
+    // inputs["Day-3"] = workoutDays[2];
     if (workoutDays.length == 4) {
-        inputs["Day-4"] = workoutDays[3];
+        // inputs["Day-4"] = workoutDays[3];
+        daysList.push(workoutDays[3]);
     }
-    inputs.formattedDate = startDate;
-    // inputs.startDate = startDate;
-    inputs.workoutLevel = user.level;
-    inputs.workoutBlock = user.blockNum;
-    (0, _workoutFunctions.assignWorkouts)(user, inputs, true);
+    // inputs.formattedDate = startDate;
+    // inputs.workoutLevel = user.level;
+    // inputs.workoutBlock = user.blockNum;
+    await (0, _generateWorkouts.generateWorkouts)(user, startDate, daysList); //4th bool parameter if date is string (YYYY-MM-DD)
+    // assignWorkouts (user, inputs, true);
     await user.save();
     return;
 }

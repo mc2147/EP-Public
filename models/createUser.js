@@ -7,6 +7,7 @@ const Sequelize = require('sequelize');
 // var User = models.User;
 import {WorkoutTemplate, SubWorkoutTemplate, User, Video} from './index';
 import {assignWorkouts} from '../api/apiFunctions/workoutFunctions';
+import {generateWorkouts} from '../api/apiFunctions/generateWorkouts';
 
 var globalFuncs = require('../globals/functions');
 var globalEnums = require('../globals/enums');
@@ -124,6 +125,7 @@ async function SetUser(id, levelGroup, blockNum, level, startDate, workoutDays) 
 
 
 async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays, admin=false, password="") {
+    console.log("creating user: 128");
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
         thisGroup = thisGroup[blockNum];
@@ -148,7 +150,7 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     if (!user.password || user.password == "") {
         // user.password = "Password" + user.id; 
     }
-    if (admin) {
+    if (admin) {//admins have no workouts
         var unHashed = password;
         user.password = User.generateHash(unHashed, user.salt);
         user.isAdmin = true;
@@ -160,18 +162,23 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     user.password = User.generateHash(unHashed, user.salt);
     await user.save();
     // <- DO LATER
-    var inputs = {}; 
-    inputs["Day-1"] = workoutDays[0];
-    inputs["Day-2"] = workoutDays[1];
-    inputs["Day-3"] = workoutDays[2];
+    // var inputs = {}; 
+    let daysList = [];
+    daysList.push(workoutDays[0]);
+    daysList.push(workoutDays[1]);
+    daysList.push(workoutDays[2]);
+    // inputs["Day-1"] = workoutDays[0];
+    // inputs["Day-2"] = workoutDays[1];
+    // inputs["Day-3"] = workoutDays[2];
     if (workoutDays.length == 4) {
-        inputs["Day-4"] = workoutDays[3];
+        // inputs["Day-4"] = workoutDays[3];
+        daysList.push(workoutDays[3]);
     }
-    inputs.formattedDate = startDate;
-    // inputs.startDate = startDate;
-    inputs.workoutLevel = user.level;
-    inputs.workoutBlock = user.blockNum;
-    assignWorkouts (user, inputs, true);
+    // inputs.formattedDate = startDate;
+    // inputs.workoutLevel = user.level;
+    // inputs.workoutBlock = user.blockNum;
+    await generateWorkouts(user, startDate, daysList); //4th bool parameter if date is string (YYYY-MM-DD)
+    // assignWorkouts (user, inputs, true);
     await user.save();
     return        
 }

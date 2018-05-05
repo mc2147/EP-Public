@@ -342,7 +342,6 @@ router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
     console.log("newPatterns for: ", newPatterns.number);
     // let newPatterns = {};
     res.json(newPatterns);
-    // assignWorkouts(_User, input);
 });
 
 var suggestWeights = async function suggestWeights(user, workoutId) {
@@ -444,6 +443,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         var ahead = _WorkoutDate.getTime() > Date.now();
         var timeDiff = Math.abs(_WorkoutDate.getTime() - Date.now());
         var daysDiff = new Date(timeDiff).getDate();
+        daysDiff = timeDiff / (1000 * 60 * 60 * 24);
         var monthDiff = new Date(timeDiff).getMonth();
         console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff);
         // console.log("time difference: ", timeDiff);
@@ -510,7 +510,8 @@ router.get('/:userId/profile-info/', async function (req, res) {
     var _User = await _models.User.findById(req.params.userId);
     var profileBody = {
         username: _User.username,
-        level: _User.level
+        level: _User.level,
+        blockNum: _User.blockNum
     };
     var nWorkoutsComplete = 0;
     var nWorkouts = 0;
@@ -521,6 +522,9 @@ router.get('/:userId/profile-info/', async function (req, res) {
         nWorkouts++;
     }
     var percentComplete = Math.round(nWorkoutsComplete * 100 / nWorkouts);
+    if (nWorkouts == 0) {
+        percentComplete = 0;
+    }
     profileBody.percentComplete = percentComplete;
     profileBody.progressText = percentComplete + " % (" + nWorkoutsComplete + "/" + nWorkouts + " complete)";
     res.json(profileBody);
@@ -681,10 +685,20 @@ router.put("/:userId/generate-workouts", async function (req, res) {
         _User.blockNum = 0;
     }
     await _User.save();
-
-    (0, _workoutFunctions.assignWorkouts)(_User, input);
+    var stringDate = false;
+    var startDate = "";
+    if (input.startDate) {
+        //will autoconvert startdate
+        startDate = input.startDate;
+        stringDate = true;
+    } else {
+        startDate = input.formattedDate;
+        stringDate = false;
+    }
+    var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
+    await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
+    //Formerly used assignWorkouts(_User, input)
     await _User.save();
-    // res.json("Test")
     res.json({ input: input, updatedUser: _User, session: {
             viewingWID: 1,
             User: _User,
@@ -741,7 +755,19 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
         await _User.save();
     }
     console.log("line 501");
-    await (0, _workoutFunctions.assignWorkouts)(_User, input);
+    var stringDate = false;
+    var startDate = "";
+    if (input.startDate) {
+        //will autoconvert startdate
+        startDate = input.startDate;
+        stringDate = true;
+    } else {
+        startDate = input.formattedDate;
+        stringDate = false;
+    }
+    var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
+    await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
+    // Formerly used await assignWorkouts(_User, input);        
     await _User.save();
 
     res.json({ input: input, updatedUser: _User, session: {

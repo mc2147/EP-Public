@@ -258,6 +258,7 @@ async function assignWorkouts(_User, input) {
 }
 
 async function getblankPatterns(lGroup, block, W, D, level) {
+    //for reset(?)
     var blankPatterns = [];
     var subsURL = '/api/workout-templates/' + lGroup + '/block/' + block + '/week/' + W + '/day/' + D + '/subworkouts';
     var subsResponse = await _axios2.default.get(process.env.BASE_URL + subsURL);

@@ -29,6 +29,7 @@ async function generateWorkouts(user, startDate, dayList) {
     };
     var dateObj = startDate;
     if (stringDate) {
+        //(input.startDate) vs. input.formattedDate
         var dateSplit = startDate.split("-");
         dateObj = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1]) - 1, parseInt(dateSplit[2]) - 1);
     }
@@ -114,8 +115,11 @@ async function generateWorkouts(user, startDate, dayList) {
             });
             for (var i = 0; i < subsList.length; i++) {
                 var sub = subsList[i];
-                var patternInstance = sub.patternFormat;
                 var EType = sub.exerciseType;
+                var relatedStat = user.stats[EType];
+                console.log("getting relatedStat for: ", EType, relatedStat);
+                var patternInstance = sub.patternFormat;
+                //Assign suggested weights here(?)
                 if (EType == "Med Ball") {
                     EType = "Medicine Ball";
                 } else if (EType == "Vert Pull") {
@@ -148,6 +152,6 @@ async function generateWorkouts(user, startDate, dayList) {
     user.workouts = output.workouts;
     user.currentWorkoutID = 1;
     user.resetStats = true;
-    user.save();
+    await user.save();
     return output;
 }
