@@ -241,7 +241,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
     await _User.save();
 }
 
-export async function getblankPatterns(lGroup, block, W, D, level) {
+export async function getblankPatterns(lGroup, block, W, D, level) { //for reset(?)
     var blankPatterns = [];
     var subsURL = `/api/workout-templates/${lGroup}/block/${block}/week/${W}/day/${D}/subworkouts`;    
     var subsResponse = await axios.get(process.env.BASE_URL + subsURL);

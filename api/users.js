@@ -499,6 +499,7 @@ router.get('/:userId/profile-info/', async function(req, res) {
     let profileBody = {
         username:_User.username,
         level:_User.level,
+        blockNum: _User.blockNum,
     };
     var nWorkoutsComplete = 0;
     var nWorkouts = 0;
