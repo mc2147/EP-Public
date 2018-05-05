@@ -347,13 +347,21 @@ function getVueInfo(refDict) {
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
 			// subDict.RPEOptions = newRPEOptions;			
 			if (Pattern.workoutType == 'stop') {
-				subDict.minRPE = parseInt(Pattern.RPE); //Starting RPE
+				subDict.minRPE = parseFloat(Pattern.RPE); //Starting RPE
 				subDict.maxRPE = Pattern.specialValue;
 				subDict.describer += " (Strength Stop)";
 				subDict.longDescriber = `Strength Stop @ ${Pattern.specialValue} RPE from 1 x ${Pattern.reps} @ ${Pattern.RPE} RPE`
 				subDict.describer = `Strength Stop @ ${Pattern.specialValue} RPE`
 				if (Pattern.specialStage == 0 && Pattern.sets == 1) {
-					subDict.RPEOptions = [Pattern.RPE];
+					// subDict.RPEOptions = [Pattern.RPE];
+					var newRPEOptions = [];
+					subDict.RPEOptions.forEach(elem => {
+						if (elem >= subDict.minRPE
+						&& elem < subDict.maxRPE) {
+							newRPEOptions.push(elem);
+						}
+					});
+					subDict.RPEOptions = newRPEOptions;
 				}
 				else {
 					var newRPEOptions = [];
@@ -367,7 +375,7 @@ function getVueInfo(refDict) {
 				}
 			}
 			else if (Pattern.workoutType == 'drop') {
-				subDict.minRPE = parseInt(Pattern.dropRPE);
+				subDict.minRPE = parseFloat(Pattern.dropRPE);
 				subDict.describer += " (Strength Drop)";
 				subDict.longDescriber = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE from 1 x ${Pattern.reps}`
 				subDict.describer = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE`

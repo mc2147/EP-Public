@@ -99,6 +99,9 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
             }
             if (inputType == "W") {
                 lastSets[_EType].Weight = parseInt(body[K]);
+                if (setNum == 1 && thisPattern.workoutType == 'stop') {
+                    lastSets[_EType].RPE = Pattern.RPE; //if we want 1st set to be fixed
+                }
             }
             else if (inputType == "RPE") {
                 lastSets[_EType].RPE = body[K];
