@@ -72,6 +72,35 @@ var StatTemplate = {
         Hinge: Alloy.None
     }
 };
+
+// var FilledStatTemplate = {
+//     "UB Hor Push": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
+//     "UB Vert Push": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
+//     "UB Hor Pull": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
+//     "UB Vert Pull": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
+//     "Hinge": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""},
+//     "Squat": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "LB Uni Push": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Ant Chain": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Post Chain": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Carry": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Iso 1": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Iso 2": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Iso 3": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Iso 4": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "RFD Load": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "RFD Unload 1": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "RFD Unload 2": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""}, 
+//     "Medicine Ball": {Status: Alloy.None, Max: 100, LastSet: "", Name: ""},     
+//     "Level Up": {
+//         Status: Alloy.None, 
+//         Squat: Alloy.None,
+//         UBHorPush: Alloy.None,
+//         Hinge: Alloy.None,
+//     },
+// };
+
+
 var WorkoutInstanceTemplate = {
     ID: null,
     Week: null,
@@ -191,7 +220,7 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     // inputs.formattedDate = startDate;
     // inputs.workoutLevel = user.level;
     // inputs.workoutBlock = user.blockNum;
-    await (0, _generateWorkouts.generateWorkouts)(user, startDate, daysList); //4th bool parameter if date is string (YYYY-MM-DD)
+    await (0, _generateWorkouts.generateWorkouts)(user, startDate, daysList, false, false); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
     // assignWorkouts (user, inputs, true);
     await user.save();
     return;

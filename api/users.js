@@ -208,7 +208,8 @@ router.get("/:userId/workouts/last", async function(req, res) {
     return
 });
 
-router.get("/:userId/workouts/:workoutId", function(req, res) {
+router.get("/:userId/workouts/:workoutId", async function(req, res) {
+    await suggestWeights(user, req.params.workoutId);
     User.findById(req.params.userId).then((user) => {
         var _Workout = user.workouts[req.params.workoutId];
         // _Workout
@@ -351,9 +352,13 @@ let suggestWeights = async function (user, workoutId) {
         console.log("line 575");
         let minSuggestedWeight = 0;
         let maxSuggestedWeight = 0;
+        // gwParams
         Pattern.setList.forEach(set => {
             console.log("set: ", set);
-            if (Number.isInteger(set.Reps) && set.SuggestedRPE) {
+            let gwParams = set.gwParams;
+            let Reps = gwParams.Reps;
+            let RPE = gwParams.RPE; //string "decimal", range, or null
+            if (Number.isInteger(Reps) && RPE) { //if reps is number and RPE exits (string decimal or null)
                 if (set.SuggestedRPE.includes('-')) {
                     let RPERange = set.SuggestedRPE.split('-');
                     let RPE1 = RPERange[0];

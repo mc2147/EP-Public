@@ -4,7 +4,7 @@ import {DaysofWeekDict} from '../../globals/enums';
 import {User, Video, WorkoutTemplate} from '../../models';
 import axios from 'axios';
 
-export async function generateWorkouts(user, startDate, dayList, stringDate = false) {
+export async function generateWorkouts(user, startDate, dayList, stringDate = false, resetStats = true) {
     var output = {
         workoutDates:[],
         detailedworkoutDates:[],
@@ -142,7 +142,9 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
     }
     user.workouts = output.workouts;
     user.currentWorkoutID = 1;
-    user.resetStats = true;
+    if (resetStats) {
+        user.resetStats = true;
+    }
     await user.save();
     return output;
 }

@@ -21,6 +21,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 async function generateWorkouts(user, startDate, dayList) {
     var stringDate = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var resetStats = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
 
     var output = {
         workoutDates: [],
@@ -151,7 +152,9 @@ async function generateWorkouts(user, startDate, dayList) {
     }
     user.workouts = output.workouts;
     user.currentWorkoutID = 1;
-    user.resetStats = true;
+    if (resetStats) {
+        user.resetStats = true;
+    }
     await user.save();
     return output;
 }

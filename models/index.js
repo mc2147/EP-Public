@@ -270,6 +270,10 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
                     Reps: Reps,
                     // Tempo: [null, null, null],
                     Filled: false,
+                    gwParams: {
+                        Reps: Reps,
+                        RPE: RPE
+                    },
                 });
             }
             if (pattern.alloy) {
