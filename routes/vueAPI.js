@@ -306,6 +306,9 @@ function getVueInfo(refDict) {
 		if (Pattern.alloy) {
 			subDict.alloyReps = Pattern.alloyreps;
 		}
+		if (Pattern.suggestedWeightString) {
+			subDict.suggestedWeightString = Pattern.suggestedWeightString;
+		}
 		// if (Pattern.suggestedWeight) {
 		// 	subDict.suggestedWeight = Pattern.suggestedWeight;
 		// }
