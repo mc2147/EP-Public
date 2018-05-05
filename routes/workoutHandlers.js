@@ -266,11 +266,13 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
         }
     }    
 
-    userInstance.stats = allStats;
     userInstance.workouts = allWorkouts;    
-
+    
     // await userInstance.save();
-
+    
+    if (submit) {
+        userInstance.stats = allStats;
+    }
     var squatStatus = userInstance.stats["Squat"].Status;
     var benchStatus = userInstance.stats["UB Hor Push"].Status;
     var hingeStatus = userInstance.stats["Hinge"].Status;
@@ -302,8 +304,9 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
             copiedStats["Level Up"].Status = Alloy.Testing;
     }
     console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
-    
-    userInstance.stats = copiedStats;
+    if (submit) {
+        userInstance.stats = copiedStats;
+    }    
     // userInstance.stats = copiedStats;
     userInstance.workouts = allWorkouts;
     await userInstance.save();
