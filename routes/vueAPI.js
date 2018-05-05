@@ -138,9 +138,9 @@ function getVueInfo(refDict) {
 					// RPEDict.status = 'Empty';
 				}
 				if (Pattern.drop && setNum == 1) {
-					RPEDict.status = 'Fixed';
-					RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
-					// RPEDict.status = 'Empty';					
+					// RPEDict.status = 'Fixed';
+					// RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
+					RPEDict.status = 'Empty';					
 				}
 				if (Pattern.drop && Pattern.specialStage >= 1) {
 					weightDict.status = 'Fixed';
@@ -380,7 +380,14 @@ function getVueInfo(refDict) {
 				subDict.longDescriber = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE from 1 x ${Pattern.reps}`
 				subDict.describer = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE`
 				if (Pattern.specialStage == 0) { //First set (deprecated?)
-					subDict.RPEOptions = [Pattern.dropRPE];
+					// subDict.RPEOptions = [Pattern.dropRPE];
+					var newRPEOptions = [];
+					subDict.RPEOptions.forEach(elem => {
+						if (elem >= subDict.minRPE) {
+							newRPEOptions.push(elem);
+						}
+					});
+					subDict.RPEOptions = newRPEOptions;					
 				}
 				else { //Nothing(?)
 					// var newRPEOptions = [];
