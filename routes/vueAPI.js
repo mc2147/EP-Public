@@ -308,6 +308,7 @@ function getVueInfo(refDict) {
 		}
 		if (Pattern.suggestedWeightString) {
 			subDict.suggestedWeightString = Pattern.suggestedWeightString;
+			subDict.simpleWeightString = Pattern.simpleWeightString;
 		}
 		// if (Pattern.suggestedWeight) {
 		// 	subDict.suggestedWeight = Pattern.suggestedWeight;
