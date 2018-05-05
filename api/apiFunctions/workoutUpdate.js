@@ -169,6 +169,10 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                                 Weight: null,
                                 RPE: null,
                                 Reps: thisPattern.reps,
+                                gwParams: {
+                                    Reps: thisPattern.reps,
+                                    RPE: null
+                                },                                            
                                 // Tempo: [null, null, null],
                                 Filled: false,
                             });				 
@@ -211,6 +215,10 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                             Weight: thisPattern.dropWeight,
                             RPE: null,
                             SuggestedRPE: thisPattern.dropRPE,
+                            gwParams: {
+                                Reps: thisPattern.reps,
+                                RPE: null
+                            },                                                                    
                             Reps: thisPattern.reps,
                             Filled: false,
                         });				  					
@@ -225,6 +233,10 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                             Weight: thisPattern.dropWeight,
                             RPE: null,
                             SuggestedRPE: thisPattern.dropRPE,
+                            gwParams: {
+                                Reps: thisPattern.reps,
+                                RPE: null
+                            },                                                                    
                             Reps: thisPattern.reps,
                             Filled: false,
                         })
