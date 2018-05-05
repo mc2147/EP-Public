@@ -304,8 +304,11 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
     console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
     
     userInstance.stats = copiedStats;
-    await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/stats`, copiedStats);
-    await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/workouts`, allWorkouts);
+    // userInstance.stats = copiedStats;
+    userInstance.workouts = allWorkouts;
+    await userInstance.save();
+    // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/stats`, copiedStats);
+    // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/workouts`, allWorkouts);
     // await userInstance.save();
 
     // console.log("WH 312 Patterns \n");
