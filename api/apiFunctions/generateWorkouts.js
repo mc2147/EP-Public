@@ -117,8 +117,19 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                     if (EType == "Med Ball") {EType = "Medicine Ball";}
                     else if (EType == "Vert Pull") {EType = "UB Vert Pull";} 	
                     patternInstance.type = EType;
-                    var EName = ExerciseDict.Exercises[patternInstance.type][Level].name;
-                    patternInstance.name = EName;
+                    
+                    let effectiveLevel = Level;
+                    let deloadIndicator = "";
+                    if (patternInstance.deload && patternInstance.deload != 0) {
+                        if (Level - patternInstance.deload > 0) {
+                            effectiveLevel = Level - patternInstance.deload;
+                            deloadIndicator = "(" + patternInstance.deload +")";
+                        }
+                    }
+
+                    var EName = ExerciseDict.Exercises[patternInstance.type][effectiveLevel].name;
+                    patternInstance.name = EName + deloadIndicator;
+
                     var findVideo = await Video.search(EName, false); 
                     if (findVideo) {
                         patternInstance.hasVideo = true;

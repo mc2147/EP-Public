@@ -316,6 +316,10 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
             else if (pattern.workoutType == "drop") {
                 pattern.describer += ", drop by " + this.specialValue + " %";                
             }
+            // Deload Condition
+            if (this.deload && this.deload != 0) {
+                pattern.describer += ", Deload: " + this.deload;
+            }
             // else {
             //     pattern.describer = setString + " x " + repString + " @ " + RPEString;                
             // }

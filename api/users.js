@@ -343,7 +343,7 @@ let suggestWeights = async function (user, workoutId) {
         let EType = Pattern.type;
         let relatedStat = user.stats[EType];
         let relatedMax = relatedStat.Max;
-        console.log("relatedStat: ", relatedStat);
+        // console.log("relatedStat: ", relatedStat);
         if (Number.isNaN(relatedMax)) {
             continue;
         }
@@ -351,7 +351,7 @@ let suggestWeights = async function (user, workoutId) {
         let maxSuggestedWeight = 0;
         // gwParams
         Pattern.setList.forEach(set => {
-            console.log("set: ", set);
+            // console.log("set: ", set);
             let gwParams = set.gwParams;
             let Reps = gwParams.Reps;
             let RPE = gwParams.RPE; //string "decimal", range, or null
@@ -381,7 +381,7 @@ let suggestWeights = async function (user, workoutId) {
                         set.suggestedWeight = "--";                        
                     }
                 }
-                console.log("suggestedWeight: ", set.suggestedWeight);
+                // console.log("suggestedWeight: ", set.suggestedWeight);
                 set.relatedMax = relatedMax;
             }
         });
