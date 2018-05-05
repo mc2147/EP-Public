@@ -152,6 +152,81 @@ router.get("/:userId/workouts", function (req, res) {
     });
 });
 
+router.get("/:userId/last-workout", async function (req, res) {
+    console.log("last-workout route hit!");
+    var _User = await _models.User.findById(req.params.userId);
+    var response = {
+        notFound: true,
+        text: "You have no completed workouts!"
+    };
+    var thisDate = new Date(Date.now());
+    console.log("thisDate 1: ", thisDate);
+    thisDate.setDate(thisDate.getDate() + 7);
+    console.log("thisDate: ", thisDate);
+    _User.workoutDates.forEach(function (date, index) {
+        if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
+            console.log(date.getDate(), new Date(Date.now()).getDate());
+            var wID = index + 1;
+            var relatedWorkout = _User.workouts[wID];
+            response = relatedWorkout;
+        }
+    });
+    res.json(response);
+    return;
+});
+
+router.get("/:userId/last-workout/vue", async function (req, res) {
+    console.log("last-workout route hit!");
+    var _User = await _models.User.findById(req.params.userId);
+    var response = {
+        notFound: true,
+        text: "You have no completed workouts!"
+    };
+    var thisDate = new Date(Date.now());
+    var lastworkoutDate = {};
+    console.log("thisDate 1: ", thisDate);
+    // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
+    console.log("thisDate: ", thisDate);
+    _User.workoutDates.forEach(function (date, index) {
+        if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
+            console.log(date.getDate(), new Date(Date.now()).getDate());
+            var wID = index + 1;
+            var relatedWorkout = _User.workouts[wID];
+            response = relatedWorkout;
+            lastworkoutDate = date;
+        }
+    });
+    if (!response.notFound) {
+        response.thisWorkoutDate = lastworkoutDate;
+        response = getVueInfo(response);
+    }
+    res.json(response);
+    return;
+});
+
+router.get("/:userId/workouts/last", async function (req, res) {
+    console.log("last workout route hit!");
+    var _User = await _models.User.findById(req.params.userId);
+    var response = {
+        notFound: true,
+        text: "You have no completed workouts!"
+    };
+    var thisDate = new Date(Date.now());
+    console.log("thisDate 1: ", thisDate);
+    thisDate.setDate(thisDate.getDate() + 7);
+    console.log("thisDate: ", thisDate);
+    _User.workoutDates.forEach(function (date, index) {
+        if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
+            console.log(date.getDate(), new Date(Date.now()).getDate());
+            var wID = index + 1;
+            var relatedWorkout = _User.workouts[wID];
+            response = relatedWorkout;
+        }
+    });
+    res.json(response);
+    return;
+});
+
 router.get("/:userId/workouts/:workoutId", function (req, res) {
     _models.User.findById(req.params.userId).then(function (user) {
         var _Workout = user.workouts[req.params.workoutId];
@@ -350,7 +425,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         hidden: true,
         hiddenText: "This workout is no longer accessible!"
     };
-    var futureHidden = {
+    var futureHiddenResponse = {
         hidden: true,
         hiddenText: "This workout is not accessible yet!"
     };
@@ -363,8 +438,30 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         var _WorkoutDate = user.workoutDates[thisID - 1];
         var JSON = _Workout;
         JSON.thisWorkoutDate = _WorkoutDate;
-        console.log("this Workout Date get time: ", _WorkoutDate.getTime());
+        // console.log("this Workout Date get time: ", _WorkoutDate.getTime());
+        // console.log("Date.now: ", Date.now());
+        // console.log("> Comparison: ", _WorkoutDate.getTime() > Date.now());
+        var ahead = _WorkoutDate.getTime() > Date.now();
+        var timeDiff = Math.abs(_WorkoutDate.getTime() - Date.now());
+        var daysDiff = new Date(timeDiff).getDate();
+        var monthDiff = new Date(timeDiff).getMonth();
+        console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff);
+        // console.log("time difference: ", timeDiff);
+        // console.log("N Days: ", new Date(timeDiff).getDate());
+        if (ahead && daysDiff > 30) {
+            res.json(futureHiddenResponse);
+            return;
+        } else if (!ahead && daysDiff > 30) {
+            res.json(pasthiddenResponse);
+            return;
+        }
+
         var vueJSON = getVueInfo(JSON);
+        if (monthDiff == 0 && daysDiff == 0) {
+            vueJSON.accessible = true;
+        } else {
+            vueJSON.accessible = false;
+        }
         var workoutDatelist = [];
         var userWorkouts = user.workouts;
         for (var K in userWorkouts) {
@@ -381,7 +478,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
             workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
         }
         vueJSON.workoutDates = workoutDatelist;
-
         res.json(vueJSON);
     });
 });
@@ -410,6 +506,26 @@ router.put("/:userId/stats", function (req, res) {
     });
 });
 
+router.get('/:userId/profile-info/', async function (req, res) {
+    var _User = await _models.User.findById(req.params.userId);
+    var profileBody = {
+        username: _User.username,
+        level: _User.level
+    };
+    var nWorkoutsComplete = 0;
+    var nWorkouts = 0;
+    for (var K in _User.workouts) {
+        if (_User.workouts[K].Completed) {
+            nWorkoutsComplete++;
+        }
+        nWorkouts++;
+    }
+    var percentComplete = Math.round(nWorkoutsComplete * 100 / nWorkouts);
+    profileBody.percentComplete = percentComplete;
+    profileBody.progressText = percentComplete + " % (" + nWorkoutsComplete + "/" + nWorkouts + " complete)";
+    res.json(profileBody);
+});
+
 router.get('/:userId/stats/vue/get', function (req, res) {
     var userId = req.params.userId;
     _models.User.findById(userId).then(function (user) {
@@ -431,6 +547,7 @@ router.get('/:userId/stats/vue/get', function (req, res) {
         var percentComplete = Math.round(nWorkoutsComplete * 100 / nWorkouts);
         var vueData = {
             level: user.level,
+            blockNum: user.blockNum,
             exerciseTableItems: (0, _vueFormat.vueStats)(JSONStats),
             nPassed: 0,
             nFailed: 0,

@@ -431,17 +431,26 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         let ahead = _WorkoutDate.getTime() > Date.now();
         let timeDiff = Math.abs(_WorkoutDate.getTime() - Date.now());
         let daysDiff = new Date(timeDiff).getDate();
+        let monthDiff = new Date(timeDiff).getMonth();
+        console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff);
         // console.log("time difference: ", timeDiff);
         // console.log("N Days: ", new Date(timeDiff).getDate());
         if (ahead && daysDiff > 30) {
             res.json(futureHiddenResponse);
-
+            return
         }
         else if (!ahead && daysDiff > 30) {
             res.json(pasthiddenResponse);
+            return
         }
 
         var vueJSON = getVueInfo(JSON);
+        if (monthDiff == 0 && daysDiff == 0) {
+            vueJSON.accessible = true;
+        }
+        else {
+            vueJSON.accessible = false;            
+        }
 		let workoutDatelist = [];
 		var userWorkouts = user.workouts;
 		for (var K in userWorkouts) {
@@ -458,7 +467,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
 			workoutDatelist.push({Week: _W, Day: _D, Date: date, ID: wID});		
 		}        
         vueJSON.workoutDates = workoutDatelist;
-
         res.json(vueJSON);
     });
 })
@@ -486,6 +494,26 @@ router.put("/:userId/stats", function(req, res) {
     });
 })
 
+router.get('/:userId/profile-info/', async function(req, res) {
+    let _User = await User.findById(req.params.userId);
+    let profileBody = {
+        username:_User.username,
+        level:_User.level,
+    };
+    var nWorkoutsComplete = 0;
+    var nWorkouts = 0;
+    for (var K in _User.workouts) {
+        if (_User.workouts[K].Completed) {
+            nWorkoutsComplete ++;
+        }
+        nWorkouts ++;
+    }
+    var percentComplete = Math.round((nWorkoutsComplete*100)/(nWorkouts));
+    profileBody.percentComplete = percentComplete;
+    profileBody.progressText = percentComplete + " % (" + nWorkoutsComplete + "/" + nWorkouts + " complete)";
+    res.json(profileBody);
+})
+
 router.get('/:userId/stats/vue/get', function(req, res) {
     var userId = req.params.userId;
     User.findById(userId).then((user) => {
@@ -507,6 +535,7 @@ router.get('/:userId/stats/vue/get', function(req, res) {
         var percentComplete = Math.round((nWorkoutsComplete*100)/(nWorkouts));
         var vueData = {
             level: user.level,
+            blockNum: user.blockNum,
             exerciseTableItems: vueStats(JSONStats),
             nPassed: 0,  
             nFailed: 0,

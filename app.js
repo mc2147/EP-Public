@@ -1,7 +1,7 @@
 // Live deployment: onlineVersion && herokuLocal
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
-let onlineVersion = true;
+let onlineVersion = false;
 // let herokuLocal = false;
 // Seed bools
 let seedWorkouts = false;

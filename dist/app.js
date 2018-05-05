@@ -3,11 +3,11 @@
 // Live deployment: onlineVersion && herokuLocal
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
-var onlineVersion = true;
+var onlineVersion = false;
 // let herokuLocal = false;
 // Seed bools
-var seedWorkouts = true;
-var seedUsers = true;
+var seedWorkouts = false;
+var seedUsers = false;
 
 var herokuURL = "https://immense-mesa-37246.herokuapp.com";
 // var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
