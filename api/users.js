@@ -389,9 +389,11 @@ let suggestWeights = async function (user, workoutId) {
         }
         else if (minSuggestedWeight == maxSuggestedWeight) {
             Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + " lbs";
+            Pattern.simpleWeightString = minSuggestedWeight + " lbs";
         }
         else {
             Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";            
+            Pattern.simpleWeightString = minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
         }
     }
     user.workouts[workoutId].Patterns = Patterns;
