@@ -118,7 +118,7 @@ async function generateWorkouts(user, startDate, dayList) {
                 var sub = subsList[i];
                 var EType = sub.exerciseType;
                 var relatedStat = user.stats[EType];
-                console.log("getting relatedStat for: ", EType, relatedStat);
+                // console.log("getting relatedStat for: ", EType, relatedStat);
                 var patternInstance = sub.patternFormat;
                 //Assign suggested weights here(?)
                 if (EType == "Med Ball") {
@@ -142,7 +142,7 @@ async function generateWorkouts(user, startDate, dayList) {
                     };
 
                     var LevelList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
-                    console.log("   LevelAccess: " + findVideo.LevelAccess);
+                    // console.log("   LevelAccess: " + findVideo.LevelAccess);
                     var levelFilter = findVideo.LevelAccess ? findVideo.LevelAccess : 1;
                     // patternInstance.selectedVideo.levels = LevelList.slice(levelFilter - 1);
                 }

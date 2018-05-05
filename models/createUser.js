@@ -206,7 +206,7 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     // inputs.formattedDate = startDate;
     // inputs.workoutLevel = user.level;
     // inputs.workoutBlock = user.blockNum;
-    await generateWorkouts(user, startDate, daysList, false, false); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
+    await generateWorkouts(user, startDate, daysList, false, !admin); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
     // assignWorkouts (user, inputs, true);
     await user.save();
     return        

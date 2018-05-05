@@ -209,12 +209,10 @@ router.get("/:userId/workouts/last", async function(req, res) {
 });
 
 router.get("/:userId/workouts/:workoutId", async function(req, res) {
+    let user = await User.findById(req.params.userId);
+    var _Workout = user.workouts[req.params.workoutId];
     await suggestWeights(user, req.params.workoutId);
-    User.findById(req.params.userId).then((user) => {
-        var _Workout = user.workouts[req.params.workoutId];
-        // _Workout
-        res.json(_Workout);
-    });
+    res.json(_Workout);
 })
 
 router.put("/:userId/workouts/:workoutId/save", async function(req, res) {
@@ -349,7 +347,6 @@ let suggestWeights = async function (user, workoutId) {
         if (Number.isNaN(relatedMax)) {
             continue;
         }
-        console.log("line 575");
         let minSuggestedWeight = 0;
         let maxSuggestedWeight = 0;
         // gwParams
@@ -385,6 +382,7 @@ let suggestWeights = async function (user, workoutId) {
                     }
                 }
                 console.log("suggestedWeight: ", set.suggestedWeight);
+                set.relatedMax = relatedMax;
             }
         });
         if (minSuggestedWeight == 0 || maxSuggestedWeight == 0) {

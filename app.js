@@ -4,7 +4,7 @@
 let onlineVersion = true;
 // let herokuLocal = false;
 // Seed bools
-let seedWorkouts = false;
+let seedWorkouts = true;
 let seedUsers = true;
 
 var herokuURL = "https://immense-mesa-37246.herokuapp.com";

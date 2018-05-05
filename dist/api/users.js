@@ -228,12 +228,10 @@ router.get("/:userId/workouts/last", async function (req, res) {
 });
 
 router.get("/:userId/workouts/:workoutId", async function (req, res) {
+    var user = await _models.User.findById(req.params.userId);
+    var _Workout = user.workouts[req.params.workoutId];
     await suggestWeights(user, req.params.workoutId);
-    _models.User.findById(req.params.userId).then(function (user) {
-        var _Workout = user.workouts[req.params.workoutId];
-        // _Workout
-        res.json(_Workout);
-    });
+    res.json(_Workout);
 });
 
 router.put("/:userId/workouts/:workoutId/save", async function (req, res) {

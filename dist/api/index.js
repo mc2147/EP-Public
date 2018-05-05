@@ -17,6 +17,7 @@ var data = require('../data');
 var W3a = data.AllWorkouts[3]["a"];
 var RPETable = data.RPETable;
 var Exercises = data.ExerciseDict;
+var ExercisesJSON = data.ExercisesJSON;
 var VideosJSON = data.VideosJSON;
 var VideosVue = data.VideosVue;
 var DescriptionsJSON = data.DescriptionsJSON;
@@ -196,10 +197,10 @@ router.get('/descriptions/json', function (req, res) {
     res.json(DescriptionsJSON);
 });
 
-router.get('/json/exercises', function (req, res) {
-    res.json(Exercises);
-    // console.log("req params: ", req.params);
-});
+// router.get('/json/exercises', function (req, res) {
+//     res.json(Exercises);
+//     // console.log("req params: ", req.params);
+// });
 
 router.get('/json/rpe-table', function (req, res) {
     res.json(RPETable);

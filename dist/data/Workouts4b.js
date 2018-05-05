@@ -487,7 +487,7 @@ module.exports = {
                1: {
                   ExerciseType: "Squat",
                   Reps: [6, 4, 3],
-                  Sets: 3,
+                  Sets: 4,
                   SplitSets: true,
                   RPE: [7, 7.5, 8],
                   Alloy: true,
@@ -597,7 +597,7 @@ module.exports = {
                1: {
                   ExerciseType: "Hinge",
                   Reps: [6, 4, 3],
-                  Sets: 3,
+                  Sets: 4,
                   SplitSets: true,
                   RPE: [7, 7.5, 8],
                   Alloy: true,
@@ -608,7 +608,7 @@ module.exports = {
                2: {
                   ExerciseType: "LB Uni Push",
                   Reps: [8, 6, 4],
-                  Sets: 3,
+                  Sets: 4,
                   SplitSets: true,
                   RPE: [7, 7.5, 8],
                   Alloy: true,
@@ -760,7 +760,7 @@ module.exports = {
                1: {
                   ExerciseType: "UB Hor Push",
                   Reps: [6, 4, 3],
-                  Sets: 3,
+                  Sets: 4,
                   SplitSets: true,
                   RPE: [7, 7.5, 8],
                   Alloy: true,
@@ -771,7 +771,7 @@ module.exports = {
                2: {
                   ExerciseType: "UB Vert Pull",
                   Reps: [8, 6, 6],
-                  Sets: 3,
+                  Sets: 4,
                   SplitSets: true,
                   RPE: [7, 7.5, 8],
                   Alloy: true,
@@ -873,7 +873,7 @@ module.exports = {
                1: {
                   ExerciseType: "UB Vert Push",
                   Reps: [6, 4, 3],
-                  Sets: 3,
+                  Sets: 4,
                   SplitSets: true,
                   RPE: [7, 7.5, 8],
                   Alloy: true,
@@ -884,7 +884,7 @@ module.exports = {
                2: {
                   ExerciseType: "UB Hor Pull",
                   Reps: [8, 6, 6],
-                  Sets: 3,
+                  Sets: 4,
                   SplitSets: true,
                   RPE: [7, 7.5, 8],
                   Alloy: true,

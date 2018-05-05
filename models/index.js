@@ -203,6 +203,10 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate',
                 pattern.sets -= 1;
                 pattern.specialDescriber = "ALLOY SET";
             }
+            // Deload Condition
+            if (this.deload && this.deload != 0) {
+                pattern.deload = this.deload;
+            }
             // Name Exceptions Condition        
             if (pattern.type == "Med Ball") {
                 pattern.type = "Medicine Ball";

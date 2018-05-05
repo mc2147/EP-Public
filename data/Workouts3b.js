@@ -437,9 +437,8 @@ var Export3bDict = {
                       6,
                       4,
                       3,
- 
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -541,9 +540,8 @@ var Export3bDict = {
                       6,
                       4,
                       3,
- 
                    ],
-                   Sets:3,
+                   Sets: 4, //(including alloy)
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -558,7 +556,7 @@ var Export3bDict = {
                       4,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -700,7 +698,7 @@ var Export3bDict = {
                       3,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -715,7 +713,7 @@ var Export3bDict = {
                       6,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -812,7 +810,7 @@ var Export3bDict = {
                       3,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -827,7 +825,7 @@ var Export3bDict = {
                       6,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,

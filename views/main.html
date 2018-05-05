@@ -77,6 +77,10 @@ Current/Next Workout Date:
           <br>
           <a href={{P.videoURL}}>Watch Video</a>
           {% endif %}
+          {% if P.deload %}
+            <br>
+            Deload: {{P.deload}}
+          {% endif %}
           {% if P.workoutType == 'stop' and P.specialStage < 1 %}
             <div style="text-align:center;">
               <br/>

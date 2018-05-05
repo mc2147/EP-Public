@@ -490,7 +490,7 @@ module.exports = {
                       3,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -605,7 +605,7 @@ module.exports = {
                       3,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -620,7 +620,7 @@ module.exports = {
                       6,
                       4, 
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -777,7 +777,7 @@ module.exports = {
                       3,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -793,7 +793,7 @@ module.exports = {
                       6,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -899,7 +899,7 @@ module.exports = {
                       4,
                       3,
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,
@@ -915,7 +915,7 @@ module.exports = {
                       6,
  
                    ],
-                   Sets:3,
+                   Sets:4,
                    SplitSets:true,
                    RPE:[7, 7.5, 8],
                    Alloy:true,

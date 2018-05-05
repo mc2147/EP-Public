@@ -18,6 +18,7 @@ var Exercises = data.ExerciseDict;
 var VideosJSON = data.VideosJSON;
 var VideosVue = data.VideosVue;
 var DescriptionsJSON = data.DescriptionsJSON;
+var ExercisesJSON = data.ExercisesJSON;
 
 // var WorkoutGenerator = require('../data/WorkoutGenerator');
 // console.log("API FILE 9");
@@ -32,11 +33,13 @@ workoutTemplates[2] = data.Workouts2;
 //     res.json(W3a);
 // });
 router.get("/exercises", function (req, res) {
-    Exercise.findAll({
-        where: {}
-    }).then(function (exercises) {
-        res.json(exercises);
-    });
+    console.log("right route?");
+    res.json(ExercisesJSON);
+    // Exercise.findAll({
+    //     where:{},
+    // }).then(exercises => {
+    //     res.json(exercises);
+    // })
 });
 
 // console.log("W3a", W3a);

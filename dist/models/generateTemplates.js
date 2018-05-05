@@ -36,9 +36,14 @@ var AllTemplates = {
         // var Workouts3a = require("../dat")
         // return
         // Creating Group 1 Workouts
-    } };function DestroyAll() {
+    } };
+function DestroyAll() {
     WorkoutTemplate.destroy({
         where: {}
+    }).then(function () {
+        return SubWorkoutTemplate.destroy({
+            where: {}
+        });
     });
 };
 function DestroyTemplates(LGroup, BlockNum) {
@@ -69,7 +74,7 @@ function MakeTemplates(LGroup, BlockNum) {
     for (var W in TemplateJSON.Templates) {
         for (var D in TemplateJSON.Templates[W]) {
             CreateWorkoutTemplate(LGroup, W, D, BlockNum, TemplateJSON);
-            // console.log("RECREATING TEMPLATE: ", W, D);
+            console.log("RECREATING TEMPLATE: ", LGroup, BlockNum, W, D);
         }
     }
 }
@@ -166,10 +171,6 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
     var thisTemplate = WorkoutBlock.Templates[week][day];
     var thisPatterns = thisTemplate.Patterns;
     var thisID = thisTemplate.ID;
-    // return thisPatterns;
-    // if (levelGroup == 3) {
-    // console.log("Creating Template: " + blockNum, week, day);
-    // }
     WorkoutTemplate.findOrCreate({
         where: {
             levelGroup: levelGroup,
@@ -179,9 +180,6 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
         }
     }).spread(function (template, created) {
         template.save();
-        // if (levelGroup == 3) {
-        // console.log("Template Created: ", template.week, template.day, created);
-        // }
         if (created) {
             if (template.levelGroup == 2) {
                 // console.log("2 Created: " + template.week, template.day, template.levelGroup);
@@ -190,11 +188,11 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
         } else {
             if (template.levelGroup == 2) {}
             // console.log("2 exists: " + template.week, template.day, template.levelGroup);
-
             // template.save();            
             template.number = thisID;
             template.NSubworkouts = 0;
             // console.log(template.week, template.day);
+            console.log("CreateWorkoutTemplate: ", levelGroup, blockNum, week, day);
             for (var K in thisPatterns) {
                 var ID = K;
                 SubWorkoutTemplate.findOrCreate({
@@ -208,7 +206,9 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
                     template.NSubworkouts++;
                     var Key = result.number;
                     var thisSub = thisPatterns[Key];
+                    console.log(levelGroup, blockNum, week, day, "thisSub #: ", Key, thisPatterns[Key]);
                     setPatternInfo(thisSub, result);
+                    console.log("thisSub (new): ", result);
                     template.save();
                     // console.log("149");
                 });
@@ -261,10 +261,14 @@ function setPatternInfo(PatternJSON, SubTemplate) {
         SubTemplate.alloy = PatternJSON.Alloy;
         SubTemplate.alloyreps = PatternJSON.AlloyReps;
         SubTemplate.type = 'alloy';
-    } else if (PatternJSON.deload) {
+    } else if (PatternJSON.Deload && PatternJSON.Deload != 0) {
         SubTemplate.type = 'deload';
         SubTemplate.deload = PatternJSON.Deload;
     }
+    // // Deload
+    // if (PatternJSON.Deload && PatternJSON.Deload != 0) {
+    //     SubTempl
+    // }
     // Stop & Drop Sets
     if (SubTemplate.type == 'stop') {
         SubTemplate.specialValue = PatternJSON.StopRPE;

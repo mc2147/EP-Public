@@ -1,5 +1,5 @@
 var RPETable = require('./RPETable');
-var Exercises = require('./Exercises');
+// var Exercises = require('./Exercises');
 var Workouts1 = require('./Workouts1');
 var Workouts2 = require('./Workouts2');
 var Workouts3a = require('./Workouts3a');
@@ -9,10 +9,11 @@ var Workouts4b = require('./Workouts4b');
 var VideosJSON = require('./JSON/Videos').VideosJSON;
 var VideosVue = require('./JSON/Videos').vueConvert;
 var DescriptionsJSON = require('./JSON/Descriptions');
+var ExercisesJSON = require('./ExercisesJSON');
 
 // export default VideosJSON;
 
-var ExerciseDict = Exercises.ExerciseDict;
+// var ExerciseDict = Exercises.ExerciseDict;
 
 var AllWorkouts = {};
 AllWorkouts[1] = Workouts1;
@@ -44,6 +45,8 @@ AllWorkouts[4][2] = Workouts4b;
 // console.log(VideosJSON);
 
 module.exports = {
+    ExercisesJSON,
+    ExerciseDict:ExercisesJSON,
     VideosVue,
     VideosJSON,
     AllWorkouts,
@@ -53,7 +56,6 @@ module.exports = {
     Workouts3b,
     Workouts4a,
     Workouts4b,
-    ExerciseDict,
     RPETable,
     DescriptionsJSON,
 }

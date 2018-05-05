@@ -158,7 +158,7 @@ module.exports = {
 				ID: 7,
 				Patterns: {
 					1: {ExerciseType: "Hinge", 
-						Sets: 4, Reps: 8, 
+						Sets: 4, Reps: 6, 
 						RPE: "8-8.5",},
 					2: {ExerciseType: "UB Hor Push", 
 						Sets: 4, Reps: 6, 
