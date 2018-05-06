@@ -50,7 +50,7 @@ function DestroyTemplates(LGroup, BlockNum) {
     });
 }
 
-DestroyAll();
+// DestroyAll();
 // WorkoutTemplate.destroy({
 //     where: {
 //         levelGroup: 1,
