@@ -139,7 +139,7 @@ router.get("/:userId/last-workout", async function(req, res) {
     }
     let thisDate = new Date(Date.now());
     console.log("thisDate 1: ", thisDate);
-    thisDate.setDate(thisDate.getDate() + 7);
+    // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function(date, index) {
         if (date.getTime() < thisDate.getTime()
@@ -162,7 +162,6 @@ router.get("/:userId/last-workout/vue", async function(req, res) {
         text: "You have no completed workouts!"
     }
     let thisDate = new Date(Date.now());
-    thisDate.setDate(thisDate.getDate() + 7);
     let lastworkoutDate = {};
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
@@ -196,7 +195,7 @@ router.get("/:userId/workouts/last", async function(req, res) {
     }
     let thisDate = new Date(Date.now());
     console.log("thisDate 1: ", thisDate);
-    thisDate.setDate(thisDate.getDate() + 7);
+    // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function(date, index) {
         if (date.getTime() < thisDate.getTime()
@@ -446,7 +445,8 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         let daysDiff = new Date(timeDiff).getDate();
         daysDiff = timeDiff/(1000*60*60*24);
         let monthDiff = new Date(timeDiff).getMonth();
-        console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff);
+        console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff, "current time: ", new Date(Date.now()));
+        console.log("timezone1: ", _WorkoutDate.getTimezoneOffset(), "timezone2: ", new Date(Date.now()).getTimezoneOffset());
         // console.log("time difference: ", timeDiff);
         // console.log("N Days: ", new Date(timeDiff).getDate());
         if (ahead && daysDiff > 30) {

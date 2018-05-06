@@ -132,15 +132,15 @@ function getVueInfo(refDict) {
 					weightDict.status = 'Fixed';
 					RPEDict.status = 'Fixed';
 				}
-				else if (Pattern.stop && setNum == 1) {
-					RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
-					RPEDict.status = 'Fixed';
-					// RPEDict.status = 'Empty';
-				}
 				else if (Pattern.drop && setNum == 1) {
 					// RPEDict.status = 'Fixed';
 					// RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
 					RPEDict.status = 'Empty';					
+				}
+				if (Pattern.stop && setNum == 1) {
+					RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
+					RPEDict.status = 'Fixed';
+					// RPEDict.status = 'Empty';
 				}
 				if (Pattern.drop && Pattern.specialStage >= 1) {
 					weightDict.status = 'Fixed';
