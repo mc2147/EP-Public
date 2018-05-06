@@ -9,7 +9,8 @@ const saltRounds = 10;
 function generateSalt(){
     return bcrypt.genSaltSync(saltRounds);
 }
-function generateHash (password, salt){
+
+export function generateHash (password, salt){
     return bcrypt.hashSync(password, salt, null);
 }
 

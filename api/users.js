@@ -6,6 +6,7 @@ var express = require('express');
 const bcrypt    = require('bcryptjs');
 import {signupUser} from './apiFunctions/userFunctions';
 import {assignWorkouts, assignLevel, getblankPatterns} from './apiFunctions/workoutFunctions';
+import {generateHash} from './apiFunctions/userFunctions';
 import {updateSpecial} from './apiFunctions/workoutUpdate'
 import {generateWorkouts} from './apiFunctions/generateWorkouts';
 import {vueStats, getVueStat, vueProgress} from './vueFormat';
