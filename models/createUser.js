@@ -184,6 +184,9 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     if (password == "") {
         unHashed = user.username;
     }
+    else {
+        unHashed = password;
+    }
     // var unHashed = user.username;
     user.password = User.generateHash(unHashed, user.salt);
     user.isAdmin = admin;
