@@ -123,7 +123,8 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                     if (patternInstance.deload && patternInstance.deload != 0) {
                         if ((Level + patternInstance.deload) > 0) {
                             effectiveLevel = Level + patternInstance.deload;
-                            deloadIndicator = " (" + patternInstance.deload +")";
+                            // deloadIndicator = " (" + patternInstance.deload +")";
+                            deloadIndicator = " (" + "Level " + effectiveLevel +")";
                         }
                     }
 

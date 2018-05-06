@@ -479,7 +479,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         JSON.noedits = noedits;
         var vueJSON = getVueInfo(JSON);
         vueJSON.accessible = accessible;
-        vueJSON.editable = editable;
+        vueJSON.noedits = noedits;
 
 		let workoutDatelist = [];
 		var userWorkouts = user.workouts;
