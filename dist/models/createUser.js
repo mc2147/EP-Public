@@ -198,6 +198,8 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     }
     if (password == "") {
         unHashed = user.username;
+    } else {
+        unHashed = password;
     }
     // var unHashed = user.username;
     user.password = _index.User.generateHash(unHashed, user.salt);

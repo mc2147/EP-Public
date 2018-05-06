@@ -221,7 +221,8 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
                 pattern.specialString = this.specialValue + " RPE";
                 pattern.sets = 1;
                 pattern.specialStage = 0;
-                pattern.specialDescriber = "STRENGTH STOP: " + this.specialValue + " RPE";
+                // pattern.specialDescriber = "STRENGTH STOP: " + this.specialValue + " RPE";
+                pattern.specialDescriber = "STRENGTH STOP";
             } else if (pattern.workoutType == "drop") {
                 pattern.drop = true;
                 pattern.specialValue = this.specialValue;
@@ -229,7 +230,8 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
                 pattern.dropRPE = this.RPE;
                 pattern.sets = 1;
                 pattern.specialStage = 0;
-                pattern.specialDescriber = "STRENGTH DROP: " + this.specialValue + " %";
+                // pattern.specialDescriber = "STRENGTH DROP: " + this.specialValue + " %"; 
+                pattern.specialDescriber = "STRENGTH DROP";
             }
 
             if (this.RPE) {

@@ -12,6 +12,7 @@ import {vueStats, getVueStat, vueProgress} from './vueFormat';
 import {LevelUpMesssages} from '../content/levelupMessages'
 var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
+import moment from 'moment';
 // var models = require('../models');
 // 	var Exercise = models.Exercise;
 // 	var WorkoutTemplate = models.WorkoutTemplate;
@@ -447,6 +448,9 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         let monthDiff = new Date(timeDiff).getMonth();
         console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff, "current time: ", new Date(Date.now()));
         console.log("timezone1: ", _WorkoutDate.getTimezoneOffset(), "timezone2: ", new Date(Date.now()).getTimezoneOffset());
+        let todayDate = moment().format('YYYY-MM-DD');
+        let checkDate = moment(_WorkoutDate).format('YYYY-MM-DD');
+        console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
         // console.log("time difference: ", timeDiff);
         // console.log("N Days: ", new Date(timeDiff).getDate());
         if (ahead && daysDiff > 30) {
@@ -458,7 +462,13 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             return
         }
         let accessible = false;
-        if (monthDiff == 0 && daysDiff == 0) {
+        // if (monthDiff == 0 && daysDiff == 0) {
+        //     accessible = true;
+        // }
+        // else {
+        //     accessible = false;            
+        // }
+        if (todayDate == checkDate) {
             accessible = true;
         }
         else {

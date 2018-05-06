@@ -21,7 +21,7 @@ function getVueInfo(refDict) {
 	var _Completed = false;
 	if (refDict.Completed) {
 		_Completed = true;
-		console.log("Workout Completed: ", refDict);
+		// console.log("Workout Completed: ", refDict);
 	}
 	var vueColumns = [["Reps/Time(s)", 1], ["Weights", 2], ["RPE", 3], ["Tempo", 4]];
 	var vueSubworkouts = [];
@@ -125,14 +125,15 @@ function getVueInfo(refDict) {
 					if (set.Filled) {
 						weightDict.status = 'Fixed';
 						RPEDict.status = 'Fixed';
-					} else if (Pattern.stop && setNum == 1) {
-						RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
-						RPEDict.status = 'Fixed';
-						// RPEDict.status = 'Empty';
 					} else if (Pattern.drop && setNum == 1) {
 						// RPEDict.status = 'Fixed';
 						// RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
 						RPEDict.status = 'Empty';
+					}
+					if (Pattern.stop && setNum == 1) {
+						RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
+						RPEDict.status = 'Fixed';
+						// RPEDict.status = 'Empty';
 					}
 					if (Pattern.drop && Pattern.specialStage >= 1) {
 						weightDict.status = 'Fixed';

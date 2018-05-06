@@ -36,11 +36,11 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
     var allStats = userInstance.stats;
     for (var K in body) {
         var inputCode = K.split("|");
-        console.log("K updateSpecial: ", K);
+        // console.log("K updateSpecial: ", K);
         if (!K.includes("|") || !inputCode) {
             continue;
         }
-        console.log("inputCode: ", inputCode, "body[K]:", body[K]);
+        // console.log("inputCode: ", inputCode, "body[K]:", body[K]);
         var patternID = parseInt(inputCode[0]); //Number (index + 1)
         var patternIndex = patternID - 1;
 

@@ -278,12 +278,7 @@ router.get('/', async function (req, res, next) {
 	var TemplateID = req.session.viewingWID;
 	var wDateIndex = req.session.viewingWID - 1;
 	req.session.viewingWorkoutDate = req.session.User.workoutDates[wDateIndex];
-
 	var _Level = req.session.User.level;
-
-	// G_UserInfo["thisWorkoutDate"] = req.session.User.workoutDates[wDateIndex];
-
-
 	var thisworkoutDate = req.session.User.workouts[TemplateID].Date;
 	// console.log("432 test");
 

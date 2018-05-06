@@ -22,6 +22,10 @@ var _levelupMessages = require('../content/levelupMessages');
 
 var _models = require('../models');
 
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
 var _axios = require('axios');
 
 var _axios2 = _interopRequireDefault(_axios);
@@ -161,7 +165,7 @@ router.get("/:userId/last-workout", async function (req, res) {
     };
     var thisDate = new Date(Date.now());
     console.log("thisDate 1: ", thisDate);
-    thisDate.setDate(thisDate.getDate() + 7);
+    // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function (date, index) {
         if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
@@ -183,7 +187,6 @@ router.get("/:userId/last-workout/vue", async function (req, res) {
         text: "You have no completed workouts!"
     };
     var thisDate = new Date(Date.now());
-    thisDate.setDate(thisDate.getDate() + 7);
     var lastworkoutDate = {};
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
@@ -216,7 +219,7 @@ router.get("/:userId/workouts/last", async function (req, res) {
     };
     var thisDate = new Date(Date.now());
     console.log("thisDate 1: ", thisDate);
-    thisDate.setDate(thisDate.getDate() + 7);
+    // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function (date, index) {
         if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
@@ -279,8 +282,13 @@ router.put("/:userId/change-password", async function (req, res) {
         var newPassword = generateHash(req.body.newPassword, _User.salt);
         _User.password = newPassword;
         await _User.save();
+        res.json(_User);
+    } else {
+        res.json({
+            error: true,
+            status: "Wrong Password"
+        });
     }
-    res.json(_User);
 });
 
 router.post("/:userId/workouts/:workoutId/save", async function (req, res) {
@@ -454,7 +462,11 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         var daysDiff = new Date(timeDiff).getDate();
         daysDiff = timeDiff / (1000 * 60 * 60 * 24);
         var monthDiff = new Date(timeDiff).getMonth();
-        console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff);
+        console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff, "current time: ", new Date(Date.now()));
+        console.log("timezone1: ", _WorkoutDate.getTimezoneOffset(), "timezone2: ", new Date(Date.now()).getTimezoneOffset());
+        var todayDate = (0, _moment2.default)().format('YYYY-MM-DD');
+        var checkDate = (0, _moment2.default)(_WorkoutDate).format('YYYY-MM-DD');
+        console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
         // console.log("time difference: ", timeDiff);
         // console.log("N Days: ", new Date(timeDiff).getDate());
         if (ahead && daysDiff > 30) {
@@ -484,7 +496,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         JSON.noedits = noedits;
         var vueJSON = getVueInfo(JSON);
         vueJSON.accessible = accessible;
-        vueJSON.editable = editable;
+        vueJSON.noedits = noedits;
 
         var workoutDatelist = [];
         var userWorkouts = user.workouts;

@@ -14,7 +14,7 @@ var maxDropSets = 3;
 async function saveWorkout(body, userInstance, vWID) {
     var submit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
-    console.log("workoutHandler 8");
+    // console.log("workoutHandler 8");        
     var lastSets = {};
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];
@@ -25,11 +25,11 @@ async function saveWorkout(body, userInstance, vWID) {
     var allStats = userInstance.stats;
     for (var K in body) {
         var inputCode = K.split("|");
-        console.log("K 21: ", K);
+        // console.log("K 21: ", K);
         if (!K.includes("|") || !inputCode || inputCode[0].startsWith("g")) {
             continue;
         }
-        console.log("inputCode: ", inputCode, "body[K]:", body[K]);
+        // console.log("inputCode: ", inputCode, "body[K]:", body[K]);
         var patternID = parseInt(inputCode[0]); //Number (index + 1)
         var patternIndex = patternID - 1;
 
