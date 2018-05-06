@@ -19,7 +19,7 @@ function getVueInfo(refDict) {
 	let _Completed = false;
 	if (refDict.Completed) {
 		_Completed = true;
-		console.log("Workout Completed: ", refDict);
+		// console.log("Workout Completed: ", refDict);
 	}
 	var vueColumns = [
 		["Reps/Time(s)", 1],
