@@ -17,7 +17,6 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];
     var thisPattern = thisWorkout.Patterns[PNum - 1]; //Patterns are sorted
-
     var lastSets = {};
     var allStats = userInstance.stats;
     for (var K in body) {

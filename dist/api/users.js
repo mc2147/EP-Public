@@ -183,6 +183,7 @@ router.get("/:userId/last-workout/vue", async function (req, res) {
         text: "You have no completed workouts!"
     };
     var thisDate = new Date(Date.now());
+    thisDate.setDate(thisDate.getDate() + 7);
     var lastworkoutDate = {};
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
@@ -198,7 +199,9 @@ router.get("/:userId/last-workout/vue", async function (req, res) {
     });
     if (!response.notFound) {
         response.thisWorkoutDate = lastworkoutDate;
+        response.noedits = true;
         response = getVueInfo(response);
+        response.noedits = true;
     }
     res.json(response);
     return;
@@ -355,7 +358,7 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
         var EType = Pattern.type;
         var relatedStat = user.stats[EType];
         var relatedMax = relatedStat.Max;
-        console.log("relatedStat: ", relatedStat);
+        // console.log("relatedStat: ", relatedStat);
         if (Number.isNaN(relatedMax)) {
             return 'continue';
         }
@@ -363,7 +366,7 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
         var maxSuggestedWeight = 0;
         // gwParams
         Pattern.setList.forEach(function (set) {
-            console.log("set: ", set);
+            // console.log("set: ", set);
             var gwParams = set.gwParams;
             var Reps = gwParams.Reps;
             var RPE = gwParams.RPE; //string "decimal", range, or null
@@ -393,14 +396,16 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
                         set.suggestedWeight = "--";
                     }
                 }
-                console.log("suggestedWeight: ", set.suggestedWeight);
+                // console.log("suggestedWeight: ", set.suggestedWeight);
                 set.relatedMax = relatedMax;
             }
         });
         if (minSuggestedWeight == 0 || maxSuggestedWeight == 0) {} else if (minSuggestedWeight == maxSuggestedWeight) {
             Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + " lbs";
+            Pattern.simpleWeightString = minSuggestedWeight + " lbs";
         } else {
             Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
+            Pattern.simpleWeightString = minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
         }
     };
 
@@ -459,13 +464,28 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
             res.json(pasthiddenResponse);
             return;
         }
-
-        var vueJSON = getVueInfo(JSON);
+        var accessible = false;
         if (monthDiff == 0 && daysDiff == 0) {
-            vueJSON.accessible = true;
+            accessible = true;
         } else {
-            vueJSON.accessible = false;
+            accessible = false;
         }
+        JSON.accessible = accessible;
+        var editable = false;
+        var noedits = false;
+        if (user.isAdmin) {
+            editable = true;
+            noedits = false;
+        } else {
+            editable = !JSON.completed && JSON.accessible;
+            noedits = JSON.completed || !JSON.accessible;
+        }
+        JSON.editable = editable;
+        JSON.noedits = noedits;
+        var vueJSON = getVueInfo(JSON);
+        vueJSON.accessible = accessible;
+        vueJSON.editable = editable;
+
         var workoutDatelist = [];
         var userWorkouts = user.workouts;
         for (var K in userWorkouts) {

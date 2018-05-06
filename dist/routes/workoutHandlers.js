@@ -251,11 +251,13 @@ async function saveWorkout(body, userInstance, vWID) {
         }
     }
 
-    userInstance.stats = allStats;
     userInstance.workouts = allWorkouts;
 
     // await userInstance.save();
 
+    if (submit) {
+        userInstance.stats = allStats;
+    }
     var squatStatus = userInstance.stats["Squat"].Status;
     var benchStatus = userInstance.stats["UB Hor Push"].Status;
     var hingeStatus = userInstance.stats["Hinge"].Status;
@@ -277,10 +279,14 @@ async function saveWorkout(body, userInstance, vWID) {
         copiedStats["Level Up"].Status = _enums.Alloy.Testing;
     }
     console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
-
-    userInstance.stats = copiedStats;
-    await axios.put(process.env.BASE_URL + ('/api/users/' + userInstance.id + '/stats'), copiedStats);
-    await axios.put(process.env.BASE_URL + ('/api/users/' + userInstance.id + '/workouts'), allWorkouts);
+    if (submit) {
+        userInstance.stats = copiedStats;
+    }
+    // userInstance.stats = copiedStats;
+    userInstance.workouts = allWorkouts;
+    await userInstance.save();
+    // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/stats`, copiedStats);
+    // await axios.put(process.env.BASE_URL + `/api/users/${userInstance.id}/workouts`, allWorkouts);
     // await userInstance.save();
 
     // console.log("WH 312 Patterns \n");

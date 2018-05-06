@@ -162,6 +162,7 @@ router.get("/:userId/last-workout/vue", async function(req, res) {
         text: "You have no completed workouts!"
     }
     let thisDate = new Date(Date.now());
+    thisDate.setDate(thisDate.getDate() + 7);
     let lastworkoutDate = {};
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
@@ -178,7 +179,9 @@ router.get("/:userId/last-workout/vue", async function(req, res) {
     }) 
     if (!response.notFound) {
         response.thisWorkoutDate = lastworkoutDate;
+        response.noedits = true;
         response = getVueInfo(response);
+        response.noedits = true;
     }
     res.json(response);
     return
@@ -260,8 +263,14 @@ router.put("/:userId/change-password", async function(req, res) {
         var newPassword = generateHash(req.body.newPassword, _User.salt);
         _User.password = newPassword;
         await _User.save();
+        res.json(_User);    
     }
-    res.json(_User);    
+    else {
+        res.json({
+            error: true,
+            status: "Wrong Password",
+        });    
+    }
 })
 
 router.post("/:userId/workouts/:workoutId/save", async function(req, res) {
@@ -448,14 +457,30 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             res.json(pasthiddenResponse);
             return
         }
-
-        var vueJSON = getVueInfo(JSON);
+        let accessible = false;
         if (monthDiff == 0 && daysDiff == 0) {
-            vueJSON.accessible = true;
+            accessible = true;
         }
         else {
-            vueJSON.accessible = false;            
+            accessible = false;            
         }
+        JSON.accessible = accessible;
+        let editable = false;
+        let noedits = false;
+        if (user.isAdmin) {
+            editable = true;
+            noedits = false;
+        }
+        else {
+            editable = !(JSON.completed) && JSON.accessible;
+            noedits = JSON.completed || !(JSON.accessible);
+        }
+        JSON.editable = editable;
+        JSON.noedits = noedits;
+        var vueJSON = getVueInfo(JSON);
+        vueJSON.accessible = accessible;
+        vueJSON.editable = editable;
+
 		let workoutDatelist = [];
 		var userWorkouts = user.workouts;
 		for (var K in userWorkouts) {

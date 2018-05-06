@@ -32,7 +32,6 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];
     var thisPattern = thisWorkout.Patterns[PNum - 1]; //Patterns are sorted
-
     var lastSets = {};
     var allStats = userInstance.stats;
     for (var K in body) {
@@ -103,6 +102,10 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
             }
             if (inputType == "W") {
                 lastSets[_EType].Weight = parseInt(body[K]);
+                if (setNum == 1 && thisPattern.workoutType == 'stop') {
+                    lastSets[_EType].RPE = thisPattern.RPE; //if we want 1st set to be fixed
+                    setDict.Filled = true;
+                }
             } else if (inputType == "RPE") {
                 lastSets[_EType].RPE = body[K];
                 if (thisPattern.drop && thisPattern.specialStage) {
@@ -169,6 +172,10 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
                             Weight: null,
                             RPE: null,
                             Reps: thisPattern.reps,
+                            gwParams: {
+                                Reps: thisPattern.reps,
+                                RPE: null
+                            },
                             // Tempo: [null, null, null],
                             Filled: false
                         });
@@ -210,6 +217,10 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
                             Weight: thisPattern.dropWeight,
                             RPE: null,
                             SuggestedRPE: thisPattern.dropRPE,
+                            gwParams: {
+                                Reps: thisPattern.reps,
+                                RPE: null
+                            },
                             Reps: thisPattern.reps,
                             Filled: false
                         });
@@ -222,6 +233,10 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
                                 Weight: thisPattern.dropWeight,
                                 RPE: null,
                                 SuggestedRPE: thisPattern.dropRPE,
+                                gwParams: {
+                                    Reps: thisPattern.reps,
+                                    RPE: null
+                                },
                                 Reps: thisPattern.reps,
                                 Filled: false
                             });

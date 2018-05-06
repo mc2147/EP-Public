@@ -50,7 +50,7 @@ function DestroyTemplates(LGroup, BlockNum) {
     });
 }
 
-// DestroyAll();
+DestroyAll();
 // WorkoutTemplate.destroy({
 //     where: {
 //         levelGroup: 1,
@@ -69,7 +69,7 @@ function MakeTemplates(LGroup, BlockNum) {
     for (var W in TemplateJSON.Templates) {
         for (var D in TemplateJSON.Templates[W]) {
             CreateWorkoutTemplate(LGroup, W, D, BlockNum, TemplateJSON);
-            console.log("RECREATING TEMPLATE: ", LGroup, BlockNum, W, D);
+            // console.log("RECREATING TEMPLATE: ", LGroup, BlockNum, W, D);
         }
     }
 }
@@ -187,7 +187,7 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
             template.number = thisID;
             template.NSubworkouts = 0;
             // console.log(template.week, template.day);
-            console.log("CreateWorkoutTemplate: ", levelGroup, blockNum, week, day);
+            // console.log("CreateWorkoutTemplate: ", levelGroup, blockNum, week, day);
             for (var K in thisPatterns) {
                 var ID = K;
                 SubWorkoutTemplate.findOrCreate({

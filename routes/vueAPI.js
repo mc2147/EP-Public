@@ -167,7 +167,7 @@ function getVueInfo(refDict) {
 				RPEDict.status = 'Fixed';
 			}
 
-			if (_Completed) {
+			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
 				weightDict.status = 'Fixed';
 				RPEDict.status = 'Fixed';
@@ -238,7 +238,7 @@ function getVueInfo(refDict) {
 				// repLists.fixed.push(Pattern.alloyperformed + " FAILED");
 				// weightLists.fixed.push(Pattern.alloyweight);
 			}
-			if (_Completed) {
+			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
 				weightDict.status = 'Fixed';
 				RPEDict.status = 'Fixed';

@@ -60,7 +60,7 @@ async function generateWorkouts(user, startDate, dayList) {
     }
 
     var nWorkouts = Object.keys(TemplatesJSON.getWeekDay).length;
-    console.log("dateObj: ", dateObj);
+    // console.log("dateObj: ", dateObj);
     var workoutDates = (0, _functions.getWorkoutDays)(dateObj, workoutDays, Level, "", nWorkouts);
     workoutDates.forEach(function (elem) {
         var describer = [elem];
@@ -100,7 +100,7 @@ async function generateWorkouts(user, startDate, dayList) {
             }
             var Describer = describerPrefix + blockString + " - " + " Week " + W + ", Day " + D;
             output.workouts[ID].Describer = Describer;
-            console.log("Group, Block, W, D", user.levelGroup, user.blockNum, W, D);
+            // console.log("Group, Block, W, D", user.levelGroup, user.blockNum, W, D);
             var relatedTemplate = await _models.WorkoutTemplate.findOne({
                 where: {
                     levelGroup: user.levelGroup,
@@ -127,8 +127,19 @@ async function generateWorkouts(user, startDate, dayList) {
                     EType = "UB Vert Pull";
                 }
                 patternInstance.type = EType;
-                var EName = _data.ExerciseDict.Exercises[patternInstance.type][Level].name;
-                patternInstance.name = EName;
+
+                var effectiveLevel = Level;
+                var deloadIndicator = "";
+                if (patternInstance.deload && patternInstance.deload != 0) {
+                    if (Level + patternInstance.deload > 0) {
+                        effectiveLevel = Level + patternInstance.deload;
+                        deloadIndicator = " (" + patternInstance.deload + ")";
+                    }
+                }
+
+                var EName = _data.ExerciseDict.Exercises[patternInstance.type][effectiveLevel].name;
+                patternInstance.name = EName + deloadIndicator;
+
                 var findVideo = await _models.Video.search(EName, false);
                 if (findVideo) {
                     patternInstance.hasVideo = true;

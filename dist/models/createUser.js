@@ -118,19 +118,23 @@ var thisDate = new Date(Date.now());
 //id, levelGroup, blockNum, level, startDate, workoutDays
 //Level Groups 1 to 4, block 1
 // "UserName2"
-CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5]);
-CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5]);
-CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5]);
-CreateUser("UserName4", 4, 1, 16, thisDate, [1, 2, 3, 5]);
-CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5]);
-CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5]);
-CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274");
-CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368");
+CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
+CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName4", 4, 1, 16, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5], true);
+CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274", true, false);
+CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368", true, false);
 
-CreateUser("AdminChan", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "AChan2147");
-CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9");
-CreateUser("mc2147", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "AChan2147");
-CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9");
+CreateUser("AdminChan", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "AChan2147", true, true);
+CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9", true, true);
+CreateUser("mc2147", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "AChan2147", true, false);
+CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9", true, false);
+
+// CREATING NON-ADMIN BETA TESTERS
+// CreateUser("BetaUser", 2, 0, 6, date, [Day 1, Day 2...], false -> (admin), "Password", false -> (filledStats), false -> defaultWorkouts);
+// CreateUser("BetaUser", levelGroup, blockNum, level, false, "Password", false, false);
 
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
@@ -163,8 +167,9 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     var admin = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
     var password = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : "";
     var filledStats = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : true;
+    var defaultWorkouts = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : true;
 
-    console.log("creating user: 128");
+    // console.log("creating user: 128");
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
         thisGroup = thisGroup[blockNum];
@@ -187,24 +192,22 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
     user.blockNum = blockNum;
     user.oldstats = [];
     user.salt = generateSalt();
+    var unHashed = "";
     if (!user.username || user.username == "") {
         user.username = "UserName" + user.id;
     }
-    if (!user.password || user.password == "") {
-        // user.password = "Password" + user.id; 
+    if (password == "") {
+        unHashed = user.username;
     }
-    if (admin) {
-        //admins have no workouts
-        var unHashed = password;
-        user.password = _index.User.generateHash(unHashed, user.salt);
-        user.isAdmin = true;
-        await user.save();
+    // var unHashed = user.username;
+    user.password = _index.User.generateHash(unHashed, user.salt);
+    user.isAdmin = admin;
+    await user.save();
+
+    if (!defaultWorkouts) {
+        //No default workouts
         return;
     }
-    // var unHashed = "Password" + user.id;
-    var unHashed = user.username;
-    user.password = _index.User.generateHash(unHashed, user.salt);
-    await user.save();
     // <- DO LATER
     // var inputs = {}; 
     var daysList = [];

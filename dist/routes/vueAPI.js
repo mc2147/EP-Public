@@ -125,14 +125,14 @@ function getVueInfo(refDict) {
 					if (set.Filled) {
 						weightDict.status = 'Fixed';
 						RPEDict.status = 'Fixed';
-					}
-					if (Pattern.stop && setNum == 1) {
+					} else if (Pattern.stop && setNum == 1) {
 						RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
+						RPEDict.status = 'Fixed';
 						// RPEDict.status = 'Empty';
-					}
-					if (Pattern.drop && setNum == 1) {
-						RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
-						// RPEDict.status = 'Empty';					
+					} else if (Pattern.drop && setNum == 1) {
+						// RPEDict.status = 'Fixed';
+						// RPEDict.value = Pattern.dropRPE; //Needs to be drop RPE or higher 
+						RPEDict.status = 'Empty';
 					}
 					if (Pattern.drop && Pattern.specialStage >= 1) {
 						weightDict.status = 'Fixed';
@@ -158,7 +158,7 @@ function getVueInfo(refDict) {
 							RPEDict.status = 'Fixed';
 						}
 
-			if (_Completed) {
+			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
 				weightDict.status = 'Fixed';
 				RPEDict.status = 'Fixed';
@@ -225,7 +225,7 @@ function getVueInfo(refDict) {
 				// repLists.fixed.push(Pattern.alloyperformed + " FAILED");
 				// weightLists.fixed.push(Pattern.alloyweight);
 			}
-			if (_Completed) {
+			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
 				weightDict.status = 'Fixed';
 				RPEDict.status = 'Fixed';
@@ -294,6 +294,10 @@ function getVueInfo(refDict) {
 		if (Pattern.alloy) {
 			subDict.alloyReps = Pattern.alloyreps;
 		}
+		if (Pattern.suggestedWeightString) {
+			subDict.suggestedWeightString = Pattern.suggestedWeightString;
+			subDict.simpleWeightString = Pattern.simpleWeightString;
+		}
 		// if (Pattern.suggestedWeight) {
 		// 	subDict.suggestedWeight = Pattern.suggestedWeight;
 		// }
@@ -329,13 +333,37 @@ function getVueInfo(refDict) {
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
 			// subDict.RPEOptions = newRPEOptions;			
 			if (Pattern.workoutType == 'stop') {
-				subDict.minRPE = parseInt(Pattern.RPE); //Starting RPE
+				subDict.minRPE = parseFloat(Pattern.RPE); //Starting RPE
+				subDict.maxRPE = Pattern.specialValue;
 				subDict.describer += " (Strength Stop)";
 				subDict.longDescriber = "Strength Stop @ " + Pattern.specialValue + " RPE from 1 x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
 				subDict.describer = "Strength Stop @ " + Pattern.specialValue + " RPE";
 				if (Pattern.specialStage == 0 && Pattern.sets == 1) {
-					subDict.RPEOptions = [Pattern.RPE];
+					// subDict.RPEOptions = [Pattern.RPE];
+					var newRPEOptions = [];
+					subDict.RPEOptions.forEach(function (elem) {
+						if (elem >= subDict.minRPE && elem < subDict.maxRPE) {
+							newRPEOptions.push(elem);
+						}
+					});
+					subDict.RPEOptions = newRPEOptions;
 				} else {
+					var newRPEOptions = [];
+					subDict.RPEOptions.forEach(function (elem) {
+						if (elem >= subDict.minRPE && elem <= subDict.maxRPE) {
+							newRPEOptions.push(elem);
+						}
+					});
+					subDict.RPEOptions = newRPEOptions;
+				}
+			} else if (Pattern.workoutType == 'drop') {
+				subDict.minRPE = parseFloat(Pattern.dropRPE);
+				subDict.describer += " (Strength Drop)";
+				subDict.longDescriber = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE from 1 x " + Pattern.reps;
+				subDict.describer = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE";
+				if (Pattern.specialStage == 0) {
+					//First set (deprecated?)
+					// subDict.RPEOptions = [Pattern.dropRPE];
 					var newRPEOptions = [];
 					subDict.RPEOptions.forEach(function (elem) {
 						if (elem >= subDict.minRPE) {
@@ -343,21 +371,13 @@ function getVueInfo(refDict) {
 						}
 					});
 					subDict.RPEOptions = newRPEOptions;
-				}
-			} else if (Pattern.workoutType == 'drop') {
-				subDict.minRPE = parseInt(Pattern.dropRPE);
-				subDict.describer += " (Strength Drop)";
-				subDict.longDescriber = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE from 1 x " + Pattern.reps;
-				subDict.describer = "Strength Drop (" + Pattern.specialValue + " %) @ " + Pattern.RPE + " RPE";
-				if (Pattern.specialStage == 0) {
-					subDict.RPEOptions = [Pattern.dropRPE];
-				} else {
-					var newRPEOptions = [];
-					subDict.RPEOptions.forEach(function (elem) {
-						if (elem >= subDict.minRPE) {
-							newRPEOptions.push(elem);
-						}
-					});
+				} else {//Nothing(?)
+					// var newRPEOptions = [];
+					// subDict.RPEOptions.forEach(elem => {
+					// 	if (elem >= subDict.minRPE) {
+					// 		newRPEOptions.push(elem);
+					// 	}
+					// });
 				}
 			}
 			// subDict.RPEOptions = newRPEOptions;
