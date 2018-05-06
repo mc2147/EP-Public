@@ -464,7 +464,10 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         var monthDiff = new Date(timeDiff).getMonth();
         console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff, "current time: ", new Date(Date.now()));
         console.log("timezone1: ", _WorkoutDate.getTimezoneOffset(), "timezone2: ", new Date(Date.now()).getTimezoneOffset());
-        var todayDate = (0, _moment2.default)().format('YYYY-MM-DD');
+
+        var todayDate = (0, _moment2.default)().local();
+        todayDate = todayDate.format('YYYY-MM-DD');
+
         var checkDate = (0, _moment2.default)(_WorkoutDate).format('YYYY-MM-DD');
         console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
         // console.log("time difference: ", timeDiff);
@@ -477,7 +480,13 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
             return;
         }
         var accessible = false;
-        if (monthDiff == 0 && daysDiff == 0) {
+        // if (monthDiff == 0 && daysDiff == 0) {
+        //     accessible = true;
+        // }
+        // else {
+        //     accessible = false;            
+        // }
+        if (todayDate == checkDate) {
             accessible = true;
         } else {
             accessible = false;

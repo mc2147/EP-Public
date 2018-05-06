@@ -448,7 +448,10 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         let monthDiff = new Date(timeDiff).getMonth();
         console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff, "current time: ", new Date(Date.now()));
         console.log("timezone1: ", _WorkoutDate.getTimezoneOffset(), "timezone2: ", new Date(Date.now()).getTimezoneOffset());
-        let todayDate = moment().format('YYYY-MM-DD');
+        
+        let todayDate = moment().local();
+        todayDate = todayDate.format('YYYY-MM-DD');
+
         let checkDate = moment(_WorkoutDate).format('YYYY-MM-DD');
         console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
         // console.log("time difference: ", timeDiff);
