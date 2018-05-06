@@ -187,7 +187,7 @@ function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
             template.number = thisID;
             template.NSubworkouts = 0;
             // console.log(template.week, template.day);
-            // console.log("CreateWorkoutTemplate: ", levelGroup, blockNum, week, day);
+            console.log("CreateWorkoutTemplate: ", levelGroup, blockNum, week, day);
             for (var K in thisPatterns) {
                 var ID = K;
                 SubWorkoutTemplate.findOrCreate({
