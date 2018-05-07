@@ -111,6 +111,8 @@ var thisDate = new Date(Date.now());
     //id, levelGroup, blockNum, level, startDate, workoutDays
 //Level Groups 1 to 4, block 1
 // "UserName2"
+
+
 CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
 CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
 CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
@@ -127,7 +129,12 @@ CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9", 
 
 // CREATING NON-ADMIN BETA TESTERS
 // CreateUser("BetaUser", 2, 0, 6, date, [Day 1, Day 2...], false -> (admin), "Password", false -> (filledStats), false -> defaultWorkouts);
-// CreateUser("BetaUser", levelGroup, blockNum, level, false, "Password", false, false);
+CreateUser("ABradley", 2, 0, 6, "", [], false, "ABradley284", false, false);
+CreateUser("ASterczala", 3, 1, 11, "", [], false, "ABradley284", false, false);
+CreateUser("ACalderone", 2, 0, 6, "", [], false, "ABradley284", false, false);
+// Adam Bradley, age 22, 6'0", 195 lbs. 2 years lifting experience, RPE experience (level 6 start), known maxes: squat 335, bench press 215, deadlift 365
+// Adam Sterczala, age 33, 5'10" 220 lbs, 13 years lifting experience, RPE experience (level 11 start), known maxes: squat 640, bench press 440, deadlift 605
+// Adam Calderone, age 26, 6'1", 190 lbs, 5 years lifting experience, RPE experience (level 6 start), known maxes: squat 320, bench press 235, deadlift 440
 
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
