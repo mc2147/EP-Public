@@ -65,6 +65,34 @@ var StatTemplate = {
     },
 };
 
+var blankStatTemplate = {
+    "UB Hor Push": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "UB Vert Push": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "UB Hor Pull": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "UB Vert Pull": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Hinge": {Status: Alloy.None, Max: null, LastSet: "", Name: ""},
+    "Squat": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "LB Uni Push": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Ant Chain": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Post Chain": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Carry": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Iso 1": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Iso 2": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Iso 3": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Iso 4": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "RFD Load": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "RFD Unload 1": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "RFD Unload 2": {Status: Alloy.None, Max: null, LastSet: "", Name: ""}, 
+    "Medicine Ball": {Status: Alloy.None, Max: null, LastSet: "", Name: ""},     
+    "Level Up": {
+        Status: Alloy.None, 
+        Squat: Alloy.None,
+        UBHorPush: Alloy.None,
+        Hinge: Alloy.None,
+    },
+};
+
+
 // var FilledStatTemplate = {
 //     "UB Hor Push": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
 //     "UB Vert Push": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
@@ -180,12 +208,18 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
             username: username,
          }
      });
-    user.stats = StatTemplate;
+    if (filledStats) {
+        user.stats = StatTemplate;
+    }
+    else {
+        user.stats = blankStatTemplate;        
+    }
     user.workouts = {};        
     user.levelGroup = levelGroup;
     user.level = level; 
     user.blockNum = blockNum;
     user.oldstats = [];
+    user.oldworkouts = [];
     user.salt = generateSalt();
     let unHashed = "";
     if (!user.username || user.username == "") {
