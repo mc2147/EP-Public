@@ -313,6 +313,15 @@ for (var L in LevelVideos) {
             video.save();
             // console.log("video created: ", video);
         })
+        if (JSON.Type in VideosJSON) {
+            VideosJSON[JSON.Type][name] = JSON;
+            VideosJSON[JSON.Type][name].LevelAccess = Level;
+        }
+        else {
+            VideosJSON[JSON.Type] =  {};
+            VideosJSON[JSON.Type][name] = JSON;
+            VideosJSON[JSON.Type][name].LevelAccess = Level;
+        }
     }
 }
 
