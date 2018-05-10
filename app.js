@@ -5,7 +5,7 @@ let onlineVersion = true;
 // let herokuLocal = false;
 // Seed bools
 // s// False
-let seedWorkouts = true;
+let seedWorkouts = false;
 let seedUsers = true;
 
 
