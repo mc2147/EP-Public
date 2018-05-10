@@ -5,7 +5,7 @@ let onlineVersion = true;
 // let herokuLocal = false;
 // Seed bools
 // s// False
-let seedWorkouts = false;
+let seedWorkouts = true;
 let seedUsers = true;
 
 
@@ -78,7 +78,7 @@ app.use(function (req, res, next) {
 
     
 app.use(cors({
-    origin:[process.env.CORS_ORIGIN],
+    origin:['http://alloystrength.s3-website-us-east-1.amazonaws.com'],
     methods:['GET','POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true, // enable set cookie    
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With']

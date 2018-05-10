@@ -73,6 +73,33 @@ var StatTemplate = {
     }
 };
 
+var blankStatTemplate = {
+    "UB Hor Push": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "UB Vert Push": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "UB Hor Pull": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "UB Vert Pull": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Hinge": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Squat": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "LB Uni Push": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Ant Chain": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Post Chain": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Carry": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Iso 1": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Iso 2": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Iso 3": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Iso 4": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "RFD Load": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "RFD Unload 1": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "RFD Unload 2": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Medicine Ball": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
+    "Level Up": {
+        Status: Alloy.None,
+        Squat: Alloy.None,
+        UBHorPush: Alloy.None,
+        Hinge: Alloy.None
+    }
+};
+
 // var FilledStatTemplate = {
 //     "UB Hor Push": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
 //     "UB Vert Push": {Status: Alloy.None, Max: 200, LastSet: "", Name: ""}, 
@@ -118,6 +145,8 @@ var thisDate = new Date(Date.now());
 //id, levelGroup, blockNum, level, startDate, workoutDays
 //Level Groups 1 to 4, block 1
 // "UserName2"
+
+
 CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
 CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
 CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
@@ -134,7 +163,15 @@ CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9", 
 
 // CREATING NON-ADMIN BETA TESTERS
 // CreateUser("BetaUser", 2, 0, 6, date, [Day 1, Day 2...], false -> (admin), "Password", false -> (filledStats), false -> defaultWorkouts);
-// CreateUser("BetaUser", levelGroup, blockNum, level, false, "Password", false, false);
+CreateUser("ABradley", 2, 0, 6, "", [], false, "ABradley284", false, false);
+CreateUser("ASterczala", 3, 1, 11, "", [], false, "ASterczala371", false, false);
+CreateUser("ACalderone", 2, 0, 6, "", [], false, "ACalderone493", false, false);
+// Demo Users
+// CreateUser("DemoUser", 3, 1, 11, thisDate, [], true, "DemoUser", true, true);
+CreateUser("DemoBeta", 3, 1, 11, "", [], false, "DemoBeta", false, false);
+// Adam Bradley, age 22, 6'0", 195 lbs. 2 years lifting experience, RPE experience (level 6 start), known maxes: squat 335, bench press 215, deadlift 365
+// Adam Sterczala, age 33, 5'10" 220 lbs, 13 years lifting experience, RPE experience (level 11 start), known maxes: squat 640, bench press 440, deadlift 605
+// Adam Calderone, age 26, 6'1", 190 lbs, 5 years lifting experience, RPE experience (level 6 start), known maxes: squat 320, bench press 235, deadlift 440
 
 // CreateUser(3, 1, 11, thisDate);
 // CreateUser(3, 2, 11, thisDate);
@@ -185,12 +222,17 @@ async function CreateUser(username, levelGroup, blockNum, level, startDate, work
         user = _ref2[0],
         created = _ref2[1];
 
-    user.stats = StatTemplate;
+    if (filledStats) {
+        user.stats = StatTemplate;
+    } else {
+        user.stats = blankStatTemplate;
+    }
     user.workouts = {};
     user.levelGroup = levelGroup;
     user.level = level;
     user.blockNum = blockNum;
     user.oldstats = [];
+    user.oldworkouts = [];
     user.salt = generateSalt();
     var unHashed = "";
     if (!user.username || user.username == "") {

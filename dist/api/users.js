@@ -277,9 +277,9 @@ router.put("/:userId/workouts/:workoutId/pattern/:patternId/update", async funct
 router.put("/:userId/change-password", async function (req, res) {
     var _User = await _models.User.findById(req.params.userId);
     var oldPassword = req.body.oldPassword;
-    var oldPasswordHashed = generateHash(oldPassword, _User.salt);
+    var oldPasswordHashed = (0, _userFunctions.generateHash)(oldPassword, _User.salt);
     if (oldPasswordHashed == _User.password) {
-        var newPassword = generateHash(req.body.newPassword, _User.salt);
+        var newPassword = (0, _userFunctions.generateHash)(req.body.newPassword, _User.salt);
         _User.password = newPassword;
         await _User.save();
         res.json(_User);

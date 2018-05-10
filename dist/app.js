@@ -3,12 +3,12 @@
 // Live deployment: onlineVersion && herokuLocal
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
-var onlineVersion = true;
+var onlineVersion = false;
 // let herokuLocal = false;
 // Seed bools
 // s// False
 var seedWorkouts = false;
-var seedUsers = false;
+var seedUsers = true;
 
 var herokuURL = "https://immense-mesa-37246.herokuapp.com";
 // var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
@@ -76,7 +76,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(cors({
-    origin: [process.env.CORS_ORIGIN],
+    origin: ['http://alloystrength.s3-website-us-east-1.amazonaws.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true, // enable set cookie    
     allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With']

@@ -49,6 +49,10 @@ var Video = db.define('Video', {
         type: Sequelize.INTEGER,
         defaultValue: 1
     },
+    exerciseType: {
+        type: Sequelize.STRING,
+        defaultValue: ""
+    },
     exerciseNames: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         defaultValue: []

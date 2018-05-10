@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.generateHash = generateHash;
 exports.signupUser = signupUser;
 exports.assignLevel = assignLevel;
 
@@ -29,6 +30,7 @@ var saltRounds = 10;
 function generateSalt() {
     return _bcryptjs2.default.genSaltSync(saltRounds);
 }
+
 function generateHash(password, salt) {
     return _bcryptjs2.default.hashSync(password, salt, null);
 }
