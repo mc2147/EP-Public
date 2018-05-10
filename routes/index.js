@@ -266,8 +266,12 @@ router.get('/',
 			// console.log("ALL USERS: ", users);
 		})
 	}
-	// console.log("username: ", req.session.username);
+	console.log("req.session.username: ", req.session.username);
 	req.session.User = await User.findOne({where: {username: req.session.username}});
+	if (!req.session.User) {
+		res.send("no user")
+		return
+	}
 	req.session.userId = req.session.User.id;
 	var thisUserURL = process.env.BASE_URL + "/api/users/" + req.session.userId;
 	axios.get(thisUserURL)
