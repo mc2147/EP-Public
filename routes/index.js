@@ -298,8 +298,9 @@ router.get('/',
 		render();
 		return
 	}
-	// console.log("LINE 335");
-	
+	if (!req.session.viewingWID) {
+		req.session.viewingWID = 1;
+	}
 	var TemplateID = req.session.viewingWID;
 	var wDateIndex = req.session.viewingWID - 1;
 	req.session.viewingWorkoutDate = req.session.User.workoutDates[wDateIndex];
@@ -575,7 +576,7 @@ router.get('/workouts', function(req, res) {
 
 	WorkoutTemplate.findAll({
 		where: {},
-		order: [['week', 'ASC'], ['day', 'ASC']],
+		order: [['levelGroup', 'ASC'], ['block', 'ASC'], ['week', 'ASC'], ['day', 'ASC']],
 	}).then(results => {
 		results.forEach(elem => {
 			if (elem.day == 4) {
@@ -603,10 +604,10 @@ router.get('/workouts', function(req, res) {
 			}
 
 			// var rowNum = results.length/4;
-			thisUser.save();
+			// thisUser.save();
 			res.render('templates', {
 				// Subworkouts: subworkouts,
-				// Workouts: results,
+				WorkoutObjects: results,
 				Subworkouts: subsDict,
 				Workouts: workoutDict,
 				// rowNum,

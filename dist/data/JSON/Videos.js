@@ -314,10 +314,18 @@ var _loop = function _loop() {
             console.log("video created: ", Level, JSON.Type, video.title);
             if (JSON.Type in DescriptionsJSON) {
                 video.description = DescriptionsJSON[JSON.Type][Level];
-                video.save();
             }
+            video.save();
             // console.log("video created: ", video);
         });
+        if (JSON.Type in VideosJSON) {
+            VideosJSON[JSON.Type][name] = JSON;
+            VideosJSON[JSON.Type][name].LevelAccess = Level;
+        } else {
+            VideosJSON[JSON.Type] = {};
+            VideosJSON[JSON.Type][name] = JSON;
+            VideosJSON[JSON.Type][name].LevelAccess = Level;
+        }
     };
 
     for (name in Vids) {
