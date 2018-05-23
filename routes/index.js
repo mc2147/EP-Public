@@ -198,6 +198,7 @@ router.get('/signup',
 		res.render("signup");
 	}
 )
+
 router.get('/login',
 	async function(req, res, next) {
 		res.render("login");
@@ -215,6 +216,88 @@ router.post('/login',
 	// 	res.render("createWorkouts", {allLevels, daysOfWeek});
 	}
 )
+
+// function getWorkoutDays (startDate, daysList, level, member, nWorkouts) {
+// 	var checkDays = 28;
+// 	var output = [];
+//     var count = 0;
+// 	var test = [];
+//     var i = 1;
+//     while (count < nWorkouts) {
+// 		var _DayTime = startDate.getTime() + DayValue*i;
+// 		var _Day = new Date(_DayTime);
+// 		var _weekDay = _Day.getDay(); //Sunday is 0, Saturday is 6
+// 		if (daysList.indexOf(_weekDay) >= 0) {
+// 			output.push(_Day);
+// 			count ++;
+//         }
+//         i ++;
+//     }
+// 	return output;
+// }
+
+
+function rescheduleWorkouts(user, newStart, daysOfWeek, nIncomplete) {
+	let newDates = getWorkoutDates(newStart, daysOfWeek, 0, "", nIncomplete);
+	let dateIndex = 0;
+	let newDateObj = {};
+	// console.log("user: ", user);
+	for (var K in user.workouts) {
+		let W = user.workouts[K];
+		if (!W.Completed) {
+			W.Date = newDates[dateIndex];
+			newDateObj[dateIndex] = newDates[dateIndex];
+		}
+		dateIndex ++;
+	}
+	// return user.workouts;	
+	return newDateObj;
+}
+
+router.get('/reschedule', async function(req, res, next) {
+	// You have N incomplete workouts, select a new start date and 3/4 days of the week to reschedule your remaining workouts.
+	let userId = 5;
+	if (req.session.User) {
+		userId = req.session.User.id;
+	}
+	var thisUserURL = process.env.BASE_URL + "/api/users/" + userId;
+	let userResponse = await axios.get(thisUserURL);
+	let userData = userResponse.data;
+	let workoutList = [];
+	let nIncomplete = 0;
+	let nComplete = 0;
+	for (var K in userData.workouts) {
+		let W = userData.workouts[K];
+		let listObj = Object.assign({}, W);
+		listObj.dateString = W.Date.toString();
+		workoutList.push(listObj);
+		// workoutList.push(W);
+		if (W.Completed) {
+			nComplete ++;
+		}
+		else {
+			nIncomplete ++;
+		}
+	}
+	workoutList.sort(function(a, b) {
+		return a.ID - b.ID; 
+	})
+	console.log("workoutList: ", workoutList);
+	console.log("rescheduledWorkouts: ", rescheduleWorkouts(userData, new Date(Date.now()), [1, 3, 4], nIncomplete));
+	
+	res.render('reschedule', {
+		workouts:userData.workouts,
+		workoutList,
+		username:userData.username,
+		user:userData,
+		nComplete,
+		nIncomplete,
+	})
+})
+
+router.get('/change-subscription', async function(req, res, next) {
+	res.render('changesubscription', {})
+})
 
 
 
@@ -301,6 +384,8 @@ router.get('/',
 	if (!req.session.viewingWID) {
 		req.session.viewingWID = 1;
 	}
+
+	console.log("req.session.viewingWID: ", req.session.viewingWID);
 	var TemplateID = req.session.viewingWID;
 	var wDateIndex = req.session.viewingWID - 1;
 	req.session.viewingWorkoutDate = req.session.User.workoutDates[wDateIndex];

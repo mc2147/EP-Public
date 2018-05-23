@@ -1,0 +1,137 @@
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+    </style>
+    
+    <form action="/workouts" method="POST">
+     Change Level Group:
+      <select name="selectLevelGroup">
+        <option value="1">1-5</option>
+        <option value="2">6-10</option>
+        <option value="3">11-15</option>
+        <option value="4">16-25</option>
+      </select> 
+      <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
+      <br/><br/>
+      Change Block Number:
+      <select name="selectLevelGroup">
+        <option value="1">1-5</option>
+        <option value="2">6-10</option>
+        <option value="3">11-15</option>
+        <option value="4">16-25</option>
+      </select> 
+      <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
+    </form>
+    <h2>Viewing Workouts for Level Group: , Block Number: </h2>
+    <div>
+        <h3>Week 1, Day 1</h3>
+        <table>
+        <tr>
+          <td>Exercise Type</td>
+          <td>Deload</td>
+          <td>Sets</td>
+          <td>Reps</td>
+          <td>RPE</td>
+          <td>Weight Type</td>
+          <td>Stop/Drop</td>
+        </tr>
+        <tr>
+          <td>a</td>
+          <td>b</td>
+          <td>c</td>
+          <td>d</td>
+          <td>e</td>
+          <td>
+            <select>
+              <option>1</option>
+              <option>2</option>
+            </select>
+          </td>
+          <td>
+              <select>
+                <option>1</option>
+                <option>2</option>
+              </select>            
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+    
+    <div style="font-size:20px; width:90%; margin:auto;">
+      <div style="width:30%; display:inline-block;"> 
+      {% for I in range(0, Workouts[1].length) %}
+        <br><br>
+         <b>Week {{Workouts[1][I].week}}, Day {{Workouts[1][I].day}} - ID: {{Workouts[1][I].number}}</b>, I: {{I}}
+         {% for Pattern in Subworkouts[1][I] %}
+           <br>{{Pattern.exerciseType}} | {{Pattern.sets}} x {{Pattern.reps}} | {{Pattern.RPE}} RPE 
+           {% if Pattern.deload != 0 %}
+            | Deload: {{Pattern.deload}}
+           {% endif %}
+         {% endfor %}
+      {% endfor %}
+      </div>
+    
+      <div style="width:30%; display:inline-block;"> 
+      {% for I in range(0, Workouts[2].length) %}
+        <br><br>
+         <b>Week {{Workouts[2][I].week}}, Day {{Workouts[2][I].day}} - ID: {{Workouts[2][I].number}}</b>, I: {{I}}
+         {% for Pattern in Subworkouts[2][I] %}
+           <br>{{Pattern.exerciseType}} | {{Pattern.sets}} x {{Pattern.reps}} | {{Pattern.RPE}} RPE 
+           {% if Pattern.deload != 0 %}
+            | Deload: {{Pattern.deload}}
+           {% endif %}
+         {% endfor %}
+      {% endfor %}
+      </div>
+    
+      <div style="width:30%; display:inline-block;"> 
+      {% for I in range(0, Workouts[3].length) %}
+        <br><br>    
+         <b>Week {{Workouts[3][I].week}}, Day {{Workouts[3][I].day}} - ID: {{Workouts[3][I].number}}</b>, I: {{I}}
+         {% for Pattern in Subworkouts[3][I] %}
+           <br>{{Pattern.exerciseType}} | {{Pattern.sets}} x {{Pattern.reps}} | {{Pattern.RPE}} RPE 
+           {% if Pattern.deload != 0 %}
+            | Deload: {{Pattern.deload}}
+           {% endif %}
+         {% endfor %}
+      {% endfor %}
+      </div>
+     <br><br>
+    
+     <form action="/" method="POST">
+     Select Level Group:
+      <select name="selectLevelGroup">
+        <option value="1">1-5</option>
+        <option value="2">6-10</option>
+        <option value="3">11-15</option>
+        <option value="4">16-25</option>
+      </select> 
+      <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
+      <br>
+     Select Workout:
+      <select name="selectWorkout" style="margin-top:15px;">
+        <option value="W1D1">Week 1: Day 1</option>
+        <option value="W1D2">Week 1: Day 2</option>
+        <option value="W1D3">Week 1: Day 3</option>
+        <option value="W1D4">Week 1: Day 4</option>
+      </select> 
+      <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Workout' name="selectWorkoutBtn" id='btn'></input>
+    </form>
+    
+     <b>User Max Stats:</b>
+     <br>
+      {% for P in Patterns %}
+        {{P.name}} {{P.Max}}
+        <br>
+        &nbsp; &nbsp; &nbsp; {{P.LastSet}}
+         <br>
+      {% endfor %} 
+    
+    </div>

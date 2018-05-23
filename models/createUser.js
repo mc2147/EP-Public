@@ -141,25 +141,25 @@ var thisDate = new Date(Date.now());
 // "UserName2"
 
 
-// CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
-// CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
-// CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
-// CreateUser("UserName4", 4, 1, 16, thisDate, [1, 2, 3, 5], true);
-// CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5], true);
-// CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5], true);
-// CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274", true, false);
-// CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368", true, false);
+CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
+CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName4", 4, 1, 16, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5], true);
+CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274", true, false);
+CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368", true, false);
 
-// CreateUser("AdminChan", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "AChan2147", true, true);
-// CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9", true, true);
-// CreateUser("mc2147", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "AChan2147", true, false);
-// CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9", true, false);
+CreateUser("AdminChan", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "AChan2147", true, true);
+CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9", true, true);
+CreateUser("mc2147", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "AChan2147", true, false);
+CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9", true, false);
 
 // CREATING NON-ADMIN BETA TESTERS
 // CreateUser("BetaUser", 2, 0, 6, date, [Day 1, Day 2...], false -> (admin), "Password", false -> (filledStats), false -> defaultWorkouts);
-// CreateUser("ABradley", 2, 0, 6, "", [], false, "ABradley284", false, false);
+CreateUser("ABradley", 2, 0, 6, "", [], false, "ABradley284", false, false);
 CreateUser("ASterczala", 3, 1, 11, "", [], false, "ASterczala371", false, false);
-// CreateUser("ACalderone", 2, 0, 6, "", [], false, "ACalderone493", false, false);
+CreateUser("ACalderone", 2, 0, 6, "", [], false, "ACalderone493", false, false);
 // Demo Users
 CreateUser("DemoBeta", 3, 1, 11, "", [], false, "DemoBeta", false, false);
 

@@ -191,6 +191,7 @@ var DaysofWeekDict = {
 router.get('/signup', async function (req, res, next) {
 	res.render("signup");
 });
+
 router.get('/login', async function (req, res, next) {
 	res.render("login");
 });
@@ -201,6 +202,87 @@ router.post('/signup', async function (req, res, next) {
 router.post('/login', async function (req, res, next) {
 	res.json(req.body);
 	// 	res.render("createWorkouts", {allLevels, daysOfWeek});
+});
+
+// function getWorkoutDays (startDate, daysList, level, member, nWorkouts) {
+// 	var checkDays = 28;
+// 	var output = [];
+//     var count = 0;
+// 	var test = [];
+//     var i = 1;
+//     while (count < nWorkouts) {
+// 		var _DayTime = startDate.getTime() + DayValue*i;
+// 		var _Day = new Date(_DayTime);
+// 		var _weekDay = _Day.getDay(); //Sunday is 0, Saturday is 6
+// 		if (daysList.indexOf(_weekDay) >= 0) {
+// 			output.push(_Day);
+// 			count ++;
+//         }
+//         i ++;
+//     }
+// 	return output;
+// }
+
+
+function rescheduleWorkouts(user, newStart, daysOfWeek, nIncomplete) {
+	var newDates = getWorkoutDates(newStart, daysOfWeek, 0, "", nIncomplete);
+	var dateIndex = 0;
+	var newDateObj = {};
+	// console.log("user: ", user);
+	for (var K in user.workouts) {
+		var W = user.workouts[K];
+		if (!W.Completed) {
+			W.Date = newDates[dateIndex];
+			newDateObj[dateIndex] = newDates[dateIndex];
+		}
+		dateIndex++;
+	}
+	// return user.workouts;	
+	return newDateObj;
+}
+
+router.get('/reschedule', async function (req, res, next) {
+	// You have N incomplete workouts, select a new start date and 3/4 days of the week to reschedule your remaining workouts.
+	var userId = 5;
+	if (req.session.User) {
+		userId = req.session.User.id;
+	}
+	var thisUserURL = process.env.BASE_URL + "/api/users/" + userId;
+	var userResponse = await axios.get(thisUserURL);
+	var userData = userResponse.data;
+	var workoutList = [];
+	var nIncomplete = 0;
+	var nComplete = 0;
+	for (var K in userData.workouts) {
+		var W = userData.workouts[K];
+		var listObj = Object.assign({}, W);
+		listObj.dateString = W.Date.toString();
+		workoutList.push(listObj);
+		// workoutList.push(W);
+		if (W.Completed) {
+			nComplete++;
+		} else {
+			nIncomplete++;
+		}
+	}
+	workoutList.sort(function (a, b) {
+		return a.ID - b.ID;
+	});
+	console.log("workoutList: ", workoutList);
+	console.log("rescheduledWorkouts: ", rescheduleWorkouts(userData, new Date(Date.now()), [1, 3, 4], nIncomplete));
+
+	res.render('reschedule', {
+		workouts: userData.workouts,
+		workoutList: workoutList,
+		username: userData.username,
+		user: userData,
+		nComplete: nComplete,
+		nIncomplete: nIncomplete
+	});
+});
+
+router.get('/change-subscription', async function (req, res, next) {
+	res.render('changesubscription', {});
 });
 
 router.get('/get-next-workouts', async function (req, res, next) {
@@ -280,6 +362,8 @@ router.get('/', async function (req, res, next) {
 	if (!req.session.viewingWID) {
 		req.session.viewingWID = 1;
 	}
+
+	console.log("req.session.viewingWID: ", req.session.viewingWID);
 	var TemplateID = req.session.viewingWID;
 	var wDateIndex = req.session.viewingWID - 1;
 	req.session.viewingWorkoutDate = req.session.User.workoutDates[wDateIndex];
@@ -551,7 +635,7 @@ router.get('/workouts', function (req, res) {
 
 	WorkoutTemplate.findAll({
 		where: {},
-		order: [['week', 'ASC'], ['day', 'ASC']]
+		order: [['levelGroup', 'ASC'], ['block', 'ASC'], ['week', 'ASC'], ['day', 'ASC']]
 	}).then(function (results) {
 		results.forEach(function (elem) {
 			if (elem.day == 4) {
@@ -578,10 +662,10 @@ router.get('/workouts', function (req, res) {
 			}
 
 			// var rowNum = results.length/4;
-			thisUser.save();
+			// thisUser.save();
 			res.render('templates', {
 				// Subworkouts: subworkouts,
-				// Workouts: results,
+				WorkoutObjects: results,
 				Subworkouts: subsDict,
 				Workouts: workoutDict
 				// rowNum,

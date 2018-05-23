@@ -115,30 +115,6 @@ function missedWorkouts(user, missedDate, newStartDate) {
         newWorkoutDates.push(newDate);
     }
     newWorkoutDates = completedDates.concat(newWorkoutDates);
-    // console.log(workoutDates);
-    // console.log("shiftedTimeVal: " + shiftedTimeVal);
-    // console.log(newWorkoutDates);
-
-    // console.log("old workout dates: " + workoutDates.length);
-    for (var x = 0; x < workoutDates.length; x++) {}
-    // console.log(x);
-    // console.log(workoutDates[x], "Workout #: " + (x + 1));
-    // console.log("Workout #: " + (x + 1));
-
-    // console.log("\nmissedDate: " + missedDate);
-    // console.log("new start date: " + thisDate);
-    // console.log("\nNew Workout Dates:"); 
-    for (var x = 0; x < newWorkoutDates.length; x++) {
-        // console.log(newWorkoutDates[x], "Workout #: " + (x + 1));
-        // console.log("Workout #: " + (x + 1));
-        if (x == completedDates.length - 1) {
-            // console.log("   Shift Starts");
-        } else if (x == missedPoint - 1) {
-            // console.log("   Missed Starts");
-        }
-    }
-
-    // console.log("\n");    
     return newWorkoutDates;
 }
 
