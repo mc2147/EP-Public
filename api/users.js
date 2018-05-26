@@ -169,6 +169,9 @@ router.post('/:id/reschedule-workouts', async function(req, res) {
 	// console.log("new start date: ", new Date(req.body.restartDate));
     let newStartDate = new Date(req.body.restartDate);
     let Now = new Date(Date.now());
+    console.log("/:id/reschedule-workouts route ");
+    console.log("   Now: ", Now);
+    console.log("   newStartDate ", newStartDate);
     let user = await User.findById(req.params.id);
 	if ('DoW' in req.body) {
 		let DoWArray = [];
