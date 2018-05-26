@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
 import {signupUser} from './apiFunctions/userFunctions';
-import {assignWorkouts, assignLevel, getblankPatterns} from './apiFunctions/workoutFunctions';
+import {assignWorkouts, assignLevel, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
 import {generateHash} from './apiFunctions/userFunctions';
 import {updateSpecial} from './apiFunctions/workoutUpdate'
 import {generateWorkouts} from './apiFunctions/generateWorkouts';
@@ -134,6 +134,65 @@ router.post("/", async function(req, res) {
     // res.json(req.session);
 })
 
+router.get('/:id/reschedule-workouts', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let Now = new Date(Date.now());
+    let workouts = [];
+    for (var K in user.workouts) {
+        let W = user.workouts[K];
+        let wDate = new Date(W.Date);        
+        let workoutObj = {
+            Week:W.Week,
+            Day:W.Day,
+            Date:wDate,
+            Missed:false,
+            Completed:false,
+        }
+        if (W.Completed) {
+            workoutObj.Completed = true;
+        }
+        else { //If incomplete and less than now
+            if ( //Check if date is less than Now
+            wDate && wDate.getDate() < Now.getDate() 
+            && wDate.getMonth() <= Now.getMonth()) {
+                workoutObj.Missed = true;
+            }
+        }
+        workouts.push(workoutObj);
+    }
+    res.json(workouts);
+}) 
+
+router.post('/:id/reschedule-workouts', async function(req, res) {
+	console.log("posting to reschedule... from users api");
+	console.log("req.body: ", req.body);
+	// console.log("new start date: ", new Date(req.body.restartDate));
+    let newStartDate = new Date(req.body.restartDate);
+    let Now = new Date(Date.now());
+    let user = await User.findById(req.params.id);
+	if ('DoW' in req.body) {
+		let DoWArray = [];
+		req.body.DoW.forEach(day => {
+			DoWArray.push(parseInt(day));
+		})
+		// console.log('old workout dates: ', user.workoutDates);
+        let newDates = await rescheduleWorkouts(user, newStartDate, DoWArray);
+        // let dateIndex = 0;
+        // for (var K in user.workouts) {
+        //     let W = user.workouts[K];
+        //     if (!W.Completed) {
+        //         W.Date = newDates[dateIndex];
+        //     }
+        //     dateIndex ++;
+        // }
+        // await user.changed('workouts', true);
+        // await user.save();
+        // return newDates;
+            
+	}
+	res.redirect('/reschedule');
+})
+
 router.post('/:id/payment', async function(req, res) {
     
 });
@@ -159,6 +218,20 @@ router.post("/:username/login", async function (req, res) {
         var hashed = User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
             let hasWorkouts = (Object.keys(loginUser.workouts).length > 0);
+            loginUser.missedWorkouts = false;
+            for (var K in loginUser.workouts) {
+                let W = loginUser.workouts[K];
+                let wDate = new Date(W.Date);        
+                if (
+                    //If there's an incomplete workout before the current date
+                    !W.Completed 
+                    && wDate 
+                    && wDate.getDate() < Now.getDate() 
+                    && wDate.getMonth() <= Now.getMonth()) {
+                    loginUser.missedWorkouts = true;
+                }
+            }	
+                    
             res.json({
                 Success: true,
                 Found: true,
@@ -271,8 +344,8 @@ router.get("/:userId/workouts/last", async function(req, res) {
 
 router.get("/:userId/workouts/:workoutId", async function(req, res) {
     let user = await User.findById(req.params.userId);
-    var _Workout = user.workouts[req.params.workoutId];
     await suggestWeights(user, req.params.workoutId);
+    var _Workout = user.workouts[req.params.workoutId];
     res.json(_Workout);
 })
 

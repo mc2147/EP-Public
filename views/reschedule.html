@@ -6,7 +6,53 @@
     
     <h2>Viewing Workouts for: {{user.username}}</h2>
     <div>
-        <h2>You have {{nIncomplete}} incomplete workouts. Select a new start date and days of the week to complete your remaining workouts.</h2>
+        <form action="/reschedule" method="POST">
+          New start date: <input type="date" name="restartDate">
+          <br/><br/ >
+          Days of the week:
+          <br/>
+          Monday
+          <input type="checkbox" name="DoW" value="0">
+          <br/>
+          Tuesday
+          <input type="checkbox" name="DoW" value="1">
+          <br/>
+          Wednesday
+          <input type="checkbox" name="DoW" value="2">
+          <br/>
+          Thursday
+          <input type="checkbox" name="DoW" value="3">
+          <br/>
+          Friday
+          <input type="checkbox" name="DoW" value="4">
+          <br/>
+          Saturday
+          <input type="checkbox" name="DoW" value="5">
+          <br/>
+          Sunday
+          <input type="checkbox" name="DoW" value="6">
+          <br/><br/>
+          <input type='submit' onclick="" value='Reschedule Workouts' name="rescheduleBtn" id='btn'></input>
+          <!-- Change Level Group:
+           <select name="selectLevelGroup">
+             <option value="1">1-5</option>
+             <option value="2">6-10</option>
+             <option value="3">11-15</option>
+             <option value="4">16-25</option>
+           </select> 
+           <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
+           <br/><br/>
+           Change Block Number:
+           <select name="selectLevelGroup">
+             <option value="1">1-5</option>
+             <option value="2">6-10</option>
+             <option value="3">11-15</option>
+             <option value="4">16-25</option>
+           </select> 
+           <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input> -->
+      </form>
+      <h2>Today is {{Now}}</h2>
+      <h2>You have {{nIncomplete}} incomplete workouts. Select a new start date and days of the week to complete your remaining workouts.</h2>
         {% for W in workoutList %}
             <h3>Week {{W.Week}}, 
                 Day {{W.Day}}, 
@@ -15,64 +61,8 @@
                 Date: {{W.dateString}}
             </h3>
         {% endfor %}
-        <h3>Week 1, Day 1</h3>
-        <form action="/api/reschedule" method="POST">
-            <!-- Change Level Group:
-             <select name="selectLevelGroup">
-               <option value="1">1-5</option>
-               <option value="2">6-10</option>
-               <option value="3">11-15</option>
-               <option value="4">16-25</option>
-             </select> 
-             <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input>
-             <br/><br/>
-             Change Block Number:
-             <select name="selectLevelGroup">
-               <option value="1">1-5</option>
-               <option value="2">6-10</option>
-               <option value="3">11-15</option>
-               <option value="4">16-25</option>
-             </select> 
-             <input style="margin:auto; margin-left:10px;" type='submit' onclick="" value='Select Level Group' name="selectLGroupBtn" id='btn'></input> -->
-        </form>
-               
-        <table>
-        <tr>
-          <td>Exercise Type</td>
-          <td>Deload</td>
-          <td>Sets</td>
-          <td>Reps</td>
-          <td>RPE</td>
-          <td>Weight Type</td>
-          <td>Stop/Drop</td>
-        </tr>
-        <tr>
-          <td>a</td>
-          <td>b</td>
-          <td>c</td>
-          <td>d</td>
-          <td>e</td>
-          <td>
-            <select>
-              <option>1</option>
-              <option>2</option>
-            </select>
-          </td>
-          <td>
-              <select>
-                <option>1</option>
-                <option>2</option>
-              </select>            
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-      </table>
-    </div>
+
+      </div>
     
     <div style="font-size:20px; width:90%; margin:auto;">
       <div style="width:30%; display:inline-block;"> 

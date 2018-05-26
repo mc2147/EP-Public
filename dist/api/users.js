@@ -159,6 +159,62 @@ router.post("/", async function (req, res) {
     // res.json(req.session);
 });
 
+router.get('/:id/reschedule-workouts', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var workouts = [];
+    for (var K in user.workouts) {
+        var W = user.workouts[K];
+        var wDate = new Date(W.Date);
+        var workoutObj = {
+            Week: W.week,
+            Day: W.day,
+            Date: wDate,
+            Missed: false
+        };
+        if (W.Completed) {
+            workoutObj.Completed = true;
+        } else {
+            //If incomplete and less than now
+            workoutObj.Incomplete = true;
+            if ( //Check if date is less than Now
+            wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+                workoutObj.Missed = true;
+            }
+        }
+        workouts.push(workoutObj);
+    }
+    res.json(workouts);
+});
+
+router.post('/:id/reschedule-workouts', async function (req, res) {
+    console.log("posting to reschedule... from users api");
+    console.log("req.body: ", req.body);
+    // console.log("new start date: ", new Date(req.body.restartDate));
+    var newStartDate = new Date(req.body.restartDate);
+    var Now = new Date(Date.now());
+    var user = await _models.User.findById(req.params.id);
+    if ('DoW' in req.body) {
+        var DoWArray = [];
+        req.body.DoW.forEach(function (day) {
+            DoWArray.push(parseInt(day));
+        });
+        // console.log('old workout dates: ', user.workoutDates);
+        var newDates = await (0, _workoutFunctions.rescheduleWorkouts)(user, newStartDate, DoWArray);
+        // let dateIndex = 0;
+        // for (var K in user.workouts) {
+        //     let W = user.workouts[K];
+        //     if (!W.Completed) {
+        //         W.Date = newDates[dateIndex];
+        //     }
+        //     dateIndex ++;
+        // }
+        // await user.changed('workouts', true);
+        // await user.save();
+        // return newDates;
+    }
+    res.redirect('/reschedule');
+});
+
 router.post('/:id/payment', async function (req, res) {});
 
 router.post("/:username/login", async function (req, res) {
@@ -181,6 +237,17 @@ router.post("/:username/login", async function (req, res) {
         var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
         if (hashed == loginUser.password) {
             var hasWorkouts = Object.keys(loginUser.workouts).length > 0;
+            loginUser.missedWorkouts = false;
+            for (var K in loginUser.workouts) {
+                var W = loginUser.workouts[K];
+                var wDate = new Date(W.Date);
+                if (
+                //If there's an incomplete workout before the current date
+                !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+                    loginUser.missedWorkouts = true;
+                }
+            }
+
             res.json({
                 Success: true,
                 Found: true,
@@ -289,8 +356,8 @@ router.get("/:userId/workouts/last", async function (req, res) {
 
 router.get("/:userId/workouts/:workoutId", async function (req, res) {
     var user = await _models.User.findById(req.params.userId);
-    var _Workout = user.workouts[req.params.workoutId];
     await suggestWeights(user, req.params.workoutId);
+    var _Workout = user.workouts[req.params.workoutId];
     res.json(_Workout);
 });
 

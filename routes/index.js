@@ -237,8 +237,38 @@ router.post('/login',
 // }
 
 
-function rescheduleWorkouts(user, newStart, daysOfWeek, nIncomplete) {
-	let newDates = getWorkoutDates(newStart, daysOfWeek, 0, "", nIncomplete);
+function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
+	let Now = new Date(Date.now());
+	let nIncomplete = 0;
+	let nComplete = 0;
+	let defaultShift = 0;
+	console.log("user: ", user);
+	let completedDates = [];
+	for (var K in user.workouts) {
+		let W = user.workouts[K];
+		let wDate = new Date(W.Date);
+		if (parseInt(K) <= 3) {
+			// console.log("K <= 3: ", K);
+			W.Completed = true;		
+		}
+		
+		if (W.Completed) {
+			nComplete ++;
+			completedDates.push(wDate);
+		}
+		else {
+			nIncomplete ++;
+			if (wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+				defaultShift ++;
+			}
+		}
+	}	
+	// let pastW
+	console.log("completedDates: ", completedDates);
+	let newIncompleteDates = getWorkoutDates(newStart, daysOfWeek, 0, "", nIncomplete);
+	console.log("newIncompleteDates: ", newIncompleteDates, "nIncomplete: ", nIncomplete);
+	let newDates = completedDates.concat(newIncompleteDates);
+	console.log("newDates: ", newDates, newDates.length);
 	let dateIndex = 0;
 	let newDateObj = {};
 	// console.log("user: ", user);
@@ -246,13 +276,38 @@ function rescheduleWorkouts(user, newStart, daysOfWeek, nIncomplete) {
 		let W = user.workouts[K];
 		if (!W.Completed) {
 			W.Date = newDates[dateIndex];
-			newDateObj[dateIndex] = newDates[dateIndex];
 		}
 		dateIndex ++;
 	}
-	// return user.workouts;	
-	return newDateObj;
+	return newDates;
 }
+
+router.post('/reschedule', async function(req, res, next) {
+	console.log("posting to reschedule...");
+	console.log("req.body: ", req.body);
+	console.log("new start date: ", new Date(req.body.restartDate));
+	let newStartDate = new Date(req.body.restartDate);
+	let userId = 5;
+	if (req.session.User) {
+		userId = req.session.User.id;
+	}
+	var thisUserURL = process.env.BASE_URL + "/api/users/" + userId;
+	let userResponse = await axios.get(thisUserURL);
+	let user = userResponse.data;
+	if ('DoW' in req.body) {
+		let DoWArray = [];
+		req.body.DoW.forEach(day => {
+			DoWArray.push(parseInt(day));
+		})
+		console.log('old workout dates: ', user.workoutDates);
+		// let rescheduled = rescheduleWorkouts(user, newStartDate, [0, 1, 2]);
+		await axios.post(`${thisUserURL}/reschedule-workouts`, {
+			restartDate:newStartDate,
+			DoW:DoWArray,
+		})
+	}
+	res.redirect('/reschedule');
+})
 
 router.get('/reschedule', async function(req, res, next) {
 	// You have N incomplete workouts, select a new start date and 3/4 days of the week to reschedule your remaining workouts.
@@ -266,26 +321,45 @@ router.get('/reschedule', async function(req, res, next) {
 	let workoutList = [];
 	let nIncomplete = 0;
 	let nComplete = 0;
+	// let Now = new Date(Date.now());
+	let Now = new Date(Date.now());
+	// console.log("Now: ", Now, Now.getDate());
 	for (var K in userData.workouts) {
 		let W = userData.workouts[K];
-		let listObj = Object.assign({}, W);
-		listObj.dateString = W.Date.toString();
-		workoutList.push(listObj);
+		let wDate = new Date(W.Date);
+
+		// console.log("K: ", K);
+		// TESTING ONLY -> MAKING FIRST 3 COMPLETE
+		// if (parseInt(K) <= 3) {
+		// 	// console.log("K <= 3: ", K);
+		// 	W.Completed = true;		
+		// }
+		// console.log("W.Completed: ", W.Completed);
 		// workoutList.push(W);
 		if (W.Completed) {
+			// console.log("W.Completed 2: ", W.Completed);
 			nComplete ++;
 		}
 		else {
-			nIncomplete ++;
+			if (wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+				// console.log(wDate.getDate(), " less than...");
+				nIncomplete ++;
+			}
 		}
+		let listObj = Object.assign({}, W);
+		listObj.dateString = W.Date.toString();
+		workoutList.push(listObj);		
 	}
 	workoutList.sort(function(a, b) {
 		return a.ID - b.ID; 
 	})
-	console.log("workoutList: ", workoutList);
-	console.log("rescheduledWorkouts: ", rescheduleWorkouts(userData, new Date(Date.now()), [1, 3, 4], nIncomplete));
+	// console.log("workoutList: ", workoutList);
+	let DayValue = 24*3600*1000;	
+	let newStartDate = new Date(Date.now() - DayValue*5);
+	// console.log("rescheduledWorkouts: ", rescheduleWorkouts(userData, newStartDate, [0, 1, 2], nIncomplete));
 	
 	res.render('reschedule', {
+		Now:Now,
 		workouts:userData.workouts,
 		workoutList,
 		username:userData.username,

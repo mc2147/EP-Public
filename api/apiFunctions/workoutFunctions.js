@@ -62,6 +62,52 @@ export async function assignLevel(_User, input) {
     await _User.save();
 }
 
+        
+export async function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
+    let Now = new Date(Date.now());
+    let nIncomplete = 0;
+    let nComplete = 0;
+    let defaultShift = 0;
+    console.log("rescheduleWorkouts user (workoutFunctions.js): ", user);
+    let completedDates = [];
+    for (var K in user.workouts) {
+        let W = user.workouts[K];
+        let wDate = new Date(W.Date);        
+        if (W.Completed) {
+            nComplete ++;
+            completedDates.push(wDate);
+        }
+        else { //If incomplete and less than now
+            nIncomplete ++;
+            if ( //Check if date is less than Now
+            wDate && wDate.getDate() < Now.getDate() 
+            && wDate.getMonth() <= Now.getMonth()) {
+                defaultShift ++;
+            }
+        }
+    }
+    // let pastW
+    console.log("completedDates: ", completedDates);
+    let newIncompleteDates = getWorkoutDays(newStart, daysOfWeek, 0, "", nIncomplete);
+    console.log("newIncompleteDates: ", newIncompleteDates, "nIncomplete: ", nIncomplete);
+    let newDates = completedDates.concat(newIncompleteDates);
+    console.log("newDates: ", newDates, newDates.length);
+    // return newDates;
+    let dateIndex = 0;
+    let newDateObj = {};
+    // console.log("user: ", user);
+    for (var K in user.workouts) {
+        let W = user.workouts[K];
+        if (!W.Completed) {
+            W.Date = newDates[dateIndex];
+        }
+        dateIndex ++;
+    }
+    await user.changed('workouts', true);
+    await user.save();
+    return newDates;
+}
+                
 //Assigns a set of workouts to the user depending on level, start date, and workout days (list) 
     // Required format:
         // ["Day-1"], ["Day-2"], ["Day-3"], ["Day-4"]

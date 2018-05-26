@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.signupUser = signupUser;
 exports.assignLevel = assignLevel;
+exports.rescheduleWorkouts = rescheduleWorkouts;
 exports.assignWorkouts = assignWorkouts;
 exports.getblankPatterns = getblankPatterns;
 
@@ -82,6 +83,52 @@ async function assignLevel(_User, input) {
         _User.level = 6;
     }
     await _User.save();
+}
+
+async function rescheduleWorkouts(user, newStart, daysOfWeek) {
+    var n = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+
+    var Now = new Date(Date.now());
+    var nIncomplete = 0;
+    var nComplete = 0;
+    var defaultShift = 0;
+    console.log("rescheduleWorkouts user (workoutFunctions.js): ", user);
+    var completedDates = [];
+    for (var K in user.workouts) {
+        var W = user.workouts[K];
+        var wDate = new Date(W.Date);
+        if (W.Completed) {
+            nComplete++;
+            completedDates.push(wDate);
+        } else {
+            //If incomplete and less than now
+            nIncomplete++;
+            if ( //Check if date is less than Now
+            wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+                defaultShift++;
+            }
+        }
+    }
+    // let pastW
+    console.log("completedDates: ", completedDates);
+    var newIncompleteDates = (0, _functions.getWorkoutDays)(newStart, daysOfWeek, 0, "", nIncomplete);
+    console.log("newIncompleteDates: ", newIncompleteDates, "nIncomplete: ", nIncomplete);
+    var newDates = completedDates.concat(newIncompleteDates);
+    console.log("newDates: ", newDates, newDates.length);
+    // return newDates;
+    var dateIndex = 0;
+    var newDateObj = {};
+    // console.log("user: ", user);
+    for (var K in user.workouts) {
+        var _W = user.workouts[K];
+        if (!_W.Completed) {
+            _W.Date = newDates[dateIndex];
+        }
+        dateIndex++;
+    }
+    await user.changed('workouts', true);
+    await user.save();
+    return newDates;
 }
 
 //Assigns a set of workouts to the user depending on level, start date, and workout days (list) 

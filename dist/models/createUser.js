@@ -151,7 +151,7 @@ CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
 CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
 CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
 CreateUser("UserName4", 4, 1, 16, thisDate, [1, 2, 3, 5], true);
-CreateUser("UserName5", 3, 2, 12, thisDate, [1, 2, 3, 5], true);
+CreateUser("UserName5", 3, 2, 12, oldDate, [1, 2, 3, 5], true);
 CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5], true);
 CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274", true, false);
 CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368", true, false);
