@@ -334,6 +334,10 @@ var User = db.define('User', {
     //     primaryKey: true,
     //     autoIncrement: true,
     // },  
+    stripeId: {
+        type: Sequelize.STRING,
+        defaultValue: ""
+    },
     username: { //Check for email later
         type: Sequelize.STRING,
         // unique: true,
@@ -355,9 +359,13 @@ var User = db.define('User', {
         type: Sequelize.BOOLEAN,
         defaultValue: false
     },
+    initialized: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
     level: {
         type: Sequelize.INTEGER,
-        defaultValue: 1,
+        defaultValue: null,
         allowNull: true
     },
     blockNum: {
@@ -439,20 +447,6 @@ User.generateHash = function (password, salt) {
 SubWorkoutTemplate.belongsTo(WorkoutTemplate, { foreignKey: 'fk_workout', foreignKeyConstraint: true });
 WorkoutTemplate.hasMany(SubWorkoutTemplate, { foreignKey: 'fk_workout', as: 'subWorkouts' });
 
-var Workout = db.define('Workout', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    week: {
-        type: Sequelize.INTEGER
-    },
-    day: {
-        type: Sequelize.INTEGER
-    }
-});
-
 // db.sync({force: true});
 // db.sync();
 
@@ -460,7 +454,7 @@ module.exports = {
     db: db,
     Exercise: Exercise,
     WorkoutTemplate: WorkoutTemplate,
-    Workout: Workout,
+    // Workout,
     User: User,
     SubWorkoutTemplate: SubWorkoutTemplate,
     Video: Video

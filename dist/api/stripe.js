@@ -26,15 +26,24 @@ var router = express.Router();
 // import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 // import moment from 'moment';
 
-router.get("/customers", async function (req, res) {});
+router.get("/customers", async function (req, res) {
+    var stripeCustomers = await stripe.customers.list();
+    res.json(stripeCustomers);
+});
 
 router.get("/subscriptions", async function (req, res) {
     var stripeSubscriptions = await stripe.subscriptions.list();
     res.json(stripeSubscriptions);
 });
 
-router.get("/plans", async function (req, res) {});
+router.get("/plans", async function (req, res) {
+    var plans = await stripe.plans.list();
+    res.json(plans);
+});
 
-router.get("/charges", async function (req, res) {});
+router.get("/charges", async function (req, res) {
+    var charges = await stripe.charges.list();
+    res.json(charges);
+});
 
 module.exports = router;

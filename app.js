@@ -5,20 +5,20 @@ let onlineVersion = true;
 // let herokuLocal = false;
 // Seed bools
 // s// False 
-let seedWorkouts = false;
-let seedUsers = false;
-var herokuURL = "https://immense-mesa-37246.herokuapp.com";
+let seedWorkouts = true;
+let seedUsers = true;
+var onlineURL = "https://immense-mesa-37246.herokuapp.com";
 // var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
 var localURL = "http://localhost:5000";
 
-var herokuCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
+var onlineCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
 var localCORS = "http://localhost:8080";
 
 console.log("process.env.PORT: ", process.env.PORT);
 console.log("LINE 10 APP.JS");
 
-process.env.BASE_URL = (process.env.PORT && onlineVersion) ? herokuURL : localURL;
-process.env.CORS_ORIGIN = (process.env.PORT && onlineVersion) ? herokuCORS : localCORS;
+process.env.BASE_URL = (process.env.PORT && onlineVersion) ? onlineURL : localURL;
+process.env.CORS_ORIGIN = (process.env.PORT && onlineVersion) ? onlineCORS : localCORS;
 process.env.STRIPE_SECRET_KEY = 'sk_test_LKsnEFYm74fwmLbyfR3qKWgb';
 process.env.STRIPE_PUBLIC_KEY = 'pk_test_XXOQiKnnXqjJlJG5euwKirzj';
 

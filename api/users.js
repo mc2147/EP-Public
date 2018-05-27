@@ -4,6 +4,7 @@ import Promise from "bluebird";
 var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
+import {getSubscriptionInfo} from './apiFunctions/stripeFunctions';
 import {signupUser} from './apiFunctions/userFunctions';
 import {assignWorkouts, assignLevel, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
 import {generateHash} from './apiFunctions/userFunctions';
@@ -87,91 +88,228 @@ router.post("/", async function(req, res) {
 // On change subscription: 
     //cancel_at_period_end = true;
     //create new subscription with billing_cycle_anchor at period_end
+    // Plan IDs: AS_Bronze, AS_Silver, AS_Gold
+    // req.body: newPlanID, cancel (bool)
 router.put('/:id/change-subscription', async function(req, res) {
     let user = await User.findById(req.params.id);
-    let stripeId = user.stripeId;
-    let stripeUser = stripe.customer.retrieve(stripeCustomer.id);
+    console.log("changing subscription for user: ", user.username);
+    let newPlanID = req.body.newPlanID;
+    let stripeUser = await stripe.customers.retrieve(user.stripeId);
     let subscriptions = stripeUser.subscriptions;
     let subscriptionId = "";
+    let currentSubscription = {};
     if (subscriptions.data.length > 0) {
         let nSubs = subscriptions.data.length;
-        subscriptionId = subscriptions.data[nSubs - 1].id;
+        subscriptionId = subscriptions.data[0].id;
+        currentSubscription = subscriptions.data[0];
     }
-    stripe.subscriptions.update()
+    
+    if (req.body.cancel) {
+        let cancelSubscription = await stripe.subscriptions.del(subscriptionId, {
+            at_period_end: true,
+        })
+        // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
+        res.json(cancelSubscription);            
+        return
+    }
+    else {
+        await stripe.subscriptions.update(subscriptionId, {
+            cancel_at_period_end: true,
+        });
+        if (currentSubscription.status == 'trialing') {
+            await stripe.subscriptions.del(subscriptionId);
+        }
+        let newSubscription = await stripe.subscriptions.create({
+            customer:user.stripeId,
+            billing_cycle_anchor:currentSubscription.current_period_end,
+            trial_end:currentSubscription.current_period_end,
+            items: [
+                {
+                    plan:req.body.newPlanID,
+                },
+            ],        
+        });
+        res.json(newSubscription);
+        return        
+    }
     // let 
-
 })
 
+router.get('/:id/active-subscription', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let stripeUser = await stripe.customers.retrieve(user.stripeId);
+    let subscriptionsList = stripeUser.subscriptions.data;
+    subscriptionsList.forEach(sub => {
+        if (sub.status == 'active') {
+            res.json(sub);
+            return
+        }
+    })
+    res.json({
+        noActiveSubscriptions:true,
+    })
+})
+
+router.get('/:id/active-subscription-info', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let stripeUser = await stripe.customers.retrieve(user.stripeId);
+    let subscriptionsList = stripeUser.subscriptions.data;
+    subscriptionsList.forEach(sub => {
+        if (sub.status == 'active') {
+            res.json(getSubscriptionInfo(sub));
+            return
+        }
+    })
+    res.json({
+        noActiveSubscriptions:true,
+    })
+})
+
+
+router.get('/:id/first-subscription', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let stripeUser = await stripe.customers.retrieve(user.stripeId);
+    let subscriptions = stripeUser.subscriptions;
+    if (subscriptions.data.length > 0) {
+        res.json(subscriptions.data[0]);
+        return
+    }
+    else {
+        res.json({
+            noSubscriptions: true,
+        })
+        return
+    }    
+})
+
+router.get('/:id/first-subscription-info', async function(req, res) {
+    console.log("line 154 users.js");
+    let user = await User.findById(req.params.id);
+    let stripeUser = await stripe.customers.retrieve(user.stripeId);
+    let subscriptions = stripeUser.subscriptions;
+    if (subscriptions.data.length > 0) {
+        let current = subscriptions.data[0];
+        let information = getSubscriptionInfo(current);
+        res.json(information);
+        return
+    }
+    else {
+        res.json({
+            noSubscriptions: true,
+        })
+        return
+    }    
+})
+
+//0 index is most recent
+router.get('/:id/subscription-info', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let stripeUser = await stripe.customers.retrieve(user.stripeId);
+    let subscriptionList = stripeUser.subscriptions.data;
+    let firstSubscription = subscriptionList[0];
+    let firstActiveSubscription = {};
+    let subscriptionDescriber = "";
+    let currentPlan = "";
+    let endDateString = "";
+    let nextPlan = false;
+    let secondLine = "";
+    
+    // if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+    //     subscriptionValid = true;
+    // }
+
+    for (let i = 0; i < subscriptionList.length; i ++) {
+        let thisSub = subscriptionList[i];
+        if (thisSub.status == 'active') {
+            firstActiveSubscription = thisSub;
+            currentPlan = firstActiveSubscription.plan.nickname;
+            let endDate = new Date(firstActiveSubscription.current_period_end*1000);
+            endDateString = dateString(endDate);
+            subscriptionDescriber = (`Your current subscription is ${currentPlan} ` 
+            + `and lasts until ${endDateString}.`);
+            break
+        }
+    }
+    if (firstSubscription.status == 'trialing') {
+        nextPlan = firstSubscription.plan.nickname;
+        subscriptionDescriber += ` It will change to ${nextPlan} on this date.`
+        secondLine = ` It will change to ${nextPlan} on this date.`;
+    }
+    else if (firstSubscription.cancel_at_period_end) {
+        subscriptionDescriber += ` It has been cancelled and will expire after this date.`        
+        secondLine = ` It has been cancelled and will expire after this date.`;
+    }
+    else if (firstSubscription.status == 'active') {
+        subscriptionDescriber += ` It will renew automatically.`        
+        secondLine = ` It will renew automatically.`;
+    }
+    
+    res.json({
+        describer:subscriptionDescriber,
+        currentPlan,
+        endDateString,
+        nextPlan,
+        secondLine
+    });    
+})
+
+//0 index is most recent
+router.get('/:id/all-subscriptions', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    try {
+        let stripeUser = await stripe.customers.retrieve(user.stripeId);
+        res.json(stripeUser.subscriptions.data);        
+    }
+    catch(error) {
+        error.Error = true;
+        res.json(error)
+    }
+})
+
+router.get('/:id/all-subscriptions-info', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    try {
+        let stripeUser = await stripe.customers.retrieve(user.stripeId);
+        let subscriptions = stripeUser.subscriptions.data;
+        let subscriptionInfo = [];
+        subscriptions.forEach(sub => {
+            let information = getSubscriptionInfo(sub);
+            subscriptionInfo.push(information);
+            // console.log("customer subscription information: ", information);
+        })
+        res.json(subscriptionInfo);    
+    }
+    catch(error) {
+        error.Error = true;
+        res.json(error);
+    }    
+})
+
+// Plan ID: AS_Bronze, AS_Silver, AS_Gold
 router.post('/:id/subscribe', async function(req, res) {
+    let stripeToken = req.body.stripeToken;
+    let planID = req.body.planID;
+
     console.log("req.body (api/users): ", req.body);
     let user = await User.findById(req.params.id);
-    let testEmail = "testEmail@test.com";
-    let testCharge = 500;
-    let stripeToken = req.body.stripeToken;
-    let stripeCustomer = await stripe.customers.create({
+    let stripeUser = await stripe.customers.create({
         source:stripeToken,
-        email:testEmail,
-    });
-    let newCustomerId = stripeCustomer.id;
-    // console.log("new customer: ", stripeCustomer);
-    // console.log("new customer id: ", stripeCustomer.id);
-    let newCharge = await stripe.charges.create({
-        amount:testCharge,
-        currency:"usd",
-        customer:stripeCustomer.id,
-        description:"Gold subscription for: " + testEmail,
-    });
+        email:user.username,
+    });    
+    let newStripeId = stripeUser.id;
+    user.stripeId = newStripeId;
+    await user.save();
     let newSubscription = await stripe.subscriptions.create({
-        customer:stripeCustomer.id,
+        customer:stripeUser.id,
         items: [
             {
                 plan:"AS_Silver",
             },
         ],        
     });
-    // console.log("newSubscription: ", newSubscription);
-    // console.log("newSubscription current_period_start: ", new Date(newSubscription.current_period_end));
-    // console.log("newSubscription current_period_end: ", new Date(newSubscription.current_period_end));
-    // console.log("newSubscription start: ", new Date(newSubscription.start));
-    // console.log("newSubscription created: ", new Date(newSubscription.created));
-    // console.log("newSubscription billing_cycle_anchor: ", new Date(newSubscription.billing_cycle_anchor));
-    // console.log("Date.now: ", new Date(Date.now()));        
-    // console.log("new charge: ", newCharge);
-    let stripeSubscriptions = await stripe.subscriptions.list();
-    // console.log("stripe subscriptions: ", stripeSubscriptions);
-    // console.log("Date.now: ", Date.now());
-    stripeSubscriptions.data.forEach(sub => {
-        // console.log("stripe billing_cycle_anchor: ", new Date(sub.billing_cycle_anchor*1000));
-        // console.log("stripe subscription created: ", new Date(sub.created*1000));
-        // console.log("stripe subscription start: ", new Date(sub.start*1000));
-        // console.log("stripe subscription end: ", new Date(sub.current_period_end*1000));
-        let tRemaining = sub.current_period_end*1000 - Date.now();
-        // console.log("remaining time until subscription ends: ", new Date(tRemaining));
-        // console.log("remaining days until subscription ends: ", tRemaining/(24*60*60*1000));
-    })
-    let findCustomer = await stripe.customers.retrieve(stripeCustomer.id);    
+    res.json(findCustomer); 
+    let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
     console.log("customer found: ", findCustomer);
-    let stripePlans = await stripe.plans.list();
-    console.log("Stripe plans: ", stripePlans);
-    let allCustomers = await stripe.customers.list();
-    console.log("allCustomers.data length: ", allCustomers.data.length);
-    allCustomers.data.forEach(customer => {
-        // console.log("customer subscriptions: ", customer.subscriptions.data);
-        customer.subscriptions.data.forEach(sub => {
-            let information = {
-                status:sub.status,
-                start:new Date(sub.start*1000),
-                current_period_end:new Date(sub.current_period_end*1000),
-                planId: sub.plan.id,
-                customerId: sub.customer,
-            };
-            console.log("customer subscription information: ", information);
-        })
-        // console.log("customer subscriptions: ", customer.subscriptions);
-    })
-    // stripeCustomer = await
-    res.json(findCustomer); //newSubscription
-    //Also attach stripe ID to user object
     return    
 })
 
@@ -276,13 +414,29 @@ router.post("/:username/login", async function (req, res) {
                     loginUser.missedWorkouts = true;
                 }
             }	
-                    
+            let hasSubscription = false;
+            let subscriptionValid = false;
+            let subscriptionStatus = false;
+            if (loginUser.stripeId != "") {
+                let stripeUser = await stripe.customers.retrieve(loginuser.stripeId);
+                if (stripeUser.subscriptions.data.length > 0) {
+                    hasSubscription = true;
+                    subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                    if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                        subscriptionValid = true;
+                    }
+
+                }
+            }                    
             res.json({
                 Success: true,
                 Found: true,
                 Status: "Success",
                 User:loginUser,
                 hasWorkouts,
+                subscriptionValid,
+                hasSubscription,
+                subscriptionStatus
             });
         }
         else {
@@ -295,11 +449,87 @@ router.post("/:username/login", async function (req, res) {
     }
 })
 
-router.get("/:userId", function(req, res) {
-    User.findById(req.params.userId).then((user) => {
-        res.json(user);
-    });
+router.get("/:userId", async function(req, res) {
+    let user = await User.findById(req.params.userId);
+    res.json(user);
 });
+
+router.delete('/:userId/stripe', async function(req, res) {
+    let user = await User.findById(req.params.userId);
+    try {
+        let deletion = await stripe.customers.del(user.stripeId);
+        res.json(deletion);
+    }   
+    catch (error) {
+        res.json(error);
+    }   
+})
+
+router.get("/:userId/access-info", async function(req, res) {
+    let user = await User.findById(req.params.userId);
+    let response = Object.assign({}, user);
+    let Now = new Date(Date.now());
+    // Workouts
+    let hasLevel = true; //send to enter stats page
+    // let 
+    let hasWorkouts = false; //level-up get-next-workouts or get-initial-workouts
+    let missedWorkouts = false; //reschedule workouts prompt
+    // Stipe & Subscription
+    let hasStripe = false;
+    let hasSubscription = false;
+    let subscriptionValid = false;
+    let subscriptionExpired = false;
+    let subscriptionStatus = null;    
+    if (!user.level || user.level == 0 || user.level == null) {
+        hasLevel = false;
+    }
+    if (user.workoutDates.length > 0) {
+        hasWorkouts = true;
+    }
+    for (var K in user.workouts) {
+        let W = user.workouts[K];
+        let wDate = new Date(W.Date);        
+        if (//If there's an incomplete workout before the current date
+            !W.Completed 
+            && wDate 
+            && wDate.getDate() < Now.getDate() 
+            && wDate.getMonth() <= Now.getMonth()) {
+                missedWorkouts = true;
+                break
+        }
+    }	
+    if (user.stripeId != "") {
+        try {
+            let stripeUser = await stripe.customers.retrieve(user.stripeId);
+            if (stripeUser.subscriptions.data.length > 0) {
+                hasSubscription = true;
+                subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                    subscriptionValid = true;
+                }
+                else {
+                    subscriptionExpired = true;
+                }
+            }
+            hasStripe = true;
+        }
+        catch(error) {
+            hasStripe = false;
+        }
+    }                    
+    res.json({
+        // Stripe & Subcriptions
+        hasStripe,
+        hasSubscription,
+        subscriptionValid,
+        subscriptionStatus,
+        subscriptionExpired,
+        // Workouts
+        hasLevel,
+        hasWorkouts,
+        missedWorkouts,
+    });    
+})
 
 router.get("/:userId/workouts", function(req, res) {
     User.findById(req.params.userId).then((user) => {

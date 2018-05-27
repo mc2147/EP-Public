@@ -8,6 +8,8 @@ var _bluebird = require('bluebird');
 
 var _bluebird2 = _interopRequireDefault(_bluebird);
 
+var _stripeFunctions = require('./apiFunctions/stripeFunctions');
+
 var _userFunctions = require('./apiFunctions/userFunctions');
 
 var _workoutFunctions = require('./apiFunctions/workoutFunctions');
@@ -111,74 +113,218 @@ router.post("/", async function (req, res) {
     // res.json(req.session);
 });
 
+// On change subscription: 
+//cancel_at_period_end = true;
+//create new subscription with billing_cycle_anchor at period_end
+// Plan IDs: AS_Bronze, AS_Silver, AS_Gold
+// req.body: newPlanID, cancel (bool)
+router.put('/:id/change-subscription', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    console.log("changing subscription for user: ", user.username);
+    var newPlanID = req.body.newPlanID;
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptions = stripeUser.subscriptions;
+    var subscriptionId = "";
+    var currentSubscription = {};
+    if (subscriptions.data.length > 0) {
+        var nSubs = subscriptions.data.length;
+        subscriptionId = subscriptions.data[0].id;
+        currentSubscription = subscriptions.data[0];
+    }
+
+    if (req.body.cancel) {
+        var cancelSubscription = await stripe.subscriptions.del(subscriptionId, {
+            at_period_end: true
+        });
+        // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
+        res.json(cancelSubscription);
+        return;
+    } else {
+        await stripe.subscriptions.update(subscriptionId, {
+            cancel_at_period_end: true
+        });
+        if (currentSubscription.status == 'trialing') {
+            await stripe.subscriptions.del(subscriptionId);
+        }
+        var newSubscription = await stripe.subscriptions.create({
+            customer: user.stripeId,
+            billing_cycle_anchor: currentSubscription.current_period_end,
+            trial_end: currentSubscription.current_period_end,
+            items: [{
+                plan: req.body.newPlanID
+            }]
+        });
+        res.json(newSubscription);
+        return;
+    }
+    // let 
+});
+
+router.get('/:id/active-subscription', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptionsList = stripeUser.subscriptions.data;
+    subscriptionsList.forEach(function (sub) {
+        if (sub.status == 'active') {
+            res.json(sub);
+            return;
+        }
+    });
+    res.json({
+        noActiveSubscriptions: true
+    });
+});
+
+router.get('/:id/active-subscription-info', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptionsList = stripeUser.subscriptions.data;
+    subscriptionsList.forEach(function (sub) {
+        if (sub.status == 'active') {
+            res.json((0, _stripeFunctions.getSubscriptionInfo)(sub));
+            return;
+        }
+    });
+    res.json({
+        noActiveSubscriptions: true
+    });
+});
+
+router.get('/:id/first-subscription', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptions = stripeUser.subscriptions;
+    if (subscriptions.data.length > 0) {
+        res.json(subscriptions.data[0]);
+        return;
+    } else {
+        res.json({
+            noSubscriptions: true
+        });
+        return;
+    }
+});
+
+router.get('/:id/first-subscription-info', async function (req, res) {
+    console.log("line 154 users.js");
+    var user = await _models.User.findById(req.params.id);
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptions = stripeUser.subscriptions;
+    if (subscriptions.data.length > 0) {
+        var current = subscriptions.data[0];
+        var information = (0, _stripeFunctions.getSubscriptionInfo)(current);
+        res.json(information);
+        return;
+    } else {
+        res.json({
+            noSubscriptions: true
+        });
+        return;
+    }
+});
+
+//0 index is most recent
+router.get('/:id/subscription-info', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptionList = stripeUser.subscriptions.data;
+    var firstSubscription = subscriptionList[0];
+    var firstActiveSubscription = {};
+    var subscriptionDescriber = "";
+    var currentPlan = "";
+    var endDateString = "";
+    var nextPlan = false;
+    var secondLine = "";
+
+    // if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+    //     subscriptionValid = true;
+    // }
+
+    for (var i = 0; i < subscriptionList.length; i++) {
+        var thisSub = subscriptionList[i];
+        if (thisSub.status == 'active') {
+            firstActiveSubscription = thisSub;
+            currentPlan = firstActiveSubscription.plan.nickname;
+            var endDate = new Date(firstActiveSubscription.current_period_end * 1000);
+            endDateString = dateString(endDate);
+            subscriptionDescriber = 'Your current subscription is ' + currentPlan + ' ' + ('and lasts until ' + endDateString + '.');
+            break;
+        }
+    }
+    if (firstSubscription.status == 'trialing') {
+        nextPlan = firstSubscription.plan.nickname;
+        subscriptionDescriber += ' It will change to ' + nextPlan + ' on this date.';
+        secondLine = ' It will change to ' + nextPlan + ' on this date.';
+    } else if (firstSubscription.cancel_at_period_end) {
+        subscriptionDescriber += ' It has been cancelled and will expire after this date.';
+        secondLine = ' It has been cancelled and will expire after this date.';
+    } else if (firstSubscription.status == 'active') {
+        subscriptionDescriber += ' It will renew automatically.';
+        secondLine = ' It will renew automatically.';
+    }
+
+    res.json({
+        describer: subscriptionDescriber,
+        currentPlan: currentPlan,
+        endDateString: endDateString,
+        nextPlan: nextPlan,
+        secondLine: secondLine
+    });
+});
+
+//0 index is most recent
+router.get('/:id/all-subscriptions', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    try {
+        var stripeUser = await stripe.customers.retrieve(user.stripeId);
+        res.json(stripeUser.subscriptions.data);
+    } catch (error) {
+        error.Error = true;
+        res.json(error);
+    }
+});
+
+router.get('/:id/all-subscriptions-info', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    try {
+        var stripeUser = await stripe.customers.retrieve(user.stripeId);
+        var subscriptions = stripeUser.subscriptions.data;
+        var subscriptionInfo = [];
+        subscriptions.forEach(function (sub) {
+            var information = (0, _stripeFunctions.getSubscriptionInfo)(sub);
+            subscriptionInfo.push(information);
+            // console.log("customer subscription information: ", information);
+        });
+        res.json(subscriptionInfo);
+    } catch (error) {
+        error.Error = true;
+        res.json(error);
+    }
+});
+
+// Plan ID: AS_Bronze, AS_Silver, AS_Gold
 router.post('/:id/subscribe', async function (req, res) {
+    var stripeToken = req.body.stripeToken;
+    var planID = req.body.planID;
+
     console.log("req.body (api/users): ", req.body);
     var user = await _models.User.findById(req.params.id);
-    var testEmail = "testEmail@test.com";
-    var testCharge = 500;
-    var stripeToken = req.body.stripeToken;
-    var stripeCustomer = await stripe.customers.create({
+    var stripeUser = await stripe.customers.create({
         source: stripeToken,
-        email: testEmail
+        email: user.username
     });
-    var newCustomerId = stripeCustomer.id;
-    // console.log("new customer: ", stripeCustomer);
-    // console.log("new customer id: ", stripeCustomer.id);
-    var newCharge = await stripe.charges.create({
-        amount: testCharge,
-        currency: "usd",
-        customer: stripeCustomer.id,
-        description: "Gold subscription for: " + testEmail
-    });
+    var newStripeId = stripeUser.id;
+    user.stripeId = newStripeId;
+    await user.save();
     var newSubscription = await stripe.subscriptions.create({
-        customer: stripeCustomer.id,
+        customer: stripeUser.id,
         items: [{
             plan: "AS_Silver"
         }]
     });
-    // console.log("newSubscription: ", newSubscription);
-    // console.log("newSubscription current_period_start: ", new Date(newSubscription.current_period_end));
-    // console.log("newSubscription current_period_end: ", new Date(newSubscription.current_period_end));
-    // console.log("newSubscription start: ", new Date(newSubscription.start));
-    // console.log("newSubscription created: ", new Date(newSubscription.created));
-    // console.log("newSubscription billing_cycle_anchor: ", new Date(newSubscription.billing_cycle_anchor));
-    // console.log("Date.now: ", new Date(Date.now()));        
-    // console.log("new charge: ", newCharge);
-    var stripeSubscriptions = await stripe.subscriptions.list();
-    // console.log("stripe subscriptions: ", stripeSubscriptions);
-    // console.log("Date.now: ", Date.now());
-    stripeSubscriptions.data.forEach(function (sub) {
-        // console.log("stripe billing_cycle_anchor: ", new Date(sub.billing_cycle_anchor*1000));
-        // console.log("stripe subscription created: ", new Date(sub.created*1000));
-        // console.log("stripe subscription start: ", new Date(sub.start*1000));
-        // console.log("stripe subscription end: ", new Date(sub.current_period_end*1000));
-        var tRemaining = sub.current_period_end * 1000 - Date.now();
-        // console.log("remaining time until subscription ends: ", new Date(tRemaining));
-        // console.log("remaining days until subscription ends: ", tRemaining/(24*60*60*1000));
-    });
-    var findCustomer = await stripe.customers.retrieve(stripeCustomer.id);
+    res.json(findCustomer);
+    var findCustomer = await stripe.customers.retrieve(stripeUser.id);
     console.log("customer found: ", findCustomer);
-    var stripePlans = await stripe.plans.list();
-    console.log("Stripe plans: ", stripePlans);
-    var allCustomers = await stripe.customers.list();
-    console.log("allCustomers.data length: ", allCustomers.data.length);
-    allCustomers.data.forEach(function (customer) {
-        // console.log("customer subscriptions: ", customer.subscriptions.data);
-        customer.subscriptions.data.forEach(function (sub) {
-            var information = {
-                status: sub.status,
-                start: new Date(sub.start * 1000),
-                current_period_end: new Date(sub.current_period_end * 1000),
-                planId: sub.plan.id,
-                customerId: sub.customer
-            };
-            console.log("customer subscription information: ", information);
-        });
-        // console.log("customer subscriptions: ", customer.subscriptions);
-    });
-    // stripeCustomer = await
-    res.json(findCustomer); //newSubscription
-    //Also attach stripe ID to user object
     return;
 });
 
@@ -247,6 +393,7 @@ router.post('/:id/payment', async function (req, res) {});
 router.post("/:username/login", async function (req, res) {
     var username = req.params.username;
     var passwordInput = req.body.password;
+    var Now = new Date(Date.now());
     console.log("username/login route hit", req.body);
     var loginUser = await _models.User.findOne({
         where: {
@@ -274,13 +421,28 @@ router.post("/:username/login", async function (req, res) {
                     loginUser.missedWorkouts = true;
                 }
             }
-
+            var hasSubscription = false;
+            var subscriptionValid = false;
+            var subscriptionStatus = false;
+            if (loginUser.stripeId != "") {
+                var stripeUser = await stripe.customers.retrieve(loginuser.stripeId);
+                if (stripeUser.subscriptions.data.length > 0) {
+                    hasSubscription = true;
+                    subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                    if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                        subscriptionValid = true;
+                    }
+                }
+            }
             res.json({
                 Success: true,
                 Found: true,
                 Status: "Success",
                 User: loginUser,
-                hasWorkouts: hasWorkouts
+                hasWorkouts: hasWorkouts,
+                subscriptionValid: subscriptionValid,
+                hasSubscription: hasSubscription,
+                subscriptionStatus: subscriptionStatus
             });
         } else {
             res.json({
@@ -292,9 +454,79 @@ router.post("/:username/login", async function (req, res) {
     }
 });
 
-router.get("/:userId", function (req, res) {
-    _models.User.findById(req.params.userId).then(function (user) {
-        res.json(user);
+router.get("/:userId", async function (req, res) {
+    var user = await _models.User.findById(req.params.userId);
+    res.json(user);
+});
+
+router.delete('/:userId/stripe', async function (req, res) {
+    var user = await _models.User.findById(req.params.userId);
+    try {
+        var deletion = await stripe.customers.del(user.stripeId);
+        res.json(deletion);
+    } catch (error) {
+        res.json(error);
+    }
+});
+
+router.get("/:userId/access-info", async function (req, res) {
+    var user = await _models.User.findById(req.params.userId);
+    var response = Object.assign({}, user);
+    var Now = new Date(Date.now());
+    // Workouts
+    var hasLevel = true; //send to enter stats page
+    // let 
+    var hasWorkouts = false; //level-up get-next-workouts or get-initial-workouts
+    var missedWorkouts = false; //reschedule workouts prompt
+    // Stipe & Subscription
+    var hasStripe = false;
+    var hasSubscription = false;
+    var subscriptionValid = false;
+    var subscriptionExpired = false;
+    var subscriptionStatus = null;
+    if (!user.level || user.level == 0 || user.level == null) {
+        hasLevel = false;
+    }
+    if (user.workoutDates.length > 0) {
+        hasWorkouts = true;
+    }
+    for (var K in user.workouts) {
+        var W = user.workouts[K];
+        var wDate = new Date(W.Date);
+        if ( //If there's an incomplete workout before the current date
+        !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+            missedWorkouts = true;
+            break;
+        }
+    }
+    if (user.stripeId != "") {
+        try {
+            var stripeUser = await stripe.customers.retrieve(user.stripeId);
+            if (stripeUser.subscriptions.data.length > 0) {
+                hasSubscription = true;
+                subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                    subscriptionValid = true;
+                } else {
+                    subscriptionExpired = true;
+                }
+            }
+            hasStripe = true;
+        } catch (error) {
+            hasStripe = false;
+        }
+    }
+    res.json({
+        // Stripe & Subcriptions
+        hasStripe: hasStripe,
+        hasSubscription: hasSubscription,
+        subscriptionValid: subscriptionValid,
+        subscriptionStatus: subscriptionStatus,
+        subscriptionExpired: subscriptionExpired,
+        // Workouts
+        hasLevel: hasLevel,
+        hasWorkouts: hasWorkouts,
+        missedWorkouts: missedWorkouts
     });
 });
 
