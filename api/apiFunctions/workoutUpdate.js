@@ -58,10 +58,13 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
             // Stop & drop first-set case: prevent first set from being the stop, first set from NOT being drop
             // STOP: FIRST SET MUST NOT BE STOP RPE
             // DROP: FIRST SET MUST BE DROP RPE
-            if (setNum == 1) {
+            if (setNum == 1) { //First set case
                 if (thisPattern.workoutType == 'stop' 
                 && (parseFloat(body[K]) >= parseFloat(thisPattern.specialValue)
                 || parseFloat(body[K]) < parseFloat(thisPattern.RPE))) {
+                    if (setDict.Weight) {
+                        // thisPattern.stopWeight = setDict.Weight;
+                    }
                     continue;
                 }
                 else if (thisPattern.workoutType == 'drop' 
@@ -161,6 +164,15 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                 let stopRPE = parseFloat(thisPattern.specialValue);
                 console.log("stop set submitted ", thisPattern.specialValue);
                 console.log('lastsetPattern.sets: ', thisPattern.sets);
+                let stopWeight = null;
+                if (thisPattern.stopWeight) {
+                    stopWeight = thisPattern.stopWeight;
+                }
+                else {
+                    thisPattern.stopWeight = Val.Weight;
+                }
+                // thisPattern.stopWeight = setDict.Weight;
+                
                 if (thisPattern.specialStage == 0) { //Stop RPE has not been hit 
                      // Non-stop-RPE case
                     if (thisPattern.sets <= (maxStopSets)
@@ -169,7 +181,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                             thisPattern.sets += 1;
                             thisPattern.setList.push({
                                 SetNum: thisPattern.sets,
-                                Weight: null,
+                                Weight: stopWeight,
                                 RPE: null,
                                 Reps: thisPattern.reps,
                                 gwParams: {

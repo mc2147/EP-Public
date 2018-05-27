@@ -225,7 +225,11 @@ Current/Next Workout Date:
           <td style="padding:0px; width:200px;">
           {% for S in P.setList %} <!-- Used to be P.CurrentSets -->
                 <div style="border:solid 1px black; padding-left:25%;">
+                  {% if P.hasTempo %}
                     3/2/X
+                  {% else %}
+                    ---
+                  {% endif %}
                 </div>
           {% endfor %}
           {% if P.alloy %}

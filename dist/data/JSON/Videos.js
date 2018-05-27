@@ -388,6 +388,7 @@ function vueConvert(JSON, levelFilter) {
         var VideosCategory = JSON[Key];
         for (var K in VideosCategory) {
             if (VideosCategory[K].LevelAccess <= levelFilter) {
+                //If user's level is > minimum access level for video
                 var elem = Object.assign({}, VideosCategory[K]);
                 elem.label = K;
                 elem.image = '../../static/video_placeholder.png';

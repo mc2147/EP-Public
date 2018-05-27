@@ -6,7 +6,7 @@ var express = require('express');
 const bcrypt    = require('bcryptjs');
 import {getSubscriptionInfo} from './apiFunctions/stripeFunctions';
 import {signupUser} from './apiFunctions/userFunctions';
-import {assignWorkouts, assignLevel, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
+import {assignWorkouts, assignLevel, accessInfo, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
 import {generateHash} from './apiFunctions/userFunctions';
 import {updateSpecial} from './apiFunctions/workoutUpdate'
 import {generateWorkouts} from './apiFunctions/generateWorkouts';
@@ -15,7 +15,7 @@ import {LevelUpMesssages} from '../content/levelupMessages'
 var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 import moment from 'moment';
-var stripe = require("stripe")('sk_test_LKsnEFYm74fwmLbyfR3qKWgb');
+var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // var models = require('../models');
 // 	var Exercise = models.Exercise;
@@ -469,66 +469,7 @@ router.get("/:userId/access-info", async function(req, res) {
     let user = await User.findById(req.params.userId);
     let response = Object.assign({}, user);
     let Now = new Date(Date.now());
-    // Workouts
-    let hasLevel = true; //send to enter stats page
-    // let 
-    let hasWorkouts = false; //level-up get-next-workouts or get-initial-workouts
-    let missedWorkouts = false; //reschedule workouts prompt
-    // Stipe & Subscription
-    let hasStripe = false;
-    let hasSubscription = false;
-    let subscriptionValid = false;
-    let subscriptionExpired = false;
-    let subscriptionStatus = null;    
-    if (!user.level || user.level == 0 || user.level == null) {
-        hasLevel = false;
-    }
-    if (user.workoutDates.length > 0) {
-        hasWorkouts = true;
-    }
-    for (var K in user.workouts) {
-        let W = user.workouts[K];
-        let wDate = new Date(W.Date);        
-        if (//If there's an incomplete workout before the current date
-            !W.Completed 
-            && wDate 
-            && wDate.getDate() < Now.getDate() 
-            && wDate.getMonth() <= Now.getMonth()) {
-                missedWorkouts = true;
-                break
-        }
-    }	
-    if (user.stripeId != "") {
-        try {
-            let stripeUser = await stripe.customers.retrieve(user.stripeId);
-            if (stripeUser.subscriptions.data.length > 0) {
-                hasSubscription = true;
-                subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-                    subscriptionValid = true;
-                }
-                else {
-                    subscriptionExpired = true;
-                }
-            }
-            hasStripe = true;
-        }
-        catch(error) {
-            hasStripe = false;
-        }
-    }                    
-    res.json({
-        // Stripe & Subcriptions
-        hasStripe,
-        hasSubscription,
-        subscriptionValid,
-        subscriptionStatus,
-        subscriptionExpired,
-        // Workouts
-        hasLevel,
-        hasWorkouts,
-        missedWorkouts,
-    });    
+    res.json(accessInfo(user));
 })
 
 router.get("/:userId/workouts", function(req, res) {

@@ -127,8 +127,17 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                             deloadIndicator = " (" + "Level " + effectiveLevel +")";
                         }
                     }
-
-                    var EName = ExerciseDict.Exercises[patternInstance.type][effectiveLevel].name;
+                    let EObj = ExerciseDict.Exercises[patternInstance.type][effectiveLevel];
+                    var EName = EObj.name;
+                    if (EName.includes('Tempo') || EName.includes('tempo')) {
+                        patternInstance.hasTempo = true;
+                    }
+                    // console.log('patternInstance.workoutType: ', patternInstance.workoutType);
+                    if (EObj.bodyweight) {
+                        console.log('old patternInstance.workoutType: ', patternInstance.workoutType, EName);
+                        patternInstance.workoutType = 'bodyweight';
+                        console.log('   patternInstance.workoutType: ', patternInstance.workoutType);
+                    }
                     patternInstance.name = EName + deloadIndicator;
 
                     var findVideo = await Video.search(EName, false); 
@@ -157,6 +166,7 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
     if (resetStats) {
         user.resetStats = true;
     }
+    user.initialized = true;
     await user.save();
     return output;
 }

@@ -134,6 +134,9 @@ function getVueInfo(refDict) {
 						RPEDict.value = Pattern.RPE; //Needs to be between start RPE and stop RPE
 						RPEDict.status = 'Fixed';
 						// RPEDict.status = 'Empty';
+					} else if (Pattern.stop && setNum > 1) {
+						weightDict.status = 'Fixed';
+						// weightDict.value = Pattern.stopWeight;
 					}
 					if (Pattern.drop && Pattern.specialStage >= 1) {
 						weightDict.status = 'Fixed';

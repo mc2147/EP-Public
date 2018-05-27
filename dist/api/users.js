@@ -45,7 +45,7 @@ var bcrypt = require('bcryptjs');
 
 var router = express.Router();
 
-var stripe = require("stripe")('sk_test_LKsnEFYm74fwmLbyfR3qKWgb');
+var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // var models = require('../models');
 // 	var Exercise = models.Exercise;
@@ -473,61 +473,7 @@ router.get("/:userId/access-info", async function (req, res) {
     var user = await _models.User.findById(req.params.userId);
     var response = Object.assign({}, user);
     var Now = new Date(Date.now());
-    // Workouts
-    var hasLevel = true; //send to enter stats page
-    // let 
-    var hasWorkouts = false; //level-up get-next-workouts or get-initial-workouts
-    var missedWorkouts = false; //reschedule workouts prompt
-    // Stipe & Subscription
-    var hasStripe = false;
-    var hasSubscription = false;
-    var subscriptionValid = false;
-    var subscriptionExpired = false;
-    var subscriptionStatus = null;
-    if (!user.level || user.level == 0 || user.level == null) {
-        hasLevel = false;
-    }
-    if (user.workoutDates.length > 0) {
-        hasWorkouts = true;
-    }
-    for (var K in user.workouts) {
-        var W = user.workouts[K];
-        var wDate = new Date(W.Date);
-        if ( //If there's an incomplete workout before the current date
-        !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
-            missedWorkouts = true;
-            break;
-        }
-    }
-    if (user.stripeId != "") {
-        try {
-            var stripeUser = await stripe.customers.retrieve(user.stripeId);
-            if (stripeUser.subscriptions.data.length > 0) {
-                hasSubscription = true;
-                subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-                    subscriptionValid = true;
-                } else {
-                    subscriptionExpired = true;
-                }
-            }
-            hasStripe = true;
-        } catch (error) {
-            hasStripe = false;
-        }
-    }
-    res.json({
-        // Stripe & Subcriptions
-        hasStripe: hasStripe,
-        hasSubscription: hasSubscription,
-        subscriptionValid: subscriptionValid,
-        subscriptionStatus: subscriptionStatus,
-        subscriptionExpired: subscriptionExpired,
-        // Workouts
-        hasLevel: hasLevel,
-        hasWorkouts: hasWorkouts,
-        missedWorkouts: missedWorkouts
-    });
+    res.json((0, _workoutFunctions.accessInfo)(user));
 });
 
 router.get("/:userId/workouts", function (req, res) {
