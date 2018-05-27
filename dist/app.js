@@ -6,9 +6,9 @@
 var onlineVersion = false;
 // let herokuLocal = false;
 // Seed bools
-// s// False
+// s// False 
 var seedWorkouts = false;
-var seedUsers = true;
+var seedUsers = false;
 var herokuURL = "https://immense-mesa-37246.herokuapp.com";
 // var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
 var localURL = "http://localhost:5000";
@@ -21,6 +21,9 @@ console.log("LINE 10 APP.JS");
 
 process.env.BASE_URL = process.env.PORT && onlineVersion ? herokuURL : localURL;
 process.env.CORS_ORIGIN = process.env.PORT && onlineVersion ? herokuCORS : localCORS;
+process.env.STRIPE_SECRET_KEY = 'sk_test_LKsnEFYm74fwmLbyfR3qKWgb';
+process.env.STRIPE_PUBLIC_KEY = 'pk_test_XXOQiKnnXqjJlJG5euwKirzj';
+
 console.log("process.env.   BASE_URL SET: ", process.env.BASE_URL);
 
 var path = require('path');

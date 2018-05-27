@@ -44,6 +44,8 @@ router.use('/workout-templates', require('./workoutTemplates'));
 
 router.use('/users', require('./users'));
 
+router.use('/stripe', require('./stripe'));
+
 function generateSalt() {
     return bcrypt.genSaltSync(saltRounds);
 }

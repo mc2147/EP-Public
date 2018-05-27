@@ -60,8 +60,51 @@ router.get("/", function (req, res) {
     })
 });
 
+// Inputs: email, name, 
 router.post("/", async function(req, res) {
+    var newUser = await signupUser(req.body);
+    if (newUser == false) {
+        res.json({
+            error:true,
+            status: "passwords no match",
+        })
+        return
+    }
+    else {
+        // req.session
+        req.session.userId = newUser.session.userId;
+        req.session.username = newUser.session.username;
+        req.session.User = newUser.session.User;
+        req.session.test = "test";
+        req.session.save();
+        console.log("user post req.session: ", req.session);
+        // await req.session.save();
+        res.json(newUser);
+    }
+    // res.json(req.session);
+})
+
+// On change subscription: 
+    //cancel_at_period_end = true;
+    //create new subscription with billing_cycle_anchor at period_end
+router.put('/:id/change-subscription', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let stripeId = user.stripeId;
+    let stripeUser = stripe.customer.retrieve(stripeCustomer.id);
+    let subscriptions = stripeUser.subscriptions;
+    let subscriptionId = "";
+    if (subscriptions.data.length > 0) {
+        let nSubs = subscriptions.data.length;
+        subscriptionId = subscriptions.data[nSubs - 1].id;
+    }
+    stripe.subscriptions.update()
+    // let 
+
+})
+
+router.post('/:id/subscribe', async function(req, res) {
     console.log("req.body (api/users): ", req.body);
+    let user = await User.findById(req.params.id);
     let testEmail = "testEmail@test.com";
     let testCharge = 500;
     let stripeToken = req.body.stripeToken;
@@ -69,6 +112,7 @@ router.post("/", async function(req, res) {
         source:stripeToken,
         email:testEmail,
     });
+    let newCustomerId = stripeCustomer.id;
     // console.log("new customer: ", stripeCustomer);
     // console.log("new customer id: ", stripeCustomer.id);
     let newCharge = await stripe.charges.create({
@@ -91,47 +135,44 @@ router.post("/", async function(req, res) {
     // console.log("newSubscription start: ", new Date(newSubscription.start));
     // console.log("newSubscription created: ", new Date(newSubscription.created));
     // console.log("newSubscription billing_cycle_anchor: ", new Date(newSubscription.billing_cycle_anchor));
-    // console.log("Date.now: ", new Date(Date.now()));    
-    
+    // console.log("Date.now: ", new Date(Date.now()));        
     // console.log("new charge: ", newCharge);
     let stripeSubscriptions = await stripe.subscriptions.list();
-    console.log("stripe subscriptions: ", stripeSubscriptions);
-    console.log("Date.now: ", Date.now());
+    // console.log("stripe subscriptions: ", stripeSubscriptions);
+    // console.log("Date.now: ", Date.now());
     stripeSubscriptions.data.forEach(sub => {
-        console.log("stripe billing_cycle_anchor: ", new Date(sub.billing_cycle_anchor*1000));
-        console.log("stripe subscription created: ", new Date(sub.created*1000));
-        console.log("stripe subscription start: ", new Date(sub.start*1000));
-        console.log("stripe subscription end: ", new Date(sub.current_period_end*1000));
+        // console.log("stripe billing_cycle_anchor: ", new Date(sub.billing_cycle_anchor*1000));
+        // console.log("stripe subscription created: ", new Date(sub.created*1000));
+        // console.log("stripe subscription start: ", new Date(sub.start*1000));
+        // console.log("stripe subscription end: ", new Date(sub.current_period_end*1000));
         let tRemaining = sub.current_period_end*1000 - Date.now();
-        console.log("remaining time until subscription ends: ", new Date(tRemaining));
-        console.log("remaining days until subscription ends: ", tRemaining/(24*60*60*1000));
+        // console.log("remaining time until subscription ends: ", new Date(tRemaining));
+        // console.log("remaining days until subscription ends: ", tRemaining/(24*60*60*1000));
     })
-    let findCustomer = await stripe.customers.retrieve(stripeCustomer.id);
-    // console.log("customer found: ", findCustomer);
+    let findCustomer = await stripe.customers.retrieve(stripeCustomer.id);    
+    console.log("customer found: ", findCustomer);
     let stripePlans = await stripe.plans.list();
-    // console.log("Stripe plans: ", stripePlans);
-    //Also attach stripe ID to user object
-    return
-    var newUser = await signupUser(req.body);
-    if (newUser == false) {
-        res.json({
-            error:true,
-            status: "passwords no match",
+    console.log("Stripe plans: ", stripePlans);
+    let allCustomers = await stripe.customers.list();
+    console.log("allCustomers.data length: ", allCustomers.data.length);
+    allCustomers.data.forEach(customer => {
+        // console.log("customer subscriptions: ", customer.subscriptions.data);
+        customer.subscriptions.data.forEach(sub => {
+            let information = {
+                status:sub.status,
+                start:new Date(sub.start*1000),
+                current_period_end:new Date(sub.current_period_end*1000),
+                planId: sub.plan.id,
+                customerId: sub.customer,
+            };
+            console.log("customer subscription information: ", information);
         })
-        return
-    }
-    else {
-        // req.session
-        req.session.userId = newUser.session.userId;
-        req.session.username = newUser.session.username;
-        req.session.User = newUser.session.User;
-        req.session.test = "test";
-        req.session.save();
-        console.log("user post req.session: ", req.session);
-        // await req.session.save();
-        res.json(newUser);
-    }
-    // res.json(req.session);
+        // console.log("customer subscriptions: ", customer.subscriptions);
+    })
+    // stripeCustomer = await
+    res.json(findCustomer); //newSubscription
+    //Also attach stripe ID to user object
+    return    
 })
 
 router.get('/:id/reschedule-workouts', async function(req, res) {
@@ -203,6 +244,7 @@ router.post('/:id/payment', async function(req, res) {
 router.post("/:username/login", async function (req, res) {
     var username = req.params.username;
     var passwordInput = req.body.password;
+    let Now = new Date(Date.now());
     console.log("username/login route hit", req.body);
     var loginUser = await User.findOne({
         where: {

@@ -391,6 +391,18 @@ router.post('/get-next-workouts', async function (req, res, next) {
 	return;
 });
 
+router.post('/subscribe', async function (req, res, next) {
+	if (!req.session.userId) {
+		req.session.userId = 5;
+	}
+	console.log("posting to api/users/:id/subscribe with user id: ", req.session.userId);
+	// console.log("req.session", req.session);
+	var axiosPost = await axios.post(process.env.BASE_URL + ('/api/users/' + req.session.userId + '/subscribe'), req.body);
+	res.json(axiosPost.data);
+	// res.send("test from routes");
+	return;
+});
+
 var G_vueOutput = {};
 
 router.get('/', async function (req, res, next) {

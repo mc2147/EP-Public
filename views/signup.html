@@ -1,5 +1,5 @@
 SIGN UP
-<form method="POST" action="/api/users" id="payment-form">
+<form method="POST" action="/api/users">
     <h3>Sign-up Information</h3>
     Username: <input name="username" value="" type="text"/>
     <br><br>
@@ -16,8 +16,9 @@ SIGN UP
     <br><br>
     Max Bench: <input name="maxBench" value="" type="number"/>    
     <br><br>
-    <!-- <input name="submit" type="submit" value="Sign Up"/>     -->
-
+    <input name="submit" type="submit" value="Sign Up"/>    
+</form>
+<form method="POST" action="/subscribe" id="payment-form">
     <div class="form-row">
         <label for="card-element">
           Credit or Debit card

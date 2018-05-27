@@ -1,7 +1,7 @@
 // Live deployment: onlineVersion && herokuLocal
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
-let onlineVersion = true;
+let onlineVersion = false;
 // let herokuLocal = false;
 // Seed bools
 // s// False 
@@ -19,6 +19,9 @@ console.log("LINE 10 APP.JS");
 
 process.env.BASE_URL = (process.env.PORT && onlineVersion) ? herokuURL : localURL;
 process.env.CORS_ORIGIN = (process.env.PORT && onlineVersion) ? herokuCORS : localCORS;
+process.env.STRIPE_SECRET_KEY = 'sk_test_LKsnEFYm74fwmLbyfR3qKWgb';
+process.env.STRIPE_PUBLIC_KEY = 'pk_test_XXOQiKnnXqjJlJG5euwKirzj';
+
 console.log("process.env.   BASE_URL SET: ", process.env.BASE_URL);
 
 const path = require('path');

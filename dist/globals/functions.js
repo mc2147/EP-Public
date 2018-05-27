@@ -44,7 +44,7 @@ function dateString(date) {
 }
 
 function getWorkoutDays(startDate, daysList, level, member, nWorkouts) {
-    // console.log("start date: ", new Date(startDate));
+    console.log("   getWorkoutDays start date: ", new Date(startDate));
     // console.log("daysList: ", daysList);
     var checkDays = 28;
     var output = [];

@@ -88,56 +88,8 @@ router.get("/", function (req, res) {
     });
 });
 
+// Inputs: email, name, 
 router.post("/", async function (req, res) {
-    console.log("req.body (api/users): ", req.body);
-    var testEmail = "testEmail@test.com";
-    var testCharge = 500;
-    var stripeToken = req.body.stripeToken;
-    var stripeCustomer = await stripe.customers.create({
-        source: stripeToken,
-        email: testEmail
-    });
-    // console.log("new customer: ", stripeCustomer);
-    // console.log("new customer id: ", stripeCustomer.id);
-    var newCharge = await stripe.charges.create({
-        amount: testCharge,
-        currency: "usd",
-        customer: stripeCustomer.id,
-        description: "Gold subscription for: " + testEmail
-    });
-    var newSubscription = await stripe.subscriptions.create({
-        customer: stripeCustomer.id,
-        items: [{
-            plan: "AS_Silver"
-        }]
-    });
-    // console.log("newSubscription: ", newSubscription);
-    // console.log("newSubscription current_period_start: ", new Date(newSubscription.current_period_end));
-    // console.log("newSubscription current_period_end: ", new Date(newSubscription.current_period_end));
-    // console.log("newSubscription start: ", new Date(newSubscription.start));
-    // console.log("newSubscription created: ", new Date(newSubscription.created));
-    // console.log("newSubscription billing_cycle_anchor: ", new Date(newSubscription.billing_cycle_anchor));
-    // console.log("Date.now: ", new Date(Date.now()));    
-
-    // console.log("new charge: ", newCharge);
-    var stripeSubscriptions = await stripe.subscriptions.list();
-    console.log("stripe subscriptions: ", stripeSubscriptions);
-    console.log("Date.now: ", Date.now());
-    stripeSubscriptions.data.forEach(function (sub) {
-        console.log("stripe billing_cycle_anchor: ", new Date(sub.billing_cycle_anchor * 1000));
-        console.log("stripe subscription created: ", new Date(sub.created * 1000));
-        console.log("stripe subscription start: ", new Date(sub.start * 1000));
-        console.log("stripe subscription end: ", new Date(sub.current_period_end * 1000));
-        var tRemaining = sub.current_period_end * 1000 - Date.now();
-        console.log("remaining time until subscription ends: ", new Date(tRemaining));
-        console.log("remaining days until subscription ends: ", tRemaining / (24 * 60 * 60 * 1000));
-    });
-    var findCustomer = await stripe.customers.retrieve(stripeCustomer.id);
-    // console.log("customer found: ", findCustomer);
-    var stripePlans = await stripe.plans.list();
-    // console.log("Stripe plans: ", stripePlans);
-    //Also attach stripe ID to user object
-    return;
     var newUser = await (0, _userFunctions.signupUser)(req.body);
     if (newUser == false) {
         res.json({
@@ -159,23 +111,95 @@ router.post("/", async function (req, res) {
     // res.json(req.session);
 });
 
+router.post('/:id/subscribe', async function (req, res) {
+    console.log("req.body (api/users): ", req.body);
+    var user = await _models.User.findById(req.params.id);
+    var testEmail = "testEmail@test.com";
+    var testCharge = 500;
+    var stripeToken = req.body.stripeToken;
+    var stripeCustomer = await stripe.customers.create({
+        source: stripeToken,
+        email: testEmail
+    });
+    var newCustomerId = stripeCustomer.id;
+    // console.log("new customer: ", stripeCustomer);
+    // console.log("new customer id: ", stripeCustomer.id);
+    var newCharge = await stripe.charges.create({
+        amount: testCharge,
+        currency: "usd",
+        customer: stripeCustomer.id,
+        description: "Gold subscription for: " + testEmail
+    });
+    var newSubscription = await stripe.subscriptions.create({
+        customer: stripeCustomer.id,
+        items: [{
+            plan: "AS_Silver"
+        }]
+    });
+    // console.log("newSubscription: ", newSubscription);
+    // console.log("newSubscription current_period_start: ", new Date(newSubscription.current_period_end));
+    // console.log("newSubscription current_period_end: ", new Date(newSubscription.current_period_end));
+    // console.log("newSubscription start: ", new Date(newSubscription.start));
+    // console.log("newSubscription created: ", new Date(newSubscription.created));
+    // console.log("newSubscription billing_cycle_anchor: ", new Date(newSubscription.billing_cycle_anchor));
+    // console.log("Date.now: ", new Date(Date.now()));        
+    // console.log("new charge: ", newCharge);
+    var stripeSubscriptions = await stripe.subscriptions.list();
+    // console.log("stripe subscriptions: ", stripeSubscriptions);
+    // console.log("Date.now: ", Date.now());
+    stripeSubscriptions.data.forEach(function (sub) {
+        // console.log("stripe billing_cycle_anchor: ", new Date(sub.billing_cycle_anchor*1000));
+        // console.log("stripe subscription created: ", new Date(sub.created*1000));
+        // console.log("stripe subscription start: ", new Date(sub.start*1000));
+        // console.log("stripe subscription end: ", new Date(sub.current_period_end*1000));
+        var tRemaining = sub.current_period_end * 1000 - Date.now();
+        // console.log("remaining time until subscription ends: ", new Date(tRemaining));
+        // console.log("remaining days until subscription ends: ", tRemaining/(24*60*60*1000));
+    });
+    var findCustomer = await stripe.customers.retrieve(stripeCustomer.id);
+    console.log("customer found: ", findCustomer);
+    var stripePlans = await stripe.plans.list();
+    console.log("Stripe plans: ", stripePlans);
+    var allCustomers = await stripe.customers.list();
+    console.log("allCustomers.data length: ", allCustomers.data.length);
+    allCustomers.data.forEach(function (customer) {
+        // console.log("customer subscriptions: ", customer.subscriptions.data);
+        customer.subscriptions.data.forEach(function (sub) {
+            var information = {
+                status: sub.status,
+                start: new Date(sub.start * 1000),
+                current_period_end: new Date(sub.current_period_end * 1000),
+                planId: sub.plan.id,
+                customerId: sub.customer
+            };
+            console.log("customer subscription information: ", information);
+        });
+        // console.log("customer subscriptions: ", customer.subscriptions);
+    });
+    // stripeCustomer = await
+    res.json(findCustomer); //newSubscription
+    //Also attach stripe ID to user object
+    return;
+});
+
 router.get('/:id/reschedule-workouts', async function (req, res) {
     var user = await _models.User.findById(req.params.id);
+    var Now = new Date(Date.now());
     var workouts = [];
     for (var K in user.workouts) {
         var W = user.workouts[K];
         var wDate = new Date(W.Date);
         var workoutObj = {
-            Week: W.week,
-            Day: W.day,
+            Week: W.Week,
+            Day: W.Day,
             Date: wDate,
-            Missed: false
+            Missed: false,
+            Completed: false
         };
         if (W.Completed) {
             workoutObj.Completed = true;
         } else {
             //If incomplete and less than now
-            workoutObj.Incomplete = true;
             if ( //Check if date is less than Now
             wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
                 workoutObj.Missed = true;
@@ -192,6 +216,9 @@ router.post('/:id/reschedule-workouts', async function (req, res) {
     // console.log("new start date: ", new Date(req.body.restartDate));
     var newStartDate = new Date(req.body.restartDate);
     var Now = new Date(Date.now());
+    console.log("/:id/reschedule-workouts route ");
+    console.log("   Now: ", Now);
+    console.log("   newStartDate ", newStartDate);
     var user = await _models.User.findById(req.params.id);
     if ('DoW' in req.body) {
         var DoWArray = [];
