@@ -163,6 +163,7 @@ router.post("/:username/login", async function (req, res) {
 router.put('/:id/change-subscription', async function(req, res) {
     let user = await User.findById(req.params.id);
     console.log("changing subscription for user: ", user.username);
+    console.log("   req.body: ", req.body);
     let newPlanID = req.body.newPlanID;
     let stripeUser = await stripe.customers.retrieve(user.stripeId);
     let subscriptions = stripeUser.subscriptions;
@@ -179,6 +180,7 @@ router.put('/:id/change-subscription', async function(req, res) {
             at_period_end: true,
         })
         // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
+        console.log("cancelling... ", cancelSubscription);
         res.json(cancelSubscription);            
         return
     }
@@ -199,6 +201,7 @@ router.put('/:id/change-subscription', async function(req, res) {
                 },
             ],        
         });
+        console.log("changing... ", newSubscription);
         res.json(newSubscription);
         return        
     }
@@ -300,14 +303,14 @@ router.get('/:id/subscription-info', async function(req, res) {
             break
         }
     }
-    if (firstSubscription.status == 'trialing') {
+    if (firstSubscription.cancel_at_period_end) {
+        subscriptionDescriber += ` It has been cancelled and will expire after this date.`        
+        secondLine = ` It has been cancelled and will expire after this date.`;
+    }
+    else if (firstSubscription.status == 'trialing') {
         nextPlan = firstSubscription.plan.nickname;
         subscriptionDescriber += ` It will change to ${nextPlan} on this date.`
         secondLine = ` It will change to ${nextPlan} on this date.`;
-    }
-    else if (firstSubscription.cancel_at_period_end) {
-        subscriptionDescriber += ` It has been cancelled and will expire after this date.`        
-        secondLine = ` It has been cancelled and will expire after this date.`;
     }
     else if (firstSubscription.status == 'active') {
         subscriptionDescriber += ` It will renew automatically.`        
