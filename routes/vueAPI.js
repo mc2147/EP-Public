@@ -144,7 +144,7 @@ function getVueInfo(refDict) {
 				}
 				else if (Pattern.stop && setNum > 1) {
 					weightDict.status = 'Fixed';
-					// weightDict.value = Pattern.stopWeight;
+					weightDict.value = Pattern.stopWeight;
 				}
 				if (Pattern.drop && Pattern.specialStage >= 1) {
 					weightDict.status = 'Fixed';

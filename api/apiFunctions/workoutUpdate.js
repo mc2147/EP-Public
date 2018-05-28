@@ -171,6 +171,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                 else {
                     thisPattern.stopWeight = Val.Weight;
                 }
+                console.log("STOP WEIGHT: ", thisPattern.stopWeight, thisPattern.sets);
                 // thisPattern.stopWeight = setDict.Weight;
                 
                 if (thisPattern.specialStage == 0) { //Stop RPE has not been hit 
