@@ -170,6 +170,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                 }
                 else {
                     thisPattern.stopWeight = Val.Weight;
+                    stopWeight = Val.Weight;
                 }
                 console.log("STOP WEIGHT: ", thisPattern.stopWeight, thisPattern.sets);
                 // thisPattern.stopWeight = setDict.Weight;
@@ -192,6 +193,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                                 // Tempo: [null, null, null],
                                 Filled: false,
                             });				 
+                            console.log("pushing to stop sets: ", stopWeight);
                         // }
                     }
                     // Stop-RPE case
