@@ -11,6 +11,7 @@ import {User, Video, WorkoutTemplate} from '../../models';
 import axios from 'axios';
 
 export async function updateSpecial(body, userInstance, vWID, PNum, type) {
+    console.log("updateSpecial body: ", body);
     // 3 cases: alloy, stop, drop
     let maxStopSets = 3;
     let maxDropSets = 3;
@@ -21,7 +22,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
     var allStats = userInstance.stats;
     for (var K in body) {
         var inputCode = K.split("|");
-        // console.log("K updateSpecial: ", K);
+        console.log("K updateSpecial: ", K);
         if (!K.includes("|") || !inputCode) {
             continue;
         }
@@ -86,7 +87,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                 setDict.Filled = true;
             }
         }
-
+        console.log('setDict: ', setDict);
         // Check if last set
         if (setNum == _nSets) {
             if (!(_EType in lastSets)) {
@@ -151,6 +152,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
     // await userInstance.save();
     
     for (var EType in lastSets) {
+        // console.log('')
         var Val = lastSets[EType];
         var lastSetStat = allStats[EType];
         // If last set was filled completely
@@ -290,7 +292,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
             }
         }
     }    
-
+    console.log("LINE 294 UPDATE SPECIAL");
     userInstance.stats = allStats;
     userInstance.workouts = allWorkouts;    
 
@@ -326,7 +328,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
         ) {
             copiedStats["Level Up"].Status = Alloy.Testing;
     }
-    console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
+    // console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
     
     userInstance.stats = copiedStats;
     userInstance.workouts = allWorkouts;
