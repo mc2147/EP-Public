@@ -285,12 +285,12 @@ router.get('/:id/subscription-info', async function(req, res) {
     let currentPlan = "";
     let endDateString = "";
     let nextPlan = false;
-    let secondLine = "";
-    
+    let cancelled = false;
+    // let new
+    let secondLine = "";    
     // if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
     //     subscriptionValid = true;
     // }
-
     for (let i = 0; i < subscriptionList.length; i ++) {
         let thisSub = subscriptionList[i];
         if (thisSub.status == 'active') {
@@ -306,6 +306,7 @@ router.get('/:id/subscription-info', async function(req, res) {
     if (firstSubscription.cancel_at_period_end) {
         subscriptionDescriber += ` It has been cancelled and will expire after this date.`        
         secondLine = ` It has been cancelled and will expire after this date.`;
+        cancelled = true;
     }
     else if (firstSubscription.status == 'trialing') {
         nextPlan = firstSubscription.plan.nickname;
@@ -318,6 +319,7 @@ router.get('/:id/subscription-info', async function(req, res) {
     }
     
     res.json({
+        cancelled,
         describer:subscriptionDescriber,
         currentPlan,
         endDateString,
