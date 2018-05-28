@@ -100,6 +100,9 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                     AlloyReps: thisPattern.alloyreps,
                     ID: patternID,
                 };
+                if (thisPattern.stopWeight) {
+                    lastSets[_EType] = thisPattern.stopWeight;
+                }
             }
             if (inputType == "W") {
                 lastSets[_EType].Weight = parseInt(body[K]);
@@ -164,7 +167,8 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
             // Stop & Drop Sets
             //STOP SETS - starting RPE is pattern.RPE, stop RPE is pattern.specialValue
             if (thisPattern.stop) {
-                let startingRPE = parseFloat(thisPattern.RPE);
+                console.log
+                // let startingRPE = parseFloat(thisPattern.RPE);
                 let stopRPE = parseFloat(thisPattern.specialValue);
                 console.log("stop set submitted ", thisPattern.specialValue);
                 console.log('lastsetPattern.sets: ', thisPattern.sets);
