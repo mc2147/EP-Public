@@ -77,12 +77,16 @@ export async function accessInfo(user) {
     let hasSubscription = false;
     let subscriptionValid = false;
     let subscriptionExpired = false;
+    let initialized = false;
     let subscriptionStatus = null;    
     if (!user.level || user.level == 0 || user.level == null) {
         hasLevel = false;
     }
     if (user.workoutDates.length > 0) {
         hasWorkouts = true;
+    }
+    if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
+        initialized = true;
     }
     for (var K in user.workouts) {
         let W = user.workouts[K];
@@ -126,6 +130,7 @@ export async function accessInfo(user) {
         hasLevel,
         hasWorkouts,
         missedWorkouts,        
+        initialized,
     }
     // console.log
     return {

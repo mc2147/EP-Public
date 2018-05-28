@@ -120,17 +120,26 @@ router.post("/:username/login", async function (req, res) {
                     loginUser.missedWorkouts = true;
                 }
             }	
+            let paid = false;
             let hasSubscription = false;
             let subscriptionValid = false;
             let subscriptionStatus = false;
             if (loginUser.stripeId != "") {
-                let stripeUser = await stripe.customers.retrieve(loginUser.stripeId);
-                if (stripeUser.subscriptions.data.length > 0) {
-                    hasSubscription = true;
-                    subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                    if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-                        subscriptionValid = true;
+                try {
+                    let stripeUser = await stripe.customers.retrieve(loginUser.stripeId);
+                    paid = true;
+                    if (stripeUser.subscriptions.data.length > 0) {
+                        hasSubscription = true;
+                        subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                        if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                            subscriptionValid = true;
+                        }
                     }
+                }
+                catch(error) {
+                    paid = false;
+                    hasSubscription = false;
+                    subscriptionValid = false;
                 }
             }                    
             res.json({
@@ -305,11 +314,17 @@ router.get('/:id/subscription-info', async function(req, res) {
     }
     if (firstSubscription.cancel_at_period_end) {
         subscriptionDescriber += ` It has been cancelled and will expire after this date.`        
-        secondLine = ` It has been cancelled and will expire after this date.`;
+        secondLine = ` It has been <b style="color:#f44336;">cancelled</b> and will expire after this date.`;
         cancelled = true;
     }
     else if (firstSubscription.status == 'trialing') {
         nextPlan = firstSubscription.plan.nickname;
+        if (nextPlan == 'Silver') {
+            nextPlan = `<b style="color:#bdbdbd;">${nextPlan}</b>`
+        }
+        else if (nextPlan == 'Gold') {
+            nextPlan = `<b style="color:#ffca28;">${nextPlan}</b>`            
+        }
         subscriptionDescriber += ` It will change to ${nextPlan} on this date.`
         secondLine = ` It will change to ${nextPlan} on this date.`;
     }
