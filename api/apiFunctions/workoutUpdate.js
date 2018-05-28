@@ -13,8 +13,8 @@ import axios from 'axios';
 export async function updateSpecial(body, userInstance, vWID, PNum, type) {
     console.log("updateSpecial body: ", body);
     // 3 cases: alloy, stop, drop
-    let maxStopSets = 3;
-    let maxDropSets = 3;
+    let maxStopSets = 4;
+    let maxDropSets = 4;
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];
     var thisPattern = thisWorkout.Patterns[PNum - 1]; //Patterns are sorted
