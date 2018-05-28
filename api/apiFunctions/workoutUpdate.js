@@ -101,7 +101,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                     ID: patternID,
                 };
                 if (thisPattern.stopWeight) {
-                    lastSets[_EType] = thisPattern.stopWeight;
+                    lastSets[_EType].Weight = thisPattern.stopWeight;
                 }
             }
             if (inputType == "W") {
