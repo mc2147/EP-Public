@@ -124,7 +124,7 @@ router.post("/:username/login", async function (req, res) {
             let subscriptionValid = false;
             let subscriptionStatus = false;
             if (loginUser.stripeId != "") {
-                let stripeUser = await stripe.customers.retrieve(loginuser.stripeId);
+                let stripeUser = await stripe.customers.retrieve(loginUser.stripeId);
                 if (stripeUser.subscriptions.data.length > 0) {
                     hasSubscription = true;
                     subscriptionStatus = stripeUser.subscriptions.data[0].status;
