@@ -22,7 +22,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
     var allStats = userInstance.stats;
     for (var K in body) {
         var inputCode = K.split("|");
-        console.log("K updateSpecial: ", K);
+        console.log("K updateSpecial: ", K, "sets: " + thisPattern.sets);
         if (!K.includes("|") || !inputCode) {
             continue;
         }
@@ -88,6 +88,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
             }
         }
         console.log('setDict: ', setDict);
+        console.log('setNum: ', setNum);
         // Check if last set
         if (setNum == _nSets) {
             if (!(_EType in lastSets)) {
@@ -152,8 +153,9 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
     // await userInstance.save();
     
     for (var EType in lastSets) {
-        // console.log('')
         var Val = lastSets[EType];
+        console.log('lastSet Val: ', Val);
+        console.log('lastSet thisPattern: ', thisPattern);
         var lastSetStat = allStats[EType];
         // If last set was filled completely
         if (Val.Weight && Val.RPE && Val.Reps) {

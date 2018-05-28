@@ -134,9 +134,9 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                     }
                     // console.log('patternInstance.workoutType: ', patternInstance.workoutType);
                     if (EObj.bodyweight) {
-                        console.log('old patternInstance.workoutType: ', patternInstance.workoutType, EName);
+                        // console.log('old patternInstance.workoutType: ', patternInstance.workoutType, EName);
                         patternInstance.workoutType = 'bodyweight';
-                        console.log('   patternInstance.workoutType: ', patternInstance.workoutType);
+                        // console.log('   patternInstance.workoutType: ', patternInstance.workoutType);
                     }
                     patternInstance.name = EName + deloadIndicator;
 
