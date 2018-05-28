@@ -177,6 +177,7 @@ export async function updateSpecial(body, userInstance, vWID, PNum, type) {
                 
                 if (thisPattern.specialStage == 0) { //Stop RPE has not been hit 
                      // Non-stop-RPE case
+                     console.log("SPECIALSTAGE == 0 ", Val.RPE, ' vs. ', stopRPE);
                     if (thisPattern.sets <= (maxStopSets)
                         && parseFloat(Val.RPE) < stopRPE) {
                         // if (thisPattern.sets != 0) {
