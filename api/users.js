@@ -319,14 +319,15 @@ router.get('/:id/subscription-info', async function(req, res) {
     }
     else if (firstSubscription.status == 'trialing') {
         nextPlan = firstSubscription.plan.nickname;
+        let nextPlanString = nextPlan;
         if (nextPlan == 'Silver') {
-            nextPlan = `<b style="color:#bdbdbd;">${nextPlan}</b>`
+            nextPlanString = `<b style="color:#bdbdbd;">${nextPlan}</b>`
         }
         else if (nextPlan == 'Gold') {
-            nextPlan = `<b style="color:#ffca28;">${nextPlan}</b>`            
+            nextPlanString = `<b style="color:#ffca28;">${nextPlan}</b>`            
         }
-        subscriptionDescriber += ` It will change to ${nextPlan} on this date.`
-        secondLine = ` It will change to ${nextPlan} on this date.`;
+        subscriptionDescriber += ` It will change to ${nextPlanString} on this date.`
+        secondLine = ` It will change to ${nextPlanString} on this date.`;
     }
     else if (firstSubscription.status == 'active') {
         subscriptionDescriber += ` It will renew automatically.`        
