@@ -26,9 +26,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //     var G_getPattern = globalFuncs.getPattern;
 //     var dateString = globalFuncs.dateString;
 async function updateSpecial(body, userInstance, vWID, PNum, type) {
+    console.log("updateSpecial body: ", body);
     // 3 cases: alloy, stop, drop
-    var maxStopSets = 3;
-    var maxDropSets = 3;
+    var maxStopSets = 4;
+    var maxDropSets = 4;
     var allWorkouts = userInstance.workouts;
     var thisWorkout = allWorkouts[vWID];
     var thisPattern = thisWorkout.Patterns[PNum - 1]; //Patterns are sorted
@@ -36,7 +37,7 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
     var allStats = userInstance.stats;
     for (var K in body) {
         var inputCode = K.split("|");
-        // console.log("K updateSpecial: ", K);
+        console.log("K updateSpecial: ", K, "sets: " + thisPattern.sets);
         if (!K.includes("|") || !inputCode) {
             continue;
         }
@@ -91,7 +92,8 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
                 setDict.Filled = true;
             }
         }
-
+        console.log('setDict: ', setDict);
+        console.log('setNum: ', setNum);
         // Check if last set
         if (setNum == _nSets) {
             if (!(_EType in lastSets)) {
@@ -103,6 +105,9 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
                     AlloyReps: thisPattern.alloyreps,
                     ID: patternID
                 };
+                if (thisPattern.stopWeight) {
+                    lastSets[_EType].Weight = thisPattern.stopWeight;
+                }
             }
             if (inputType == "W") {
                 lastSets[_EType].Weight = parseInt(body[K]);
@@ -153,6 +158,8 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
 
     for (var EType in lastSets) {
         var Val = lastSets[EType];
+        console.log('lastSet Val: ', Val);
+        console.log('lastSet thisPattern: ', thisPattern);
         var lastSetStat = allStats[EType];
         // If last set was filled completely
         if (Val.Weight && Val.RPE && Val.Reps) {
@@ -161,7 +168,8 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
             // Stop & Drop Sets
             //STOP SETS - starting RPE is pattern.RPE, stop RPE is pattern.specialValue
             if (thisPattern.stop) {
-                var startingRPE = parseFloat(thisPattern.RPE);
+                console.log;
+                // let startingRPE = parseFloat(thisPattern.RPE);
                 var stopRPE = parseFloat(thisPattern.specialValue);
                 console.log("stop set submitted ", thisPattern.specialValue);
                 console.log('lastsetPattern.sets: ', thisPattern.sets);
@@ -170,12 +178,15 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
                     stopWeight = thisPattern.stopWeight;
                 } else {
                     thisPattern.stopWeight = Val.Weight;
+                    stopWeight = Val.Weight;
                 }
+                console.log("STOP WEIGHT: ", thisPattern.stopWeight, thisPattern.sets);
                 // thisPattern.stopWeight = setDict.Weight;
 
                 if (thisPattern.specialStage == 0) {
                     //Stop RPE has not been hit 
                     // Non-stop-RPE case
+                    console.log("SPECIALSTAGE == 0 ", Val.RPE, ' vs. ', stopRPE);
                     if (thisPattern.sets <= maxStopSets && parseFloat(Val.RPE) < stopRPE) {
                         // if (thisPattern.sets != 0) {
                         thisPattern.sets += 1;
@@ -191,6 +202,7 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
                             // Tempo: [null, null, null],
                             Filled: false
                         });
+                        console.log("pushing to stop sets: ", stopWeight);
                         // }
                     }
                     // Stop-RPE case
@@ -282,7 +294,7 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
             }
         }
     }
-
+    console.log("LINE 294 UPDATE SPECIAL");
     userInstance.stats = allStats;
     userInstance.workouts = allWorkouts;
 
@@ -308,7 +320,7 @@ async function updateSpecial(body, userInstance, vWID, PNum, type) {
     } else if (squatStatus == _enums.Alloy.None || squatStatus == _enums.Alloy.Testing || benchStatus == _enums.Alloy.None || benchStatus == _enums.Alloy.Testing || hingeStatus == _enums.Alloy.None || hingeStatus == _enums.Alloy.Testing) {
         copiedStats["Level Up"].Status = _enums.Alloy.Testing;
     }
-    console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
+    // console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
 
     userInstance.stats = copiedStats;
     userInstance.workouts = allWorkouts;

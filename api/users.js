@@ -5,8 +5,8 @@ var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
 import {getSubscriptionInfo} from './apiFunctions/stripeFunctions';
-import {signupUser} from './apiFunctions/userFunctions';
-import {assignWorkouts, assignLevel, accessInfo, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
+import {signupUser, accessInfo} from './apiFunctions/userFunctions';
+import {assignWorkouts, assignLevel, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
 import {generateHash} from './apiFunctions/userFunctions';
 import {updateSpecial} from './apiFunctions/workoutUpdate'
 import {generateWorkouts} from './apiFunctions/generateWorkouts';
@@ -84,6 +84,76 @@ router.post("/", async function(req, res) {
     }
     // res.json(req.session);
 })
+
+router.post("/:username/login", async function (req, res) {
+    console.log("username/login route hit", req.body);
+    var username = req.params.username;
+    var passwordInput = req.body.password;
+    let Now = new Date(Date.now());
+    var loginUser = await User.findOne({
+        where: {
+            username,
+        }
+    });
+
+    if (!loginUser) {
+        res.json({
+            Success: false,
+            Found: false,
+            Status: "No user found"
+        });
+    }
+    else {
+        var hashed = User.generateHash(passwordInput, loginUser.salt);
+        if (hashed == loginUser.password) {
+            let hasWorkouts = (Object.keys(loginUser.workouts).length > 0);
+            loginUser.missedWorkouts = false;
+            for (var K in loginUser.workouts) {
+                let W = loginUser.workouts[K];
+                let wDate = new Date(W.Date);        
+                if (
+                    //If there's an incomplete workout before the current date
+                    !W.Completed 
+                    && wDate 
+                    && wDate.getDate() < Now.getDate() 
+                    && wDate.getMonth() <= Now.getMonth()) {
+                    loginUser.missedWorkouts = true;
+                }
+            }	
+            let hasSubscription = false;
+            let subscriptionValid = false;
+            let subscriptionStatus = false;
+            if (loginUser.stripeId != "") {
+                let stripeUser = await stripe.customers.retrieve(loginuser.stripeId);
+                if (stripeUser.subscriptions.data.length > 0) {
+                    hasSubscription = true;
+                    subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                    if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                        subscriptionValid = true;
+                    }
+                }
+            }                    
+            res.json({
+                Success: true,
+                Found: true,
+                Status: "Success",
+                User:loginUser,
+                hasWorkouts,
+                subscriptionValid,
+                hasSubscription,
+                subscriptionStatus
+            });
+        }
+        else {
+            res.json({
+                Success: false,
+                Found: true,
+                Status: "Incorrect Password!"
+            });
+        }
+    }
+})
+
 
 // On change subscription: 
     //cancel_at_period_end = true;
@@ -297,6 +367,7 @@ router.post('/:id/subscribe', async function(req, res) {
         email:user.username,
     });    
     let newStripeId = stripeUser.id;
+    console.log("newStripeId: ", newStripeId);
     user.stripeId = newStripeId;
     await user.save();
     let newSubscription = await stripe.subscriptions.create({
@@ -307,9 +378,9 @@ router.post('/:id/subscribe', async function(req, res) {
             },
         ],        
     });
-    res.json(findCustomer); 
     let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
     console.log("customer found: ", findCustomer);
+    res.json(findCustomer); 
     return    
 })
 
@@ -379,76 +450,6 @@ router.post('/:id/payment', async function(req, res) {
     
 });
 
-router.post("/:username/login", async function (req, res) {
-    var username = req.params.username;
-    var passwordInput = req.body.password;
-    let Now = new Date(Date.now());
-    console.log("username/login route hit", req.body);
-    var loginUser = await User.findOne({
-        where: {
-            username,
-        }
-    });
-
-    if (!loginUser) {
-        res.json({
-            Success: false,
-            Found: false,
-            Status: "No user found"
-        });
-    }
-    else {
-        var hashed = User.generateHash(passwordInput, loginUser.salt);
-        if (hashed == loginUser.password) {
-            let hasWorkouts = (Object.keys(loginUser.workouts).length > 0);
-            loginUser.missedWorkouts = false;
-            for (var K in loginUser.workouts) {
-                let W = loginUser.workouts[K];
-                let wDate = new Date(W.Date);        
-                if (
-                    //If there's an incomplete workout before the current date
-                    !W.Completed 
-                    && wDate 
-                    && wDate.getDate() < Now.getDate() 
-                    && wDate.getMonth() <= Now.getMonth()) {
-                    loginUser.missedWorkouts = true;
-                }
-            }	
-            let hasSubscription = false;
-            let subscriptionValid = false;
-            let subscriptionStatus = false;
-            if (loginUser.stripeId != "") {
-                let stripeUser = await stripe.customers.retrieve(loginuser.stripeId);
-                if (stripeUser.subscriptions.data.length > 0) {
-                    hasSubscription = true;
-                    subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                    if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-                        subscriptionValid = true;
-                    }
-
-                }
-            }                    
-            res.json({
-                Success: true,
-                Found: true,
-                Status: "Success",
-                User:loginUser,
-                hasWorkouts,
-                subscriptionValid,
-                hasSubscription,
-                subscriptionStatus
-            });
-        }
-        else {
-            res.json({
-                Success: false,
-                Found: true,
-                Status: "Incorrect Password!"
-            });
-        }
-    }
-})
-
 router.get("/:userId", async function(req, res) {
     let user = await User.findById(req.params.userId);
     res.json(user);
@@ -469,7 +470,8 @@ router.get("/:userId/access-info", async function(req, res) {
     let user = await User.findById(req.params.userId);
     let response = Object.assign({}, user);
     let Now = new Date(Date.now());
-    res.json(accessInfo(user));
+    let returnObj = await accessInfo(user);
+    res.json(returnObj);
 })
 
 router.get("/:userId/workouts", function(req, res) {

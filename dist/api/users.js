@@ -473,7 +473,8 @@ router.get("/:userId/access-info", async function (req, res) {
     var user = await _models.User.findById(req.params.userId);
     var response = Object.assign({}, user);
     var Now = new Date(Date.now());
-    res.json((0, _workoutFunctions.accessInfo)(user));
+    var returnObj = await (0, _userFunctions.accessInfo)(user);
+    res.json(returnObj);
 });
 
 router.get("/:userId/workouts", function (req, res) {

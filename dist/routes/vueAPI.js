@@ -136,7 +136,9 @@ function getVueInfo(refDict) {
 						// RPEDict.status = 'Empty';
 					} else if (Pattern.stop && setNum > 1) {
 						weightDict.status = 'Fixed';
-						// weightDict.value = Pattern.stopWeight;
+						console.log("weightDict.value pre: ", weightDict.value);
+						weightDict.value = Pattern.stopWeight;
+						console.log("weightDict.value post: ", weightDict.value);
 					}
 					if (Pattern.drop && Pattern.specialStage >= 1) {
 						weightDict.status = 'Fixed';

@@ -132,7 +132,19 @@ async function accessInfo(user) {
             hasStripe = false;
         }
     }
-    return {
+    var output = {
+        // Stripe & Subcriptions
+        hasStripe: hasStripe,
+        hasSubscription: hasSubscription,
+        subscriptionValid: subscriptionValid,
+        subscriptionStatus: subscriptionStatus,
+        subscriptionExpired: subscriptionExpired,
+        // Workouts
+        hasLevel: hasLevel,
+        hasWorkouts: hasWorkouts,
+        missedWorkouts: missedWorkouts
+        // console.log
+    };return {
         // Stripe & Subcriptions
         hasStripe: hasStripe,
         hasSubscription: hasSubscription,

@@ -115,6 +115,19 @@ export async function accessInfo(user) {
             hasStripe = false;
         }
     }
+    let output = {
+        // Stripe & Subcriptions
+        hasStripe,
+        hasSubscription,
+        subscriptionValid,
+        subscriptionStatus,
+        subscriptionExpired,
+        // Workouts
+        hasLevel,
+        hasWorkouts,
+        missedWorkouts,        
+    }
+    // console.log
     return {
         // Stripe & Subcriptions
         hasStripe,
