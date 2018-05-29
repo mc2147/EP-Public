@@ -414,7 +414,7 @@ router.post('/:id/renew-subscription', async function(req, res) {
     console.log("stripeID: ", stripeID, "stripeToken: ", stripeToken, 'planID: ', planID);
     try {
         let stripeCustomer = await stripe.customers.retrieve(stripeID);
-        stripeCustomers.subscriptions.data.forEach(sub => {
+        stripeCustomers.subscriptions.data.forEach(async sub => {
             await stripe.subscriptions.update(sub.id, {
                 cancel_at_period_end: true,
             });
