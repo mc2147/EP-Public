@@ -381,7 +381,6 @@ router.post('/:id/subscribe', async function(req, res) {
     console.log('subscribing...');
     let stripeToken = req.body.stripeToken;
     let planID = req.body.planID;
-
     console.log("   req.body (api/users): ", req.body);
     let user = await User.findById(req.params.id);
     let stripeUser = await stripe.customers.create({
@@ -396,7 +395,8 @@ router.post('/:id/subscribe', async function(req, res) {
         customer:stripeUser.id,
         items: [
             {
-                plan:"AS_Silver",
+                // plan:"AS_Silver",
+                plan:req.body.planID,
             },
         ],        
     });
@@ -407,7 +407,53 @@ router.post('/:id/subscribe', async function(req, res) {
 })
 
 router.post('/:id/renew-subscription', async function(req, res) {
-    
+    let user = await User.findById(req.params.id);
+    let stripeID = user.stripeId;
+    let stripeToken = req.body.stripeToken;
+    let planID = req.body.planID;
+    try {
+        let stripeCustomer = await stripe.customers.retrieve(stripeID);
+        let stripeCustomerID = stripeCustomer.id;
+        let newSubscription = await subscriptions.create({
+            customer:stripeCustomerID,
+            items:[
+                {
+                    plan:planID,
+                },
+            ],
+        })
+        let response = await accessInfo(user);
+        res.json(response);
+        // // res.json(newSubscription);
+        // res.json({
+        //     success:true,
+        // })
+    }
+    catch(error) {
+        error.Error = true;
+        res.json(error);
+    }    
+    // let user = await User.findById(req.params.id);
+    // let stripeUser = await stripe.customers.create({
+    //     source:stripeToken,
+    //     email:user.username,
+    // });    
+    // let newStripeId = stripeUser.id;
+    // console.log("newStripeId: ", newStripeId);
+    // user.stripeId = newStripeId;
+    // await user.save();
+    // let newSubscription = await stripe.subscriptions.create({
+    //     customer:stripeUser.id,
+    //     items: [
+    //         {
+    //             plan:"AS_Silver",
+    //         },
+    //     ],        
+    // });
+    // let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
+    // console.log("customer found: ", findCustomer);
+    // res.json(findCustomer); 
+    // return        
 })
 
 router.get('/:id/reschedule-workouts', async function(req, res) {
