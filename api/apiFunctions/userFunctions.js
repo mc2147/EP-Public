@@ -152,7 +152,7 @@ export async function accessInfo(user) {
         accessLevel = 5;       
     }
     if ((hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts)
-    || _User.isAdmin) {
+    || user.isAdmin) {
         accessLevel = 6;       
     }
     return {
