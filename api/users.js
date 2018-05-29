@@ -411,6 +411,7 @@ router.post('/:id/renew-subscription', async function(req, res) {
     let stripeID = user.stripeId;
     let stripeToken = req.body.stripeToken;
     let planID = req.body.planID;
+    console.log("stripeID: ", stripeID, "stripeToken: ", stripeToken, 'planID: ', planID);
     try {
         let stripeCustomer = await stripe.customers.retrieve(stripeID);
         let stripeCustomerID = stripeCustomer.id;
@@ -422,8 +423,10 @@ router.post('/:id/renew-subscription', async function(req, res) {
                 },
             ],
         })
+        console.log("line 426");
         let response = await accessInfo(user);
         res.json(response);
+        console.log("line 427");
         // // res.json(newSubscription);
         // res.json({
         //     success:true,
