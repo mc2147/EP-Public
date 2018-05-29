@@ -123,7 +123,8 @@ router.post("/:username/login", async function (req, res) {
             username: username
         }
     });
-
+    var viewingWID = 1;
+    var nextWorkoutFound = false;
     if (!loginUser) {
         res.json({
             Success: false,
@@ -140,10 +141,18 @@ router.post("/:username/login", async function (req, res) {
                 var wDate = new Date(W.Date);
                 if (
                 //If there's an incomplete workout before the current date
-                !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
-                    loginUser.missedWorkouts = true;
+                wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+                    if (!W.Completed) {
+                        loginUser.missedWorkouts = true;
+                    }
+                } else {
+                    if (!nextWorkoutFound) {
+                        viewingWID = K;
+                    }
+                    nextWorkoutFound = true;
                 }
             }
+            // loginuser.workoutDates.forEach((elem, ))
             var paid = false;
             var hasSubscription = false;
             var subscriptionValid = false;
@@ -165,15 +174,18 @@ router.post("/:username/login", async function (req, res) {
                     subscriptionValid = false;
                 }
             }
+            var userAccess = await (0, _userFunctions.accessInfo)(loginUser);
             res.json({
                 Success: true,
                 Found: true,
                 Status: "Success",
                 User: loginUser,
+                viewingWID: viewingWID,
                 hasWorkouts: hasWorkouts,
                 subscriptionValid: subscriptionValid,
                 hasSubscription: hasSubscription,
-                subscriptionStatus: subscriptionStatus
+                subscriptionStatus: subscriptionStatus,
+                accessInfo: userAccess
             });
         } else {
             res.json({
@@ -387,10 +399,10 @@ router.get('/:id/all-subscriptions-info', async function (req, res) {
 
 // Plan ID: AS_Bronze, AS_Silver, AS_Gold
 router.post('/:id/subscribe', async function (req, res) {
+    console.log('subscribing...');
     var stripeToken = req.body.stripeToken;
     var planID = req.body.planID;
-
-    console.log("req.body (api/users): ", req.body);
+    console.log("   req.body (api/users): ", req.body);
     var user = await _models.User.findById(req.params.id);
     var stripeUser = await stripe.customers.create({
         source: stripeToken,
@@ -403,13 +415,71 @@ router.post('/:id/subscribe', async function (req, res) {
     var newSubscription = await stripe.subscriptions.create({
         customer: stripeUser.id,
         items: [{
-            plan: "AS_Silver"
+            // plan:"AS_Silver",
+            plan: req.body.planID
         }]
     });
     var findCustomer = await stripe.customers.retrieve(stripeUser.id);
     console.log("customer found: ", findCustomer);
     res.json(findCustomer);
     return;
+});
+
+router.post('/:id/renew-subscription', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var stripeID = user.stripeId;
+    var stripeToken = req.body.stripeToken;
+    var planID = req.body.planID;
+    console.log("stripeID: ", stripeID, "stripeToken: ", stripeToken, 'planID: ', planID);
+    try {
+        var stripeCustomer = await stripe.customers.retrieve(stripeID);
+        stripeCustomer.subscriptions.data.forEach(async function (sub) {
+            await stripe.subscriptions.update(sub.id, {
+                cancel_at_period_end: true
+            });
+        });
+
+        console.log("417");
+        var stripeCustomerID = stripeCustomer.id;
+        var newSubscription = await stripe.subscriptions.create({
+            customer: stripeCustomerID,
+            items: [{
+                plan: planID
+            }]
+        });
+        console.log("line 426");
+        var response = await (0, _userFunctions.accessInfo)(user);
+        res.json(response);
+        console.log("line 427");
+        // // res.json(newSubscription);
+        // res.json({
+        //     success:true,
+        // })
+    } catch (error) {
+        error.Error = true;
+        res.json(error);
+    }
+    // let user = await User.findById(req.params.id);
+    // let stripeUser = await stripe.customers.create({
+    //     source:stripeToken,
+    //     email:user.username,
+    // });    
+    // let newStripeId = stripeUser.id;
+    // console.log("newStripeId: ", newStripeId);
+    // user.stripeId = newStripeId;
+    // await user.save();
+    // let newSubscription = await stripe.subscriptions.create({
+    //     customer:stripeUser.id,
+    //     items: [
+    //         {
+    //             plan:"AS_Silver",
+    //         },
+    //     ],        
+    // });
+    // let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
+    // console.log("customer found: ", findCustomer);
+    // res.json(findCustomer); 
+    // return        
 });
 
 router.get('/:id/reschedule-workouts', async function (req, res) {
@@ -467,9 +537,10 @@ router.post('/:id/reschedule-workouts', async function (req, res) {
         // }
         // await user.changed('workouts', true);
         // await user.save();
-        // return newDates;
+        // return newDates;            
     }
-    res.redirect('/reschedule');
+    res.json(user);
+    // res.redirect('/reschedule');
 });
 
 router.post('/:id/payment', async function (req, res) {});
@@ -847,6 +918,12 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         } else {
             editable = !JSON.completed && JSON.accessible;
             noedits = JSON.completed || !JSON.accessible;
+            var userAccess = await (0, _userFunctions.accessInfo)(user);
+            if (userAccess.accessLevel < 6) {
+                editable = false;
+                noedits = true;
+            }
+            // if ()
         }
         JSON.editable = editable;
         JSON.noedits = noedits;
@@ -869,6 +946,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
             // console.log("date", date, _W, _D, K);
             workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
         }
+        // vueJSON.accessLevel = 
         vueJSON.workoutDates = workoutDatelist;
         res.json(vueJSON);
     });

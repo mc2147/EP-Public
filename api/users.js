@@ -95,7 +95,8 @@ router.post("/:username/login", async function (req, res) {
             username,
         }
     });
-
+    let viewingWID = 1;
+    let nextWorkoutFound = false;
     if (!loginUser) {
         res.json({
             Success: false,
@@ -113,13 +114,21 @@ router.post("/:username/login", async function (req, res) {
                 let wDate = new Date(W.Date);        
                 if (
                     //If there's an incomplete workout before the current date
-                    !W.Completed 
-                    && wDate 
+                    wDate 
                     && wDate.getDate() < Now.getDate() 
                     && wDate.getMonth() <= Now.getMonth()) {
-                    loginUser.missedWorkouts = true;
+                        if (!W.Completed) {
+                            loginUser.missedWorkouts = true;                            
+                        }
+                }
+                else {
+                    if (!nextWorkoutFound) {                        
+                        viewingWID = K;
+                    }
+                    nextWorkoutFound = true;
                 }
             }	
+            // loginuser.workoutDates.forEach((elem, ))
             let paid = false;
             let hasSubscription = false;
             let subscriptionValid = false;
@@ -141,16 +150,19 @@ router.post("/:username/login", async function (req, res) {
                     hasSubscription = false;
                     subscriptionValid = false;
                 }
-            }                    
+            }    
+            let userAccess = await accessInfo(loginUser);                
             res.json({
                 Success: true,
                 Found: true,
                 Status: "Success",
                 User:loginUser,
+                viewingWID,
                 hasWorkouts,
                 subscriptionValid,
                 hasSubscription,
-                subscriptionStatus
+                subscriptionStatus,
+                accessInfo:userAccess,
             });
         }
         else {
@@ -918,6 +930,12 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         else {
             editable = !(JSON.completed) && JSON.accessible;
             noedits = JSON.completed || !(JSON.accessible);
+            let userAccess = await accessInfo(user);
+            if (userAccess.accessLevel < 6) {
+                editable = false;
+                noedits = true;
+            }
+            // if ()
         }
         JSON.editable = editable;
         JSON.noedits = noedits;
@@ -939,7 +957,8 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
 			var date = dateString(user.workoutDates[wID - 1]);
 			// console.log("date", date, _W, _D, K);
 			workoutDatelist.push({Week: _W, Day: _D, Date: date, ID: wID});		
-		}        
+        }        
+        // vueJSON.accessLevel = 
         vueJSON.workoutDates = workoutDatelist;
         res.json(vueJSON);
     });
