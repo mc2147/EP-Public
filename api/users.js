@@ -378,10 +378,11 @@ router.get('/:id/all-subscriptions-info', async function(req, res) {
 
 // Plan ID: AS_Bronze, AS_Silver, AS_Gold
 router.post('/:id/subscribe', async function(req, res) {
+    console.log('subscribing...');
     let stripeToken = req.body.stripeToken;
     let planID = req.body.planID;
 
-    console.log("req.body (api/users): ", req.body);
+    console.log("   req.body (api/users): ", req.body);
     let user = await User.findById(req.params.id);
     let stripeUser = await stripe.customers.create({
         source:stripeToken,
@@ -403,6 +404,10 @@ router.post('/:id/subscribe', async function(req, res) {
     console.log("customer found: ", findCustomer);
     res.json(findCustomer); 
     return    
+})
+
+router.post('/:id/renew-subscription', async function(req, res) {
+    
 })
 
 router.get('/:id/reschedule-workouts', async function(req, res) {

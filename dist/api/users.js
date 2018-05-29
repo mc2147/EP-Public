@@ -113,6 +113,78 @@ router.post("/", async function (req, res) {
     // res.json(req.session);
 });
 
+router.post("/:username/login", async function (req, res) {
+    console.log("username/login route hit", req.body);
+    var username = req.params.username;
+    var passwordInput = req.body.password;
+    var Now = new Date(Date.now());
+    var loginUser = await _models.User.findOne({
+        where: {
+            username: username
+        }
+    });
+
+    if (!loginUser) {
+        res.json({
+            Success: false,
+            Found: false,
+            Status: "No user found"
+        });
+    } else {
+        var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
+        if (hashed == loginUser.password) {
+            var hasWorkouts = Object.keys(loginUser.workouts).length > 0;
+            loginUser.missedWorkouts = false;
+            for (var K in loginUser.workouts) {
+                var W = loginUser.workouts[K];
+                var wDate = new Date(W.Date);
+                if (
+                //If there's an incomplete workout before the current date
+                !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+                    loginUser.missedWorkouts = true;
+                }
+            }
+            var paid = false;
+            var hasSubscription = false;
+            var subscriptionValid = false;
+            var subscriptionStatus = false;
+            if (loginUser.stripeId != "") {
+                try {
+                    var stripeUser = await stripe.customers.retrieve(loginUser.stripeId);
+                    paid = true;
+                    if (stripeUser.subscriptions.data.length > 0) {
+                        hasSubscription = true;
+                        subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                        if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                            subscriptionValid = true;
+                        }
+                    }
+                } catch (error) {
+                    paid = false;
+                    hasSubscription = false;
+                    subscriptionValid = false;
+                }
+            }
+            res.json({
+                Success: true,
+                Found: true,
+                Status: "Success",
+                User: loginUser,
+                hasWorkouts: hasWorkouts,
+                subscriptionValid: subscriptionValid,
+                hasSubscription: hasSubscription,
+                subscriptionStatus: subscriptionStatus
+            });
+        } else {
+            res.json({
+                Success: false,
+                Found: true,
+                Status: "Incorrect Password!"
+            });
+        }
+    }
+});
+
 // On change subscription: 
 //cancel_at_period_end = true;
 //create new subscription with billing_cycle_anchor at period_end
@@ -121,6 +193,7 @@ router.post("/", async function (req, res) {
 router.put('/:id/change-subscription', async function (req, res) {
     var user = await _models.User.findById(req.params.id);
     console.log("changing subscription for user: ", user.username);
+    console.log("   req.body: ", req.body);
     var newPlanID = req.body.newPlanID;
     var stripeUser = await stripe.customers.retrieve(user.stripeId);
     var subscriptions = stripeUser.subscriptions;
@@ -137,6 +210,7 @@ router.put('/:id/change-subscription', async function (req, res) {
             at_period_end: true
         });
         // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
+        console.log("cancelling... ", cancelSubscription);
         res.json(cancelSubscription);
         return;
     } else {
@@ -154,6 +228,7 @@ router.put('/:id/change-subscription', async function (req, res) {
                 plan: req.body.newPlanID
             }]
         });
+        console.log("changing... ", newSubscription);
         res.json(newSubscription);
         return;
     }
@@ -234,12 +309,12 @@ router.get('/:id/subscription-info', async function (req, res) {
     var currentPlan = "";
     var endDateString = "";
     var nextPlan = false;
+    var cancelled = false;
+    // let new
     var secondLine = "";
-
     // if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
     //     subscriptionValid = true;
     // }
-
     for (var i = 0; i < subscriptionList.length; i++) {
         var thisSub = subscriptionList[i];
         if (thisSub.status == 'active') {
@@ -251,19 +326,27 @@ router.get('/:id/subscription-info', async function (req, res) {
             break;
         }
     }
-    if (firstSubscription.status == 'trialing') {
-        nextPlan = firstSubscription.plan.nickname;
-        subscriptionDescriber += ' It will change to ' + nextPlan + ' on this date.';
-        secondLine = ' It will change to ' + nextPlan + ' on this date.';
-    } else if (firstSubscription.cancel_at_period_end) {
+    if (firstSubscription.cancel_at_period_end) {
         subscriptionDescriber += ' It has been cancelled and will expire after this date.';
-        secondLine = ' It has been cancelled and will expire after this date.';
+        secondLine = ' It has been <b style="color:#f44336;">cancelled</b> and will expire after this date.';
+        cancelled = true;
+    } else if (firstSubscription.status == 'trialing') {
+        nextPlan = firstSubscription.plan.nickname;
+        var nextPlanString = nextPlan;
+        if (nextPlan == 'Silver') {
+            nextPlanString = '<b style="color:#bdbdbd;">' + nextPlan + '</b>';
+        } else if (nextPlan == 'Gold') {
+            nextPlanString = '<b style="color:#ffca28;">' + nextPlan + '</b>';
+        }
+        subscriptionDescriber += ' It will change to ' + nextPlanString + ' on this date.';
+        secondLine = ' It will change to ' + nextPlanString + ' on this date.';
     } else if (firstSubscription.status == 'active') {
         subscriptionDescriber += ' It will renew automatically.';
         secondLine = ' It will renew automatically.';
     }
 
     res.json({
+        cancelled: cancelled,
         describer: subscriptionDescriber,
         currentPlan: currentPlan,
         endDateString: endDateString,
@@ -314,6 +397,7 @@ router.post('/:id/subscribe', async function (req, res) {
         email: user.username
     });
     var newStripeId = stripeUser.id;
+    console.log("newStripeId: ", newStripeId);
     user.stripeId = newStripeId;
     await user.save();
     var newSubscription = await stripe.subscriptions.create({
@@ -322,9 +406,9 @@ router.post('/:id/subscribe', async function (req, res) {
             plan: "AS_Silver"
         }]
     });
-    res.json(findCustomer);
     var findCustomer = await stripe.customers.retrieve(stripeUser.id);
     console.log("customer found: ", findCustomer);
+    res.json(findCustomer);
     return;
 });
 
@@ -389,70 +473,6 @@ router.post('/:id/reschedule-workouts', async function (req, res) {
 });
 
 router.post('/:id/payment', async function (req, res) {});
-
-router.post("/:username/login", async function (req, res) {
-    var username = req.params.username;
-    var passwordInput = req.body.password;
-    var Now = new Date(Date.now());
-    console.log("username/login route hit", req.body);
-    var loginUser = await _models.User.findOne({
-        where: {
-            username: username
-        }
-    });
-
-    if (!loginUser) {
-        res.json({
-            Success: false,
-            Found: false,
-            Status: "No user found"
-        });
-    } else {
-        var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
-        if (hashed == loginUser.password) {
-            var hasWorkouts = Object.keys(loginUser.workouts).length > 0;
-            loginUser.missedWorkouts = false;
-            for (var K in loginUser.workouts) {
-                var W = loginUser.workouts[K];
-                var wDate = new Date(W.Date);
-                if (
-                //If there's an incomplete workout before the current date
-                !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
-                    loginUser.missedWorkouts = true;
-                }
-            }
-            var hasSubscription = false;
-            var subscriptionValid = false;
-            var subscriptionStatus = false;
-            if (loginUser.stripeId != "") {
-                var stripeUser = await stripe.customers.retrieve(loginuser.stripeId);
-                if (stripeUser.subscriptions.data.length > 0) {
-                    hasSubscription = true;
-                    subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                    if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-                        subscriptionValid = true;
-                    }
-                }
-            }
-            res.json({
-                Success: true,
-                Found: true,
-                Status: "Success",
-                User: loginUser,
-                hasWorkouts: hasWorkouts,
-                subscriptionValid: subscriptionValid,
-                hasSubscription: hasSubscription,
-                subscriptionStatus: subscriptionStatus
-            });
-        } else {
-            res.json({
-                Success: false,
-                Found: true,
-                Status: "Incorrect Password!"
-            });
-        }
-    }
-});
 
 router.get("/:userId", async function (req, res) {
     var user = await _models.User.findById(req.params.userId);

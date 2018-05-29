@@ -154,7 +154,6 @@ export async function accessInfo(user) {
     if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts) {
         accessLevel = 6;       
     }
-
     return {
         // Stripe & Subcriptions
         hasStripe,

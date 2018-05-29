@@ -99,22 +99,10 @@ async function accessInfo(user) {
     var hasSubscription = false;
     var subscriptionValid = false;
     var subscriptionExpired = false;
+    // let initialized = false;
     var subscriptionStatus = null;
-    if (!user.level || user.level == 0 || user.level == null) {
-        hasLevel = false;
-    }
-    if (user.workoutDates.length > 0) {
-        hasWorkouts = true;
-    }
-    for (var K in user.workouts) {
-        var W = user.workouts[K];
-        var wDate = new Date(W.Date);
-        if ( //If there's an incomplete workout before the current date
-        !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
-            missedWorkouts = true;
-            break;
-        }
-    }
+    var accessLevel = 0;
+    // 
     if (user.stripeId != "") {
         try {
             var stripeUser = await stripe.customers.retrieve(user.stripeId);
@@ -132,6 +120,25 @@ async function accessInfo(user) {
             hasStripe = false;
         }
     }
+
+    if (!user.level || user.level == 0 || user.level == null) {
+        hasLevel = false;
+    }
+    if (user.workoutDates.length > 0) {
+        hasWorkouts = true;
+    }
+    if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
+        // initialized = true;
+    }
+    for (var K in user.workouts) {
+        var W = user.workouts[K];
+        var wDate = new Date(W.Date);
+        if ( //If there's an incomplete workout before the current date
+        !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+            missedWorkouts = true;
+            break;
+        }
+    }
     var output = {
         // Stripe & Subcriptions
         hasStripe: hasStripe,
@@ -142,9 +149,29 @@ async function accessInfo(user) {
         // Workouts
         hasLevel: hasLevel,
         hasWorkouts: hasWorkouts,
-        missedWorkouts: missedWorkouts
+        missedWorkouts: missedWorkouts,
+        initialized: initialized
         // console.log
-    };return {
+    };if (hasSubscription) {
+        accessLevel = 1;
+    }
+    if (hasSubscription && hasLevel) {
+        accessLevel = 2;
+    }
+    if (hasSubscription && hasLevel && initialized) {
+        accessLevel = 3;
+    }
+    if (hasSubscription && hasLevel && subscriptionValid) {
+        accessLevel = 4;
+    }
+    if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts) {
+        accessLevel = 5;
+    }
+    if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts) {
+        accessLevel = 6;
+    }
+
+    return {
         // Stripe & Subcriptions
         hasStripe: hasStripe,
         hasSubscription: hasSubscription,
@@ -154,6 +181,8 @@ async function accessInfo(user) {
         // Workouts
         hasLevel: hasLevel,
         hasWorkouts: hasWorkouts,
-        missedWorkouts: missedWorkouts
+        missedWorkouts: missedWorkouts,
+        // Access Level
+        accessLevel: accessLevel
     };
 }
