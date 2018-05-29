@@ -522,10 +522,10 @@ router.post('/:id/reschedule-workouts', async function(req, res) {
         // }
         // await user.changed('workouts', true);
         // await user.save();
-        // return newDates;
-            
-	}
-	res.redirect('/reschedule');
+        // return newDates;            
+    }
+    res.json(user);
+	// res.redirect('/reschedule');
 })
 
 router.post('/:id/payment', async function(req, res) {
