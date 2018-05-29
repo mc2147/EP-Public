@@ -79,6 +79,28 @@ export async function accessInfo(user) {
     let subscriptionExpired = false;
     // let initialized = false;
     let subscriptionStatus = null;    
+    let accessLevel = 0;
+    // 
+    if (user.stripeId != "") {
+        try {
+            let stripeUser = await stripe.customers.retrieve(user.stripeId);
+            if (stripeUser.subscriptions.data.length > 0) {
+                hasSubscription = true;
+                subscriptionStatus = stripeUser.subscriptions.data[0].status;
+                if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                    subscriptionValid = true;
+                }
+                else {
+                    subscriptionExpired = true;
+                }
+            }
+            hasStripe = true;
+        }
+        catch(error) {
+            hasStripe = false;
+        }
+    }
+    
     if (!user.level || user.level == 0 || user.level == null) {
         hasLevel = false;
     }
@@ -100,25 +122,6 @@ export async function accessInfo(user) {
                 break
         }
     }	
-    if (user.stripeId != "") {
-        try {
-            let stripeUser = await stripe.customers.retrieve(user.stripeId);
-            if (stripeUser.subscriptions.data.length > 0) {
-                hasSubscription = true;
-                subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-                    subscriptionValid = true;
-                }
-                else {
-                    subscriptionExpired = true;
-                }
-            }
-            hasStripe = true;
-        }
-        catch(error) {
-            hasStripe = false;
-        }
-    }
     let output = {
         // Stripe & Subcriptions
         hasStripe,
@@ -133,6 +136,25 @@ export async function accessInfo(user) {
         initialized,
     }
     // console.log
+    if (hasSubscription) {
+        accessLevel = 1;
+    }
+    if (hasSubscription && hasLevel) {
+        accessLevel = 2;       
+    }
+    if (hasSubscription && hasLevel && initialized) {
+        accessLevel = 3;       
+    }
+    if (hasSubscription && hasLevel && subscriptionValid) {
+        accessLevel = 4;       
+    }
+    if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts) {
+        accessLevel = 5;       
+    }
+    if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts && missedWorkouts) {
+        accessLevel = 6;       
+    }
+
     return {
         // Stripe & Subcriptions
         hasStripe,
@@ -144,5 +166,7 @@ export async function accessInfo(user) {
         hasLevel,
         hasWorkouts,
         missedWorkouts,
+        // Access Level
+        accessLevel
     }                        
 }
