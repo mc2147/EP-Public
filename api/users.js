@@ -414,8 +414,9 @@ router.post('/:id/renew-subscription', async function(req, res) {
     console.log("stripeID: ", stripeID, "stripeToken: ", stripeToken, 'planID: ', planID);
     try {
         let stripeCustomer = await stripe.customers.retrieve(stripeID);
+        console.log("417");
         let stripeCustomerID = stripeCustomer.id;
-        let newSubscription = await subscriptions.create({
+        let newSubscription = await stripe.subscriptions.create({
             customer:stripeCustomerID,
             items:[
                 {
