@@ -973,6 +973,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         // vueJSON.accessLevel = 
         vueJSON.workoutDates = workoutDatelist;
         vueJSON.accessLevel = accessLevel;
+        console.log("vueJSON.accessLevel: ", vueJSON.accessLevel);
         res.json(vueJSON);
     });
 })
