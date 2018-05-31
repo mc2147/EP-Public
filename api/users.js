@@ -918,11 +918,11 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         }
         // console.log("time difference: ", timeDiff);
         // console.log("N Days: ", new Date(timeDiff).getDate());
-        if (ahead && daysDiff > 30) {
+        if (ahead && daysDiff > 30 && !user.isAdmin) {
             res.json(futureHiddenResponse);
             return
         }
-        else if (!ahead && daysDiff > 30) {
+        else if (!ahead && daysDiff > 30 && !user.isAdmin) {
             res.json(pasthiddenResponse);
             return
         }
