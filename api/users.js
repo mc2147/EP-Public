@@ -1033,7 +1033,7 @@ router.get('/:userId/profile-info/', async function(req, res) {
 
 router.get('/:userId/stats/vue/get', function(req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then((user) => {
+    User.findById(userId).then(async (user) => {
         var JSONStats = user.stats;
         for (var statKey in JSONStats) {
             console.log(statKey);
