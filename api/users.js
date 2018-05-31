@@ -504,6 +504,8 @@ router.get('/:id/reschedule-workouts', async function(req, res) {
         }
         workouts.push(workoutObj);
     }
+    let userAccess = await accessInfo(user);
+    workouts.accessLevel = userAccess.accessLevel;
     res.json(workouts);
 }) 
 
@@ -1004,10 +1006,13 @@ router.put("/:userId/stats", function(req, res) {
 
 router.get('/:userId/profile-info/', async function(req, res) {
     let _User = await User.findById(req.params.userId);
+    let userAccess = await accessInfo(_User);
+    
     let profileBody = {
         username:_User.username,
         level:_User.level,
         blockNum: _User.blockNum,
+        accessLevel: userAccess.accessLevel,
     };
     var nWorkoutsComplete = 0;
     var nWorkouts = 0;
@@ -1067,6 +1072,8 @@ router.get('/:userId/stats/vue/get', function(req, res) {
                 vueData.nTesting ++;
             }
         })
+        let userAccess = await accessInfo(user);
+        vueData.accessLevel = userAccess.accessLevel;        
         res.json(vueData);
     })
 })
@@ -1074,7 +1081,7 @@ router.get('/:userId/stats/vue/get', function(req, res) {
 
 router.get('/:userId/progress/vue/get', function(req, res) {
     var userId = req.params.userId;
-    User.findById(userId).then((user) => {
+    User.findById(userId).then(async user => {
         var JSONStats = user.stats;
         var vueData = vueProgress(JSONStats);
         vueData.newLevel = user.level;
@@ -1126,6 +1133,8 @@ router.get('/:userId/progress/vue/get', function(req, res) {
                 vueData.nTesting ++;
             }
         })
+        let userAccess = await accessInfo(user);
+        vueData.accessLevel = userAccess.accessLevel;
         res.json(vueData);
     })
 })
