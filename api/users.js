@@ -864,13 +864,18 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         thisID = '2';
     }
     console.log("thisID: ", thisID);
+    let thisUser = await User.findById(req.params.userId);
+    let userAccess = await accessInfo(thisUser);
+    let accessLevel = userAccess.Level;
     let pasthiddenResponse = {
         hidden: true,
-        hiddenText: "This workout is no longer accessible!"
+        hiddenText: "This workout is no longer accessible!",
+        accessLevel
     }
     let futureHiddenResponse = {
         hidden: true,
-        hiddenText: "This workout is not accessible yet!"
+        hiddenText: "This workout is not accessible yet!",
+        accessLevel
     }
     User.findById(req.params.userId).then(async (user)  => {
         await suggestWeights(user, req.params.workoutId);
@@ -897,6 +902,13 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
 
         let checkDate = moment(_WorkoutDate).format('YYYY-MM-DD');
         console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
+        if (accessLevel < 4) {
+            // res.json({
+                // noAccess: true,
+                // accessLevel,
+            // })
+            // return
+        }
         // console.log("time difference: ", timeDiff);
         // console.log("N Days: ", new Date(timeDiff).getDate());
         if (ahead && daysDiff > 30) {
@@ -960,6 +972,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         }        
         // vueJSON.accessLevel = 
         vueJSON.workoutDates = workoutDatelist;
+        vueJSON.accessLevel = accessLevel;
         res.json(vueJSON);
     });
 })
