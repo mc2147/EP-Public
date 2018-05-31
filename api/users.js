@@ -510,7 +510,7 @@ router.get('/:id/reschedule-workouts', async function(req, res) {
         accessLevel,
         workouts,
     }
-    res.json(workouts);
+    res.json(response);
 }) 
 
 router.post('/:id/reschedule-workouts', async function(req, res) {
