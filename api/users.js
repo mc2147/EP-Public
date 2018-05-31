@@ -505,7 +505,7 @@ router.get('/:id/reschedule-workouts', async function(req, res) {
         workouts.push(workoutObj);
     }
     let userAccess = await accessInfo(user);
-    let access = userAccess.accessLevel;
+    let accessLevel = userAccess.accessLevel;
     let response = {
         accessLevel,
         workouts,
