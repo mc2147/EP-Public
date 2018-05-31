@@ -948,7 +948,8 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         }
         else {
             editable = !(JSON.completed) && JSON.accessible;
-            noedits = JSON.completed || !(JSON.accessible);
+            // noedits = JSON.completed || !(JSON.accessible);
+            noedits = JSON.completed;
             let userAccess = await accessInfo(user);
             if (userAccess.accessLevel < 6) {
                 editable = false;
