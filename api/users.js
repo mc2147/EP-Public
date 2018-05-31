@@ -866,6 +866,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     console.log("thisID: ", thisID);
     let thisUser = await User.findById(req.params.userId);
     let userAccess = await accessInfo(thisUser);
+    console.log("userAccess: ", userAccess);
     let accessLevel = userAccess.Level;
     let pasthiddenResponse = {
         hidden: true,
