@@ -861,13 +861,13 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     console.log("req.params.workoutId", req.params.workoutId);
     var thisID = req.params.workoutId;
     if (req.params.workoutId == "0") {
-        thisID = '2';
+        thisID = '2'; //Test code
     }
     console.log("thisID: ", thisID);
     let thisUser = await User.findById(req.params.userId);
     let userAccess = await accessInfo(thisUser);
     console.log("userAccess: ", userAccess);
-    let accessLevel = userAccess.Level;
+    let accessLevel = userAccess.accessLevel;
     let pasthiddenResponse = {
         hidden: true,
         hiddenText: "This workout is no longer accessible!",
