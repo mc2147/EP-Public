@@ -1380,7 +1380,10 @@ router.post("/:userId/old-stats/clear", async function(req, res) {
 
 router.get("/:userId/videos", async function(req, res) {
     var videosUser = await User.findById(req.params.userId);
+    let userAccess = await accessInfo(videosUser);
+    
     var videos = VideosVue(VideosJSON, videosUser.level);
+    videos.accessLevel = userAccess.accessLevel;
     res.json(videos);
 })
 
