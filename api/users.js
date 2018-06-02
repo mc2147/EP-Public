@@ -176,8 +176,10 @@ router.post("/:username/login", async function (req, res) {
     }
 })
 
-router.get('/:id/forgot-password', async function(req, res) {
+// router.get('/:id/forgot-password', async function(req, res) {
+router.post('/:id/forgot-password', async function(req, res) {
     // testEmail:
+    console.log("forgot password route hit");
     let user = await User.findById(req.params.id);
     let newPassword = Math.random().toString(36).slice(-8);
     let newHash = generateHash(newPassword, user.salt);
@@ -199,6 +201,7 @@ router.get('/:id/forgot-password', async function(req, res) {
 
 // router.get('/:id/confirmation-email', async function(req, res) {
 router.post('/:id/confirmation-email', async function(req, res) {
+    console.log("posting to confirmation email");
     let user = await User.findById(req.params.id);
     let confString = Math.random().toString(36).slice(-8);
     // Assign confString to the user
