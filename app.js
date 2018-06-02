@@ -1,13 +1,12 @@
 // Live deployment: onlineVersion && herokuLocal
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
-let onlineVersion = false;
+let onlineVersion = true;
 // let herokuLocal = false;
 // Seed bools
 // s// False 
-
-let seedWorkouts = true;
-let seedUsers = true;
+let seedWorkouts = false;
+let seedUsers = false;
 var onlineURL = "https://immense-mesa-37246.herokuapp.com";
 // var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
 var localURL = "http://localhost:5000";
@@ -28,34 +27,34 @@ console.log("process.env.   BASE_URL SET: ", process.env.BASE_URL);
 const path = require('path');
 var api = require('./api');
 var models = require('./models');
-    if (seedWorkouts) {
-        var generateTemplates = require('./models/generateTemplates');
-    }
+if (seedWorkouts) {
+    var generateTemplates = require('./models/generateTemplates');
+}
     
-    const express = require( 'express' );
-    const session = require('express-session');
-    const app = express(); // creates an instance of an express application
-    var nunjucks = require('nunjucks');
-    var routes = require('./routes');
-    var bodyParser = require('body-parser');
-    var history = require('connect-history-api-fallback');
-    var cors = require('cors');
-    
-    var loadData = require('./data');
+const express = require( 'express' );
+const session = require('express-session');
+const app = express(); // creates an instance of an express application
+var nunjucks = require('nunjucks');
+var routes = require('./routes');
+var bodyParser = require('body-parser');
+var history = require('connect-history-api-fallback');
+var cors = require('cors');
 
-    console.log("line 27 app.js");
-    // app.get('/', (req, res) => res.send('New Alloy Strength'))
-    
-    app.use(bodyParser.json()); // would be for AJAX requests
-    app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
-    
-    app.use(session({
-        secret: 'ASSecret',
-        resave: false,
-        saveUninitialized: true,    
-        duration: 30 * 60 * 1000,
-        activeDuration: 5 * 60 * 1000,
-    }));
+var loadData = require('./data');
+
+console.log("line 27 app.js");
+// app.get('/', (req, res) => res.send('New Alloy Strength'))
+
+app.use(bodyParser.json()); // would be for AJAX requests
+app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
+
+app.use(session({
+    secret: 'ASSecret',
+    resave: false,
+    saveUninitialized: true,    
+    duration: 30 * 60 * 1000,
+    activeDuration: 5 * 60 * 1000,
+}));
     
     
 

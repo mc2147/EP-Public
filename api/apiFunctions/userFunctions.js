@@ -152,7 +152,8 @@ export async function accessInfo(user) {
     if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts) {
         accessLevel = 5;       
     }
-    if ((hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts)
+    if (
+    (hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts)
     || user.isAdmin) {
         accessLevel = 6;       
     }

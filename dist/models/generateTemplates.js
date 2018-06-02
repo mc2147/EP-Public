@@ -1,7 +1,15 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+exports.MakeTemplates = MakeTemplates;
+exports.CreateWorkoutTemplate = CreateWorkoutTemplate;
 var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
     return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
 } : function (obj) {
@@ -62,30 +70,30 @@ function DestroyTemplates(LGroup, BlockNum) {
 //         block: 0
 //     },
 // }).then(() => {
-function MakeTemplates(LGroup, BlockNum) {
+async function MakeTemplates(LGroup, BlockNum) {
     var TemplateJSON = AllTemplates[LGroup];
     if (BlockNum != 0) {
         TemplateJSON = TemplateJSON[BlockNum];
     }
-    if (LGroup == 3 && BlockNum == 2) {
-        console.log(TemplateJSON);
-    }
+    if (LGroup == 3 && BlockNum == 2) {}
+    // console.log(TemplateJSON);
+
     // console.log("DESTROYED LINE 37");
     for (var W in TemplateJSON.Templates) {
         for (var D in TemplateJSON.Templates[W]) {
-            CreateWorkoutTemplate(LGroup, W, D, BlockNum, TemplateJSON);
+            await CreateWorkoutTemplate(LGroup, W, D, BlockNum, TemplateJSON);
             // console.log("RECREATING TEMPLATE: ", LGroup, BlockNum, W, D);
         }
     }
 }
 console.log("LINE 71 GENERATE TEMPLATES");
 
-MakeTemplates(1, 0);
-MakeTemplates(2, 0);
-MakeTemplates(3, 1);
-MakeTemplates(3, 2);
-MakeTemplates(4, 1);
-MakeTemplates(4, 2);
+// MakeTemplates(1, 0);
+// MakeTemplates(2, 0);
+// MakeTemplates(3, 1);
+// MakeTemplates(3, 2);
+// MakeTemplates(4, 1);
+// MakeTemplates(4, 2);
 
 // console.log("DESTROYED LINE 37");
 // for (var W in Workouts1.Templates) {
@@ -166,59 +174,60 @@ var N4b = 0;
 //     console.log("N4b", N4b);
 // })
 
-function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
+async function CreateWorkoutTemplate(levelGroup, week, day, blockNum, JSONTemplates) {
     var WorkoutBlock = JSONTemplates;
     var thisTemplate = WorkoutBlock.Templates[week][day];
     var thisPatterns = thisTemplate.Patterns;
     var thisID = thisTemplate.ID;
-    WorkoutTemplate.findOrCreate({
+
+    var _ref = await WorkoutTemplate.findOrCreate({
         where: {
             levelGroup: levelGroup,
             week: week,
             day: day,
             block: blockNum
         }
-    }).spread(function (template, created) {
-        template.save();
-        if (created) {
-            if (template.levelGroup == 2) {
-                // console.log("2 Created: " + template.week, template.day, template.levelGroup);
+    }),
+        _ref2 = _slicedToArray(_ref, 2),
+        template = _ref2[0],
+        created = _ref2[1];
+
+    await template.save();
+    template.number = thisID;
+    template.NSubworkouts = 0;
+    console.log("CreateWorkoutTemplate: ", levelGroup, blockNum, week, day, "created: ", created);
+    for (var K in thisPatterns) {
+        var ID = K;
+
+        var _ref3 = await SubWorkoutTemplate.findOrCreate({
+            where: {
+                number: ID,
+                fk_workout: template.id
             }
-            template.save();
-        } else {
-            if (template.levelGroup == 2) {}
-            // console.log("2 exists: " + template.week, template.day, template.levelGroup);
-            // template.save();            
-            template.number = thisID;
-            template.NSubworkouts = 0;
-            // console.log(template.week, template.day);
-            console.log("CreateWorkoutTemplate: ", levelGroup, blockNum, week, day);
-            for (var K in thisPatterns) {
-                var ID = K;
-                SubWorkoutTemplate.findOrCreate({
-                    where: {
-                        number: ID,
-                        fk_workout: template.id
-                    }
-                }).spread(function (result, created) {
-                    // return
-                    // console.log("line 94", template.week, template.day);
-                    template.NSubworkouts++;
-                    var Key = result.number;
-                    var thisSub = thisPatterns[Key];
-                    // console.log(levelGroup, blockNum, week, day, "thisSub #: ", Key, thisPatterns[Key]);
-                    setPatternInfo(thisSub, result);
-                    // console.log("thisSub (new): ", result);
-                    template.save();
-                    // console.log("149");
-                });
-            }
-            template.save();
-        }
-    });
+        }),
+            _ref4 = _slicedToArray(_ref3, 2),
+            sub = _ref4[0],
+            subCreated = _ref4[1];
+        // .spread(function (sub, created) {
+        // return
+        // console.log("line 94", template.week, template.day);
+
+
+        template.NSubworkouts++;
+        var Key = sub.number;
+        var thisSub = thisPatterns[Key];
+        // console.log(levelGroup, blockNum, week, day, "thisSub #: ", Key, thisPatterns[Key]);
+        await setPatternInfo(thisSub, sub);
+        // await thisSub
+        // console.log("thisSub (new): ", result);
+        await template.save();
+        // console.log("149");
+        // });
+    }
+    await template.save();
 }
 
-function setPatternInfo(PatternJSON, SubTemplate) {
+async function setPatternInfo(PatternJSON, SubTemplate) {
     SubTemplate.exerciseType = PatternJSON.ExerciseType.trim();
     SubTemplate.sets = PatternJSON.Sets;
     // Split Set Handling
@@ -287,7 +296,7 @@ function setPatternInfo(PatternJSON, SubTemplate) {
     // SubTemplate.reps = 30;
     // Setting Description
     SubTemplate.description = SubTemplate.exerciseType + " " + SubTemplate.sets + " x " + SubTemplate.reps + " RPE: " + SubTemplate.RPE + " Alloy: " + SubTemplate.alloy + " Deload: " + SubTemplate.deload + " Type: " + SubTemplate.type;
-    SubTemplate.save();
+    await SubTemplate.save();
     // console.log("typeof Decimal: ", typeof SubTemplate.RPE);
     // console.log("line 100 GT");
     // template.save();
