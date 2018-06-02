@@ -2,6 +2,8 @@
 
 var _models = require("../../models");
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var DescriptionsJSON = require("./Descriptions");
 
 var VideosJSON = {
@@ -292,6 +294,7 @@ var VideosList = [];
 function createVideo(JSON, levelAccess) {
     _models.Video.findOrCreate({});
 }
+//Level 6 and 11
 
 var _loop = function _loop() {
     var Level = L;
@@ -339,37 +342,37 @@ for (var L in LevelVideos) {
     _loop();
 }
 
-for (var Key in VideosJSON) {
-    // console.log(Key);
-    var VideosCategory = VideosJSON[Key];
-    for (var K in VideosCategory) {
-        if (!VideosCategory[K].URL) {
-            VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
-        }
-        if (Key in DescriptionsJSON) {
-            VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
-        }
-        var videoObj = VideosCategory[K];
-        VideosList.push(VideosCategory[K]);
-        _models.Video.findOrCreate({
-            where: {
-                title: K,
-                url: videoObj.URL,
-                levelAccess: videoObj.LevelAccess,
-                exerciseNames: [K]
-                // exerciseType: Key
-            }
-        }).spread(function (video, created) {
-            video.tags = video.title;
-            video.exerciseType = Key;
-            if ('Description' in videoObj) {
-                video.description = videoObj.Description;
-            }
-            // console.log("video found/created: ", video);
-            video.save();
-        });
-    }
-}
+// for (var Key in VideosJSON) {
+//     // console.log(Key);
+//     var VideosCategory = VideosJSON[Key];
+//     for (var K in VideosCategory) {
+//         if (!VideosCategory[K].URL) {
+//             VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
+//         }
+//         if (Key in DescriptionsJSON) {
+//             VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
+//         }
+//         var videoObj = VideosCategory[K];
+//         VideosList.push(VideosCategory[K]);
+//         Video.findOrCreate({
+//             where: {
+//                 title: K,
+//                 url: videoObj.URL,
+//                 levelAccess: videoObj.LevelAccess,
+//                 exerciseNames: [K],
+//                 // exerciseType: Key
+//             }
+//         }).spread((video, created) => {
+//             video.tags = video.title;
+//             video.exerciseType = Key;            
+//             if ('Description' in videoObj) {
+//                 video.description = videoObj.Description;
+//             }
+//             console.log("video found/created: ", video.title);
+//             // video.save();
+//         })
+//     }
+// }
 
 var LevelList = [];
 
@@ -440,4 +443,4 @@ function getVideos(JSON, Level) {
 
 vueConvert(VideosJSON, 1);
 // module.exports = VideosJSON;
-module.exports = { VideosJSON: VideosJSON, vueConvert: vueConvert, getVideos: getVideos };
+module.exports = _defineProperty({ VideosJSON: VideosJSON, vueConvert: vueConvert, getVideos: getVideos, LevelVideos: LevelVideos }, "VideosJSON", VideosJSON);

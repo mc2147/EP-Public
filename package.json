@@ -9,7 +9,10 @@
     "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules",
     "postinstall": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "npm run build && npm run babel-node -- ./script/seed.js"
+    "seed": "npm run build && npm run babel-node -- ./script/seed.js",
+    "seed-videos": "npm run build && npm run babel-node -- ./script/seed-videos.js",
+    "seed-workouts": "npm run build && npm run babel-node -- ./script/seed-workouts.js",
+    "seed-users": "npm run build && npm run babel-node -- ./script/seed-users.js"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +27,7 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "moment": "^2.22.1",
+    "nodemailer": "^4.6.5",
     "nodemon": "^1.17.2",
     "nunjucks": "^3.1.2",
     "passport": "^0.4.0",

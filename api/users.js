@@ -12,6 +12,7 @@ import {updateSpecial} from './apiFunctions/workoutUpdate'
 import {generateWorkouts} from './apiFunctions/generateWorkouts';
 import {vueStats, getVueStat, vueProgress} from './vueFormat';
 import {LevelUpMesssages} from '../content/levelupMessages'
+import {sendMail, testEmail} from './email';
 var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 import moment from 'moment';
@@ -175,6 +176,75 @@ router.post("/:username/login", async function (req, res) {
     }
 })
 
+router.get('/:id/forgot-password', async function(req, res) {
+    // testEmail:
+    let user = await User.findById(req.params.id);
+    let newPassword = Math.random().toString(36).slice(-8);
+    let newHash = generateHash(newPassword, user.salt);
+    // user.password = newHash;
+    // await user.save();
+    let passwordEmail = {
+        from: '"Matthew Chan" <matthewchan2147@gmail.com>',
+        to: 'matthewchan2147@gmail.com', //later: user.username,
+        subject: 'Password Reset [AlloyStrength Training]',
+        text: `Your new password for AlloyStrength Training is: ${newPassword}`
+    };
+    sendMail(passwordEmail);    
+    res.json({
+        newPassword,
+        newHash,
+        passwordEmail
+    });
+})
+
+// router.get('/:id/confirmation-email', async function(req, res) {
+router.post('/:id/confirmation-email', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let confString = Math.random().toString(36).slice(-8);
+    // Assign confString to the user
+    user.confString = confString;
+    await user.save();
+    let confURL = `${process.env.BASE_URL}/api/users/${req.params.id}/confirm/${confString}`;
+    // console.log('confURL: ', confURL);
+    let confHTML = ('<p>This is the confirmation email for your AlloyStrength Training account. '
+    + 'Please click the link below to activate your account:<br><br>'
+    + `<a href="${confURL}"><b>Activate Your Account</b></a></p>`);
+
+    let confEmail = {
+        from: '"Matthew Chan" <matthewchan2147@gmail.com>',
+        to: 'matthewchan2147@gmail.com', //later: user.username,
+        subject: 'Account Confirmation [AlloyStrength Training]',
+        // text: `Your new password for AlloyStrength Training is: ${newPassword}`
+        html: confHTML
+    };
+    sendMail(confEmail);
+    res.json(confEmail);
+})
+
+router.get('/:id/confirm/:confString', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    let confString = req.params.confString;
+    console.log("activating account: ", req.params.confString);
+    if (user.active) {
+        return res.json({
+            alreadyConfirmed:true,
+        })
+    }
+    if (confString == user.confString) {
+        user.active = true;
+        await user.save();
+        return res.json({
+            match:true,
+            confString:req.params.confString,
+        });
+    }
+    else {
+        return res.json({
+            match:false,
+            confString:req.params.confString,
+        });        
+    }
+})
 
 // On change subscription: 
     //cancel_at_period_end = true;

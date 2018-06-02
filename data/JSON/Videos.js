@@ -289,73 +289,74 @@ let VideosList = [];
 function createVideo(JSON, levelAccess) {
     Video.findOrCreate({})
 }
-for (var L in LevelVideos) {
-    let Level = L;
-    let Vids = LevelVideos[L];
-    for (var name in Vids) {
-        let JSON = Vids[name];
-        let URL = "https://drive.google.com/file/d/" + JSON.DriveID + "/preview";
-        Video.findOrCreate({
-            where: {
-                title: name,
-                url: URL,
-                levelAccess: Level,
-                exerciseNames: [name],
-            }
-        }).spread((video, created) => {
-            video.tags = video.title;
-            // video.exerciseType = "test";
-            video.exerciseType = JSON.Type;
-            console.log("video created: ", Level, JSON.Type, video.title)
-            if (JSON.Type in DescriptionsJSON) {
-                video.description = DescriptionsJSON[JSON.Type][Level];
-            }
-            video.save();
-            // console.log("video created: ", video);
-        })
-        if (JSON.Type in VideosJSON) {
-            VideosJSON[JSON.Type][name] = JSON;
-            VideosJSON[JSON.Type][name].LevelAccess = Level;
-        }
-        else {
-            VideosJSON[JSON.Type] =  {};
-            VideosJSON[JSON.Type][name] = JSON;
-            VideosJSON[JSON.Type][name].LevelAccess = Level;
-        }
-    }
-}
+//Level 6 and 11
+// for (var L in LevelVideos) {
+//     let Level = L;
+//     let Vids = LevelVideos[L];
+//     for (var name in Vids) {
+//         let JSON = Vids[name];
+//         let URL = "https://drive.google.com/file/d/" + JSON.DriveID + "/preview";
+//         Video.findOrCreate({
+//             where: {
+//                 title: name,
+//                 url: URL,
+//                 levelAccess: Level,
+//                 exerciseNames: [name],
+//             }
+//         }).spread((video, created) => {
+//             video.tags = video.title;
+//             // video.exerciseType = "test";
+//             video.exerciseType = JSON.Type;
+//             // console.log("video created: ", Level, JSON.Type, video.title)
+//             if (JSON.Type in DescriptionsJSON) {
+//                 video.description = DescriptionsJSON[JSON.Type][Level];
+//             }
+//             video.save();
+//             // console.log("video created: ", video);
+//         })
+//         if (JSON.Type in VideosJSON) {
+//             VideosJSON[JSON.Type][name] = JSON;
+//             VideosJSON[JSON.Type][name].LevelAccess = Level;
+//         }
+//         else {
+//             VideosJSON[JSON.Type] =  {};
+//             VideosJSON[JSON.Type][name] = JSON;
+//             VideosJSON[JSON.Type][name].LevelAccess = Level;
+//         }
+//     }
+// }
 
-for (var Key in VideosJSON) {
-    // console.log(Key);
-    var VideosCategory = VideosJSON[Key];
-    for (var K in VideosCategory) {
-        if (!VideosCategory[K].URL) {
-            VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
-        }
-        if (Key in DescriptionsJSON) {
-            VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
-        }
-        var videoObj = VideosCategory[K];
-        VideosList.push(VideosCategory[K]);
-        Video.findOrCreate({
-            where: {
-                title: K,
-                url: videoObj.URL,
-                levelAccess: videoObj.LevelAccess,
-                exerciseNames: [K],
-                // exerciseType: Key
-            }
-        }).spread((video, created) => {
-            video.tags = video.title;
-            video.exerciseType = Key;            
-            if ('Description' in videoObj) {
-                video.description = videoObj.Description;
-            }
-            // console.log("video found/created: ", video);
-            video.save();
-        })
-    }
-}
+// for (var Key in VideosJSON) {
+//     // console.log(Key);
+//     var VideosCategory = VideosJSON[Key];
+//     for (var K in VideosCategory) {
+//         if (!VideosCategory[K].URL) {
+//             VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
+//         }
+//         if (Key in DescriptionsJSON) {
+//             VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
+//         }
+//         var videoObj = VideosCategory[K];
+//         VideosList.push(VideosCategory[K]);
+//         Video.findOrCreate({
+//             where: {
+//                 title: K,
+//                 url: videoObj.URL,
+//                 levelAccess: videoObj.LevelAccess,
+//                 exerciseNames: [K],
+//                 // exerciseType: Key
+//             }
+//         }).spread((video, created) => {
+//             video.tags = video.title;
+//             video.exerciseType = Key;            
+//             if ('Description' in videoObj) {
+//                 video.description = videoObj.Description;
+//             }
+//             console.log("video found/created: ", video.title);
+//             // video.save();
+//         })
+//     }
+// }
 
 var LevelList = [];
 
@@ -421,4 +422,4 @@ function getVideos(JSON, Level) {
 
 vueConvert(VideosJSON, 1);
 // module.exports = VideosJSON;
-module.exports = {VideosJSON, vueConvert, getVideos};
+module.exports = {VideosJSON, vueConvert, getVideos, LevelVideos, VideosJSON};

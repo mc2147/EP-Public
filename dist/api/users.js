@@ -22,6 +22,8 @@ var _vueFormat = require('./vueFormat');
 
 var _levelupMessages = require('../content/levelupMessages');
 
+var _email = require('./email');
+
 var _models = require('../models');
 
 var _moment = require('moment');
@@ -194,6 +196,72 @@ router.post("/:username/login", async function (req, res) {
                 Status: "Incorrect Password!"
             });
         }
+    }
+});
+
+router.get('/:id/forgot-password', async function (req, res) {
+    // testEmail:
+    var user = await _models.User.findById(req.params.id);
+    var newPassword = Math.random().toString(36).slice(-8);
+    var newHash = (0, _userFunctions.generateHash)(newPassword, user.salt);
+    // user.password = newHash;
+    // await user.save();
+    var passwordEmail = {
+        from: '"Matthew Chan" <matthewchan2147@gmail.com>',
+        to: 'matthewchan2147@gmail.com', //later: user.username,
+        subject: 'Password Reset [AlloyStrength Training]',
+        text: 'Your new password for AlloyStrength Training is: ' + newPassword
+    };
+    (0, _email.sendMail)(passwordEmail);
+    res.json({
+        newPassword: newPassword,
+        newHash: newHash,
+        passwordEmail: passwordEmail
+    });
+});
+
+router.get('/:id/confirmation-email', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var confString = Math.random().toString(36).slice(-8);
+    // Assign confString to the user
+    user.confString = confString;
+    await user.save();
+    var confURL = process.env.BASE_URL + '/api/users/' + req.params.id + '/confirm/' + confString;
+    // console.log('confURL: ', confURL);
+    var confHTML = '<p>This is the confirmation email for your AlloyStrength Training account. ' + 'Please click the link below to activate your account:<br><br>' + ('<a href="' + confURL + '"><b>Activate Your Account</b></a></p>');
+
+    var confEmail = {
+        from: '"Matthew Chan" <matthewchan2147@gmail.com>',
+        to: 'matthewchan2147@gmail.com', //later: user.username,
+        subject: 'Account Confirmation [AlloyStrength Training]',
+        // text: `Your new password for AlloyStrength Training is: ${newPassword}`
+        html: confHTML
+    };
+    (0, _email.sendMail)(confEmail);
+    res.json(confEmail);
+});
+
+router.get('/:id/confirm/:confString', async function (req, res) {
+    var user = await _models.User.findById(req.params.id);
+    var confString = req.params.confString;
+    console.log("activating account: ", req.params.confString);
+    if (user.active) {
+        return res.json({
+            alreadyConfirmed: true
+        });
+    }
+    if (confString == user.confString) {
+        user.active = true;
+        await user.save();
+        return res.json({
+            match: true,
+            confString: req.params.confString
+        });
+    } else {
+        return res.json({
+            match: false,
+            confString: req.params.confString
+        });
     }
 });
 
@@ -507,7 +575,13 @@ router.get('/:id/reschedule-workouts', async function (req, res) {
         }
         workouts.push(workoutObj);
     }
-    res.json(workouts);
+    var userAccess = await (0, _userFunctions.accessInfo)(user);
+    var accessLevel = userAccess.accessLevel;
+    var response = {
+        accessLevel: accessLevel,
+        workouts: workouts
+    };
+    res.json(response);
 });
 
 router.post('/:id/reschedule-workouts', async function (req, res) {
@@ -852,16 +926,22 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
     console.log("req.params.workoutId", req.params.workoutId);
     var thisID = req.params.workoutId;
     if (req.params.workoutId == "0") {
-        thisID = '2';
+        thisID = '2'; //Test code
     }
     console.log("thisID: ", thisID);
+    var thisUser = await _models.User.findById(req.params.userId);
+    var userAccess = await (0, _userFunctions.accessInfo)(thisUser);
+    console.log("userAccess: ", userAccess);
+    var accessLevel = userAccess.accessLevel;
     var pasthiddenResponse = {
         hidden: true,
-        hiddenText: "This workout is no longer accessible!"
+        hiddenText: "This workout is no longer accessible!",
+        accessLevel: accessLevel
     };
     var futureHiddenResponse = {
         hidden: true,
-        hiddenText: "This workout is not accessible yet!"
+        hiddenText: "This workout is not accessible yet!",
+        accessLevel: accessLevel
     };
     _models.User.findById(req.params.userId).then(async function (user) {
         await suggestWeights(user, req.params.workoutId);
@@ -888,12 +968,19 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
 
         var checkDate = (0, _moment2.default)(_WorkoutDate).format('YYYY-MM-DD');
         console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
+        if (accessLevel < 4) {}
+        // res.json({
+        // noAccess: true,
+        // accessLevel,
+        // })
+        // return
+
         // console.log("time difference: ", timeDiff);
         // console.log("N Days: ", new Date(timeDiff).getDate());
-        if (ahead && daysDiff > 30) {
+        if (ahead && daysDiff > 30 && !user.isAdmin) {
             res.json(futureHiddenResponse);
             return;
-        } else if (!ahead && daysDiff > 30) {
+        } else if (!ahead && daysDiff > 30 && !user.isAdmin) {
             res.json(pasthiddenResponse);
             return;
         }
@@ -917,9 +1004,10 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
             noedits = false;
         } else {
             editable = !JSON.completed && JSON.accessible;
-            noedits = JSON.completed || !JSON.accessible;
-            var userAccess = await (0, _userFunctions.accessInfo)(user);
-            if (userAccess.accessLevel < 6) {
+            // noedits = JSON.completed || !(JSON.accessible);
+            noedits = JSON.completed;
+            var _userAccess = await (0, _userFunctions.accessInfo)(user);
+            if (_userAccess.accessLevel < 6) {
                 editable = false;
                 noedits = true;
             }
@@ -948,6 +1036,8 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         }
         // vueJSON.accessLevel = 
         vueJSON.workoutDates = workoutDatelist;
+        vueJSON.accessLevel = accessLevel;
+        console.log("vueJSON.accessLevel: ", vueJSON.accessLevel);
         res.json(vueJSON);
     });
 });
@@ -978,10 +1068,13 @@ router.put("/:userId/stats", function (req, res) {
 
 router.get('/:userId/profile-info/', async function (req, res) {
     var _User = await _models.User.findById(req.params.userId);
+    var userAccess = await (0, _userFunctions.accessInfo)(_User);
+
     var profileBody = {
         username: _User.username,
         level: _User.level,
-        blockNum: _User.blockNum
+        blockNum: _User.blockNum,
+        accessLevel: userAccess.accessLevel
     };
     var nWorkoutsComplete = 0;
     var nWorkouts = 0;
@@ -1002,7 +1095,7 @@ router.get('/:userId/profile-info/', async function (req, res) {
 
 router.get('/:userId/stats/vue/get', function (req, res) {
     var userId = req.params.userId;
-    _models.User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(async function (user) {
         var JSONStats = user.stats;
         for (var statKey in JSONStats) {
             console.log(statKey);
@@ -1039,13 +1132,15 @@ router.get('/:userId/stats/vue/get', function (req, res) {
                 vueData.nTesting++;
             }
         });
+        var userAccess = await (0, _userFunctions.accessInfo)(user);
+        vueData.accessLevel = userAccess.accessLevel;
         res.json(vueData);
     });
 });
 
 router.get('/:userId/progress/vue/get', function (req, res) {
     var userId = req.params.userId;
-    _models.User.findById(userId).then(function (user) {
+    _models.User.findById(userId).then(async function (user) {
         var JSONStats = user.stats;
         var vueData = (0, _vueFormat.vueProgress)(JSONStats);
         vueData.newLevel = user.level;
@@ -1089,6 +1184,8 @@ router.get('/:userId/progress/vue/get', function (req, res) {
                 vueData.nTesting++;
             }
         });
+        var userAccess = await (0, _userFunctions.accessInfo)(user);
+        vueData.accessLevel = userAccess.accessLevel;
         res.json(vueData);
     });
 });
@@ -1323,7 +1420,10 @@ router.post("/:userId/old-stats/clear", async function (req, res) {});
 
 router.get("/:userId/videos", async function (req, res) {
     var videosUser = await _models.User.findById(req.params.userId);
+    var userAccess = await (0, _userFunctions.accessInfo)(videosUser);
+
     var videos = VideosVue(VideosJSON, videosUser.level);
+    videos.accessLevel = userAccess.accessLevel;
     res.json(videos);
 });
 

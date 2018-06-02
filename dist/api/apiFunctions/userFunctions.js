@@ -103,6 +103,7 @@ async function accessInfo(user) {
     var subscriptionStatus = null;
     var accessLevel = 0;
     // 
+    console.log("user (accessInfo): ", user);
     if (user.stripeId != "") {
         try {
             var stripeUser = await stripe.customers.retrieve(user.stripeId);
@@ -170,6 +171,7 @@ async function accessInfo(user) {
     if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts || user.isAdmin) {
         accessLevel = 6;
     }
+    console.log("accessLevel (accessInfo): ", accessLevel);
     return {
         // Stripe & Subcriptions
         hasStripe: hasStripe,

@@ -342,6 +342,14 @@ const User = db.define('User', {
     //     primaryKey: true,
     //     autoIncrement: true,
     // },  
+    confString: {
+        type: Sequelize.STRING,
+        defaultValue:"",
+    },
+    active: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+    },
     stripeId: {
         type: Sequelize.STRING,
         defaultValue:"",  

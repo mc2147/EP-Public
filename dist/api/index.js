@@ -44,6 +44,8 @@ router.use('/workout-templates', require('./workoutTemplates'));
 
 router.use('/users', require('./users'));
 
+router.use('/email', require('./email').router);
+
 router.use('/stripe', require('./stripe'));
 
 function generateSalt() {

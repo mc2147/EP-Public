@@ -6,10 +6,13 @@ var Workouts3a = require('./Workouts3a');
 var Workouts3b = require('./Workouts3b');
 var Workouts4a = require('./Workouts4a');
 var Workouts4b = require('./Workouts4b');
-var VideosJSON = require('./JSON/Videos').VideosJSON;
-var VideosVue = require('./JSON/Videos').vueConvert;
+
 var DescriptionsJSON = require('./JSON/Descriptions');
 var ExercisesJSON = require('./ExercisesJSON');
+
+var VideosJSON = require('./JSON/Videos').VideosJSON;
+var LevelVideos = require('./JSON/Videos').LevelVideos;
+var VideosVue = require('./JSON/Videos').vueConvert;
 
 // export default VideosJSON;
 
@@ -49,6 +52,7 @@ module.exports = {
     ExerciseDict:ExercisesJSON,
     VideosVue,
     VideosJSON,
+    LevelVideos,
     AllWorkouts,
     Workouts1,
     Workouts2,
