@@ -1357,7 +1357,7 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
 // daysList: [1, 3, 5],
 // newLevel: 18,
 // }
-
+// Admins can set their level
 router.post("/:userId/admin/generate-workouts", async function (req, res) {
     console.log("ADMIN GENERATE WORKOUTS: (LINE 457)");
     // console.log("req.body: ", req.body);

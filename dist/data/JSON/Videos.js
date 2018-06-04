@@ -295,41 +295,58 @@ function createVideo(JSON, levelAccess) {
     _models.Video.findOrCreate({});
 }
 //Level 6 and 11
-// for (var L in LevelVideos) {
-//     let Level = L;
-//     let Vids = LevelVideos[L];
-//     for (var name in Vids) {
-//         let JSON = Vids[name];
-//         let URL = "https://drive.google.com/file/d/" + JSON.DriveID + "/preview";
-//         Video.findOrCreate({
-//             where: {
-//                 title: name,
-//                 url: URL,
-//                 levelAccess: Level,
-//                 exerciseNames: [name],
-//             }
-//         }).spread((video, created) => {
-//             video.tags = video.title;
-//             // video.exerciseType = "test";
-//             video.exerciseType = JSON.Type;
-//             // console.log("video created: ", Level, JSON.Type, video.title)
-//             if (JSON.Type in DescriptionsJSON) {
-//                 video.description = DescriptionsJSON[JSON.Type][Level];
-//             }
-//             video.save();
-//             // console.log("video created: ", video);
-//         })
-//         if (JSON.Type in VideosJSON) {
-//             VideosJSON[JSON.Type][name] = JSON;
-//             VideosJSON[JSON.Type][name].LevelAccess = Level;
-//         }
-//         else {
-//             VideosJSON[JSON.Type] =  {};
-//             VideosJSON[JSON.Type][name] = JSON;
-//             VideosJSON[JSON.Type][name].LevelAccess = Level;
-//         }
-//     }
-// }
+
+var _loop = function _loop() {
+    var Level = L;
+    var Vids = LevelVideos[L];
+
+    var _loop2 = function _loop2() {
+        var JSON = Vids[name];
+        if (!JSON.URL) {
+            JSON.URL = "https://drive.google.com/file/d/" + JSON.DriveID + "/preview";
+        }
+        // if (Key in DescriptionsJSON) {
+        //     VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
+        // }
+        var URL = "https://drive.google.com/file/d/" + JSON.DriveID + "/preview";
+        _models.Video.findOrCreate({
+            where: {
+                title: name,
+                url: URL,
+                levelAccess: Level,
+                exerciseNames: [name]
+            }
+        }).spread(function (video, created) {
+            video.tags = video.title;
+            // video.exerciseType = "test";
+            video.exerciseType = JSON.Type;
+            // console.log("video created: ", Level, JSON.Type, video.title)
+            if (JSON.Type in DescriptionsJSON) {
+                video.description = DescriptionsJSON[JSON.Type][Level];
+            }
+            video.save();
+            console.log("video created: ", video.url);
+        });
+        if (JSON.Type in VideosJSON) {
+            VideosJSON[JSON.Type][name] = JSON;
+            VideosJSON[JSON.Type][name].LevelAccess = Level;
+        } else {
+            VideosJSON[JSON.Type] = {};
+            VideosJSON[JSON.Type][name] = JSON;
+            VideosJSON[JSON.Type][name].LevelAccess = Level;
+        }
+    };
+
+    for (name in Vids) {
+        _loop2();
+    }
+};
+
+for (var L in LevelVideos) {
+    var name;
+
+    _loop();
+}
 
 // for (var Key in VideosJSON) {
 //     // console.log(Key);
