@@ -32,6 +32,7 @@ import data from '../data';
     var RPETable = data.RPETable;
     var Exercises = data.ExerciseDict;
     var VideosJSON = data.VideosJSON;
+    var LevelVideos = data.LevelVideos;
     var VideosVue = data.VideosVue;
     var DescriptionsJSON = data.DescriptionsJSON;
     var allWorkoutJSONs = data.AllWorkouts;
@@ -1470,6 +1471,9 @@ router.get("/:userId/videos", async function(req, res) {
     let userAccess = await accessInfo(videosUser);
     
     var videos = VideosVue(VideosJSON, videosUser.level);
+    let _videos = VideosVue(LevelVideos, videosUser.level);
+    videos.videoList = videos.videoList.concat(_videos.videoList);
+
     videos.accessLevel = userAccess.accessLevel;
     res.json(videos);
 })

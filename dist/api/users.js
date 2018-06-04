@@ -62,6 +62,7 @@ var W3a = _data2.default.AllWorkouts[3]["a"];
 var RPETable = _data2.default.RPETable;
 var Exercises = _data2.default.ExerciseDict;
 var VideosJSON = _data2.default.VideosJSON;
+var LevelVideos = _data2.default.LevelVideos;
 var VideosVue = _data2.default.VideosVue;
 var DescriptionsJSON = _data2.default.DescriptionsJSON;
 var allWorkoutJSONs = _data2.default.AllWorkouts;
@@ -1427,6 +1428,9 @@ router.get("/:userId/videos", async function (req, res) {
     var userAccess = await (0, _userFunctions.accessInfo)(videosUser);
 
     var videos = VideosVue(VideosJSON, videosUser.level);
+    var _videos = VideosVue(LevelVideos, videosUser.level);
+    videos.videoList = videos.videoList.concat(_videos.videoList);
+
     videos.accessLevel = userAccess.accessLevel;
     res.json(videos);
 });

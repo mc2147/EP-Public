@@ -399,6 +399,9 @@ function vueConvert(JSON, levelFilter) {
             if (VideosCategory[K].LevelAccess <= levelFilter) {
                 //If user's level is > minimum access level for video
                 var elem = Object.assign({}, VideosCategory[K]);
+                if (!VideosCategory[K].URL) {
+                    elem.URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
+                }
                 elem.label = K;
                 elem.image = '../../static/video_placeholder.png';
                 elem.levels = LevelList.slice(elem.LevelAccess - 1);
