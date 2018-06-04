@@ -403,6 +403,7 @@ function vueConvert(JSON, levelFilter) {
                     elem.URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
                 }
                 elem.label = K;
+                console.log('pushing video: ', elem.label);
                 elem.image = '../../static/video_placeholder.png';
                 elem.levels = LevelList.slice(elem.LevelAccess - 1);
                 if (Object.keys(output.selectedVideo).length === 0) {

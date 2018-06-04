@@ -1469,10 +1469,11 @@ router.post("/:userId/old-stats/clear", async function(req, res) {
 router.get("/:userId/videos", async function(req, res) {
     var videosUser = await User.findById(req.params.userId);
     let userAccess = await accessInfo(videosUser);
-    
+    console.log('videosVue 1: ');
     var videos = VideosVue(VideosJSON, videosUser.level);
-    let _videos = VideosVue(LevelVideos, videosUser.level);
-    videos.videoList = videos.videoList.concat(_videos.videoList);
+    // console.log('videosVue 2: ');
+    // let _videos = VideosVue(LevelVideos, videosUser.level);
+    // videos.videoList = videos.videoList.concat(_videos.videoList);
 
     videos.accessLevel = userAccess.accessLevel;
     res.json(videos);
