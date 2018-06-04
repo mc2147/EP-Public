@@ -1245,7 +1245,9 @@ router.post("/:userId/oldstats", function(req, res) {
     });
 })
 
+// let {squatWeight, benchWeight, RPEExp, bodyWeight} = input; 
 router.put("/:userId/get-level", async function (req, res) {
+    console.log('get-level-route: ', req.body);
     var _User = await User.findById(req.params.userId);
     var input = req.body;
     await assignLevel(_User, input);
