@@ -24,11 +24,9 @@ export async function signupUser(input) {
             username
         }
     });
+    let userExists = false;
     if (existingUser) {
-        res.json({
-            userExists:true,
-        })
-        return
+        userExists = true;
     }
     var salt = generateSalt();
     if (P1 == P2) {
@@ -41,6 +39,7 @@ export async function signupUser(input) {
         });
         if (newUser) {
             return({
+                userExists,
                 newUser,
                 session: {
                     userId: newUser.id,
@@ -51,6 +50,7 @@ export async function signupUser(input) {
         }
         else {
             return({
+                userExists,
                 error: true,
                 status: "error"
             })
