@@ -19,6 +19,7 @@ export async function signupUser(input) {
     var P1 = input.P1;
     var P2 = input.P2;
     var username = input.username;
+    let name = input.name;
     let existingUser = await User.find({
         where:{        
             username
@@ -157,14 +158,14 @@ export async function accessInfo(user) {
     if (hasSubscription && hasLevel && initialized) {
         accessLevel = 3;       
     }
-    if (hasSubscription && hasLevel && subscriptionValid) {
+    if (hasSubscription && hasLevel && initialized && subscriptionValid) {
         accessLevel = 4;       
     }
-    if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts) {
+    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts) {
         accessLevel = 5;       
     }
     if (
-    (hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts)
+    (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts)
     || user.isAdmin) {
         accessLevel = 6;       
     }
