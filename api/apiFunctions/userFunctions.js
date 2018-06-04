@@ -19,6 +19,17 @@ export async function signupUser(input) {
     var P1 = input.P1;
     var P2 = input.P2;
     var username = input.username;
+    let existingUser = await User.find({
+        where:{        
+            username
+        }
+    });
+    if (existingUser) {
+        res.json({
+            userExists:true,
+        })
+        return
+    }
     var salt = generateSalt();
     if (P1 == P2) {
         var hashedPassword = generateHash(P1, salt);
