@@ -67,7 +67,10 @@ export async function assignLevel(_User, input) {
     if (squatWeight < benchWeight) {
         _User.level = 1;
     }
-    else if (squatWeight > bodyWeight*1.5 && benchWeight > bodyWeight && RPEExp) {
+    else if (
+        squatWeight > bodyWeight*1.5 
+    && benchWeight > bodyWeight 
+    && RPEExp) {
         _User.level = 11;
     }
     else {

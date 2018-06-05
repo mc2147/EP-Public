@@ -195,7 +195,7 @@ router.post('/:id/forgot-password', async function(req, res) {
     // await user.save();
     let passwordEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
-        to: 'matthewchan2147@gmail.com', //later: user.username,
+        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
         subject: 'Password Reset [AlloyStrength Training]',
         text: `Your new password for AlloyStrength Training is: ${newPassword}`
     };
@@ -216,7 +216,7 @@ router.post('/:id/confirmation-email', async function(req, res) {
     user.confString = confString;
     await user.save();
     let productionconfURL = `${process.env.BASE_URL}/api/users/${req.params.id}/confirm/${confString}`;
-    let realconfURL = `http://alloystrength.s3-website-us-east-1.amazonaws.com/confirm/${req.params.id}/${confString}`;
+    let realconfURL = `http://www.alloystrengthtraining.com.s3-website-us-east-1.amazonaws.com//confirm/${req.params.id}/${confString}`;
     // console.log('confURL: ', confURL);
     let confHTML = ('<p>This is the confirmation email for your AlloyStrength Training account. '
     + 'Please click the link below to activate your account:<br><br>'
@@ -224,7 +224,7 @@ router.post('/:id/confirmation-email', async function(req, res) {
 
     let confEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
-        to: 'matthewchan2147@gmail.com', //later: user.username,
+        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
         subject: 'Account Confirmation [AlloyStrength Training]',
         // text: `Your new password for AlloyStrength Training is: ${newPassword}`
         html: confHTML
