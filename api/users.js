@@ -96,6 +96,9 @@ router.post("/", async function(req, res) {
 
 router.post("/:username/login", async function (req, res) {
     console.log("username/login route hit", req.body);
+    let TZOffset = req.body.timezoneOffset;
+    req.session.timezoneOffset = req.body.timezoneOffset;
+    console.log('TZOffset: ', TZOffset);
     var username = req.params.username;
     var passwordInput = req.body.password;
     let Now = new Date(Date.now());
@@ -185,14 +188,21 @@ router.post("/:username/login", async function (req, res) {
 })
 
 // router.get('/:id/forgot-password', async function(req, res) {
-router.post('/:id/forgot-password', async function(req, res) {
+router.post('/forgot-password', async function(req, res) {
+    let username = req.body.email;
     // testEmail:
     console.log("forgot password route hit");
-    let user = await User.findById(req.params.id);
+    // let user = await User.findById(req.params.id);
+    let user = await User.findOne({
+        where:{
+            username
+        }
+    });
+    console.log('changing password for user: ', user.username);
     let newPassword = Math.random().toString(36).slice(-8);
     let newHash = generateHash(newPassword, user.salt);
-    // user.password = newHash;
-    // await user.save();
+    user.password = newHash;
+    await user.save();
     let passwordEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
         to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
@@ -525,7 +535,7 @@ router.post('/:id/renew-subscription', async function(req, res) {
             ],
         })
         console.log("line 426");
-        let response = await accessInfo(user);
+        let response = await accessInfo(user, req.session.timezoneOffset);
         res.json(response);
         console.log("line 427");
         // // res.json(newSubscription);
@@ -586,7 +596,7 @@ router.get('/:id/reschedule-workouts', async function(req, res) {
         }
         workouts.push(workoutObj);
     }
-    let userAccess = await accessInfo(user);
+    let userAccess = await accessInfo(user, req.session.timezoneOffset);
     let accessLevel = userAccess.accessLevel;
     let response = {
         accessLevel,
@@ -649,10 +659,13 @@ router.delete('/:userId/stripe', async function(req, res) {
 })
 
 router.get("/:userId/access-info", async function(req, res) {
+    let TZOffset = req.body.timezoneOffset;
+    req.session.timezoneOffset = req.body.timezoneOffset;
+    console.log('TZOffset access-info: ', TZOffset);
     let user = await User.findById(req.params.userId);
     let response = Object.assign({}, user);
     let Now = new Date(Date.now());
-    let returnObj = await accessInfo(user);
+    let returnObj = await accessInfo(user, req.session.timezoneOffset);
     res.json(returnObj);
 })
 
@@ -953,7 +966,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     }
     console.log("thisID: ", thisID);
     let thisUser = await User.findById(req.params.userId);
-    let userAccess = await accessInfo(thisUser);
+    let userAccess = await accessInfo(thisUser, req.session.timezoneOffset);
     console.log("userAccess: ", userAccess);
     let accessLevel = userAccess.accessLevel;
     let pasthiddenResponse = {
@@ -1032,7 +1045,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             editable = !(JSON.completed) && JSON.accessible;
             // noedits = JSON.completed || !(JSON.accessible);
             noedits = JSON.completed;
-            let userAccess = await accessInfo(user);
+            let userAccess = await accessInfo(user, req.session.timezoneOffset);
             if (userAccess.accessLevel < 6) {
                 editable = false;
                 noedits = true;
@@ -1093,7 +1106,7 @@ router.put("/:userId/stats", function(req, res) {
 
 router.get('/:userId/profile-info/', async function(req, res) {
     let _User = await User.findById(req.params.userId);
-    let userAccess = await accessInfo(_User);
+    let userAccess = await accessInfo(_User, req.session.timezoneOffset);
     
     let profileBody = {
         username:_User.username,
@@ -1159,7 +1172,7 @@ router.get('/:userId/stats/vue/get', function(req, res) {
                 vueData.nTesting ++;
             }
         })
-        let userAccess = await accessInfo(user);
+        let userAccess = await accessInfo(user, req.session.timezoneOffset);
         vueData.accessLevel = userAccess.accessLevel;        
         res.json(vueData);
     })
@@ -1220,7 +1233,7 @@ router.get('/:userId/progress/vue/get', function(req, res) {
                 vueData.nTesting ++;
             }
         })
-        let userAccess = await accessInfo(user);
+        let userAccess = await accessInfo(user, req.session.timezoneOffset);
         vueData.accessLevel = userAccess.accessLevel;
         res.json(vueData);
     })
@@ -1478,7 +1491,7 @@ router.post("/:userId/old-stats/clear", async function(req, res) {
 
 router.get("/:userId/videos", async function(req, res) {
     var videosUser = await User.findById(req.params.userId);
-    let userAccess = await accessInfo(videosUser);
+    let userAccess = await accessInfo(videosUser, req.session.timezoneOffset);
     console.log('videosVue 1: ');
     var videos = VideosVue(VideosJSON, videosUser.level);
     // console.log('videosVue 2: ');

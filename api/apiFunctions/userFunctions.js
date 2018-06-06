@@ -79,9 +79,11 @@ export async function assignLevel(_User, input) {
     await _User.save();
 }
 
-export async function accessInfo(user) {
+export async function accessInfo(user, timezoneOffset=0) {
+    let TZOffset = parseInt(timezoneOffset);
+    console.log('TZOffset: ', TZOffset);
     let response = Object.assign({}, user);
-    let Now = new Date(Date.now());
+    let Now = new Date(Date.now() - TZOffset*1000*60*60);
     // Workouts
     let hasLevel = true; //send to enter stats page
     let initialized = user.initialized;
@@ -96,7 +98,8 @@ export async function accessInfo(user) {
     let subscriptionStatus = null;    
     let accessLevel = 0;
     // 
-    console.log("user (accessInfo): ", user);
+    console.log('user access info ');
+    // console.log("user (accessInfo): ", user);
     if (user.stripeId != "") {
         try {
             let stripeUser = await stripe.customers.retrieve(user.stripeId);
