@@ -16,7 +16,7 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
         dateObj = new Date(
             parseInt(dateSplit[0]),
             parseInt(dateSplit[1]) - 1,
-            parseInt(dateSplit[2]) - 1,
+            parseInt(dateSplit[2]), //Do not subtract 1 from this
         );
     }
     var workoutDays = [

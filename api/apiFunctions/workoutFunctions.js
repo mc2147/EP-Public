@@ -50,10 +50,12 @@ export async function signupUser(input) {
 
 export async function assignLevel(_User, input) {
     let {squatWeight, benchWeight, RPEExp, bodyWeight} = input; 
-    if (squatWeight < benchWeight) {
+    if (squatWeight < bodyWeight) {
         _User.level = 1;
     }
-    else if (squatWeight > bodyWeight*1.5 && benchWeight > bodyWeight && RPEExp) {
+    else if (squatWeight > bodyWeight*1.5 
+        && benchWeight > bodyWeight 
+        && RPEExp) {
         _User.level = 11;
     }
     else {
@@ -64,6 +66,7 @@ export async function assignLevel(_User, input) {
 
         
 export async function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
+    console.log('newStart rescheduleWorkouts: ', newStart);
     let Now = new Date(Date.now());
     let nIncomplete = 0;
     let nComplete = 0;
