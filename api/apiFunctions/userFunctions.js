@@ -82,7 +82,7 @@ export async function assignLevel(_User, input) {
 }
 
 export async function accessInfo(user, timezoneOffset=0) {
-    let TZOffset = parseInt(timezoneOffset);
+    let TZOffset = parseInt(user.TZOffset);
     console.log('TZOffset: ', TZOffset);
     let response = Object.assign({}, user);
     let Now = new Date(Date.now() - TZOffset*1000*60*60);
