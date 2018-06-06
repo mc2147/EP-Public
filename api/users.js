@@ -684,14 +684,16 @@ router.get("/:userId/last-workout", async function(req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     }
-    let thisDate = new Date(Date.now());
+    let thisDate = new Date(Date.now() - user.TZOffset*1000*60*60);
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function(date, index) {
-        if (date.getTime() <= thisDate.getTime()
-        && date.getDate() <= thisDate.getDate()) {
-            console.log(date.getDate(), new Date(Date.now()).getDate());
+        if (date.getTime() < thisDate.getTime()
+        && date.getDate() <= thisDate.getDate()
+        && date.getMonth() <= thisDate.getMonth()
+        && date.getYear() <= thisDate.getYear()) {
+            console.log(date.getDate(), thisDate.getDate());
             let wID = index + 1;
             let relatedWorkout = _User.workouts[wID];
             response = relatedWorkout;
@@ -708,14 +710,16 @@ router.get("/:userId/last-workout/vue", async function(req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     }
-    let thisDate = new Date(Date.now());
+    let thisDate = new Date(Date.now() - user.TZOffset*1000*60*60);
     let lastworkoutDate = {};
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function(date, index) {
-        if (date.getTime() <= thisDate.getTime()
-        && date.getDate() <= thisDate.getDate()) {
+        if (date.getTime() < thisDate.getTime()
+        && date.getDate() <= thisDate.getDate()
+        && date.getMonth() <= thisDate.getMonth()
+        && date.getYear() <= thisDate.getYear()) {
             console.log(date.getDate(), new Date(Date.now()).getDate());
             let wID = index + 1;
             let relatedWorkout = _User.workouts[wID];
@@ -740,13 +744,15 @@ router.get("/:userId/workouts/last", async function(req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     }
-    let thisDate = new Date(Date.now());
+    let thisDate = new Date(Date.now() - user.TZOffset*1000*60*60);
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function(date, index) {
         if (date.getTime() < thisDate.getTime()
-        && date.getDate() < thisDate.getDate()) {
+        && date.getDate() <= thisDate.getDate()
+        && date.getMonth() <= thisDate.getMonth()
+        && date.getYear() <= thisDate.getYear()) {
             console.log(date.getDate(), new Date(Date.now()).getDate());
             let wID = index + 1;
             let relatedWorkout = _User.workouts[wID];
