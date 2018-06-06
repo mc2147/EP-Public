@@ -73,6 +73,7 @@ export async function assignLevel(_User, input) {
     && benchWeight > bodyWeight 
     && RPEExp) {
         _User.level = 11;
+        _User.blockNum = 1;
     }
     else {
         _User.level = 6;
