@@ -714,8 +714,8 @@ router.get("/:userId/last-workout/vue", async function(req, res) {
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function(date, index) {
-        if (date.getTime() < thisDate.getTime()
-        && date.getDate() < thisDate.getDate()) {
+        if (date.getTime() <= thisDate.getTime()
+        && date.getDate() <= thisDate.getDate()) {
             console.log(date.getDate(), new Date(Date.now()).getDate());
             let wID = index + 1;
             let relatedWorkout = _User.workouts[wID];
@@ -1053,10 +1053,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             // if ()
         JSON.editable = editable;
         JSON.noedits = noedits;
-        var vueJSON = getVueInfo(JSON);
-        vueJSON.accessible = accessible;
-        vueJSON.noedits = noedits;
-
 		let workoutDatelist = [];
         var userWorkouts = user.workouts;
         
@@ -1074,6 +1070,9 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             noedits = true;
             editable = false;
         }    
+        var vueJSON = getVueInfo(JSON);
+        vueJSON.accessible = accessible;
+        vueJSON.noedits = noedits;
         
 		for (var K in userWorkouts) {
 			var Workout = userWorkouts[K];
