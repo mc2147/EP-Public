@@ -689,8 +689,8 @@ router.get("/:userId/last-workout", async function(req, res) {
     // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function(date, index) {
-        if (date.getTime() < thisDate.getTime()
-        && date.getDate() < thisDate.getDate()) {
+        if (date.getTime() <= thisDate.getTime()
+        && date.getDate() <= thisDate.getDate()) {
             console.log(date.getDate(), new Date(Date.now()).getDate());
             let wID = index + 1;
             let relatedWorkout = _User.workouts[wID];
@@ -1030,6 +1030,16 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         // else {
         //     accessible = false;            
         // }
+        let editable = false;
+        let noedits = false;
+        let Now = new Date(Date.now() - user.TZOffset*1000*60*60);
+        if (wDate.getDate() != Now.getDate()
+        || wDate.getMonth() != Now.getMonth()
+        || wDate.getYear() != Now.getYear()) {
+            noedits = true;
+            editable = false;
+        }    
+
         if (todayDate == checkDate) {
             accessible = true;
         }
@@ -1037,8 +1047,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             accessible = false;            
         }
         JSON.accessible = accessible;
-        let editable = false;
-        let noedits = false;
         if (user.isAdmin) {
             editable = true;
             noedits = false;

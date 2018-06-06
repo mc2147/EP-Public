@@ -141,7 +141,8 @@ export async function accessInfo(user, timezoneOffset=0) {
             !W.Completed 
             && wDate 
             && wDate.getDate() < Now.getDate() 
-            && wDate.getMonth() <= Now.getMonth()) {
+            && wDate.getMonth() <= Now.getMonth()
+            && wDate.getYear() <= Now.getYear()) {
                 missedWorkouts = true;
                 break
         }
