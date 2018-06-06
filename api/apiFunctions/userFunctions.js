@@ -126,9 +126,12 @@ export async function accessInfo(user) {
     if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
         // initialized = true;
     }
+    // Checking for missed workouts
+    console.log("Now: ", Now);
     for (var K in user.workouts) {
         let W = user.workouts[K];
         let wDate = new Date(W.Date);        
+        console.log('wDate: ', wDate);
         if (//If there's an incomplete workout before the current date
             !W.Completed 
             && wDate 

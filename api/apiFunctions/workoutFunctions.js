@@ -66,7 +66,7 @@ export async function assignLevel(_User, input) {
 
         
 export async function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
-    console.log('newStart rescheduleWorkouts: ', newStart);
+    console.log('\n\nnewStart rescheduleWorkouts: ', newStart);
     let Now = new Date(Date.now());
     let nIncomplete = 0;
     let nComplete = 0;
@@ -103,9 +103,12 @@ export async function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
         let W = user.workouts[K];
         if (!W.Completed) {
             W.Date = newDates[dateIndex];
+            user.workouts[K].date = newDates[dateIndex];
         }
         dateIndex ++;
     }
+    user.workoutDates = newDates;
+    console.log('\n\n');
     await user.changed('workouts', true);
     await user.save();
     return newDates;
