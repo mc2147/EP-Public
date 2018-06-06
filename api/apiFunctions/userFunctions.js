@@ -35,6 +35,7 @@ export async function signupUser(input) {
         var newUser = await User.create({
             // id: 29,
             username: username,
+            name,
             salt: salt,
             password: hashedPassword,
         });

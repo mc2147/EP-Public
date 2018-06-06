@@ -107,6 +107,8 @@ router.post("/:username/login", async function (req, res) {
             username,
         }
     });
+    loginUser.TZOffset = TZOffset;
+    await loginUser.save();
     let viewingWID = 1;
     let nextWorkoutFound = false;
     if (!loginUser) {
