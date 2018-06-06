@@ -880,6 +880,7 @@ router.put("/:userId/workouts/:workoutId/clear", async function(req, res) {
     let level = _User.level;
     let newPatterns = await getblankPatterns(_User.levelGroup, _User.blockNum, W, D, level);
     _User.workouts[req.params.workoutId].Patterns = newPatterns;
+    _User.workouts[req.params.workoutId].Completed = false;
     _User.changed('workouts', true);
     await _User.save();
     console.log("newPatterns for: ", newPatterns.number);
