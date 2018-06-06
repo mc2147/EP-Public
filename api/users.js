@@ -684,7 +684,7 @@ router.get("/:userId/last-workout", async function(req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     }
-    let thisDate = new Date(Date.now() - user.TZOffset*1000*60*60);
+    let thisDate = new Date(Date.now() - _User.TZOffset*1000*60*60);
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
@@ -710,7 +710,7 @@ router.get("/:userId/last-workout/vue", async function(req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     }
-    let thisDate = new Date(Date.now() - user.TZOffset*1000*60*60);
+    let thisDate = new Date(Date.now() - _User.TZOffset*1000*60*60);
     let lastworkoutDate = {};
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
@@ -744,7 +744,7 @@ router.get("/:userId/workouts/last", async function(req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     }
-    let thisDate = new Date(Date.now() - user.TZOffset*1000*60*60);
+    let thisDate = new Date(Date.now() - _User.TZOffset*1000*60*60);
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
