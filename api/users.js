@@ -1447,6 +1447,9 @@ router.post("/:userId/admin/generate-workouts", async function(req, res) {
     }
     
     if (_User.level >= 11) {
+        if (_User.blockNum == 0) {
+            _User.blockNum = 1;
+        }
         if (req.body.blockNum) {
             _User.blockNum = parseInt(req.body.blockNum);
         }
@@ -1466,6 +1469,7 @@ router.post("/:userId/admin/generate-workouts", async function(req, res) {
         }
         _User.blockNum = 0;
     }
+    console.log('USER.LEVEL, BLOCKNUM: ', _User.level, _User.blockNum);
     await _User.save();
     var stringDate = false;
     if (req.body.stringDate) {

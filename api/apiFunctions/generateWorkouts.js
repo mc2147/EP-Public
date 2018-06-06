@@ -28,7 +28,7 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
     var Level = user.level; //Determine N Workouts based on this
     var Group = user.levelGroup;
     var Block = user.blockNum;
-
+    console.log('generateWorkouts: ', Level, Group, Block);
     var TemplatesJSON = {};
     
     if (Level <= 5) {
