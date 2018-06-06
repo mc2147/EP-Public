@@ -1032,13 +1032,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         // }
         let editable = false;
         let noedits = false;
-        let Now = new Date(Date.now() - user.TZOffset*1000*60*60);
-        if (_WorkoutDate.getDate() != Now.getDate()
-        || _WorkoutDate.getMonth() != Now.getMonth()
-        || _WorkoutDate.getYear() != Now.getYear()) {
-            noedits = true;
-            editable = false;
-        }    
 
         if (todayDate == checkDate) {
             accessible = true;
@@ -1047,21 +1040,16 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             accessible = false;            
         }
         JSON.accessible = accessible;
-        if (user.isAdmin) {
-            editable = true;
-            noedits = false;
+
+        editable = !(JSON.Completed) && JSON.accessible;
+        // noedits = JSON.completed || !(JSON.accessible);
+        noedits = JSON.Completed;
+        let userAccess = await accessInfo(user, req.session.timezoneOffset);
+        if (userAccess.accessLevel < 6) {
+            editable = false;
+            noedits = true;
         }
-        else {
-            editable = !(JSON.completed) && JSON.accessible;
-            // noedits = JSON.completed || !(JSON.accessible);
-            noedits = JSON.completed;
-            let userAccess = await accessInfo(user, req.session.timezoneOffset);
-            if (userAccess.accessLevel < 6) {
-                editable = false;
-                noedits = true;
-            }
             // if ()
-        }
         JSON.editable = editable;
         JSON.noedits = noedits;
         var vueJSON = getVueInfo(JSON);
@@ -1069,7 +1057,23 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         vueJSON.noedits = noedits;
 
 		let workoutDatelist = [];
-		var userWorkouts = user.workouts;
+        var userWorkouts = user.workouts;
+        
+        let Now = new Date(Date.now() - user.TZOffset*1000*60*60);
+        console.log('_WorkoutDate: ', _WorkoutDate);
+        console.log('Now: ', Now);
+        if (user.isAdmin) {
+            editable = true;
+            noedits = false;
+        }
+        else if (_WorkoutDate.getDate() != Now.getDate()
+        || _WorkoutDate.getMonth() != Now.getMonth()
+        || _WorkoutDate.getYear() != Now.getYear()
+        || JSON.Completed) {
+            noedits = true;
+            editable = false;
+        }    
+        
 		for (var K in userWorkouts) {
 			var Workout = userWorkouts[K];
 			if (!Workout.ID) {
