@@ -23,6 +23,7 @@ function getVueInfo(refDict) {
 		_Completed = true;
 		// console.log("Workout Completed: ", refDict);
 	}
+	console.log('getVueInfo: ', _Completed, refDict.noedits);
 	var vueColumns = [["Reps/Time(s)", 1], ["Weights", 2], ["RPE", 3], ["Tempo", 4]];
 	var vueSubworkouts = [];
 	console.log("PATTERNS:");

@@ -1076,6 +1076,8 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
             noedits = true;
             editable = false;
         }    
+        JSON.noedits = noedits;
+        console.log('\n\n noedits & editable: ', noedits, editable);
         var vueJSON = getVueInfo(JSON);
         vueJSON.accessible = accessible;
         vueJSON.noedits = noedits;
@@ -1096,7 +1098,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         // vueJSON.accessLevel = 
         vueJSON.workoutDates = workoutDatelist;
         vueJSON.accessLevel = accessLevel;
-        console.log('\n\n noedits & editable: ', noedits, editable);
         console.log("vueJSON.accessLevel: ", vueJSON.accessLevel);
         res.json(vueJSON);
     });
