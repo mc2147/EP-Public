@@ -43,8 +43,8 @@ function dateString(date) {
 
 
 function getWorkoutDays (startDate, daysList, level, member, nWorkouts) {
-    // console.log("   getWorkoutDays start date: ", new Date(startDate));
-    // console.log("daysList: ", daysList);
+    console.log("   getWorkoutDays start date: ", new Date(startDate));
+    console.log("daysList: ", daysList);
 	var checkDays = 28;
 	var output = [];
     var count = 0;
@@ -53,7 +53,7 @@ function getWorkoutDays (startDate, daysList, level, member, nWorkouts) {
     while (count < nWorkouts) {
         var _DayTime = startDate.getTime() + DayValue*i;
 		var _Day = new Date(_DayTime);
-        // console.log("_Day: ", _Day);
+        console.log("_Day: ", _Day);
         var _weekDay = _Day.getDay(); //Sunday is 0, Saturday is 6
         // console.log("   _weekDay: ", _weekDay);
         let now = new Date(Date.now());
