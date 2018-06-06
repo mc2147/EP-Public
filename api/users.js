@@ -1033,9 +1033,9 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         let editable = false;
         let noedits = false;
         let Now = new Date(Date.now() - user.TZOffset*1000*60*60);
-        if (wDate.getDate() != Now.getDate()
-        || wDate.getMonth() != Now.getMonth()
-        || wDate.getYear() != Now.getYear()) {
+        if (_WorkoutDate.getDate() != Now.getDate()
+        || _WorkoutDate.getMonth() != Now.getMonth()
+        || _WorkoutDate.getYear() != Now.getYear()) {
             noedits = true;
             editable = false;
         }    
