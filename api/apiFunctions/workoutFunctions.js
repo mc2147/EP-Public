@@ -317,7 +317,7 @@ export async function getblankPatterns(lGroup, block, W, D, level) { //for reset
         console.log('i: ', i);
         var sub = subsList[i];
         var patternInstance = sub.patternFormat;
-        console.log('sub.patternFormat: ', sub.patternFormat);
+        // console.log('sub.patternFormat: ', sub.patternFormat);
         var EType = sub.exerciseType;
         if (EType == "Med Ball") {EType = "Medicine Ball";}
         else if (EType == "Vert Pull") {EType = "UB Vert Pull";} 	
@@ -342,6 +342,7 @@ export async function getblankPatterns(lGroup, block, W, D, level) { //for reset
             }
             patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
         }
+        console.log('line 345. I: ', i, 'subsList.length: ', subsList.length);
         blankPatterns.push(patternInstance);
     }
     console.log("getBlankPatterns: ", blankPatterns);

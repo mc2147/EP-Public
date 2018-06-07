@@ -894,7 +894,7 @@ router.put("/:userId/workouts/:workoutId/clear", async function(req, res) {
     _User.workouts[req.params.workoutId].Completed = false;
     _User.changed('workouts', true);
     await _User.save();
-    console.log("newPatterns for: ", newPatterns.number);
+    console.log("newPatterns for: ", req.params.workoutId);
     // let newPatterns = {};
     res.json(newPatterns);
 })
