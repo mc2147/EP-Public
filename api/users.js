@@ -17,7 +17,7 @@ var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 import moment from 'moment';
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
+console.log('secret key: ', process.env.STRIPE_SECRET_KEY)
 // var models = require('../models');
 // 	var Exercise = models.Exercise;
 // 	var WorkoutTemplate = models.WorkoutTemplate;

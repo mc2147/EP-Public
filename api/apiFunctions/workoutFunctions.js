@@ -307,6 +307,7 @@ export async function getblankPatterns(lGroup, block, W, D, level) { //for reset
     var subsURL = `/api/workout-templates/${lGroup}/block/${block}/week/${W}/day/${D}/subworkouts`;    
     var subsResponse = await axios.get(process.env.BASE_URL + subsURL);
     var subsList = subsResponse.data;
+    console.log('getBlankPatterns subsList: ', subsList);
     subsList.sort(function(a, b) {
         return a.number - b.number
     });
