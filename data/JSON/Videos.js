@@ -298,28 +298,31 @@ for (var L in LevelVideos) {
         if (!JSON.URL) {
             JSON.URL = "https://drive.google.com/file/d/" + JSON.DriveID + "/preview";
         }
-            // if (Key in DescriptionsJSON) {
+        if (JSON.Type in DescriptionsJSON) {
+            JSON.Description = DescriptionsJSON[JSON.Type][Level];
+        }
+        // if (Key in DescriptionsJSON) {
             //     VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
             // }
         let URL = "https://drive.google.com/file/d/" + JSON.DriveID + "/preview";
-        Video.findOrCreate({
-            where: {
-                title: name,
-                url: URL,
-                levelAccess: Level,
-                exerciseNames: [name],
-            }
-        }).spread((video, created) => {
-            video.tags = video.title;
-            // video.exerciseType = "test";
-            video.exerciseType = JSON.Type;
-            // console.log("video created: ", Level, JSON.Type, video.title)
-            if (JSON.Type in DescriptionsJSON) {
-                video.description = DescriptionsJSON[JSON.Type][Level];
-            }
-            video.save();
-            console.log("video created: ", video.url);
-        })
+        // Video.findOrCreate({
+        //     where: {
+        //         title: name,
+        //         url: URL,
+        //         levelAccess: Level,
+        //         exerciseNames: [name],
+        //     }
+        // }).spread((video, created) => {
+        //     video.tags = video.title;
+        //     // video.exerciseType = "test";
+        //     video.exerciseType = JSON.Type;
+        //     // console.log("video created: ", Level, JSON.Type, video.title)
+        //     if (JSON.Type in DescriptionsJSON) {
+        //         video.description = DescriptionsJSON[JSON.Type][Level];
+        //     }
+        //     video.save();
+        //     console.log("video created: ", video.url);
+        // })
         if (JSON.Type in VideosJSON) {
             VideosJSON[JSON.Type][name] = JSON;
             VideosJSON[JSON.Type][name].LevelAccess = Level;
@@ -332,37 +335,37 @@ for (var L in LevelVideos) {
     }
 }
 
-// for (var Key in VideosJSON) {
-//     // console.log(Key);
-//     var VideosCategory = VideosJSON[Key];
-//     for (var K in VideosCategory) {
-//         if (!VideosCategory[K].URL) {
-//             VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
-//         }
-//         if (Key in DescriptionsJSON) {
-//             VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
-//         }
-//         var videoObj = VideosCategory[K];
-//         VideosList.push(VideosCategory[K]);
-//         Video.findOrCreate({
-//             where: {
-//                 title: K,
-//                 url: videoObj.URL,
-//                 levelAccess: videoObj.LevelAccess,
-//                 exerciseNames: [K],
-//                 // exerciseType: Key
-//             }
-//         }).spread((video, created) => {
-//             video.tags = video.title;
-//             video.exerciseType = Key;            
-//             if ('Description' in videoObj) {
-//                 video.description = videoObj.Description;
-//             }
-//             console.log("video found/created: ", video.title);
-//             // video.save();
-//         })
-//     }
-// }
+for (var Key in VideosJSON) {
+    // console.log(Key);
+    var VideosCategory = VideosJSON[Key];
+    for (var K in VideosCategory) {
+        if (!VideosCategory[K].URL) {
+            VideosCategory[K].URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
+        }
+        if (Key in DescriptionsJSON) {
+            VideosCategory[K].Description = DescriptionsJSON[Key][VideosCategory[K].LevelAccess];
+        }
+        var videoObj = VideosCategory[K];
+        VideosList.push(VideosCategory[K]);
+        // Video.findOrCreate({
+        //     where: {
+        //         title: K,
+        //         url: videoObj.URL,
+        //         levelAccess: videoObj.LevelAccess,
+        //         exerciseNames: [K],
+        //         // exerciseType: Key
+        //     }
+        // }).spread((video, created) => {
+        //     video.tags = video.title;
+        //     video.exerciseType = Key;            
+        //     if ('Description' in videoObj) {
+        //         video.description = videoObj.Description;
+        //     }
+        //     console.log("video found/created: ", video.title);
+        //     // video.save();
+        // })
+    }
+}
 
 var LevelList = [];
 

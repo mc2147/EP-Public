@@ -19,8 +19,10 @@ console.log("LINE 10 APP.JS");
 
 process.env.BASE_URL = (process.env.PORT && onlineVersion) ? onlineURL : localURL;
 process.env.CORS_ORIGIN = (process.env.PORT && onlineVersion) ? onlineCORS : localCORS;
-process.env.STRIPE_SECRET_KEY = 'sk_test_5wRrRkW71NRhb4cIHdRL9Z32';
-process.env.STRIPE_PUBLIC_KEY = 'pk_test_uecJvlGuK94TACv9jW9XxmVg';
+// process.env.STRIPE_SECRET_KEY = 'sk_test_5wRrRkW71NRhb4cIHdRL9Z32';
+// process.env.STRIPE_PUBLIC_KEY = 'pk_test_uecJvlGuK94TACv9jW9XxmVg';
+process.env.STRIPE_SECRET_KEY = 'sk_live_OXwkp7SjAleSx9u6QLlUns0U';
+process.env.STRIPE_PUBLIC_KEY = 'pk_live_PWmtkdqxq5DvLLcRz298lZQs';
 // LIVE KEYS
 // Secret: sk_live_OXwkp7SjAleSx9u6QLlUns0U
 // Public: pk_live_PWmtkdqxq5DvLLcRz298lZQs

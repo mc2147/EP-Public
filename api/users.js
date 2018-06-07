@@ -207,8 +207,8 @@ router.post('/forgot-password', async function(req, res) {
     await user.save();
     let passwordEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
-        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-        // to: user.username,
+        // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        to: user.username,
         subject: 'Password Reset [AlloyStrength Training]',
         text: `Your new password for AlloyStrength Training is: ${newPassword}`
     };
@@ -238,8 +238,8 @@ router.post('/:id/confirmation-email', async function(req, res) {
 
     let confEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
-        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-        // to: user.username,
+        // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        to: user.username,
         subject: 'Account Confirmation [AlloyStrength Training]',
         // text: `Your new password for AlloyStrength Training is: ${newPassword}`
         html: confHTML
