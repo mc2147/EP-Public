@@ -429,6 +429,10 @@ function getVueInfo(refDict) {
 			// 	RPEDict.value = Pattern.dropRPE;
 			// 	RPEDict.status = 'Fixed';					
 			// }
+		}
+		if (!subDict.warnNextSet) {
+			subDict.warnNextSet = false;
+			subDict.warningText = ''; 		
 		} 
 		
 		if (Pattern.alloy) {

@@ -308,12 +308,16 @@ export async function getblankPatterns(lGroup, block, W, D, level) { //for reset
     var subsResponse = await axios.get(process.env.BASE_URL + subsURL);
     var subsList = subsResponse.data;
     console.log('getBlankPatterns subsList: ', subsList);
+    console.log('subsList.length: ', subsList.length);
     subsList.sort(function(a, b) {
         return a.number - b.number
     });
+    console.log('subsList.length post: ', subsList.length);
     for (var i = 0; i < subsList.length; i++) {
+        console.log('i: ', i);
         var sub = subsList[i];
         var patternInstance = sub.patternFormat;
+        console.log('sub.patternFormat: ', sub.patternFormat);
         var EType = sub.exerciseType;
         if (EType == "Med Ball") {EType = "Medicine Ball";}
         else if (EType == "Vert Pull") {EType = "UB Vert Pull";} 	
