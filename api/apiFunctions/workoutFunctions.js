@@ -337,8 +337,8 @@ export async function getblankPatterns(lGroup, block, W, D, level) { //for reset
             };                            
 
             var LevelList = [];
-            for (var i = 1; i <= 25; i++) {
-                LevelList.push(i);
+            for (var x = 1; x <= 25; x++) {
+                LevelList.push(x);
             }
             patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
         }
