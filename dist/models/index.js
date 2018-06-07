@@ -346,6 +346,13 @@ var User = db.define('User', {
         type: Sequelize.STRING,
         defaultValue: ""
     },
+    name: {
+        type: Sequelize.STRING
+    },
+    TZOffset: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    },
     username: { //Check for email later
         type: Sequelize.STRING,
         // unique: true,

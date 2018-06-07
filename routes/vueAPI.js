@@ -352,6 +352,8 @@ function getVueInfo(refDict) {
 		}
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
 			// subDict.RPEOptions = newRPEOptions;			
+			let _Type = 'Stop';
+			let _TargetRPE = Pattern.specialValue;
 			if (Pattern.workoutType == 'stop') {
 				subDict.minRPE = parseFloat(Pattern.RPE); //Starting RPE
 				subDict.maxRPE = Pattern.specialValue;
@@ -381,6 +383,8 @@ function getVueInfo(refDict) {
 				}
 			}
 			else if (Pattern.workoutType == 'drop') {
+				_Type = 'Drop';
+				_TargetRPE = Pattern.RPE;
 				subDict.minRPE = parseFloat(Pattern.dropRPE);
 				subDict.describer += " (Strength Drop)";
 				subDict.longDescriber = `Strength Drop (${Pattern.specialValue} %) @ ${Pattern.RPE} RPE from 1 x ${Pattern.reps}`
@@ -404,7 +408,16 @@ function getVueInfo(refDict) {
 					// });
 				}
 			}
-			// subDict.RPEOptions = newRPEOptions;
+			if (Pattern.sets == 3) {
+				console.log('Set warning!! Strength stop/drop sets at 5'); 
+				subDict.warnNextSet = true;
+				subDict.warningText = 
+				"You're close to the maximum number of sets for this workout! " +
+				`Strength ${_Type} workouts are designed to be completed within a maximum of 5 sets. `
+				+ `If you haven't hit the target RPE of ${_TargetRPE} yet, consider reducing the amount of rest `
+				+ "in between sets or checking that your RPE entries are accurate!";										
+			}
+		// subDict.RPEOptions = newRPEOptions;
 			// if (Pattern.workoutType == 'stop' && Pattern.specialStage == 0) {
 			// 	subDict.RPEOptions = [Pattern.RPE]; //Starting RPE
 			// }

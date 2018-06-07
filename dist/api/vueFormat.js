@@ -10,7 +10,7 @@ function vueStats(JSON) {
     var output = [];
     console.log("vueStats from other page");
     for (var EType in JSON) {
-        if (EType != "Level Up") {
+        if (EType != "Level Up" && (EType == "Hinge" || EType == "Squat" || EType == "UB Hor Push")) {
             output.push(getVueStat(EType, JSON[EType]));
         }
     }

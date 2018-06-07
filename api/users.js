@@ -208,6 +208,7 @@ router.post('/forgot-password', async function(req, res) {
     let passwordEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
         to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        // to: user.username,
         subject: 'Password Reset [AlloyStrength Training]',
         text: `Your new password for AlloyStrength Training is: ${newPassword}`
     };
@@ -228,15 +229,17 @@ router.post('/:id/confirmation-email', async function(req, res) {
     user.confString = confString;
     await user.save();
     let productionconfURL = `${process.env.BASE_URL}/api/users/${req.params.id}/confirm/${confString}`;
-    let realconfURL = `www.alloystrengthtraining.com.s3-website-us-east-1.amazonaws.com/confirm/${req.params.id}/${confString}`;
+    let realconfURL = `www.alloystrengthtraining.com/confirm/${req.params.id}/${confString}`;
     // console.log('confURL: ', confURL);
-    let confHTML = ('<p>This is the confirmation email for your AlloyStrength Training account. '
+    let confHTML = (`<p>This is the confirmation email for your AlloyStrength 
+    Training account for: ${user.username} `
     + 'Please click the link below to activate your account:<br><br>'
     + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`);
 
     let confEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
         to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        // to: user.username,
         subject: 'Account Confirmation [AlloyStrength Training]',
         // text: `Your new password for AlloyStrength Training is: ${newPassword}`
         html: confHTML
@@ -841,7 +844,9 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
    var workoutId = req.params.workoutId;
    var body = req.body;
    body.lastWorkout = false;
+    // Update user's level-up status every time we 'saveWorkout'   
    await saveWorkout(body, _User, req.params.workoutId, true);
+    // Level Up check here -> if last workout
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];

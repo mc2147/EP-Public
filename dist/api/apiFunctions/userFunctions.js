@@ -41,17 +41,29 @@ async function signupUser(input) {
     var P1 = input.P1;
     var P2 = input.P2;
     var username = input.username;
+    var name = input.name;
+    var existingUser = await _models.User.find({
+        where: {
+            username: username
+        }
+    });
+    var userExists = false;
+    if (existingUser) {
+        userExists = true;
+    }
     var salt = generateSalt();
     if (P1 == P2) {
         var hashedPassword = generateHash(P1, salt);
         var newUser = await _models.User.create({
             // id: 29,
             username: username,
+            name: name,
             salt: salt,
             password: hashedPassword
         });
         if (newUser) {
             return {
+                userExists: userExists,
                 newUser: newUser,
                 session: {
                     userId: newUser.id,
@@ -61,6 +73,7 @@ async function signupUser(input) {
             };
         } else {
             return {
+                userExists: userExists,
                 error: true,
                 status: "error"
             };
@@ -80,6 +93,7 @@ async function assignLevel(_User, input) {
         _User.level = 1;
     } else if (squatWeight > bodyWeight * 1.5 && benchWeight > bodyWeight && RPEExp) {
         _User.level = 11;
+        _User.blockNum = 1;
     } else {
         _User.level = 6;
     }
@@ -87,8 +101,12 @@ async function assignLevel(_User, input) {
 }
 
 async function accessInfo(user) {
+    var timezoneOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+    var TZOffset = parseInt(user.TZOffset);
+    console.log('TZOffset: ', TZOffset);
     var response = Object.assign({}, user);
-    var Now = new Date(Date.now());
+    var Now = new Date(Date.now() - TZOffset * 1000 * 60 * 60);
     // Workouts
     var hasLevel = true; //send to enter stats page
     var initialized = user.initialized;
@@ -103,7 +121,8 @@ async function accessInfo(user) {
     var subscriptionStatus = null;
     var accessLevel = 0;
     // 
-    console.log("user (accessInfo): ", user);
+    console.log('user access info ');
+    // console.log("user (accessInfo): ", user);
     if (user.stripeId != "") {
         try {
             var stripeUser = await stripe.customers.retrieve(user.stripeId);
@@ -128,14 +147,17 @@ async function accessInfo(user) {
     if (user.workoutDates.length > 0) {
         hasWorkouts = true;
     }
-    if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
-        // initialized = true;
-    }
+    if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {}
+    // initialized = true;
+
+    // Checking for missed workouts
+    console.log("Now: ", Now);
     for (var K in user.workouts) {
         var W = user.workouts[K];
         var wDate = new Date(W.Date);
+        console.log('wDate: ', wDate);
         if ( //If there's an incomplete workout before the current date
-        !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+        !W.Completed && wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth() && wDate.getYear() <= Now.getYear()) {
             missedWorkouts = true;
             break;
         }
@@ -162,13 +184,13 @@ async function accessInfo(user) {
     if (hasSubscription && hasLevel && initialized) {
         accessLevel = 3;
     }
-    if (hasSubscription && hasLevel && subscriptionValid) {
+    if (hasSubscription && hasLevel && initialized && subscriptionValid) {
         accessLevel = 4;
     }
-    if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts) {
+    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts) {
         accessLevel = 5;
     }
-    if (hasSubscription && hasLevel && subscriptionValid && hasWorkouts && !missedWorkouts || user.isAdmin) {
+    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts || user.isAdmin) {
         accessLevel = 6;
     }
     console.log("accessLevel (accessInfo): ", accessLevel);

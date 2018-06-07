@@ -73,12 +73,14 @@ export async function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
     let defaultShift = 0;
     console.log("rescheduleWorkouts user (workoutFunctions.js): ", user);
     let completedDates = [];
+    let lastCompletedDate = false;
     for (var K in user.workouts) {
         let W = user.workouts[K];
         let wDate = new Date(W.Date);        
         if (W.Completed) {
             nComplete ++;
             completedDates.push(wDate);
+            lastCompletedDate = wDate;
         }
         else { //If incomplete and less than now
             nIncomplete ++;
@@ -87,6 +89,13 @@ export async function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
             && wDate.getMonth() <= Now.getMonth()) {
                 defaultShift ++;
             }
+        }
+    }
+    if (lastCompletedDate != false) {
+        if (newStart.getDate() == lastCompletedDate.getDate()
+        && newStart.getMonth() == lastCompletedDate.getMonth()
+        && newStart.getYear() == lastCompletedDate.getYear()) {
+            newStart.setDate(newStart.getDate() + 1);
         }
     }
     // let pastW

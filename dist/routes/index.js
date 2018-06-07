@@ -681,6 +681,7 @@ router.post('/' + postURL, async function (req, res) {
 
 	if (req.body.ResetBtn) {
 		// reset();
+		var axiosPutResponse = await axios.put(WorkoutURL + "/clear", putBody);
 		res.redirect('/');
 		return;
 	}

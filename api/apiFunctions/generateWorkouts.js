@@ -124,7 +124,7 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                         if ((Level + patternInstance.deload) > 0) {
                             effectiveLevel = Level + patternInstance.deload;
                             // deloadIndicator = " (" + patternInstance.deload +")";
-                            deloadIndicator = " (" + "Level " + effectiveLevel +")";
+                            // deloadIndicator = " (" + "Level " + effectiveLevel +")";
                         }
                     }
                     let EObj = ExerciseDict.Exercises[patternInstance.type][effectiveLevel];

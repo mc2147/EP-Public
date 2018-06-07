@@ -95,7 +95,14 @@ router.get("/", function (req, res) {
 
 // Inputs: email, name, 
 router.post("/", async function (req, res) {
+    console.log('Signing up user');
     var newUser = await (0, _userFunctions.signupUser)(req.body);
+    if (newUser.userExists) {
+        console.log('user already exists!!!');
+        // res.json({
+        //     userExists:true,
+        // })
+    }
     if (newUser == false) {
         res.json({
             error: true,
@@ -118,6 +125,9 @@ router.post("/", async function (req, res) {
 
 router.post("/:username/login", async function (req, res) {
     console.log("username/login route hit", req.body);
+    var TZOffset = req.body.timezoneOffset;
+    req.session.timezoneOffset = req.body.timezoneOffset;
+    console.log('TZOffset: ', TZOffset);
     var username = req.params.username;
     var passwordInput = req.body.password;
     var Now = new Date(Date.now());
@@ -126,6 +136,8 @@ router.post("/:username/login", async function (req, res) {
             username: username
         }
     });
+    loginUser.TZOffset = TZOffset;
+    await loginUser.save();
     var viewingWID = 1;
     var nextWorkoutFound = false;
     if (!loginUser) {
@@ -201,17 +213,25 @@ router.post("/:username/login", async function (req, res) {
 });
 
 // router.get('/:id/forgot-password', async function(req, res) {
-router.post('/:id/forgot-password', async function (req, res) {
+router.post('/forgot-password', async function (req, res) {
+    var username = req.body.email;
     // testEmail:
     console.log("forgot password route hit");
-    var user = await _models.User.findById(req.params.id);
+    // let user = await User.findById(req.params.id);
+    var user = await _models.User.findOne({
+        where: {
+            username: username
+        }
+    });
+    console.log('changing password for user: ', user.username);
     var newPassword = Math.random().toString(36).slice(-8);
     var newHash = (0, _userFunctions.generateHash)(newPassword, user.salt);
-    // user.password = newHash;
-    // await user.save();
+    user.password = newHash;
+    await user.save();
     var passwordEmail = {
-        from: '"Matthew Chan" <matthewchan2147@gmail.com>',
-        to: 'matthewchan2147@gmail.com', //later: user.username,
+        from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
+        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        // to: user.username,
         subject: 'Password Reset [AlloyStrength Training]',
         text: 'Your new password for AlloyStrength Training is: ' + newPassword
     };
@@ -231,13 +251,15 @@ router.post('/:id/confirmation-email', async function (req, res) {
     // Assign confString to the user
     user.confString = confString;
     await user.save();
-    var confURL = process.env.BASE_URL + '/api/users/' + req.params.id + '/confirm/' + confString;
+    var productionconfURL = process.env.BASE_URL + '/api/users/' + req.params.id + '/confirm/' + confString;
+    var realconfURL = 'www.alloystrengthtraining.com/confirm/' + req.params.id + '/' + confString;
     // console.log('confURL: ', confURL);
-    var confHTML = '<p>This is the confirmation email for your AlloyStrength Training account. ' + 'Please click the link below to activate your account:<br><br>' + ('<a href="' + confURL + '"><b>Activate Your Account</b></a></p>');
+    var confHTML = '<p>This is the confirmation email for your AlloyStrength \n    Training account for: ' + user.username + ' ' + 'Please click the link below to activate your account:<br><br>' + ('<a href="' + realconfURL + '"><b>Activate Your Account</b></a></p>');
 
     var confEmail = {
-        from: '"Matthew Chan" <matthewchan2147@gmail.com>',
-        to: 'matthewchan2147@gmail.com', //later: user.username,
+        from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
+        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        // to: user.username,
         subject: 'Account Confirmation [AlloyStrength Training]',
         // text: `Your new password for AlloyStrength Training is: ${newPassword}`
         html: confHTML
@@ -521,7 +543,7 @@ router.post('/:id/renew-subscription', async function (req, res) {
             }]
         });
         console.log("line 426");
-        var response = await (0, _userFunctions.accessInfo)(user);
+        var response = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
         res.json(response);
         console.log("line 427");
         // // res.json(newSubscription);
@@ -580,7 +602,7 @@ router.get('/:id/reschedule-workouts', async function (req, res) {
         }
         workouts.push(workoutObj);
     }
-    var userAccess = await (0, _userFunctions.accessInfo)(user);
+    var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
     var accessLevel = userAccess.accessLevel;
     var response = {
         accessLevel: accessLevel,
@@ -640,10 +662,13 @@ router.delete('/:userId/stripe', async function (req, res) {
 });
 
 router.get("/:userId/access-info", async function (req, res) {
+    var TZOffset = req.body.timezoneOffset;
+    req.session.timezoneOffset = req.body.timezoneOffset;
+    console.log('TZOffset access-info: ', TZOffset);
     var user = await _models.User.findById(req.params.userId);
     var response = Object.assign({}, user);
     var Now = new Date(Date.now());
-    var returnObj = await (0, _userFunctions.accessInfo)(user);
+    var returnObj = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
     res.json(returnObj);
 });
 
@@ -660,13 +685,13 @@ router.get("/:userId/last-workout", async function (req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     };
-    var thisDate = new Date(Date.now());
+    var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function (date, index) {
-        if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
-            console.log(date.getDate(), new Date(Date.now()).getDate());
+        if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
+            console.log(date.getDate(), thisDate.getDate());
             var wID = index + 1;
             var relatedWorkout = _User.workouts[wID];
             response = relatedWorkout;
@@ -683,13 +708,13 @@ router.get("/:userId/last-workout/vue", async function (req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     };
-    var thisDate = new Date(Date.now());
+    var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
     var lastworkoutDate = {};
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function (date, index) {
-        if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
+        if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
             console.log(date.getDate(), new Date(Date.now()).getDate());
             var wID = index + 1;
             var relatedWorkout = _User.workouts[wID];
@@ -714,12 +739,12 @@ router.get("/:userId/workouts/last", async function (req, res) {
         notFound: true,
         text: "You have no completed workouts!"
     };
-    var thisDate = new Date(Date.now());
+    var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
     console.log("thisDate 1: ", thisDate);
     // thisDate.setDate(thisDate.getDate() + 7);
     console.log("thisDate: ", thisDate);
     _User.workoutDates.forEach(function (date, index) {
-        if (date.getTime() < thisDate.getTime() && date.getDate() < thisDate.getDate()) {
+        if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
             console.log(date.getDate(), new Date(Date.now()).getDate());
             var wID = index + 1;
             var relatedWorkout = _User.workouts[wID];
@@ -844,6 +869,7 @@ router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
     var level = _User.level;
     var newPatterns = await (0, _workoutFunctions.getblankPatterns)(_User.levelGroup, _User.blockNum, W, D, level);
     _User.workouts[req.params.workoutId].Patterns = newPatterns;
+    _User.workouts[req.params.workoutId].Completed = false;
     _User.changed('workouts', true);
     await _User.save();
     console.log("newPatterns for: ", newPatterns.number);
@@ -935,7 +961,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
     }
     console.log("thisID: ", thisID);
     var thisUser = await _models.User.findById(req.params.userId);
-    var userAccess = await (0, _userFunctions.accessInfo)(thisUser);
+    var userAccess = await (0, _userFunctions.accessInfo)(thisUser, req.session.timezoneOffset);
     console.log("userAccess: ", userAccess);
     var accessLevel = userAccess.accessLevel;
     var pasthiddenResponse = {
@@ -996,36 +1022,46 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         // else {
         //     accessible = false;            
         // }
+        var editable = false;
+        var noedits = false;
+
         if (todayDate == checkDate) {
             accessible = true;
         } else {
             accessible = false;
         }
         JSON.accessible = accessible;
-        var editable = false;
-        var noedits = false;
+
+        editable = !JSON.Completed && JSON.accessible;
+        // noedits = JSON.completed || !(JSON.accessible);
+        noedits = JSON.Completed;
+        var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
+        if (userAccess.accessLevel < 6) {
+            editable = false;
+            noedits = true;
+        }
+        // if ()
+        JSON.editable = editable;
+        JSON.noedits = noedits;
+        var workoutDatelist = [];
+        var userWorkouts = user.workouts;
+
+        var Now = new Date(Date.now() - user.TZOffset * 1000 * 60 * 60);
+        console.log('_WorkoutDate: ', _WorkoutDate);
+        console.log('Now: ', Now);
         if (user.isAdmin) {
             editable = true;
             noedits = false;
-        } else {
-            editable = !JSON.completed && JSON.accessible;
-            // noedits = JSON.completed || !(JSON.accessible);
-            noedits = JSON.completed;
-            var _userAccess = await (0, _userFunctions.accessInfo)(user);
-            if (_userAccess.accessLevel < 6) {
-                editable = false;
-                noedits = true;
-            }
-            // if ()
+        } else if (_WorkoutDate.getDate() != Now.getDate() || _WorkoutDate.getMonth() != Now.getMonth() || _WorkoutDate.getYear() != Now.getYear() || JSON.Completed) {
+            noedits = true;
+            editable = false;
         }
-        JSON.editable = editable;
         JSON.noedits = noedits;
+        console.log('\n\n noedits & editable: ', noedits, editable);
         var vueJSON = getVueInfo(JSON);
         vueJSON.accessible = accessible;
         vueJSON.noedits = noedits;
 
-        var workoutDatelist = [];
-        var userWorkouts = user.workouts;
         for (var K in userWorkouts) {
             var Workout = userWorkouts[K];
             if (!Workout.ID) {
@@ -1073,7 +1109,7 @@ router.put("/:userId/stats", function (req, res) {
 
 router.get('/:userId/profile-info/', async function (req, res) {
     var _User = await _models.User.findById(req.params.userId);
-    var userAccess = await (0, _userFunctions.accessInfo)(_User);
+    var userAccess = await (0, _userFunctions.accessInfo)(_User, req.session.timezoneOffset);
 
     var profileBody = {
         username: _User.username,
@@ -1137,7 +1173,7 @@ router.get('/:userId/stats/vue/get', function (req, res) {
                 vueData.nTesting++;
             }
         });
-        var userAccess = await (0, _userFunctions.accessInfo)(user);
+        var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
         vueData.accessLevel = userAccess.accessLevel;
         res.json(vueData);
     });
@@ -1189,7 +1225,7 @@ router.get('/:userId/progress/vue/get', function (req, res) {
                 vueData.nTesting++;
             }
         });
-        var userAccess = await (0, _userFunctions.accessInfo)(user);
+        var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
         vueData.accessLevel = userAccess.accessLevel;
         res.json(vueData);
     });
@@ -1215,7 +1251,9 @@ router.post("/:userId/oldstats", function (req, res) {
     });
 });
 
+// let {squatWeight, benchWeight, RPEExp, bodyWeight} = input; 
 router.put("/:userId/get-level", async function (req, res) {
+    console.log('get-level-route: ', req.body);
     var _User = await _models.User.findById(req.params.userId);
     var input = req.body;
     await (0, _workoutFunctions.assignLevel)(_User, input);
@@ -1385,6 +1423,9 @@ router.post("/:userId/admin/generate-workouts", async function (req, res) {
     }
 
     if (_User.level >= 11) {
+        if (_User.blockNum == 0) {
+            _User.blockNum = 1;
+        }
         if (req.body.blockNum) {
             _User.blockNum = parseInt(req.body.blockNum);
         }
@@ -1401,6 +1442,7 @@ router.post("/:userId/admin/generate-workouts", async function (req, res) {
         }
         _User.blockNum = 0;
     }
+    console.log('USER.LEVEL, BLOCKNUM: ', _User.level, _User.blockNum);
     await _User.save();
     var stringDate = false;
     if (req.body.stringDate) {
@@ -1425,12 +1467,12 @@ router.post("/:userId/old-stats/clear", async function (req, res) {});
 
 router.get("/:userId/videos", async function (req, res) {
     var videosUser = await _models.User.findById(req.params.userId);
-    var userAccess = await (0, _userFunctions.accessInfo)(videosUser);
+    var userAccess = await (0, _userFunctions.accessInfo)(videosUser, req.session.timezoneOffset);
     console.log('videosVue 1: ');
     var videos = VideosVue(VideosJSON, videosUser.level);
-    console.log('videosVue 2: ');
-    var _videos = VideosVue(LevelVideos, videosUser.level);
-    videos.videoList = videos.videoList.concat(_videos.videoList);
+    // console.log('videosVue 2: ');
+    // let _videos = VideosVue(LevelVideos, videosUser.level);
+    // videos.videoList = videos.videoList.concat(_videos.videoList);
 
     videos.accessLevel = userAccess.accessLevel;
     res.json(videos);

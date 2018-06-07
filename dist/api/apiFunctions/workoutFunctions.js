@@ -75,7 +75,7 @@ async function assignLevel(_User, input) {
         RPEExp = input.RPEExp,
         bodyWeight = input.bodyWeight;
 
-    if (squatWeight < benchWeight) {
+    if (squatWeight < bodyWeight) {
         _User.level = 1;
     } else if (squatWeight > bodyWeight * 1.5 && benchWeight > bodyWeight && RPEExp) {
         _User.level = 11;
@@ -88,6 +88,7 @@ async function assignLevel(_User, input) {
 async function rescheduleWorkouts(user, newStart, daysOfWeek) {
     var n = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
 
+    console.log('\n\nnewStart rescheduleWorkouts: ', newStart);
     var Now = new Date(Date.now());
     var nIncomplete = 0;
     var nComplete = 0;
@@ -123,9 +124,12 @@ async function rescheduleWorkouts(user, newStart, daysOfWeek) {
         var _W = user.workouts[K];
         if (!_W.Completed) {
             _W.Date = newDates[dateIndex];
+            user.workouts[K].date = newDates[dateIndex];
         }
         dateIndex++;
     }
+    user.workoutDates = newDates;
+    console.log('\n\n');
     await user.changed('workouts', true);
     await user.save();
     return newDates;

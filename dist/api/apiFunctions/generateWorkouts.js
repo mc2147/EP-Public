@@ -32,14 +32,14 @@ async function generateWorkouts(user, startDate, dayList) {
     if (stringDate) {
         //(input.startDate) vs. input.formattedDate
         var dateSplit = startDate.split("-");
-        dateObj = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1]) - 1, parseInt(dateSplit[2]) - 1);
+        dateObj = new Date(parseInt(dateSplit[0]), parseInt(dateSplit[1]) - 1, parseInt(dateSplit[2]));
     }
     var workoutDays = [parseInt(dayList[0]), parseInt(dayList[1]), parseInt(dayList[2])];
 
     var Level = user.level; //Determine N Workouts based on this
     var Group = user.levelGroup;
     var Block = user.blockNum;
-
+    console.log('generateWorkouts: ', Level, Group, Block);
     var TemplatesJSON = {};
 
     if (Level <= 5) {
@@ -134,7 +134,7 @@ async function generateWorkouts(user, startDate, dayList) {
                     if (Level + patternInstance.deload > 0) {
                         effectiveLevel = Level + patternInstance.deload;
                         // deloadIndicator = " (" + patternInstance.deload +")";
-                        deloadIndicator = " (" + "Level " + effectiveLevel + ")";
+                        // deloadIndicator = " (" + "Level " + effectiveLevel +")";
                     }
                 }
                 var EObj = _data.ExerciseDict.Exercises[patternInstance.type][effectiveLevel];
