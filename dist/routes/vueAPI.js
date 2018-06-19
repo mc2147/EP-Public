@@ -431,6 +431,8 @@ function getVueInfo(refDict) {
 		subDict.specialDescriber = Pattern.specialDescriber;
 		// subDict.describer = Pattern.describer;
 		subDict.describer += "test";
+		console.log("pushign subDict: ");
+		subDict.testing = true;
 		vueSubworkouts.push(subDict);
 	}
 
