@@ -156,14 +156,14 @@ function getVueInfo(refDict) {
 							repDict.value = "";
 							repDict.status = 'Empty';
 						}
+				}
+				// Carry
+				if (Pattern.workoutType == 'carry'
+				|| Pattern.noRPE) {
+						repDict.value = repDict.value + " (s)";
+						RPEDict.value = '---';
+						RPEDict.status = 'Fixed';
 					}
-					// Carry
-					else if (Pattern.workoutType == 'carry'
-					|| Pattern.noRPE) {
-							repDict.value = repDict.value + " (s)";
-							RPEDict.value = '---';
-							RPEDict.status = 'Fixed';
-						}
 
 			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
