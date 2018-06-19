@@ -303,27 +303,29 @@ function getVueInfo(refDict) {
 		}
 		subDict.number = Pattern.number;
 		subDict.submitWarning = false;
-		if (Pattern.workoutType == 'stop' && Pattern.specialStage < 1) {
-			subDict.hasButton = true;
-			subDict.submitWarning = true;
-			subDict.submitWarningMessage = 'You have unfinished Strength Stop sets ' 
-			+ '(click the "Get Next Set" button to receive your next Strength Stop set). Are you sure you want to submit?';
-			subDict.buttonDisplay = "Get Next Set";
-			subDict.buttonName = "getNextSet|Stop|" + Pattern.number;
-		} else if (Pattern.workoutType == 'drop' && Pattern.specialStage < 2) {
-			subDict.hasButton = true;
-			subDict.buttonDisplay = "Get Next Set";
-			subDict.submitWarning = true;
-			subDict.submitWarningMessage = 'You have unfinished Strength Stop sets ' 
-			+ '(click the "Get Next Set" button to receive your next Strength Drop set). Are you sure you want to submit?';
-			subDict.buttonName = "getNextSet|Drop|" + Pattern.number;
-		} else if (Pattern.alloy && Pattern.alloystatus.value == 0) {
-			subDict.hasButton = true;
-			subDict.buttonDisplay = "Get Alloy Set";
-			subDict.submitWarning = true;
-			subDict.submitWarningMessage = 'You have unfinished Alloy workouts ' 
-			+ '(click the "Get Alloy Set" button to receive your Alloy set). Are you sure you want to submit?';
-			subDict.buttonName = "getNextSet|Alloy|" + Pattern.number;
+		if (!_Completed && !noedits) {
+			if (Pattern.workoutType == 'stop' && Pattern.specialStage < 1) {
+				subDict.hasButton = true;
+				subDict.submitWarning = true;
+				subDict.submitWarningMessage = 'You have unfinished Strength Stop sets ' 
+				+ '(click the "Get Next Set" button to receive your next Strength Stop set). Are you sure you want to submit?';
+				subDict.buttonDisplay = "Get Next Set";
+				subDict.buttonName = "getNextSet|Stop|" + Pattern.number;
+			} else if (Pattern.workoutType == 'drop' && Pattern.specialStage < 2) {
+				subDict.hasButton = true;
+				subDict.buttonDisplay = "Get Next Set";
+				subDict.submitWarning = true;
+				subDict.submitWarningMessage = 'You have unfinished Strength Stop sets ' 
+				+ '(click the "Get Next Set" button to receive your next Strength Drop set). Are you sure you want to submit?';
+				subDict.buttonName = "getNextSet|Drop|" + Pattern.number;
+			} else if (Pattern.alloy && Pattern.alloystatus.value == 0) {
+				subDict.hasButton = true;
+				subDict.buttonDisplay = "Get Alloy Set";
+				subDict.submitWarning = true;
+				subDict.submitWarningMessage = 'You have unfinished Alloy workouts ' 
+				+ '(click the "Get Alloy Set" button to receive your Alloy set). Are you sure you want to submit?';
+				subDict.buttonName = "getNextSet|Alloy|" + Pattern.number;
+			}
 		}
 		// 
 		if (Pattern.alloy) {
