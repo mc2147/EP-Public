@@ -341,7 +341,11 @@ function getVueInfo(refDict) {
 			subDict.selectedVideo = Pattern.selectedVideo;
 		}
 		if (Pattern.workoutType == 'bodyweight') {
-			subDict.describer = Pattern.reps + " x bodyweight @ " + Pattern.RPE + " RPE";
+			subDict.describer = Pattern.sets + " sets @ " + Pattern.RPE + " (bodyweight)";
+			// subDict.describer = Pattern.reps + " x bodyweight @ " + Pattern.RPE + " RPE";
+			if (Pattern.noRPE) {
+				subDict.describer = Pattern.sets + " x " + Pattern.reps + " (bodyweight)";
+			}
 		}
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
 			// subDict.RPEOptions = newRPEOptions;			
@@ -429,7 +433,7 @@ function getVueInfo(refDict) {
 		}
 		subDict.specialDescriber = Pattern.specialDescriber;
 		// subDict.describer = Pattern.describer;
-		subDict.describer += "test";
+		// subDict.describer += "test";
 		console.log("pushign subDict: ");
 		subDict.testing = true;
 		vueSubworkouts.push(subDict);
