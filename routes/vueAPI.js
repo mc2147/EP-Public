@@ -303,7 +303,7 @@ function getVueInfo(refDict) {
 		}
 		subDict.number = Pattern.number;
 		subDict.submitWarning = false;
-		if (!_Completed && !noedits) {
+		if (!_Completed && !refDict.noedits) {
 			if (Pattern.workoutType == 'stop' && Pattern.specialStage < 1) {
 				subDict.hasButton = true;
 				subDict.submitWarning = true;
