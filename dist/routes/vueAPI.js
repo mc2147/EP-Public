@@ -158,12 +158,15 @@ function getVueInfo(refDict) {
 						}
 				}
 				// Carry
-				if (Pattern.workoutType == 'carry'
-				|| Pattern.noRPE) {
+				if (Pattern.workoutType == 'carry') {
 						repDict.value = repDict.value + " (s)";
 						RPEDict.value = '---';
 						RPEDict.status = 'Fixed';
 					}
+				if (Pattern.noRPE) {
+					RPEDict.value = '---';
+					RPEDict.status = 'Fixed';				
+				}
 
 			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
@@ -272,6 +275,7 @@ function getVueInfo(refDict) {
 		}
 		//One per PATTERN
 		var subDict = {
+			noRPE: Pattern.noRPE,
 			name: Pattern.name,
 			type: Pattern.type,
 			class: Pattern.workoutType,
