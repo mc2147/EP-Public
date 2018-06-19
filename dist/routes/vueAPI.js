@@ -424,7 +424,7 @@ function getVueInfo(refDict) {
 			subDict.describer += " second carry";
 		}
 		subDict.specialDescriber = Pattern.specialDescriber;
-		subDict.describer = Pattern.describer;
+		// subDict.describer = Pattern.describer;
 
 		vueSubworkouts.push(subDict);
 	}

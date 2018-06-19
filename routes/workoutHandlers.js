@@ -48,7 +48,7 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
         if (inputType == "W" 
             && input && setNum <= _nSets) {
             setDict.Weight = parseInt(body[K]);
-            if (setDict.RPE || thisPattern.workoutType == 'carry') {
+            if (setDict.RPE || thisPattern.workoutType == 'carry' || thisPattern.noRPE) {
                 setDict.Filled = true;
             } 
         }
