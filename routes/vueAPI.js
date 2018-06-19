@@ -234,6 +234,12 @@ function getVueInfo(refDict) {
 				// repLists.fixed.push(Pattern.alloyperformed + " FAILED");
 				// weightLists.fixed.push(Pattern.alloyweight);
 			}
+			else if (Pattern.alloystatus.value == 3) {
+				repDict.value = "UNFINISHED";
+				repDict.status = 'Fixed';
+				weightDict.value = Pattern.alloyweight;
+				weightDict.status = 'Fixed';				
+			}
 			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
 				weightDict.status = 'Fixed';

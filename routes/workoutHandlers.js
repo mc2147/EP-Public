@@ -260,7 +260,9 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
                 lastSetPattern.alloyweight = AlloyWeight;
                 lastSetPattern.alloystatus = Alloy.Testing;
                 lastSetStat.Status = Alloy.Testing;
-
+                if (submit) {
+                    lastSetStat.Status = Alloy.Unfinished;                    
+                }
                 console.log("Alloy Show: ", lastSetPattern.alloystatus, " last set: ", EType, Val.ID);
             }
         }
