@@ -95,12 +95,14 @@ async function rescheduleWorkouts(user, newStart, daysOfWeek) {
     var defaultShift = 0;
     console.log("rescheduleWorkouts user (workoutFunctions.js): ", user);
     var completedDates = [];
+    var lastCompletedDate = false;
     for (var K in user.workouts) {
         var W = user.workouts[K];
         var wDate = new Date(W.Date);
         if (W.Completed) {
             nComplete++;
             completedDates.push(wDate);
+            lastCompletedDate = wDate;
         } else {
             //If incomplete and less than now
             nIncomplete++;
@@ -108,6 +110,11 @@ async function rescheduleWorkouts(user, newStart, daysOfWeek) {
             wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
                 defaultShift++;
             }
+        }
+    }
+    if (lastCompletedDate != false) {
+        if (newStart.getDate() == lastCompletedDate.getDate() && newStart.getMonth() == lastCompletedDate.getMonth() && newStart.getYear() == lastCompletedDate.getYear()) {
+            newStart.setDate(newStart.getDate() + 1);
         }
     }
     // let pastW
@@ -314,12 +321,17 @@ async function getblankPatterns(lGroup, block, W, D, level) {
     var subsURL = '/api/workout-templates/' + lGroup + '/block/' + block + '/week/' + W + '/day/' + D + '/subworkouts';
     var subsResponse = await _axios2.default.get(process.env.BASE_URL + subsURL);
     var subsList = subsResponse.data;
+    console.log('getBlankPatterns subsList: ', subsList);
+    console.log('subsList.length: ', subsList.length);
     subsList.sort(function (a, b) {
         return a.number - b.number;
     });
+    console.log('subsList.length post: ', subsList.length);
     for (var i = 0; i < subsList.length; i++) {
+        console.log('i: ', i);
         var sub = subsList[i];
         var patternInstance = sub.patternFormat;
+        // console.log('sub.patternFormat: ', sub.patternFormat);
         var EType = sub.exerciseType;
         if (EType == "Med Ball") {
             EType = "Medicine Ball";
@@ -342,11 +354,12 @@ async function getblankPatterns(lGroup, block, W, D, level) {
             };
 
             var LevelList = [];
-            for (var i = 1; i <= 25; i++) {
-                LevelList.push(i);
+            for (var x = 1; x <= 25; x++) {
+                LevelList.push(x);
             }
             patternInstance.selectedVideo.levels = LevelList.slice(findVideo.LevelAccess - 1);
         }
+        console.log('line 345. I: ', i, 'subsList.length: ', subsList.length);
         blankPatterns.push(patternInstance);
     }
     console.log("getBlankPatterns: ", blankPatterns);

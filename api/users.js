@@ -875,6 +875,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
         }
         _User.stats["Level Up"].Status.Checked = true;
         _User.changed( 'stats', true);
+        _User.workoutDates = []; //Added 6/15/2018
         await _User.save();
         body.lastWorkout = true;
     }
@@ -938,10 +939,14 @@ let suggestWeights = async function (user, workoutId) {
                 }
                 else {
                     set.suggestedWeight = getWeight(relatedMax, set.Reps, set.SuggestedRPE)
-                    if (minSuggestedWeight == 0 || set.suggestedWeight < minSuggestedWeight) {
+                    if (minSuggestedWeight == 0 
+                        // || set.suggestedWeight < minSuggestedWeight
+                    ) {
                         minSuggestedWeight = set.suggestedWeight;
                     }
-                    if (maxSuggestedWeight == 0 || set.suggestedWeight > maxSuggestedWeight) {
+                    if (maxSuggestedWeight == 0 
+                        // || set.suggestedWeight > maxSuggestedWeight
+                    ) {
                         maxSuggestedWeight = set.suggestedWeight;
                     }
                     if (set.suggestedWeight == 0) {

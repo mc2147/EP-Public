@@ -48,7 +48,7 @@ var bcrypt = require('bcryptjs');
 var router = express.Router();
 
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
+console.log('secret key: ', process.env.STRIPE_SECRET_KEY);
 // var models = require('../models');
 // 	var Exercise = models.Exercise;
 // 	var WorkoutTemplate = models.WorkoutTemplate;
@@ -230,8 +230,8 @@ router.post('/forgot-password', async function (req, res) {
     await user.save();
     var passwordEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
-        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-        // to: user.username,
+        // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        to: user.username,
         subject: 'Password Reset [AlloyStrength Training]',
         text: 'Your new password for AlloyStrength Training is: ' + newPassword
     };
@@ -258,8 +258,8 @@ router.post('/:id/confirmation-email', async function (req, res) {
 
     var confEmail = {
         from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
-        to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-        // to: user.username,
+        // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+        to: user.username,
         subject: 'Account Confirmation [AlloyStrength Training]',
         // text: `Your new password for AlloyStrength Training is: ${newPassword}`
         html: confHTML
@@ -828,7 +828,9 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
     var workoutId = req.params.workoutId;
     var body = req.body;
     body.lastWorkout = false;
+    // Update user's level-up status every time we 'saveWorkout'   
     await saveWorkout(body, _User, req.params.workoutId, true);
+    // Level Up check here -> if last workout
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];
@@ -872,7 +874,7 @@ router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
     _User.workouts[req.params.workoutId].Completed = false;
     _User.changed('workouts', true);
     await _User.save();
-    console.log("newPatterns for: ", newPatterns.number);
+    console.log("newPatterns for: ", req.params.workoutId);
     // let newPatterns = {};
     res.json(newPatterns);
 });

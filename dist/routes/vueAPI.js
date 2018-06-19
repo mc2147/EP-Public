@@ -279,9 +279,12 @@ function getVueInfo(refDict) {
 			dataTableItems: dataTableItems, //Rows -> 1 row per SET
 			sets: Pattern.sets //N Sets
 		};
-		var repString =
+		// var repString =
 		// if ()
 		subDict.describer = Pattern.sets + " x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
+		if (!Pattern.RPE) {
+			subDict.describer = Pattern.sets + " x " + Pattern.reps;			
+		}
 		subDict.number = Pattern.number;
 		if (Pattern.workoutType == 'stop' && Pattern.specialStage < 1) {
 			subDict.hasButton = true;
@@ -407,6 +410,10 @@ function getVueInfo(refDict) {
 			// 	RPEDict.value = Pattern.dropRPE;
 			// 	RPEDict.status = 'Fixed';					
 			// }
+		}
+		if (!subDict.warnNextSet) {
+			subDict.warnNextSet = false;
+			subDict.warningText = '';
 		}
 
 		if (Pattern.alloy) {
