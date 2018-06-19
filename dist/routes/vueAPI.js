@@ -158,7 +158,8 @@ function getVueInfo(refDict) {
 						}
 					}
 					// Carry
-					else if (Pattern.workoutType == 'carry') {
+					else if (Pattern.workoutType == 'carry'
+					|| Pattern.noRPE) {
 							repDict.value = repDict.value + " (s)";
 							RPEDict.value = '---';
 							RPEDict.status = 'Fixed';
@@ -425,7 +426,7 @@ function getVueInfo(refDict) {
 		}
 		subDict.specialDescriber = Pattern.specialDescriber;
 		// subDict.describer = Pattern.describer;
-
+		subDict.describer += "test";
 		vueSubworkouts.push(subDict);
 	}
 
