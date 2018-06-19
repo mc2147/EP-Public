@@ -341,7 +341,7 @@ function getVueInfo(refDict) {
 			subDict.selectedVideo = Pattern.selectedVideo;
 		}
 		if (Pattern.workoutType == 'bodyweight') {
-			subDict.describer = Pattern.sets + " sets @ " + Pattern.RPE + " (bodyweight)";
+			subDict.describer = Pattern.sets + " sets @ " + Pattern.RPE + " RPE (bodyweight)";
 			// subDict.describer = Pattern.reps + " x bodyweight @ " + Pattern.RPE + " RPE";
 			if (Pattern.noRPE) {
 				subDict.describer = Pattern.sets + " x " + Pattern.reps + " (bodyweight)";
