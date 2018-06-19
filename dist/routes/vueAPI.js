@@ -18,6 +18,7 @@ var vueConvert = {
 };
 
 function getVueInfo(refDict) {
+	console.log("getVueInfo getting called (line 21)");
 	var _Completed = false;
 	if (refDict.Completed) {
 		_Completed = true;
@@ -437,6 +438,7 @@ function getVueInfo(refDict) {
 	}
 
 	return {
+		test:true,
 		date: vueConvert.Date(refDict["thisWorkoutDate"]),
 		// date: refDict["thisWorkoutDate"],
 		describer: refDict.Describer,
