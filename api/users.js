@@ -1089,6 +1089,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
         JSON.noedits = noedits;
         console.log('\n\n noedits & editable: ', noedits, editable);
         var vueJSON = getVueInfo(JSON);
+        console.log('getVueInfo just got called (line 1092)');
         vueJSON.accessible = accessible;
         vueJSON.noedits = noedits;
         
