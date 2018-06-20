@@ -121,7 +121,7 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
         else if (inputCode[2] == "Alloy") {
             var RepPerformance = parseInt(body[K]);
             thisPattern.alloyperformed = RepPerformance;
-            console.log('RepPerformance: ', RepPerformance);
+            console.log('RepPerformance: ', RepPerformance, thisPattern.alloyperformed);
             if (submit) {
                 if (RepPerformance >= thisPattern.alloyreps) {                
                     thisStats.Status = Alloy.Passed;
