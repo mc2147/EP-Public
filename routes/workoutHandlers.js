@@ -120,28 +120,28 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
         else if (inputCode[2] == "Alloy") {
             var RepPerformance = parseInt(body[K]);
             thisPattern.alloyperformed = RepPerformance;
-            if (RepPerformance >= thisPattern.alloyreps) {
+            if (submit) {
+                if (RepPerformance >= thisPattern.alloyreps) {                
+                    thisStats.Status = Alloy.Passed;
+                    thisPattern.alloystatus = Alloy.Passed;
+                    
+                    console.log("ALLOY PASSED");				
+                }
+                else {
+                    
+                    thisStats.Status = Alloy.Failed;
+                    thisPattern.alloystatus = Alloy.Failed;
+    
+                    console.log("ALLOY FAILED");				
+                }
                 
-                thisStats.Status = Alloy.Passed;
-                thisPattern.alloystatus = Alloy.Passed;
-                
-                console.log("ALLOY PASSED");				
+                var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight 
+                + " lbs @ " + 10 + " RPE (Alloy) " + allStats[_EType].Status.string;
+                console.log("_EType Error: " + _EType);
+                thisStats.LastSet = setDescription;
+                thisPattern.LastSet = setDescription;
+                thisStats.Name = thisPattern.name;
             }
-            else {
-                
-                thisStats.Status = Alloy.Failed;
-                thisPattern.alloystatus = Alloy.Failed;
-
-                console.log("ALLOY FAILED");				
-            }
-            
-            var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight 
-            + " lbs @ " + 10 + " RPE (Alloy) " + allStats[_EType].Status.string;
-            console.log("_EType Error: " + _EType);
-            thisStats.LastSet = setDescription;
-            thisPattern.LastSet = setDescription;
-
-            thisStats.Name = thisPattern.name;
         }
     }
 

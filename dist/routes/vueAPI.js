@@ -217,6 +217,10 @@ function getVueInfo(refDict) {
 			} else if (Pattern.alloystatus.value == 2) {
 				repDict.status = 'Empty';
 				repDict.value = null;
+				if (Pattern.alloyperformed || Pattern.alloyperformed == 0) {
+					repDict.status = 'Filled';
+					repDict.value = Pattern.alloyperformed;						
+				}
 				weightDict.value = Pattern.alloyweight;
 				weightDict.status = 'Fixed';
 				// repLists.inputs.push(Pattern.alloyreps);
