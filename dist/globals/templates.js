@@ -24,6 +24,7 @@ var userStatTemplate = {
     "Medicine Ball": { Status: Alloy.None, Max: null, LastSet: "", Name: "" },
     "Level Up": {
         Status: Alloy.None,
+        Checked: false,
         Squat: Alloy.None,
         UBHorPush: Alloy.None,
         Hinge: Alloy.None

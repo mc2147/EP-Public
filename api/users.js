@@ -853,7 +853,9 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
         if (_User.level >= 11 && _User.blockNum == 1) {
             _User.blockNum = 2;
         }
-        else if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
+        else if (!levelUpStats.Status.Checked 
+            && !levelUpStats.Checked
+            && levelUpStats.Status.value == 1) {
             _User.level ++;
             if (_User.level >= 11) {
                 if (_User.level >= 16) {
@@ -874,8 +876,10 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
             }            
         }
         _User.stats["Level Up"].Status.Checked = true;
+        _User.stats["Level Up"].Checked = true;
         _User.changed( 'stats', true);
-        _User.workoutDates = []; //Added 6/15/2018
+        // _User.workoutDates = []; //Added 6/15/2018
+        // _User.workouts = {};
         await _User.save();
         body.lastWorkout = true;
     }
