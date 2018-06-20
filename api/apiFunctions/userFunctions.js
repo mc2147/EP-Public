@@ -179,10 +179,12 @@ export async function accessInfo(user, timezoneOffset=0) {
     if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts) {
         accessLevel = 5;       
     }
-    if (
-    (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts)
-    || user.isAdmin) {
+    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts) {
         accessLevel = 6;       
+    }
+    let nonAdminAccess = accessLevel;
+    if (user.isAdmin) {
+        accessLevel = 6;
     }
     console.log("accessLevel (accessInfo): ", accessLevel);
     return {
@@ -197,6 +199,7 @@ export async function accessInfo(user, timezoneOffset=0) {
         hasWorkouts,
         missedWorkouts,
         // Access Level
-        accessLevel
+        accessLevel,
+        nonAdminAccess
     }                        
 }
