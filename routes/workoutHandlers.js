@@ -9,6 +9,7 @@ let maxStopSets = 3;
 let maxDropSets = 3;
 
 async function saveWorkout(body, userInstance, vWID, submit=false) {
+    console.log('SAVE WORKOUT GETTING CALLED!!!!!');
     // console.log("workoutHandler 8");        
     var lastSets = {};
     var allWorkouts = userInstance.workouts;
@@ -120,6 +121,7 @@ async function saveWorkout(body, userInstance, vWID, submit=false) {
         else if (inputCode[2] == "Alloy") {
             var RepPerformance = parseInt(body[K]);
             thisPattern.alloyperformed = RepPerformance;
+            console.log('RepPerformance: ', RepPerformance);
             if (submit) {
                 if (RepPerformance >= thisPattern.alloyreps) {                
                     thisStats.Status = Alloy.Passed;
