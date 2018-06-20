@@ -126,7 +126,7 @@ export async function accessInfo(user, timezoneOffset=0) {
         hasLevel = false;
     }
     if (!user.stats["Level Up"].Checked) {
-        hasWorkouts = false;
+        hasWorkouts = true;
     }
     // if (user.workoutDates.length > 0) {
     //     hasWorkouts = true;
