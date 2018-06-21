@@ -93,7 +93,7 @@ function getVueInfo(refDict) {
 			if (set.SuggestedRPE && set.SuggestedRPE != "---") {
 				RPEDict.suggested = set.SuggestedRPE;
 			}
-			let tempoStringVal = ' | | ';
+			let tempoStringVal = '';
 			let tempoVal = ['', '', ''];
 			if (Pattern.hasTempo) {
 				tempoStringVal = "3|2|X";
