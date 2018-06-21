@@ -28,30 +28,32 @@ export async function signupUser(input) {
     let userExists = false;
     if (existingUser) {
         userExists = true;
-        return {
-            userExists,
-        }
+        // return {
+        //     userExists,
+        // }
     }
     var salt = generateSalt();
     if (P1 == P2) {
         var hashedPassword = generateHash(P1, salt);
-        var newUser = await User.create({
-            // id: 29,
-            username: username,
-            name,
-            salt: salt,
-            password: hashedPassword,
-        });
-        if (newUser) {
-            return({
-                userExists,
-                newUser,
-                session: {
-                    userId: newUser.id,
-                    username: username,
-                    User: newUser,        
-                }
+        if (!userExists) {
+            var newUser = await User.create({
+                // id: 29,
+                username: username,
+                name,
+                salt: salt,
+                password: hashedPassword,
             });
+            if (newUser) {
+                return({
+                    userExists,
+                    newUser,
+                    session: {
+                        userId: newUser.id,
+                        username: username,
+                        User: newUser,        
+                    }
+                });
+            }
         }
         else {
             return({
