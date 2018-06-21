@@ -2,7 +2,7 @@
 console.log("seeding users");
 // const createUsers = require('../models/createUser');
 const {CreateUser, SetUser} = require('../models/createUser');
-const {WorkoutTemplate, SubWorkoutTemplate, User, Video} = '../models';
+const {WorkoutTemplate, SubWorkoutTemplate, User, Video} = require('../models/index');
 
 var DayValue = 24*3600*1000;
 var oldDate = new Date(Date.now() - 10*DayValue);

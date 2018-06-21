@@ -50,27 +50,32 @@ async function signupUser(input) {
     var userExists = false;
     if (existingUser) {
         userExists = true;
+        // return {
+        //     userExists,
+        // }
     }
     var salt = generateSalt();
     if (P1 == P2) {
         var hashedPassword = generateHash(P1, salt);
-        var newUser = await _models.User.create({
-            // id: 29,
-            username: username,
-            name: name,
-            salt: salt,
-            password: hashedPassword
-        });
-        if (newUser) {
-            return {
-                userExists: userExists,
-                newUser: newUser,
-                session: {
-                    userId: newUser.id,
-                    username: username,
-                    User: newUser
-                }
-            };
+        if (!userExists) {
+            var newUser = await _models.User.create({
+                // id: 29,
+                username: username,
+                name: name,
+                salt: salt,
+                password: hashedPassword
+            });
+            if (newUser) {
+                return {
+                    userExists: userExists,
+                    newUser: newUser,
+                    session: {
+                        userId: newUser.id,
+                        username: username,
+                        User: newUser
+                    }
+                };
+            }
         } else {
             return {
                 userExists: userExists,
@@ -144,7 +149,7 @@ async function accessInfo(user) {
     if (!user.level || user.level == 0 || user.level == null) {
         hasLevel = false;
     }
-    if (!user.stats["Level Up"].Checked) {
+    if (user.stats["Level Up"] && !user.stats["Level Up"].Checked) {
         hasWorkouts = true;
     }
     // if (user.workoutDates.length > 0) {

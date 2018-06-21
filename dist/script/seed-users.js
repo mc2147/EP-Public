@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 // const models = require('../models');
 console.log("seeding users");
@@ -8,11 +8,19 @@ var _require = require('../models/createUser'),
     CreateUser = _require.CreateUser,
     SetUser = _require.SetUser;
 
+var _require2 = require('../models/index'),
+    WorkoutTemplate = _require2.WorkoutTemplate,
+    SubWorkoutTemplate = _require2.SubWorkoutTemplate,
+    User = _require2.User,
+    Video = _require2.Video;
+
 var DayValue = 24 * 3600 * 1000;
 var oldDate = new Date(Date.now() - 10 * DayValue);
 var thisDate = new Date(Date.now());
 
 async function generateUsers() {
+  await User.destroy({ where: {} });
+  console.log('existing users destroyed');
   await CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
   await CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
   await CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);

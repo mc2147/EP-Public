@@ -13,7 +13,8 @@ var onlineURL = "https://immense-mesa-37246.herokuapp.com";
 // var localURL = (herokuLocal) ? "http://localhost:5000" : "http://localhost:3000";
 var localURL = "http://localhost:5000";
 
-var onlineCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
+// var onlineCORS = 'http://alloystrength.s3-website-us-east-1.amazonaws.com';
+var onlineCORS = 'https://www.electrumperformance.com';
 var localCORS = "http://localhost:8080";
 
 console.log("process.env.PORT: ", process.env.PORT);

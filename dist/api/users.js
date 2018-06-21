@@ -99,9 +99,10 @@ router.post("/", async function (req, res) {
     var newUser = await (0, _userFunctions.signupUser)(req.body);
     if (newUser.userExists) {
         console.log('user already exists!!!');
-        // res.json({
-        //     userExists:true,
-        // })
+        res.json({
+            userExists: true
+        });
+        return;
     }
     if (newUser == false) {
         res.json({
@@ -232,8 +233,8 @@ router.post('/forgot-password', async function (req, res) {
         from: '"Electrum Performance" <electrumperformance@gmail.com>',
         // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
         to: user.username,
-        subject: 'Password Reset [AlloyStrength Training]',
-        text: 'Your new password for AlloyStrength Training is: ' + newPassword
+        subject: 'Password Reset [Electrum Performance]',
+        text: 'Your new password for Electrum Performance is: ' + newPassword
     };
     (0, _email.sendMail)(passwordEmail);
     res.json({
@@ -252,15 +253,15 @@ router.post('/:id/confirmation-email', async function (req, res) {
     user.confString = confString;
     await user.save();
     var productionconfURL = process.env.BASE_URL + '/api/users/' + req.params.id + '/confirm/' + confString;
-    var realconfURL = 'www.alloystrengthtraining.com/confirm/' + req.params.id + '/' + confString;
+    var realconfURL = 'www.electrumperformance.com/confirm/' + req.params.id + '/' + confString;
     // console.log('confURL: ', confURL);
-    var confHTML = '<p>This is the confirmation email for your AlloyStrength \n    Training account for: ' + user.username + ' ' + 'Please click the link below to activate your account:<br><br>' + ('<a href="' + realconfURL + '"><b>Activate Your Account</b></a></p>');
+    var confHTML = '<p>This is the confirmation email for your Electrum Performance\n     account for: ' + user.username + ' ' + 'Please click the link below to activate your account:<br><br>' + ('<a href="' + realconfURL + '"><b>Activate Your Account</b></a></p>');
 
     var confEmail = {
-        from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
+        from: '"Electrum Performance" <electrumperformance@gmail.com>',
         // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
         to: user.username,
-        subject: 'Account Confirmation [AlloyStrength Training]',
+        subject: 'Account Confirmation [Electrum Performance]',
         // text: `Your new password for AlloyStrength Training is: ${newPassword}`
         html: confHTML
     };
