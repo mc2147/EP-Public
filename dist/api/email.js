@@ -17,19 +17,48 @@ var transporter = nodemailer.createTransport({
     }
 });
 
+// transporter = nodemailer.createTransport({
+//     service: 'Godaddy',
+//     secure: true,
+//     host: 'smtpout.secureserver.net',
+//     port: 465,
+//     auth: {
+//         user: 'bryce@electrumperformance.com',
+//         pass: 'password127!!'
+//     },
+// });
+
+
+// let transporter = nodemailer.createTransport({    
+//     service: 'Godaddy',
+//     // host: "smtpout.secureserver.net",  
+//     // secureConnection: true,
+//     // secure:true,
+//     // port: 465,
+//     // secure:false,
+//     secureConnection: false,
+//     port: 587,
+//     auth: {
+//         user: "bryce@electrumperformance.com",
+//         pass: "password127!!" 
+//     }
+// });
+
 router.get("/", function (req, res) {
     res.json("email");
 });
 
 var testEmail = {
-    from: '"Matthew Chan" <matthewchan2147@gmail.com>',
+    from: '"Electrum Performance" <electrumperformance@gmail.com>',
     to: 'matthewchan2147@gmail.com',
     subject: 'Test email',
     text: 'This is a test email for AlloyStrength Training'
 };
 
 var sendMail = function sendMail(input) {
+    console.log('SENDING TEST MAIL');
     transporter.sendMail(input, function (error, info) {
+        console.log('line 44');
         if (error) {
             console.log(error);
         }

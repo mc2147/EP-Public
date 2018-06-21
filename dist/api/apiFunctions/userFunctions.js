@@ -144,12 +144,15 @@ async function accessInfo(user) {
     if (!user.level || user.level == 0 || user.level == null) {
         hasLevel = false;
     }
-    if (user.workoutDates.length > 0) {
+    if (!user.stats["Level Up"].Checked) {
         hasWorkouts = true;
     }
-    if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {}
+    // if (user.workoutDates.length > 0) {
+    //     hasWorkouts = true;
+    // }
+    // if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
     // initialized = true;
-
+    // }
     // Checking for missed workouts
     console.log("Now: ", Now);
     for (var K in user.workouts) {
@@ -190,7 +193,11 @@ async function accessInfo(user) {
     if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts) {
         accessLevel = 5;
     }
-    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts || user.isAdmin) {
+    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts) {
+        accessLevel = 6;
+    }
+    var nonAdminAccess = accessLevel;
+    if (user.isAdmin) {
         accessLevel = 6;
     }
     console.log("accessLevel (accessInfo): ", accessLevel);
@@ -206,6 +213,7 @@ async function accessInfo(user) {
         hasWorkouts: hasWorkouts,
         missedWorkouts: missedWorkouts,
         // Access Level
-        accessLevel: accessLevel
+        accessLevel: accessLevel,
+        nonAdminAccess: nonAdminAccess
     };
 }

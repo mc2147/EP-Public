@@ -258,7 +258,8 @@ function rescheduleWorkouts(user, newStart, daysOfWeek, n=0) {
 		}
 		else {
 			nIncomplete ++;
-			if (wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+			if (wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()
+			&& wDate.getFullYear() <= Now.getFullYear()) {
 				defaultShift ++;
 			}
 		}

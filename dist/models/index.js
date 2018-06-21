@@ -249,6 +249,11 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
             for (var i = 0; i < pattern.sets; i++) {
                 var Reps = this.reps;
                 var RPE = this.RPE;
+                var noSuggestedRPE = false;
+                if (!RPE) {
+                    RPE = false;
+                    noSuggestedRPE = true;
+                }
                 // Check for RPE Ranges
                 if (this.RPE == null) {
                     if (this.RPERange.length > 0) {
@@ -274,6 +279,7 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
                     Weight: null,
                     RPE: null,
                     SuggestedRPE: RPE,
+                    noSuggestedRPE: noSuggestedRPE,
                     Reps: Reps,
                     // Tempo: [null, null, null],
                     Filled: false,
@@ -299,9 +305,17 @@ var SubWorkoutTemplate = db.define('SubWorkoutTemplate', {
                     RPEString = pattern.RPE;
                 }
             }
-            RPEString += " RPE";
+            // RPEString += " RPE";
+            if (RPEString != "") {
+                RPEString = " @ " + RPEString + " RPE";
+                pattern.hasRPE = true;
+                pattern.noRPE = false;
+            } else {
+                pattern.hasRPE = false;
+                pattern.noRPE = true;
+            }
             // if (pattern.alloy) {
-            pattern.describer = setString + " x " + repString + " @ " + RPEString;
+            pattern.describer = setString + " x " + repString + RPEString;
             // }
             if (!this.reps && (!this.repsList || this.repsList.length < 1)) {
                 pattern.describer = setString + " sets @ " + RPEString + " (bodyweight)";

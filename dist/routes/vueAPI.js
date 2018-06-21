@@ -157,17 +157,17 @@ function getVueInfo(refDict) {
 							repDict.value = "";
 							repDict.status = 'Empty';
 						}
-				}
-				// Carry
-				if (Pattern.workoutType == 'carry') {
-						repDict.value = repDict.value + " (s)";
-						RPEDict.value = '---';
-						RPEDict.status = 'Fixed';
 					}
-				if (Pattern.noRPE) {
-					RPEDict.value = '---';
-					RPEDict.status = 'Fixed';				
-				}
+			// Carry
+			if (Pattern.workoutType == 'carry') {
+				repDict.value = repDict.value + " (s)";
+				RPEDict.value = '---';
+				RPEDict.status = 'Fixed';
+			}
+			if (Pattern.noRPE) {
+				RPEDict.value = '---';
+				RPEDict.status = 'Fixed';
+			}
 
 			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
@@ -211,7 +211,13 @@ function getVueInfo(refDict) {
 				code: Pattern.number + "|T|" + "Alloy",
 				alloy: true
 				// RPELists.fixed.push(10);					
-			};if (Pattern.alloystatus.value == 0) {
+			};
+
+			var alloyPerformed = "";
+			if (Pattern.alloyperformed) {
+				alloyPerformed = Pattern.alloyperformed + " ";
+			}
+			if (Pattern.alloystatus.value == 0) {
 				// repLists.fixed.push(Pattern.alloyreps);
 				// weightLists.fixed.push("Alloy Weight");
 			} else if (Pattern.alloystatus.value == 2) {
@@ -220,26 +226,31 @@ function getVueInfo(refDict) {
 				console.log('Pattern.alloyperformed: ', Pattern.alloyperformed);
 				if (Pattern.alloyperformed || Pattern.alloyperformed == 0) {
 					repDict.status = 'Filled';
-					repDict.value = Pattern.alloyperformed;						
+					repDict.value = Pattern.alloyperformed;
 				}
 				weightDict.value = Pattern.alloyweight;
 				weightDict.status = 'Fixed';
 				// repLists.inputs.push(Pattern.alloyreps);
 				// weightLists.fixed.push(Pattern.alloyweight);
 			} else if (Pattern.alloystatus.value == 1) {
-				repDict.value = Pattern.alloyperformed + " PASSED";
+				repDict.value = alloyPerformed + "PASSED";
 				repDict.status = 'Fixed';
 				weightDict.value = Pattern.alloyweight;
 				weightDict.status = 'Fixed';
-				// repLists.fixed.push(Pattern.alloyperformed + " PASSED");
+				// repLists.fixed.push(alloyPerformed + " PASSED");
 				// weightLists.fixed.push(Pattern.alloyweight);
 			} else if (Pattern.alloystatus.value == -1) {
-				repDict.value = Pattern.alloyperformed + " FAILED";
+				repDict.value = alloyPerformed + "FAILED";
 				repDict.status = 'Fixed';
 				weightDict.value = Pattern.alloyweight;
 				weightDict.status = 'Fixed';
-				// repLists.fixed.push(Pattern.alloyperformed + " FAILED");
+				// repLists.fixed.push(alloyPerformed + " FAILED");
 				// weightLists.fixed.push(Pattern.alloyweight);
+			} else if (Pattern.alloystatus.value == 3) {
+				repDict.value = "UNFINISHED";
+				repDict.status = 'Fixed';
+				weightDict.value = Pattern.alloyweight;
+				weightDict.status = 'Fixed';
 			}
 			if (_Completed || refDict.noedits) {
 				repDict.status = 'Fixed';
@@ -294,21 +305,30 @@ function getVueInfo(refDict) {
 		// if ()
 		subDict.describer = Pattern.sets + " x " + Pattern.reps + " @ " + Pattern.RPE + " RPE";
 		if (!Pattern.RPE) {
-			subDict.describer = Pattern.sets + " x " + Pattern.reps;			
+			subDict.describer = Pattern.sets + " x " + Pattern.reps;
 		}
 		subDict.number = Pattern.number;
-		if (Pattern.workoutType == 'stop' && Pattern.specialStage < 1) {
-			subDict.hasButton = true;
-			subDict.buttonDisplay = "Get Next Set";
-			subDict.buttonName = "getNextSet|Stop|" + Pattern.number;
-		} else if (Pattern.workoutType == 'drop' && Pattern.specialStage < 2) {
-			subDict.hasButton = true;
-			subDict.buttonDisplay = "Get Next Set";
-			subDict.buttonName = "getNextSet|Drop|" + Pattern.number;
-		} else if (Pattern.alloy && Pattern.alloystatus.value == 0) {
-			subDict.hasButton = true;
-			subDict.buttonDisplay = "Get Alloy Set";
-			subDict.buttonName = "getNextSet|Alloy|" + Pattern.number;
+		subDict.submitWarning = false;
+		if (!_Completed && !refDict.noedits) {
+			if (Pattern.workoutType == 'stop' && Pattern.specialStage < 1) {
+				subDict.hasButton = true;
+				subDict.submitWarning = true;
+				subDict.submitWarningMessage = 'You have unfinished Strength Stop sets ' + '(click the "Get Next Set" button to receive your next Strength Stop set). Are you sure you want to submit?';
+				subDict.buttonDisplay = "Get Next Set";
+				subDict.buttonName = "getNextSet|Stop|" + Pattern.number;
+			} else if (Pattern.workoutType == 'drop' && Pattern.specialStage < 2) {
+				subDict.hasButton = true;
+				subDict.buttonDisplay = "Get Next Set";
+				subDict.submitWarning = true;
+				subDict.submitWarningMessage = 'You have unfinished Strength Stop sets ' + '(click the "Get Next Set" button to receive your next Strength Drop set). Are you sure you want to submit?';
+				subDict.buttonName = "getNextSet|Drop|" + Pattern.number;
+			} else if (Pattern.alloy && Pattern.alloystatus.value == 0) {
+				subDict.hasButton = true;
+				subDict.buttonDisplay = "Get Alloy Set";
+				subDict.submitWarning = true;
+				subDict.submitWarningMessage = 'You have unfinished Alloy workouts ' + '(click the "Get Alloy Set" button to receive your Alloy set). Are you sure you want to submit?';
+				subDict.buttonName = "getNextSet|Alloy|" + Pattern.number;
+			}
 		}
 		// 
 		if (Pattern.alloy) {
@@ -348,7 +368,11 @@ function getVueInfo(refDict) {
 			subDict.selectedVideo = Pattern.selectedVideo;
 		}
 		if (Pattern.workoutType == 'bodyweight') {
-			subDict.describer = Pattern.reps + " x bodyweight @ " + Pattern.RPE + " RPE";
+			subDict.describer = Pattern.sets + " sets @ " + Pattern.RPE + " RPE (bodyweight)";
+			// subDict.describer = Pattern.reps + " x bodyweight @ " + Pattern.RPE + " RPE";
+			if (Pattern.noRPE) {
+				subDict.describer = Pattern.sets + " x " + Pattern.reps + " (bodyweight)";
+			}
 		}
 		if (Pattern.workoutType == 'stop' || Pattern.workoutType == 'drop') {
 			// subDict.RPEOptions = newRPEOptions;			
@@ -436,14 +460,14 @@ function getVueInfo(refDict) {
 		}
 		subDict.specialDescriber = Pattern.specialDescriber;
 		// subDict.describer = Pattern.describer;
-		subDict.describer += "test";
+		// subDict.describer += "test";
 		console.log("pushign subDict: ");
 		subDict.testing = true;
 		vueSubworkouts.push(subDict);
 	}
 
 	return {
-		test:true,
+		test: true,
 		date: vueConvert.Date(refDict["thisWorkoutDate"]),
 		// date: refDict["thisWorkoutDate"],
 		describer: refDict.Describer,

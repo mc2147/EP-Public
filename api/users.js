@@ -206,11 +206,11 @@ router.post('/forgot-password', async function(req, res) {
     user.password = newHash;
     await user.save();
     let passwordEmail = {
-        from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
+        from: '"Electrum Performance" <electrumperformance@gmail.com>',
         // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
         to: user.username,
-        subject: 'Password Reset [AlloyStrength Training]',
-        text: `Your new password for AlloyStrength Training is: ${newPassword}`
+        subject: 'Password Reset [Electrum Performance]',
+        text: `Your new password for Electrum Performance is: ${newPassword}`
     };
     sendMail(passwordEmail);    
     res.json({
@@ -229,18 +229,18 @@ router.post('/:id/confirmation-email', async function(req, res) {
     user.confString = confString;
     await user.save();
     let productionconfURL = `${process.env.BASE_URL}/api/users/${req.params.id}/confirm/${confString}`;
-    let realconfURL = `www.alloystrengthtraining.com/confirm/${req.params.id}/${confString}`;
+    let realconfURL = `www.electrumperformance.com/confirm/${req.params.id}/${confString}`;
     // console.log('confURL: ', confURL);
-    let confHTML = (`<p>This is the confirmation email for your AlloyStrength 
-    Training account for: ${user.username} `
+    let confHTML = (`<p>This is the confirmation email for your Electrum Performance
+     account for: ${user.username} `
     + 'Please click the link below to activate your account:<br><br>'
     + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`);
 
     let confEmail = {
-        from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
+        from: '"Electrum Performance" <electrumperformance@gmail.com>',
         // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
         to: user.username,
-        subject: 'Account Confirmation [AlloyStrength Training]',
+        subject: 'Account Confirmation [Electrum Performance]',
         // text: `Your new password for AlloyStrength Training is: ${newPassword}`
         html: confHTML
     };

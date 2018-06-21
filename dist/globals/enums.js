@@ -74,6 +74,7 @@ var Exercise_Names = {
 var Alloy = exports.Alloy = {
 	None: { value: 0, name: "None", code: "N", string: "None" },
 	Testing: { value: 2, name: "Test", code: "T", string: "Testing" },
+	Unfinished: { value: 3, name: "Unfinished", code: "U", string: "Unfinished" },
 	Passed: { value: 1, name: "Passed", code: "P", string: "Passed" },
 	Failed: { value: -1, name: "Failed", code: "F", string: "Failed" }
 };

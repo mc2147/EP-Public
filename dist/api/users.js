@@ -229,7 +229,7 @@ router.post('/forgot-password', async function (req, res) {
     user.password = newHash;
     await user.save();
     var passwordEmail = {
-        from: '"AlloyStrength Training" <alloystrengthtraining@gmail.com>',
+        from: '"Electrum Performance" <electrumperformance@gmail.com>',
         // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
         to: user.username,
         subject: 'Password Reset [AlloyStrength Training]',
@@ -836,7 +836,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
         var levelUpStats = _User.stats["Level Up"];
         if (_User.level >= 11 && _User.blockNum == 1) {
             _User.blockNum = 2;
-        } else if (!levelUpStats.Status.Checked && levelUpStats.Status.value == 1) {
+        } else if (!levelUpStats.Status.Checked && !levelUpStats.Checked && levelUpStats.Status.value == 1) {
             _User.level++;
             if (_User.level >= 11) {
                 if (_User.level >= 16) {
@@ -854,7 +854,10 @@ router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
             }
         }
         _User.stats["Level Up"].Status.Checked = true;
+        _User.stats["Level Up"].Checked = true;
         _User.changed('stats', true);
+        // _User.workoutDates = []; //Added 6/15/2018
+        // _User.workouts = {};
         await _User.save();
         body.lastWorkout = true;
     }
@@ -919,12 +922,16 @@ var suggestWeights = async function suggestWeights(user, workoutId) {
                     }
                 } else {
                     set.suggestedWeight = getWeight(relatedMax, set.Reps, set.SuggestedRPE);
-                    if (minSuggestedWeight == 0 || set.suggestedWeight < minSuggestedWeight) {
-                        minSuggestedWeight = set.suggestedWeight;
-                    }
-                    if (maxSuggestedWeight == 0 || set.suggestedWeight > maxSuggestedWeight) {
-                        maxSuggestedWeight = set.suggestedWeight;
-                    }
+                    if (minSuggestedWeight == 0
+                    // || set.suggestedWeight < minSuggestedWeight
+                    ) {
+                            minSuggestedWeight = set.suggestedWeight;
+                        }
+                    if (maxSuggestedWeight == 0
+                    // || set.suggestedWeight > maxSuggestedWeight
+                    ) {
+                            maxSuggestedWeight = set.suggestedWeight;
+                        }
                     if (set.suggestedWeight == 0) {
                         set.suggestedWeight = "--";
                     }
@@ -1061,6 +1068,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
         JSON.noedits = noedits;
         console.log('\n\n noedits & editable: ', noedits, editable);
         var vueJSON = getVueInfo(JSON);
+        console.log('getVueInfo just got called (line 1092)');
         vueJSON.accessible = accessible;
         vueJSON.noedits = noedits;
 

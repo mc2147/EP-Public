@@ -14,6 +14,7 @@ var maxDropSets = 3;
 async function saveWorkout(body, userInstance, vWID) {
     var submit = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
+    console.log('SAVE WORKOUT GETTING CALLED!!!!!');
     // console.log("workoutHandler 8");        
     var lastSets = {};
     var allWorkouts = userInstance.workouts;
@@ -51,7 +52,7 @@ async function saveWorkout(body, userInstance, vWID) {
         // Getting Input types: Weight, RPE, Tempo, Reps 
         if (inputType == "W" && input && setNum <= _nSets) {
             setDict.Weight = parseInt(body[K]);
-            if (setDict.RPE || thisPattern.workoutType == 'carry') {
+            if (setDict.RPE || thisPattern.workoutType == 'carry' || thisPattern.noRPE) {
                 setDict.Filled = true;
             }
         } else if (inputType == "RPE" && input && setNum <= _nSets && body[K] != "0" && parseInt(body[K]) != 0) {
@@ -111,26 +112,27 @@ async function saveWorkout(body, userInstance, vWID) {
         else if (inputCode[2] == "Alloy") {
                 var RepPerformance = parseInt(body[K]);
                 thisPattern.alloyperformed = RepPerformance;
-                if (RepPerformance >= thisPattern.alloyreps) {
+                console.log('RepPerformance: ', RepPerformance, thisPattern.alloyperformed);
+                if (submit) {
+                    if (RepPerformance >= thisPattern.alloyreps) {
+                        thisStats.Status = _enums.Alloy.Passed;
+                        thisPattern.alloystatus = _enums.Alloy.Passed;
 
-                    thisStats.Status = _enums.Alloy.Passed;
-                    thisPattern.alloystatus = _enums.Alloy.Passed;
+                        console.log("ALLOY PASSED");
+                    } else {
 
-                    console.log("ALLOY PASSED");
-                } else {
+                        thisStats.Status = _enums.Alloy.Failed;
+                        thisPattern.alloystatus = _enums.Alloy.Failed;
 
-                    thisStats.Status = _enums.Alloy.Failed;
-                    thisPattern.alloystatus = _enums.Alloy.Failed;
+                        console.log("ALLOY FAILED");
+                    }
 
-                    console.log("ALLOY FAILED");
+                    var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight + " lbs @ " + 10 + " RPE (Alloy) " + allStats[_EType].Status.string;
+                    console.log("_EType Error: " + _EType);
+                    thisStats.LastSet = setDescription;
+                    thisPattern.LastSet = setDescription;
+                    thisStats.Name = thisPattern.name;
                 }
-
-                var setDescription = RepPerformance + " Reps x " + thisPattern.alloyweight + " lbs @ " + 10 + " RPE (Alloy) " + allStats[_EType].Status.string;
-                console.log("_EType Error: " + _EType);
-                thisStats.LastSet = setDescription;
-                thisPattern.LastSet = setDescription;
-
-                thisStats.Name = thisPattern.name;
             }
     }
 
@@ -245,7 +247,10 @@ async function saveWorkout(body, userInstance, vWID) {
                 lastSetPattern.alloyweight = AlloyWeight;
                 lastSetPattern.alloystatus = _enums.Alloy.Testing;
                 lastSetStat.Status = _enums.Alloy.Testing;
-
+                if (submit) {
+                    lastSetPattern.alloystatus = _enums.Alloy.Unfinished;
+                    lastSetStat.Status = _enums.Alloy.Unfinished;
+                }
                 console.log("Alloy Show: ", lastSetPattern.alloystatus, " last set: ", EType, Val.ID);
             }
         }
