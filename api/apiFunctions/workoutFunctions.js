@@ -322,8 +322,29 @@ export async function getblankPatterns(lGroup, block, W, D, level) { //for reset
         if (EType == "Med Ball") {EType = "Medicine Ball";}
         else if (EType == "Vert Pull") {EType = "UB Vert Pull";} 	
         patternInstance.type = EType;
-        var EName = ExerciseDict.Exercises[patternInstance.type][level].name;
-        patternInstance.name = EName;
+
+        let effectiveLevel = level;
+        let deloadIndicator = "";
+        if (patternInstance.deload && patternInstance.deload != 0) {
+            if ((level + patternInstance.deload) > 0) {
+                effectiveLevel = level + patternInstance.deload;
+                // deloadIndicator = " (" + patternInstance.deload +")";
+                // deloadIndicator = " (" + "Level " + effectiveLevel +")";
+            }
+        }
+        let EObj = ExerciseDict.Exercises[patternInstance.type][effectiveLevel];
+        var EName = EObj.name;
+        if (EName.includes('Tempo') || EName.includes('tempo')) {
+            patternInstance.hasTempo = true;
+        }
+        // console.log('patternInstance.workoutType: ', patternInstance.workoutType);
+        if (EObj.bodyweight) {
+            // console.log('old patternInstance.workoutType: ', patternInstance.workoutType, EName);
+            patternInstance.workoutType = 'bodyweight';
+            // console.log('   patternInstance.workoutType: ', patternInstance.workoutType);
+        }
+        patternInstance.name = EName + deloadIndicator;
+
         var findVideo = await Video.search(EName, false); 
         if (findVideo) {
             patternInstance.hasVideo = true;

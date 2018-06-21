@@ -93,9 +93,15 @@ function getVueInfo(refDict) {
 			if (set.SuggestedRPE && set.SuggestedRPE != "---") {
 				RPEDict.suggested = set.SuggestedRPE;
 			}
+			let tempoStringVal = ' | | ';
+			let tempoVal = ['', '', ''];
+			if (Pattern.hasTempo) {
+				tempoStringVal = "3|2|X";
+				tempoVal = ["3", "2", "X"];
+			}
 			var tempoDict = {
-				stringValue: "3|2|X",
-				value: ["3", "2", "X"],
+				stringValue: tempoStringVal,
+				value: tempoVal,
 				status: 'Fixed',
 				code: Pattern.number + "|T|" + (L + 1)
 			};
