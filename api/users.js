@@ -69,9 +69,10 @@ router.post("/", async function(req, res) {
     var newUser = await signupUser(req.body);
     if (newUser.userExists) {
         console.log('user already exists!!!');
-        // res.json({
-        //     userExists:true,
-        // })
+        res.json({
+            userExists:true,
+        })
+        return
     }
     if (newUser == false) {
         res.json({

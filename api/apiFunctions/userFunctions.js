@@ -28,6 +28,9 @@ export async function signupUser(input) {
     let userExists = false;
     if (existingUser) {
         userExists = true;
+        return {
+            userExists,
+        }
     }
     var salt = generateSalt();
     if (P1 == P2) {
