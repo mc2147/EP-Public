@@ -1302,7 +1302,11 @@ router.put("/:userId/get-level", async function (req, res) {
     var _User = await User.findById(req.params.userId);
     var input = req.body;
     await assignLevel(_User, input);
+    if (_User.level == 11) {
+        _User.blockNum = 1;
+    }
     await _User.save();
+    console.log('assigned level + blockNum: ', _User.level, _User.blockNum);
     res.json(
         {
             user:_User, 

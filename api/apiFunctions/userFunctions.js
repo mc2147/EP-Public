@@ -69,6 +69,7 @@ export async function signupUser(input) {
 }
 
 export async function assignLevel(_User, input) {
+    console.log('assigning level!!!');
     let {squatWeight, benchWeight, RPEExp, bodyWeight} = input; 
     if (squatWeight < benchWeight) {
         _User.level = 1;
@@ -79,6 +80,7 @@ export async function assignLevel(_User, input) {
     && RPEExp) {
         _User.level = 11;
         _User.blockNum = 1;
+        console.log("level 11! blockNum: ", _User.blockNum);
     }
     else {
         _User.level = 6;
