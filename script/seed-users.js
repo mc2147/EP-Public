@@ -2,12 +2,15 @@
 console.log("seeding users");
 // const createUsers = require('../models/createUser');
 const {CreateUser, SetUser} = require('../models/createUser');
+const {WorkoutTemplate, SubWorkoutTemplate, User, Video} = '../models';
 
 var DayValue = 24*3600*1000;
 var oldDate = new Date(Date.now() - 10*DayValue);
 var thisDate = new Date(Date.now());         
 
 async function generateUsers() {
+    await User.destroy({where:{}});
+    console.log('existing users destroyed');
     await CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
     await CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
     await CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
