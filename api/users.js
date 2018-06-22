@@ -518,6 +518,7 @@ router.post('/:id/subscribe', async function(req, res) {
         return    
     }
     catch(error) {
+        console.log('PAYMENT ERROR');
         error.paymentError = true;
         res.json(error);
     }
