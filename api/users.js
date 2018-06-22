@@ -853,7 +853,10 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
         console.log("SUBMITTING FINAL WORKOUT! \n\n\n");
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];
+        // Pre-Level-Up Stats...
+        console.log("User level and block num: ", _User.level, _User.blockNum);
         if (_User.level >= 11) {
+            // This switches no matter what
             if (_User.blockNum == 1) {
                 _User.blockNum = 2;                
             }
@@ -861,13 +864,10 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
                 _User.blockNum = 1;                                
             }
         }
-        if (_User.level >= 11 && _User.blockNum == 1) {
-            _User.blockNum = 2;
-        }
         if (!levelUpStats.Status.Checked 
             && !levelUpStats.Checked
             && levelUpStats.Status.value == 1) {
-            _User.level ++;
+            _User.level ++; //LEVEL-UP HAPPENS HERE
             if (_User.level >= 11) {
                 _User.blockNum = 1;
                 if (_User.level >= 16) {
