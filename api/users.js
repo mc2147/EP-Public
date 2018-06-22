@@ -13,6 +13,7 @@ import {generateWorkouts} from './apiFunctions/generateWorkouts';
 import {vueStats, getVueStat, vueProgress} from './vueFormat';
 import {LevelUpMesssages} from '../content/levelupMessages'
 import {sendMail, testEmail} from './email';
+import {Alloy} from '../globals/enums';
 var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 import moment from 'moment';
@@ -884,6 +885,9 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
                 }
                 _User.blockNum = 0;
             }            
+        }
+        if (levelUpStats.Status.value != 1) {
+            _User.stats["Level Up"].Status = Alloy.Failed;
         }
         _User.stats["Level Up"].Status.Checked = true;
         _User.stats["Level Up"].Checked = true;

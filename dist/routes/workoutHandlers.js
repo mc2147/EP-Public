@@ -280,7 +280,8 @@ async function saveWorkout(body, userInstance, vWID) {
         copiedStats["Level Up"].Status = _enums.Alloy.Passed;
     } else if (squatStatus == _enums.Alloy.Failed || benchStatus == _enums.Alloy.Failed || hingeStatus == _enums.Alloy.Failed) {
         copiedStats["Level Up"].Status = _enums.Alloy.Failed;
-    } else if (squatStatus == _enums.Alloy.None || squatStatus == _enums.Alloy.Testing || benchStatus == _enums.Alloy.None || benchStatus == _enums.Alloy.Testing || hingeStatus == _enums.Alloy.None || hingeStatus == _enums.Alloy.Testing) {
+    } else if (squatStatus == _enums.Alloy.None || squatStatus == _enums.Alloy.Testing || benchStatus == _enums.Alloy.None 
+        || benchStatus == _enums.Alloy.Testing || hingeStatus == _enums.Alloy.None || hingeStatus == _enums.Alloy.Testing) {
         copiedStats["Level Up"].Status = _enums.Alloy.Testing;
     }
     console.log("\n\n copied Level Up 2: \n\n", copiedStats["Level Up"]);
