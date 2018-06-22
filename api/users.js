@@ -494,27 +494,33 @@ router.post('/:id/subscribe', async function(req, res) {
     let planID = req.body.planID;
     console.log("   req.body (api/users): ", req.body);
     let user = await User.findById(req.params.id);
-    let stripeUser = await stripe.customers.create({
-        source:stripeToken,
-        email:user.username,
-    });    
-    let newStripeId = stripeUser.id;
-    console.log("newStripeId: ", newStripeId);
-    user.stripeId = newStripeId;
-    await user.save();
-    let newSubscription = await stripe.subscriptions.create({
-        customer:stripeUser.id,
-        items: [
-            {
-                // plan:"AS_Silver",
-                plan:req.body.planID,
-            },
-        ],        
-    });
-    let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
-    console.log("customer found: ", findCustomer);
-    res.json(findCustomer); 
-    return    
+    try {
+        let stripeUser = await stripe.customers.create({
+            source:stripeToken,
+            email:user.username,
+        });    
+        let newStripeId = stripeUser.id;
+        console.log("newStripeId: ", newStripeId);
+        user.stripeId = newStripeId;
+        await user.save();
+        let newSubscription = await stripe.subscriptions.create({
+            customer:stripeUser.id,
+            items: [
+                {
+                    // plan:"AS_Silver",
+                    plan:req.body.planID,
+                },
+            ],        
+        });
+        let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
+        console.log("customer found: ", findCustomer);
+        res.json(findCustomer); 
+        return    
+    }
+    catch(error) {
+        error.paymentError = true;
+        res.json(error);
+    }
 })
 
 router.post('/:id/renew-subscription', async function(req, res) {
