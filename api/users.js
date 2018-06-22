@@ -489,7 +489,7 @@ router.get('/:id/all-subscriptions-info', async function(req, res) {
 
 // Plan ID: AS_Bronze, AS_Silver, AS_Gold
 router.post('/:id/subscribe', async function(req, res) {
-    console.log('subscribing...');
+    console.log('SUBSCRIBING...');
     let stripeToken = req.body.stripeToken;
     let planID = req.body.planID;
     console.log("   req.body (api/users): ", req.body);
