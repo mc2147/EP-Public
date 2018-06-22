@@ -851,14 +851,23 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
     if (parseInt(workoutId) == _User.workoutDates.length) {
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];
+        if (_User.level >= 11) {
+            if (_User.blockNum == 1) {
+                _User.blockNum = 2;                
+            }
+            else if (_User.blockNum == 2) {
+                _User.blockNum = 1;                                
+            }
+        }
         if (_User.level >= 11 && _User.blockNum == 1) {
             _User.blockNum = 2;
         }
-        else if (!levelUpStats.Status.Checked 
+        if (!levelUpStats.Status.Checked 
             && !levelUpStats.Checked
             && levelUpStats.Status.value == 1) {
             _User.level ++;
             if (_User.level >= 11) {
+                _User.blockNum = 1;
                 if (_User.level >= 16) {
                     _User.levelGroup = 4;
                 }
