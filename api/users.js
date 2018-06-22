@@ -1264,6 +1264,9 @@ router.get('/:userId/progress/vue/get', function(req, res) {
         else {
             vueData.statusText = "Still In Progress";                        
         }
+        if (vueData.oldLevel >= 11 && user.blockNum == 2) {
+            vueData.statusText = `You have COMPLETED Level ${vueData.oldLevel} - Block 1`;
+        }
         vueData.coreExerciseTableItems.forEach(stat => {
             if (stat.alloyVal == 1) {
                 vueData.nPassed ++;
