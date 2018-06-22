@@ -558,6 +558,7 @@ router.post('/:id/renew-subscription', async function(req, res) {
     }
     catch(error) {
         error.Error = true;
+        error.paymentError;
         res.json(error);
     }    
     // let user = await User.findById(req.params.id);
