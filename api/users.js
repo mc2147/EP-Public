@@ -894,6 +894,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
         _User.stats["Level Up"].Status.Checked = true;
         _User.stats["Level Up"].Checked = true;
         _User.changed( 'stats', true);
+        console.log("POST User level and block num: ", _User.level, _User.blockNum);
         // _User.workoutDates = []; //Added 6/15/2018
         // _User.workouts = {};
         await _User.save();
