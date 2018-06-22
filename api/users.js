@@ -850,6 +850,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
    await saveWorkout(body, _User, req.params.workoutId, true);
     // Level Up check here -> if last workout
     if (parseInt(workoutId) == _User.workoutDates.length) {
+        console.log("SUBMITTING FINAL WORKOUT! \n\n\n");
         console.log("LEVEL CHECK! ", workoutId);
         var levelUpStats = _User.stats["Level Up"];
         if (_User.level >= 11) {
@@ -889,6 +890,7 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
         if (levelUpStats.Status.value != 1) {
             _User.stats["Level Up"].Status = Alloy.Failed;
         }
+        console.log('_User.stats["Level Up"]: ', _User.stats["Level Up"]);
         _User.stats["Level Up"].Status.Checked = true;
         _User.stats["Level Up"].Checked = true;
         _User.changed( 'stats', true);
