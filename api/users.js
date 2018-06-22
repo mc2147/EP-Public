@@ -13,7 +13,6 @@ import {generateWorkouts} from './apiFunctions/generateWorkouts';
 import {vueStats, getVueStat, vueProgress} from './vueFormat';
 import {LevelUpMesssages} from '../content/levelupMessages'
 import {sendMail, testEmail} from './email';
-import {Alloy} from '../globals/enums';
 var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 import moment from 'moment';
@@ -45,9 +44,10 @@ var globalFuncs = require('../globals/functions');
     var G_getPattern = globalFuncs.getPattern;
     var dateString = globalFuncs.dateString;
     
-var globalEnums = require('../globals/enums');
-    var DaysofWeekDict = globalEnums.DaysofWeekDict;
-    var Alloy = globalEnums.Alloy;
+import {Alloy, DaysofWeekDict} from '../globals/enums';
+    // var globalEnums = require('../globals/enums');
+    // var DaysofWeekDict = globalEnums.DaysofWeekDict;
+    // var Alloy = globalEnums.Alloy;
 // Move below to apiFunctions later under workoutFunctions 
 var workoutHandlers = require('../routes/workoutHandlers');
 	var saveWorkout = workoutHandlers.saveWorkout;
