@@ -217,6 +217,7 @@ async function setPatternInfo(PatternJSON, SubTemplate) {
     } else {
         //Not Split Set
         SubTemplate.reps = PatternJSON.Reps;
+        SubTemplate.type = 'normal';
         // console.log(PatternJSON.Reps, PatternJSON.number);
         // Type Enums: ['normal', 'bodyweight', 'carry', 'stop', 'drop', 'deload', 'alloy'],
         if (_typeof(PatternJSON.Reps) == _typeof("string")) {
