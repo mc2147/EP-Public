@@ -96,7 +96,8 @@ var Export3bDict = {
                 6:{  
                    ExerciseType:"Ant Chain",
                    Sets:3,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+                   Reps:12,
                    RPE:7,
  
                 },
@@ -138,7 +139,8 @@ var Export3bDict = {
                 4:{  
                    ExerciseType:"UB Vert Pull",
                    Sets:4,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+                   Reps:6,
                    RPE:"8-9",
  
                 },
@@ -202,7 +204,8 @@ var Export3bDict = {
                 6:{  
                    ExerciseType:"Post Chain",
                    Sets:3,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+				   Reps:8,
                    RPE:7,
  
                 },
@@ -248,14 +251,16 @@ var Export3bDict = {
                 5:{  
                    ExerciseType:"Ant Chain",
                    Sets:3,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+				   Reps:12,
                    RPE:7,
  
                 },
                 6:{  
                    ExerciseType:"Post Chain",
                    Sets:3,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+				   Reps:8,
                    RPE:7,
  
                 },
@@ -281,6 +286,7 @@ var Export3bDict = {
                 2:{  
                    ExerciseType:"UB Vert Pull",
                    Sets:1,
+                   Reps:6,
                    RPE:9,
  
                 },
@@ -401,7 +407,8 @@ var Export3bDict = {
                 4:{  
                    ExerciseType:"UB Vert Pull",
                    Sets:4,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+                   Reps:6,
                    Deload:-1,
                    RPE:"8-9",
  
@@ -520,7 +527,8 @@ var Export3bDict = {
                 6:{  
                    ExerciseType:"Ant Chain",
                    Sets:3,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+				   Reps:12,
                    RPE:7,
  
                 },
@@ -630,7 +638,8 @@ var Export3bDict = {
                 6:{  
                    ExerciseType:"Post Chain",
                    Sets:3,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+				   Reps:8,
                    RPE:7,
  
                 },
@@ -843,6 +852,7 @@ var Export3bDict = {
                    ExerciseType:"UB Vert Pull",
                    Sets:3,
                    Deload:-1,
+                   Reps:6,
                    RPE:8,
  
                 },
@@ -895,7 +905,8 @@ var Export3bDict = {
                 4:{  
                    ExerciseType:"Ant Chain",
                    Sets:2,
-                   Reps:"Bodyweight",
+                //    Reps:"Bodyweight",
+				   Reps:12,
                    RPE:"4-5",
  
                 },
