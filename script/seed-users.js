@@ -20,7 +20,7 @@ async function generateUsers() {
       let _username = testUsernames[i];
       await User.destroy({where:{
         username:_username
-      }});
+      }})
       console.log('destroying test user: ', _username);
     }
     // await User.destroy({where:{}});
