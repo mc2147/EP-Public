@@ -1,7 +1,7 @@
 // const models = require('../models');
 console.log("DESTROYING users");
 // const createUsers = require('../models/createUser');
-const {CreateUser, SetUser} = require('../models/createUser');
+// const {CreateUser, SetUser} = require('../models/createUser');
 const {WorkoutTemplate, SubWorkoutTemplate, User, Video} = require('../models/index');
 
 var DayValue = 24*3600*1000;

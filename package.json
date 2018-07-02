@@ -12,8 +12,8 @@
     "seed": "npm run build && npm run babel-node -- ./script/seed.js",
     "seed-workouts": "npm run build && npm run babel-node -- ./script/seed-workouts.js",
     "seed-videos": "npm run build && npm run babel-node -- ./script/seed-videos.js",
-    "seed-users": "node ./script/seed-users.js",
-    "destroy-all-users": "./script/destroy-all-users.js"
+    "seed-users": "npm run build && npm run babel-node -- ./script/seed-users.js",
+    "destroy-all-users": "npm run babel-node ./script/destroy-all-users.js"
   },
   "author": "",
   "license": "ISC",
