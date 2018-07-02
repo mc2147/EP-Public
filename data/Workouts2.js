@@ -20,7 +20,7 @@ module.exports = {
 							Sets: 3, Reps: 12, 
 							RPE: 7, Deload: -1}, 
 					5: {ExerciseType: "Ant Chain", 
-							Sets: 2, Reps: null, 
+							Sets: 2, Reps: 8, 
 							RPE: 7}
 				}
 			},
@@ -78,7 +78,7 @@ module.exports = {
 				}
 			},
 			4: {
-				Week: 2,
+				Week: 1,
 				Day: 4,
 				ID: 4,
 				Patterns: {
@@ -120,7 +120,7 @@ module.exports = {
 							Sets: 3, Reps: 10, 
 							RPE: 7.5, Deload: -1}, 
 					5: {ExerciseType: "Ant Chain", 
-							Sets: 3, Reps: null, 
+							Sets: 3, Reps: 8, 
 							RPE: 7.5}
 				}
 			},
@@ -195,7 +195,7 @@ module.exports = {
 							Sets: 3, Reps: 10, 
 							RPE: 7.5, Deload: -1}, 
 					5: {ExerciseType: "Post Chain", 
-							Sets: 3, Reps: null, 
+							Sets: 3, Reps: 8, 
 							RPE: 7.5}
 				}
 			}
@@ -219,7 +219,7 @@ module.exports = {
 							Sets: 3, Reps: 8, RPE: 7, 
 							Deload: -1},					
 					5: {ExerciseType: "Ant Chain",
-							Sets: 3, Reps: null, RPE: 7}, 
+							Sets: 3, Reps: 8, RPE: 7}, 
 				}
 			},
 			2: {
@@ -288,7 +288,7 @@ module.exports = {
 							Sets: 3, Reps: 8, 
 							RPE: 7, Deload: -1}, 
 					5: {ExerciseType: "Post Chain", 
-							Sets: 3, Reps: null, 
+							Sets: 3, Reps: 8, 
 							RPE: 7}
 				}
 			}
@@ -306,7 +306,7 @@ module.exports = {
 							Sets: 3, Reps: 12, 
 							RPE: "5-6", Deload: -2},
 					3: {ExerciseType: "Ant Chain", 
-							Sets: 2, Reps: null, 
+							Sets: 2, Reps: 8, 
 							RPE: "5-6", Deload: -1},		
 					4: {ExerciseType: "Iso 3", 
 							Sets: 2, Reps: 15, 
@@ -330,7 +330,7 @@ module.exports = {
 							Sets: 2, Reps: 15, 
 							RPE: "5-6", Deload: -2,},
 					4: {ExerciseType: "Post Chain", 
-							Sets: 2, Reps: null, 
+							Sets: 2, Reps: 8, 
 							RPE: "5-6",},
 					5: {ExerciseType: "Iso 1", 
 							Sets: 2, Reps: 15, 
@@ -415,7 +415,7 @@ let WorkoutSample = {
 		2: {ExerciseType: "UB Vert Push", Sets: 4, Reps: 6, RPE: 7,	Alloy: true, AlloyReps: 8},
 		3: {ExerciseType: "Hinge", Sets: 3, Reps: 12, RPE: 7, Deload: -1},		
 		4: {ExerciseType: "UB Hor Pull", Sets: 3, Reps: 12, RPE: 7, Deload: -1}, 
-		5: {ExerciseType: "Ant Chain", Sets: 3, Reps: null, RPE: 7}}
+		5: {ExerciseType: "Ant Chain", Sets: 3, Reps: 8, RPE: 7}}
 }
 
 // Day 3		S x R	RPE	A

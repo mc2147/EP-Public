@@ -153,9 +153,10 @@ module.exports = {
                 },
                 4:{  
                    ExerciseType:"UB Vert Pull",
-                   Reps:"Bodyweight",
+                   Reps:10,
+                //    Reps:"Bodyweight",
                    Sets:4,
-                   Type:"Bodyweight",
+                //    Type:"Bodyweight",
                    RPE:"8-9",
  
                 },
@@ -225,9 +226,10 @@ module.exports = {
                 },
                 6:{  
                    ExerciseType:"Post Chain",
-                   Reps:"Bodyweight",
+                   Reps:5,
+                //    Reps:"Bodyweight",
                    Sets:3,
-                   Type:"Bodyweight",
+                //    Type:"Bodyweight",
                    RPE:7,
  
                 },
@@ -284,9 +286,10 @@ module.exports = {
                 },
                 6:{  
                    ExerciseType:"Post Chain",
-                   Reps:"Bodyweight",
+                   Reps:5,
+                //    Reps:"Bodyweight",
                    Sets:3,
-                   Type:"Bodyweight",
+                //    Type:"Bodyweight",
                    RPE:7,
  
                 },
@@ -312,7 +315,8 @@ module.exports = {
                 },
                 2:{  
                    ExerciseType:"UB Vert Pull",
-                   Reps:"Bodyweight",
+                   Reps:10,
+                //    Reps:"Bodyweight",
                    Sets:1,
                    RPE:9,
                    Type:"drop",
@@ -702,9 +706,10 @@ module.exports = {
                 },
                 6:{  
                    ExerciseType:"Post Chain",
-                   Reps:"Bodyweight",
+                   Reps:5,
+                //    Reps:"Bodyweight",
                    Sets:3,
-                   Type:"Bodyweight",
+                //    Type:"Bodyweight",
                    RPE:7,
  
                 },
