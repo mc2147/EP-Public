@@ -10,6 +10,7 @@ var thisDate = new Date(Date.now());
 
 let testUsernames = [
   'UserName1', 'UserName2', "UserName3", "UserName4", 'UserName5', 'UserName6',
+  'AdminUser',
   'AdminBryce', 'AdminSterner', 'AdminChan', 'AdminSitwala', 'mc2147', 'BetaSitwala',
   'ABradley', 'ASterczala', 'ACalderone',
   'DemoBeta'];
@@ -20,15 +21,19 @@ async function generateUsers() {
       await User.destroy({where:{
         username:_username
       }});
+      console.log('destroying test user: ', _username);
     }
     // await User.destroy({where:{}});
-    console.log('existing users destroyed');
+    console.log('test users destroyed');
+    return;
     await CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
     await CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
     await CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
     await CreateUser("UserName4", 4, 1, 16, thisDate, [1, 2, 3, 5], true);
     await CreateUser("UserName5", 3, 2, 12, oldDate, [1, 2, 3, 5], true);
     await CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5], true);
+    // Generic Admin
+    await CreateUser("AdminUser", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "Admin183", true, false);
     // Alex Admins
     await CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274", true, false);
     await CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368", true, false);
