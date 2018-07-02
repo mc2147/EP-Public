@@ -25,7 +25,7 @@ async function generateUsers() {
     }
     // await User.destroy({where:{}});
     console.log('test users destroyed');
-    return;
+    // return;
     await CreateUser("UserName1", 1, 0, 1, thisDate, [1, 3, 5], true);
     await CreateUser("UserName2", 2, 0, 6, thisDate, [1, 2, 3, 5], true);
     await CreateUser("UserName3", 3, 1, 11, thisDate, [1, 2, 3, 5], true);
