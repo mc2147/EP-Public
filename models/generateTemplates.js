@@ -274,6 +274,7 @@ async function setPatternInfo(PatternJSON, SubTemplate) {
     // SubTemplate.reps = 30;
     // Setting Description
     SubTemplate.description = SubTemplate.exerciseType + " " + SubTemplate.sets + " x " + SubTemplate.reps + " RPE: " + SubTemplate.RPE + " Alloy: " + SubTemplate.alloy + " Deload: " + SubTemplate.deload + " Type: " + SubTemplate.type;
+    console.log('Saving subtemplate. Type: ', SubTemplate.type);
     await SubTemplate.save();
     // console.log("typeof Decimal: ", typeof SubTemplate.RPE);
     // console.log("line 100 GT");
