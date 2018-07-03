@@ -2,7 +2,7 @@
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
 let onlineVersion = true;
-let testLiveStripe = true;
+let testLiveStripe = false;
 // let herokuLocal = false;
 // Seed bools
 // s// False 
