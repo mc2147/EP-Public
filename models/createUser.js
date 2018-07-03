@@ -198,7 +198,9 @@ export async function SetUser(id, levelGroup, blockNum, level, startDate, workou
 
 
 export async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays, 
-    admin=false, password="", filledStats = true, defaultWorkouts=true) {
+    admin=false, password="", filledStats = true, defaultWorkouts=true,
+    name="",
+    active=false) {
     // console.log("created user: username");
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
@@ -224,6 +226,9 @@ export async function CreateUser(username, levelGroup, blockNum, level, startDat
     user.oldstats = [];
     user.oldworkouts = [];
     user.salt = generateSalt();
+    if (name != "") {
+        user.name = name;
+    }
     let unHashed = "";
     if (!user.username || user.username == "") {
         user.username = "UserName" + user.id; 

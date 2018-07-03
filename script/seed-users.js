@@ -33,24 +33,35 @@ async function generateUsers() {
     await CreateUser("UserName5", 3, 2, 12, oldDate, [1, 2, 3, 5], true);
     await CreateUser("UserName6", 4, 2, 16, thisDate, [1, 2, 3, 5], true);
     // Generic Admin
-    await CreateUser("AdminUser", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "Admin183", true, false);
+    await CreateUser("AdminUser", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "Admin183", true, false
+    , "Admin User");
     // Alex Admins
-    await CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274", true, false);
-    await CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368", true, false);
+    await CreateUser("AdminBryce", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ABryce274", true, false
+    , "Alex Bryce");
+    await CreateUser("AdminSterner", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASterner368", true, false
+    , "Alex Sterner");
     // Amy & Matt Admins
-    await CreateUser("AdminChan", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "AChan2147", true, true);
-    await CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9", true, true);
+    await CreateUser("AdminChan", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "AChan2147", true, true
+    , "Admin Chan");
+    await CreateUser("AdminSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], true, "ASitwala9", true, true
+    , "Admin Sitwala");
     // Amy & Matt beta accounts
-    await CreateUser("mc2147", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "AChan2147", true, false);
-    await CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9", true, false);
+    await CreateUser("mc2147", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "AChan2147", true, false
+    , "Matthew Chan");
+    await CreateUser("BetaSitwala", 3, 1, 11, thisDate, [1, 2, 3, 5], false, "BSitwala9", true, false
+    , "Amy Sitwala");
     
     // CREATING NON-ADMIN BETA TESTERS
     // CreateUser("BetaUser", 2, 0, 6, date, [Day 1, Day 2...], false -> (admin), "Password", false -> (filledStats), false -> defaultWorkouts);
-    await CreateUser("ABradley", 2, 0, 6, "", [], false, "ABradley284", false, false);
-    await CreateUser("ASterczala", 3, 1, 11, "", [], false, "ASterczala371", false, false);
-    await CreateUser("ACalderone", 2, 0, 6, "", [], false, "ACalderone493", false, false);
+    await CreateUser("ABradley", 2, 0, 6, "", [], false, "ABradley284", false, false
+    , "Adam Bradley");
+    await CreateUser("ASterczala", 3, 1, 11, "", [], false, "ASterczala371", false, false
+    , "Adam Sterczala");
+    await CreateUser("ACalderone", 2, 0, 6, "", [], false, "ACalderone493", false, false
+    , "Adam Calderone");
     // Demo Users
-    await CreateUser("DemoBeta", 3, 1, 11, "", [], false, "DemoBeta", false, false);        
+    await CreateUser("DemoBeta", 3, 1, 11, "", [], false, "DemoBeta", false, false
+    , "Demo Beta");        
     // console.log(test);
 }
 
