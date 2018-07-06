@@ -77,6 +77,19 @@ router.get("/", function (req, res) {
     })
 });
 
+router.get("/test", function (req, res) {
+    User.findAll({
+        where: {
+            username:{
+                [Op.in]:testUsernames,
+            }
+        }
+    }).then((users) => {
+        res.json(users);
+    })
+});
+
+
 // Inputs: email, name, 
 router.post("/", async function(req, res) {
     console.log('Signing up user');
