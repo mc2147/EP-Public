@@ -237,7 +237,7 @@ router.post('/:id/confirmation-email', async function(req, res) {
      account for: ${user.username} `
     + 'Please click the link below to activate your account:<br><br>'
     + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
-    + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
+    + "<br><br>If the above link doesn't work, navigate to this URL in your browser:<br>"
     + realconfURL);
 
     let confEmail = {
