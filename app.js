@@ -2,6 +2,7 @@
 // Heroku Local: !onlineVersion && herokuLocal
 // Local local: !onlineVersion && !herokuLocal
 let onlineVersion = true;
+let testLiveStripe = false;
 // let herokuLocal = false;
 // Seed bools
 // s// False 
@@ -24,6 +25,7 @@ process.env.CORS_ORIGIN = (process.env.PORT && onlineVersion) ? onlineCORS : loc
 // process.env.STRIPE_PUBLIC_KEY = 'pk_test_uecJvlGuK94TACv9jW9XxmVg';
 process.env.STRIPE_SECRET_KEY = 'sk_live_OXwkp7SjAleSx9u6QLlUns0U';
 process.env.STRIPE_PUBLIC_KEY = 'pk_live_PWmtkdqxq5DvLLcRz298lZQs';
+process.env.testLiveStripe = testLiveStripe;
 // LIVE KEYS
 // Secret: sk_live_OXwkp7SjAleSx9u6QLlUns0U
 // Public: pk_live_PWmtkdqxq5DvLLcRz298lZQs

@@ -198,8 +198,10 @@ export async function SetUser(id, levelGroup, blockNum, level, startDate, workou
 
 
 export async function CreateUser(username, levelGroup, blockNum, level, startDate, workoutDays, 
-    admin=false, password="", filledStats = true, defaultWorkouts=true) {
-    // console.log("created user: username");
+    admin=false, password="", filledStats = true, defaultWorkouts=true,
+    name="",
+    active=false) {
+    console.log("CreateUser function. Name: ", name);
     var thisGroup = AllWorkouts[levelGroup];
     if (blockNum != 0) {
         thisGroup = thisGroup[blockNum];
@@ -224,6 +226,9 @@ export async function CreateUser(username, levelGroup, blockNum, level, startDat
     user.oldstats = [];
     user.oldworkouts = [];
     user.salt = generateSalt();
+    if (name != "") {
+        user.name = name;
+    }
     let unHashed = "";
     if (!user.username || user.username == "") {
         user.username = "UserName" + user.id; 
@@ -240,7 +245,7 @@ export async function CreateUser(username, levelGroup, blockNum, level, startDat
     await user.save();
     
     if (!defaultWorkouts) {//No default workouts
-        console.log("created user: ", user.username, " hasdefaultWorkouts: ", defaultWorkouts);
+        console.log("created user: ", user.username, " hasdefaultWorkouts: ", defaultWorkouts, user.name);
         return
     }
     // <- DO LATER
@@ -262,7 +267,7 @@ export async function CreateUser(username, levelGroup, blockNum, level, startDat
     await generateWorkouts(user, startDate, daysList, false, !filledStats); //4th bool parameter if date is string (YYYY-MM-DD) GENERATE WORKOUTS RESETS STATS!!! (5th bool parameter)
     // assignWorkouts (user, inputs, true);
     await user.save();    
-    console.log("created user: ", user.username, " hasdefaultWorkouts: ", defaultWorkouts);
+    console.log("created user: ", user.username, " hasdefaultWorkouts: ", defaultWorkouts, user.name);
     return        
 }
 

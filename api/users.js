@@ -236,7 +236,9 @@ router.post('/:id/confirmation-email', async function(req, res) {
     let confHTML = (`<p>This is the confirmation email for your Electrum Performance
      account for: ${user.username} `
     + 'Please click the link below to activate your account:<br><br>'
-    + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`);
+    + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
+    + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
+    + realconfURL);
 
     let confEmail = {
         from: '"Electrum Performance" <electrumperformance@gmail.com>',
@@ -503,15 +505,28 @@ router.post('/:id/subscribe', async function(req, res) {
         console.log("newStripeId: ", newStripeId);
         user.stripeId = newStripeId;
         await user.save();
-        let newSubscription = await stripe.subscriptions.create({
-            customer:stripeUser.id,
-            items: [
-                {
-                    // plan:"AS_Silver",
-                    plan:req.body.planID,
-                },
-            ],        
-        });
+        if (process.env.testLiveStripe) {
+            let newSubscription = await stripe.subscriptions.create({
+                customer:stripeUser.id,
+                items: [
+                    {
+                        // plan:"AS_Silver",
+                        plan:"AS_Test",
+                    },
+                ],        
+            });
+        }
+        else {
+            let newSubscription = await stripe.subscriptions.create({
+                customer:stripeUser.id,
+                items: [
+                    {
+                        // plan:"AS_Silver",
+                        plan:req.body.planID,
+                    },
+                ],        
+            });
+        }
         let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
         console.log("customer found: ", findCustomer);
         res.json(findCustomer); 
