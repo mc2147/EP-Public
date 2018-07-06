@@ -505,18 +505,18 @@ router.post('/:id/subscribe', async function(req, res) {
         console.log("newStripeId: ", newStripeId);
         user.stripeId = newStripeId;
         await user.save();
-        if (process.env.testLiveStripe) {
-            let newSubscription = await stripe.subscriptions.create({
-                customer:stripeUser.id,
-                items: [
-                    {
-                        // plan:"AS_Silver",
-                        plan:"AS_Test",
-                    },
-                ],        
-            });
-        }
-        else {
+        // if (process.env.TEST_LIVE_STRIPE) {
+        //     let newSubscription = await stripe.subscriptions.create({
+        //         customer:stripeUser.id,
+        //         items: [
+        //             {
+        //                 // plan:"AS_Silver",
+        //                 plan:"AS_Test",
+        //             },
+        //         ],        
+        //     });
+        // }
+        // else {
             let newSubscription = await stripe.subscriptions.create({
                 customer:stripeUser.id,
                 items: [
@@ -526,7 +526,7 @@ router.post('/:id/subscribe', async function(req, res) {
                     },
                 ],        
             });
-        }
+        // }
         let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
         console.log("customer found: ", findCustomer);
         res.json(findCustomer); 
