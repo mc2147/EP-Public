@@ -4,6 +4,8 @@ import Promise from "bluebird";
 var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 import {getSubscriptionInfo} from './apiFunctions/stripeFunctions';
 import {signupUser, accessInfo} from './apiFunctions/userFunctions';
 import {assignWorkouts, assignLevel, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
@@ -55,10 +57,21 @@ var workoutHandlers = require('../routes/workoutHandlers');
 var vueAPI = require('../routes/vueAPI');
     var getVueInfo = vueAPI.getVueInfo;
 
+let testUsernames = [
+    'UserName1', 'UserName2', "UserName3", "UserName4", 'UserName5', 'UserName6',
+    'AdminUser',
+    'AdminBryce', 'AdminSterner', 'AdminChan', 'AdminSitwala', 'mc2147', 'BetaSitwala',
+    'ABradley', 'ASterczala', 'ACalderone',
+    'DemoBeta'];
+
 router.get("/", function (req, res) {
     req.session.set = true;
     User.findAll({
-        where: {}
+        where: {
+            username:{
+                [Op.notIn]:testUsernames,
+            }
+        }
     }).then((users) => {
         res.json(users);
     })
