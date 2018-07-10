@@ -77,6 +77,24 @@ router.get("/", function (req, res) {
     })
 });
 
+
+router.get("/names", async function (req, res) {
+    req.session.set = true;
+    User.findAll({
+        where: {
+            username:{
+                [Op.notIn]:testUsernames,
+            }
+        }
+    }).then((users) => {
+        let output = [];
+        users.forEach(user => {
+            output.push([user.username, user.name]);
+        })
+        res.json(output);
+    })
+});
+
 router.get("/test", function (req, res) {
     User.findAll({
         where: {
