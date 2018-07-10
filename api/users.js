@@ -315,7 +315,7 @@ router.put('/:id/change-subscription', async function(req, res) {
     let newPlanID = req.body.newPlanID;
     let stripeUser = await stripe.customers.retrieve(user.stripeId);
     let subscriptions = stripeUser.subscriptions;
-    let subscriptionId = "";
+    let subscriptionId = ""; //Gets assigned to be user's latest subscription
     let currentSubscription = {};
     if (subscriptions.data.length > 0) {
         let nSubs = subscriptions.data.length;
@@ -327,6 +327,9 @@ router.put('/:id/change-subscription', async function(req, res) {
         let cancelSubscription = await stripe.subscriptions.del(subscriptionId, {
             at_period_end: true,
         })
+        if (currentSubscription.status == 'trialing') {
+            await stripe.subscriptions.del(subscriptionId, {});
+        }
         // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
         console.log("cancelling... ", cancelSubscription);
         res.json(cancelSubscription);            
@@ -339,6 +342,7 @@ router.put('/:id/change-subscription', async function(req, res) {
         if (currentSubscription.status == 'trialing') {
             await stripe.subscriptions.del(subscriptionId);
         }
+        //Trialing is used to not start a different subscription until the current one ends
         let newSubscription = await stripe.subscriptions.create({
             customer:user.stripeId,
             billing_cycle_anchor:currentSubscription.current_period_end,
@@ -432,6 +436,7 @@ router.get('/:id/subscription-info', async function(req, res) {
     let subscriptionDescriber = "";
     let currentPlan = "";
     let endDateString = "";
+    let trialendDateString = "";
     let nextPlan = false;
     let cancelled = false;
     // let new
@@ -457,16 +462,27 @@ router.get('/:id/subscription-info', async function(req, res) {
         cancelled = true;
     }
     else if (firstSubscription.status == 'trialing') {
-        nextPlan = firstSubscription.plan.nickname;
-        let nextPlanString = nextPlan;
-        if (nextPlan == 'Silver') {
-            nextPlanString = `<b style="color:#bdbdbd;">${nextPlan}</b>`
+        if (subscriptionList.length == 1) {
+            let trialEndDate = new Date(firstSubscription.trial_end*1000);
+            trialendDateString = dateString(trialEndDate);
+            subscriptionDescriber = `Your trial period will end on ${trialendDateString},`
+            + ` after which you will be billed automatically.`;
+            secondLine = subscriptionDescriber;
+            // subscriptionDescriber += ` It will change to ${nextPlanString} on this date.`
+            // secondLine = ` It will change to ${nextPlanString} on this date.`;
         }
-        else if (nextPlan == 'Gold') {
-            nextPlanString = `<b style="color:#ffca28;">${nextPlan}</b>`            
+        else {
+            nextPlan = firstSubscription.plan.nickname;
+            let nextPlanString = nextPlan;
+            if (nextPlan == 'Silver') {
+                nextPlanString = `<b style="color:#bdbdbd;">${nextPlan}</b>`
+            }
+            else if (nextPlan == 'Gold') {
+                nextPlanString = `<b style="color:#ffca28;">${nextPlan}</b>`            
+            }
+            subscriptionDescriber += ` It will change to ${nextPlanString} on this date.`
+            secondLine = ` It will change to ${nextPlanString} on this date.`;
         }
-        subscriptionDescriber += ` It will change to ${nextPlanString} on this date.`
-        secondLine = ` It will change to ${nextPlanString} on this date.`;
     }
     else if (firstSubscription.status == 'active') {
         subscriptionDescriber += ` It will renew automatically.`        
