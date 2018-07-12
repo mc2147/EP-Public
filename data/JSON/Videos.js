@@ -68,7 +68,22 @@ let VideosJSON = {
         "Conventional Deadlift": {
             DriveID: "0BysnsnxGpKeUMEM4SVV6bDRCRzAz",
             LevelAccess: 16,
-        }
+        },
+        "Barbell Rack Pull": {
+            DriveID: "1YcrqFjnuuKVFHrijiiS6vGwMzI9q6Nao",
+            LevelAccess: 8,
+            // - lvl 8 hinge
+        }, 
+        "Barbell Sumo Deadlift": {
+            DriveID: "1ELqN13-BYoYVoOWAPeopvYAisLTZamf9",
+            LevelAccess: 12,
+            // - lvl 12 hinge
+        }, 
+        "Barbell Deficit Romanian Deadlift": {
+            DriveID: "1mkfIZHPQMP5zb-0G1pMOLf3UUOdDSyry",
+            LevelAccess:13,
+            // - lvl 13 hinge        
+        } 
     },
     "Push": {
         "DB Bench Press": {
@@ -142,7 +157,32 @@ let VideosJSON = {
         "BB Front Squat": {
             DriveID: "0BysnsnxGpKeUajhOT19fRkpBUFk",
             LevelAccess: 10,            
-        }
+        },
+        "Barbell High Bar Box Squat": {
+            DriveID: "1EgJz5H5JuCJcDIB11647hsbFczBIYd0a",
+            LevelAccess: 8,
+            // - lvl 8 squat
+        }, 
+        "Barbell Box Front Squat": {
+            DriveID: "1jLq1Gc9vBuofcqx5-iGAP8oR1O0eLhto",
+            LevelAccess: 11,
+            // - lvl 11 squat
+        }, 
+        "Barbell Frankenstein Squat": {
+            LevelAccess:16,
+            DriveID: "1EJRcmZxrgjCm-UQ8EXBTO4CmHLQAehHX",
+            // - lvl 16 squat
+        },
+        "Barbell Low Bar Back Squat": {
+            LevelAccess:20,
+            DriveID: "11F1v-0jXurb0dyLTZaX81Ll9JYh8MQuY"
+            // - lvl 20 squat
+        },
+        "Barbell Low Bar Box Squat": {
+            LevelAccess:17,
+            DriveID: "1xCPJTxghKgxMxMqOXv5kgMwxovmg7OhJ"
+            // - lvl 17 squat
+        }         
     }
 }
 
