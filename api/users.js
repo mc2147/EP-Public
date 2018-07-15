@@ -110,6 +110,31 @@ router.get("/test", function (req, res) {
     })
 });
 
+router.get('/test-stripe', function(req, res) {
+    try {
+        let stripeUser = await stripe.customers.create({
+            // source:stripeToken,
+            email:'test@test.com',
+        });    
+        let testSubscription = await stripe.subscriptions.create({
+            customer:stripeUser.id,
+            items: [
+                {
+                    // plan:"AS_Silver",
+                    plan:"AS_Test",
+                },
+            ],        
+        });        
+        res.json({
+            customer:stripeUser,
+            subscription:testSubscription
+        });
+    }
+    catch(err) {
+        res.json(err);
+    }
+})
+
 
 // Inputs: email, name, 
 router.post("/", async function(req, res) {
