@@ -113,9 +113,16 @@ export async function accessInfo(user, timezoneOffset=0) {
         try {
             let stripeUser = await stripe.customers.retrieve(user.stripeId);
             if (stripeUser.subscriptions.data.length > 0) {
+                let currentSubscription = stripeUser.subscriptions.data[0];
+                let currentPlan = currentSubscription.plan;
                 hasSubscription = true;
                 subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+                //Subscription Trial Case
+                if (currentPlan.id == 'AS_Trial' && subscriptionStatus != 'trialing') {
+                    subscriptionExpired = true;
+                }
+                //Normal Plan Case
+                else if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
                     subscriptionValid = true;
                 }
                 else {

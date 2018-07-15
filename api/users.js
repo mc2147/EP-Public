@@ -126,8 +126,9 @@ router.get('/test-stripe', async function(req, res) {
             ],        
             trial_from_plan:true,
         });        
+        let updatedStripeUser = await stripe.customers.retrieve(stripeUser.id);
         res.json({
-            customer:stripeUser,
+            customer:updatedStripeUser,
             subscription:testSubscription
         });
     }
