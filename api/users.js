@@ -110,7 +110,7 @@ router.get("/test", function (req, res) {
     })
 });
 
-router.get('/test-stripe', function(req, res) {
+router.get('/test-stripe', async function(req, res) {
     try {
         let stripeUser = await stripe.customers.create({
             // source:stripeToken,
