@@ -124,6 +124,7 @@ router.get('/test-stripe', async function(req, res) {
                     plan:"AS_Trial",
                 },
             ],        
+            trial_from_plan:true,
         });        
         res.json({
             customer:stripeUser,
