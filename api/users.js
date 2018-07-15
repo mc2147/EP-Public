@@ -71,7 +71,10 @@ router.get("/", function (req, res) {
             username:{
                 [Op.notIn]:testUsernames,
             }
-        }
+        },
+        order: [
+            ['createdAt', 'DESC'],
+        ],
     }).then((users) => {
         res.json(users);
     })

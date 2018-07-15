@@ -2,6 +2,9 @@ let {VideosJSON, DescriptionsJSON, LevelVideos} = require('../data');
 import {Video} from '../models';
 
 async function createVideos() {
+    await Video.destroy({
+        where:{}
+    });
     for (var Key in VideosJSON) {
         // console.log(Key);
         var VideosCategory = VideosJSON[Key];
