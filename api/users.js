@@ -381,6 +381,17 @@ router.put('/:id/change-subscription', async function(req, res) {
     // let 
 })
 
+router.get('/:id/stripe-customer', async function(req, res) {
+    let user = await User.findById(req.params.id);
+    try {
+        let stripeUser = await stripe.customers.retrieve(user.stripeId);
+        res.json(stripeUser);
+    }
+    catch(err) {
+        res.json(err);
+    }
+})
+
 router.get('/:id/active-subscription', async function(req, res) {
     let user = await User.findById(req.params.id);
     let stripeUser = await stripe.customers.retrieve(user.stripeId);
