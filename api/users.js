@@ -121,7 +121,7 @@ router.get('/test-stripe', async function(req, res) {
             items: [
                 {
                     // plan:"AS_Silver",
-                    plan:"AS_Test",
+                    plan:"AS_Trial",
                 },
             ],        
         });        
