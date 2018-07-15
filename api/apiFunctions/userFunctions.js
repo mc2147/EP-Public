@@ -106,6 +106,7 @@ export async function accessInfo(user, timezoneOffset=0) {
     // let initialized = false;
     let subscriptionStatus = null;    
     let accessLevel = 0;
+    let planID = '';
     // 
     console.log('user access info ');
     // console.log("user (accessInfo): ", user);
@@ -118,6 +119,7 @@ export async function accessInfo(user, timezoneOffset=0) {
                 hasSubscription = true;
                 subscriptionStatus = stripeUser.subscriptions.data[0].status;
                 //Subscription Trial Case
+                planID = currentPlan.id;
                 if (currentPlan.id == 'AS_Trial' && subscriptionStatus != 'trialing') {
                     subscriptionExpired = true;
                 }
@@ -208,6 +210,7 @@ export async function accessInfo(user, timezoneOffset=0) {
         subscriptionValid,
         subscriptionStatus,
         subscriptionExpired,
+        planID,
         // Workouts
         hasLevel,
         hasWorkouts,
