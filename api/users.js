@@ -312,7 +312,7 @@ router.post('/:id/confirmation-email', async function(req, res) {
     user.confString = confString;
     await user.save();
     let productionconfURL = `${process.env.BASE_URL}/api/users/${req.params.id}/confirm/${confString}`;
-    let realconfURL = `www.electrumperformance.com/confirm/${req.params.id}/${confString}`;
+    let realconfURL = `https://www.electrumperformance.com/confirm/${req.params.id}/${confString}`;
     // console.log('confURL: ', confURL);
     let confHTML = (`<p>This is the confirmation email for your Electrum Performance
      account for: ${user.username} `
