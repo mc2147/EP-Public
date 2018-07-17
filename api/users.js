@@ -90,10 +90,17 @@ router.get("/names", async function (req, res) {
             }
         }
     }).then((users) => {
-        let output = [];
+        let output = {};
+        let namesArray = [];
+        let emailAllString = "";
         users.forEach(user => {
-            output.push([user.username, user.name]);
+            namesArray.push([user.username, user.name]);
+            emailAllString += user.username + ', ';
         })
+        output = {
+            namesArray,
+            emailAllString,
+        };
         res.json(output);
     })
 });
@@ -313,7 +320,7 @@ router.post('/:id/confirmation-email', async function(req, res) {
     + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
     + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
     + realconfURL
-    + "<br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
+    + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
     + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>"
     + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>");
 
