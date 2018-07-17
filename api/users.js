@@ -600,6 +600,19 @@ router.post('/:id/subscribe', async function(req, res) {
     let planID = req.body.planID;
     console.log("   req.body (api/users): ", req.body);
     let user = await User.findById(req.params.id);
+    if (user.stripeId != "") {
+        let userAccessLevel = accessInfo(user);
+        let stripeUser = await stripe.customers.retrieve(user.stripeId);
+        if (stripeUser.subscriptions.data.length > 0) {
+            res.json({
+                alreadySubscribed:true,
+            })
+            return
+        }
+        if (userAccessLevel >= 1) {
+
+        }
+    }
     try {
         let stripeUser = await stripe.customers.create({
             source:stripeToken,
@@ -629,6 +642,7 @@ router.post('/:id/subscribe', async function(req, res) {
                         plan:req.body.planID,
                     },
                 ],        
+                trial_from_plan:true,
             });
         // }
         let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
