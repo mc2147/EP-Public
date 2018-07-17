@@ -311,8 +311,11 @@ router.post('/:id/confirmation-email', async function(req, res) {
      account for: ${user.username} `
     + 'Please click the link below to activate your account:<br><br>'
     + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
-    + "<br><br>If the above link doesn't work, navigate to this URL in your browser:<br>"
-    + realconfURL);
+    + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
+    + realconfURL
+    + "<br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
+    + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>"
+    + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>");
 
     let confEmail = {
         from: '"Electrum Performance" <electrumperformance@gmail.com>',
