@@ -127,9 +127,9 @@ router.get('/names/not-confirmed', async function(req, res) {
         })
         let count = namesArray.length;
         output = {
+            count,
             namesArray,
             emailAllString,
-            count
         };
         res.json(output);
     })
