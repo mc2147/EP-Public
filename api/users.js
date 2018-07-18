@@ -87,7 +87,7 @@ router.get("/names", async function (req, res) {
         where: {
             username:{
                 [Op.notIn]:testUsernames,
-            }
+            },            
         }
     }).then((users) => {
         let output = {};
@@ -104,6 +104,54 @@ router.get("/names", async function (req, res) {
         res.json(output);
     })
 });
+
+router.get('/names/not-confirmed', async function(req, res) {
+    User.findAll({
+        where: {
+            username:{
+                [Op.notIn]:testUsernames,
+            },
+            active:false,
+        }
+    }).then((users) => {
+        let output = {};
+        let namesArray = [];
+        let emailAllString = "";
+        users.forEach(user => {
+            namesArray.push([user.username, user.name]);
+            emailAllString += user.username + ', ';
+        })
+        output = {
+            namesArray,
+            emailAllString,
+        };
+        res.json(output);
+    })
+})
+
+router.get('/names/not-subscribed', async function(req, res) {
+    User.findAll({
+        where: {
+            username:{
+                [Op.notIn]:testUsernames,
+            },
+            stripeId:""
+        }
+    }).then((users) => {
+        let output = {};
+        let namesArray = [];
+        let emailAllString = "";
+        users.forEach(user => {
+            namesArray.push([user.username, user.name]);
+            emailAllString += user.username + ', ';
+        })
+        output = {
+            namesArray,
+            emailAllString,
+        };
+        res.json(output);
+    })
+})
 
 router.get("/test", function (req, res) {
     User.findAll({
