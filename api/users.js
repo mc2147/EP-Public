@@ -118,12 +118,18 @@ router.get('/names/not-confirmed', async function(req, res) {
         let namesArray = [];
         let emailAllString = "";
         users.forEach(user => {
-            namesArray.push([user.username, user.name]);
+            namesArray.push([
+                user.username, 
+                user.name,
+                {active:user.active}
+            ]);
             emailAllString += user.username + ', ';
         })
+        let count = namesArray.length;
         output = {
             namesArray,
             emailAllString,
+            count
         };
         res.json(output);
     })
@@ -142,10 +148,15 @@ router.get('/names/not-subscribed', async function(req, res) {
         let namesArray = [];
         let emailAllString = "";
         users.forEach(user => {
-            namesArray.push([user.username, user.name]);
+            namesArray.push([
+                user.username, 
+                user.name, 
+                {stripeId:user.stripeId, active:user.active}]);
             emailAllString += user.username + ', ';
         })
+        let count = namesArray.length;
         output = {
+            count,
             namesArray,
             emailAllString,
         };
