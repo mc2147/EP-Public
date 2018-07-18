@@ -659,6 +659,11 @@ router.get('/:id/all-subscriptions-info', async function(req, res) {
     }    
 })
 
+router.post('/:id/start-trial', async function(req, res) {
+    console.log('starting trial only');
+    res.json('starting trial');
+})
+
 // Plan ID: AS_Bronze, AS_Silver, AS_Gold
 router.post('/:id/subscribe', async function(req, res) {
     console.log('SUBSCRIBING...');
