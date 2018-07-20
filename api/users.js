@@ -680,7 +680,9 @@ router.post('/:id/start-trial', async function(req, res) {
         let stripeUser = await stripe.customers.retrieve(user.stripeId);
         console.log('already subscribed!!!');
         console.log('existing stripe user: ', stripeUser);
-        if (stripeUser.subscriptions.data.length > 0) {
+
+        if (!stripeUser.deleted 
+            && stripeUser.subscriptions.data.length > 0) {
             res.json({
                 alreadySubscribed:true,
             })
