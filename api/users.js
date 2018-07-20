@@ -671,8 +671,55 @@ router.get('/:id/all-subscriptions-info', async function(req, res) {
 })
 
 router.post('/:id/start-trial', async function(req, res) {
+    let stripeToken = req.body.stripeToken;
+    let user = await User.findById(req.params.id);
     console.log('starting trial only');
-    res.json('starting trial');
+    // res.json('starting trial');
+    if (user.stripeId != "") {
+        let userAccessLevel = accessInfo(user);
+        let stripeUser = await stripe.customers.retrieve(user.stripeId);
+        console.log('already subscribed!!!');
+        console.log('existing stripe user: ', stripeUser);
+        if (stripeUser.subscriptions.data.length > 0) {
+            res.json({
+                alreadySubscribed:true,
+            })
+            return
+        }
+        if (userAccessLevel >= 1) {
+
+        }
+    }
+    try {
+        let stripeUser = await stripe.customers.create({
+            source:stripeToken,
+            email:user.username,
+        });
+        let newStripeId = stripeUser.id;
+        console.log("newStripeId: ", newStripeId);
+        user.stripeId = newStripeId;
+        await user.save();
+        console.log('line 719');
+        let newSubscription = await stripe.subscriptions.create({
+            customer:stripeUser.id,
+            items: [
+                {
+                    // plan:"AS_Silver",
+                    plan:'AS_Trial',
+                },
+            ],        
+            trial_from_plan:true,
+        });
+        let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
+        console.log("customer found: ", findCustomer);
+        res.json(findCustomer); 
+        return    
+    }
+    catch(error) {
+        console.log('PAYMENT ERROR: ', error);
+        error.paymentError = true;
+        res.json(error);
+    }
 })
 
 // Plan ID: AS_Bronze, AS_Silver, AS_Gold

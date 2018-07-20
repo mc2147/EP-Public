@@ -107,12 +107,14 @@ export async function accessInfo(user, timezoneOffset=0) {
     let subscriptionStatus = null;    
     let accessLevel = 0;
     let planID = '';
+    let subscriptionsList = [];
     // 
-    console.log('user access info ');
+    console.log('user access info for: ', user.username);
     // console.log("user (accessInfo): ", user);
     if (user.stripeId != "") {
         try {
             let stripeUser = await stripe.customers.retrieve(user.stripeId);
+            subscriptionsList = stripeUser.subscriptions.data;
             if (stripeUser.subscriptions.data.length > 0) {
                 let currentSubscription = stripeUser.subscriptions.data[0];
                 let currentPlan = currentSubscription.plan;
@@ -120,10 +122,12 @@ export async function accessInfo(user, timezoneOffset=0) {
                 subscriptionStatus = stripeUser.subscriptions.data[0].status;
                 //Subscription Trial Case
                 planID = currentPlan.id;
+                //Trial-only plan and past trial period
                 if (currentPlan.id == 'AS_Trial' && subscriptionStatus != 'trialing') {
                     subscriptionExpired = true;
                 }
                 //Normal Plan Case
+                //Normal plan and trial or active, not past_due
                 else if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
                     subscriptionValid = true;
                 }
@@ -203,6 +207,7 @@ export async function accessInfo(user, timezoneOffset=0) {
         accessLevel = 6;
     }
     console.log("accessLevel (accessInfo): ", accessLevel);
+    console.log("subscriptions list: ", subscriptionsList);
     return {
         // Stripe & Subcriptions
         hasStripe,
