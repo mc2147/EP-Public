@@ -117,6 +117,7 @@ export async function accessInfo(user, timezoneOffset=0) {
             subscriptionsList = stripeUser.subscriptions.data;
             if (stripeUser.subscriptions.data.length > 0) {
                 let currentSubscription = stripeUser.subscriptions.data[0];
+                let currentSubID = currentSubscription.id;
                 let currentPlan = currentSubscription.plan;
                 hasSubscription = true;
                 subscriptionStatus = stripeUser.subscriptions.data[0].status;
@@ -125,6 +126,8 @@ export async function accessInfo(user, timezoneOffset=0) {
                 //Trial-only plan and past trial period
                 if (currentPlan.id == 'AS_Trial' && subscriptionStatus != 'trialing') {
                     subscriptionExpired = true;
+                    await stripe.subscriptions.del({currentSubID});
+                    //Cancel subscription here
                 }
                 //Normal Plan Case
                 //Normal plan and trial or active, not past_due

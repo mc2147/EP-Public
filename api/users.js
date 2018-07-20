@@ -813,7 +813,7 @@ router.post('/:id/renew-subscription', async function(req, res) {
                     plan:planID,
                 },
             ],
-            trial_from_plan:true,
+            trial_from_plan:true, //for testing only - to avoid an immediate charge
         })
         console.log("line 426");
         let response = await accessInfo(user, req.session.timezoneOffset);
