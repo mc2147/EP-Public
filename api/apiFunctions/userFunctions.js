@@ -126,7 +126,8 @@ export async function accessInfo(user, timezoneOffset=0) {
                 //Trial-only plan and past trial period
                 if (currentPlan.id == 'AS_Trial' && subscriptionStatus != 'trialing') {
                     subscriptionExpired = true;
-                    await stripe.subscriptions.del({currentSubID});
+                    await stripe.subscriptions.del(currentSubID);
+                    console.log('cancelling trial subscription');
                     //Cancel subscription here
                 }
                 //Normal Plan Case
@@ -141,6 +142,7 @@ export async function accessInfo(user, timezoneOffset=0) {
             hasStripe = true;
         }
         catch(error) {
+            console.log('access info error (line 145): ', error);
             hasStripe = false;
         }
     }
