@@ -716,16 +716,18 @@ router.post('/:id/subscribe', async function(req, res) {
         //     });
         // }
         // else {
-            let newSubscription = await stripe.subscriptions.create({
-                customer:stripeUser.id,
-                items: [
-                    {
-                        // plan:"AS_Silver",
-                        plan:req.body.planID,
-                    },
-                ],        
-                trial_from_plan:true,
-            });
+        console.log('line 719');
+        let newSubscription = await stripe.subscriptions.create({
+            customer:stripeUser.id,
+            items: [
+                {
+                    // plan:"AS_Silver",
+                    plan:req.body.planID,
+                },
+            ],        
+            trial_from_plan:true,
+        });
+        console.log('line 730');
         // }
         let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
         console.log("customer found: ", findCustomer);
@@ -733,7 +735,7 @@ router.post('/:id/subscribe', async function(req, res) {
         return    
     }
     catch(error) {
-        console.log('PAYMENT ERROR');
+        console.log('PAYMENT ERROR: ', error);
         error.paymentError = true;
         res.json(error);
     }
