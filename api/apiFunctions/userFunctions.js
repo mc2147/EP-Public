@@ -100,7 +100,7 @@ export async function accessInfo(user, timezoneOffset=0) {
     let missedWorkouts = false; //reschedule workouts prompt
     // Stipe & Subscription
     let hasStripe = false;
-    let hasSubscription = false;
+    let hadSubscription = false;
     let subscriptionValid = false;
     let subscriptionExpired = false;
     // let initialized = false;
@@ -115,11 +115,14 @@ export async function accessInfo(user, timezoneOffset=0) {
         try {
             let stripeUser = await stripe.customers.retrieve(user.stripeId);
             subscriptionsList = stripeUser.subscriptions.data;
+            if (stripeUser.description == 'Subscribed Once') {
+                hadSubscription = true;
+            }
             if (stripeUser.subscriptions.data.length > 0) {
                 let currentSubscription = stripeUser.subscriptions.data[0];
                 let currentSubID = currentSubscription.id;
                 let currentPlan = currentSubscription.plan;
-                hasSubscription = true;
+                hadSubscription = true;
                 subscriptionStatus = stripeUser.subscriptions.data[0].status;
                 //Subscription Trial Case
                 planID = currentPlan.id;
@@ -178,7 +181,7 @@ export async function accessInfo(user, timezoneOffset=0) {
     let output = {
         // Stripe & Subcriptions
         hasStripe,
-        hasSubscription,
+        hadSubscription,
         subscriptionValid,
         subscriptionStatus,
         subscriptionExpired,
@@ -189,22 +192,22 @@ export async function accessInfo(user, timezoneOffset=0) {
         initialized,
     }
     // console.log
-    if (hasSubscription) {
+    if (hadSubscription) {
         accessLevel = 1;
     }
-    if (hasSubscription && hasLevel) {
+    if (hadSubscription && hasLevel) {
         accessLevel = 2;       
     }
-    if (hasSubscription && hasLevel && initialized) {
+    if (hadSubscription && hasLevel && initialized) {
         accessLevel = 3;       
     }
-    if (hasSubscription && hasLevel && initialized && subscriptionValid) {
+    if (hadSubscription && hasLevel && initialized && subscriptionValid) {
         accessLevel = 4;       
     }
-    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts) {
+    if (hadSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts) {
         accessLevel = 5;       
     }
-    if (hasSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts) {
+    if (hadSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts) {
         accessLevel = 6;       
     }
     let nonAdminAccess = accessLevel;
@@ -216,7 +219,7 @@ export async function accessInfo(user, timezoneOffset=0) {
     return {
         // Stripe & Subcriptions
         hasStripe,
-        hasSubscription,
+        hadSubscription,
         subscriptionValid,
         subscriptionStatus,
         subscriptionExpired,

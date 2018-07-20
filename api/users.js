@@ -712,6 +712,9 @@ router.post('/:id/start-trial', async function(req, res) {
             ],        
             trial_from_plan:true,
         });
+        await stripe.customers.update(stripeUser.id, {
+            description:'Subscribed Once',
+        });
         let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
         console.log("customer found: ", findCustomer);
         res.json(findCustomer); 
@@ -775,6 +778,9 @@ router.post('/:id/subscribe', async function(req, res) {
                 },
             ],        
             trial_from_plan:true,
+        });
+        await stripe.customers.update(stripeUser.id, {
+            description:'Subscribed Once',
         });
         console.log('line 730');
         // }
