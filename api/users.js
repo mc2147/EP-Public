@@ -80,6 +80,10 @@ router.get("/", function (req, res) {
     })
 });
 
+router.post('/individualized-program', async function (req, res) {
+    res.json('individualized programming route hit!!!');
+})
+
 
 router.get("/names", async function (req, res) {
     req.session.set = true;
@@ -632,7 +636,14 @@ router.get('/:id/all-subscriptions', async function(req, res) {
     let user = await User.findById(req.params.id);
     try {
         let stripeUser = await stripe.customers.retrieve(user.stripeId);
-        res.json(stripeUser.subscriptions.data);        
+        let subscriptionsList = stripeUser.subscriptions.data;
+        let nSubscriptions = stripeUser.subscriptions.data.length;
+        let morethan0 = stripeUser.subscriptions.data.length > 0;
+        res.json({
+            subscriptionsList,
+            nSubscriptions,
+            morethan0
+        });        
     }
     catch(error) {
         error.Error = true;
