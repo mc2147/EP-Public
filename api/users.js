@@ -80,9 +80,54 @@ router.get("/", function (req, res) {
     })
 });
 
+let IPForm = {
+    Name:'Please write out your name',
+    PastInjuries:'Do you have any past injuries that we should keep in mind while designing your program? (please include the type of injury, date it occurred, and current state)',
+    Experience:'What is your strength training experience?',
+    Equipment:'What equipment do you have at your disposal? (commercial fitness facility, home gym, etc.)',
+    Goals:'What are your short and long term goals as they pertain to strength training? Goals regarding your respective sport? (change in weight class, strength in specific positions, etc.)',
+    IncludeExercises:'Are there any specific exercises you would like us to include?',
+    AvoidExercises:'Are there any specific exercises you would like to avoid? Why?',
+    TrainingDays:'How many days per week would you like to train? (if unsure we will program 3)',
+};
+
 router.post('/individualized-program', async function (req, res) {
     let input = req.body;
     console.log('input for individualized programming route: ', input);
+    if (input.payment) {
+        // Create stripe customer here with card and email
+        // Link later information to stripe customer email
+        // Send email to Alex's notifying them of a customer's signup
+        let emailHTML = (`<p>A new user has paid for individualized programming! You can reach them at ${input.email}</p><br>`);
+        let email = {
+            from: '"Electrum Performance" <electrumperformance@gmail.com>',
+            to: 'electrumperformance@gmail.com',
+            subject: `[Individualized Programming] Payment from ${input.email}`,
+            html:emailHTML
+        };
+        sendMail(email);
+        res.json('individualized program payment');
+        return
+    }
+    else if (input.IPinformation) {
+        let emailHTML = (`<p>This is the individualized programming information for: name (email)</p><br>`);
+        let formInfo = input.FormInfo;
+        for (var key in IPForm) {
+            let question = IPForm[key];
+            let answer = formInfo[key];
+            emailHTML += `<b>${question}</b><br>`;
+            emailHTML += `<p>${answer}</p><br>`;            
+        }
+        let email = {
+            from: '"Electrum Performance" <electrumperformance@gmail.com>',
+            to: 'electrumperformance@gmail.com',
+            subject: '[Individualized Programming] Information for X',
+            html:emailHTML
+        };
+        sendMail(email);
+        res.json('individualized program information');
+        return
+    }
     // Create stripe customer here with card and email
     // Link later information to stripe customer email
     // Send email to Alex's notifying them of a customer's signup
@@ -105,8 +150,6 @@ router.post('/individualized-program', async function (req, res) {
     //     html: confHTML
     // };
     // sendMail(confEmail);
-
-    res.json('individualized programming route hit!!!');
 })
 
 router.post('/individualized-program/info', async function(req, res) {
