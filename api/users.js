@@ -81,7 +81,38 @@ router.get("/", function (req, res) {
 });
 
 router.post('/individualized-program', async function (req, res) {
+    let input = req.body;
+    console.log('input for individualized programming route: ', input);
+    // Create stripe customer here with card and email
+    // Link later information to stripe customer email
+    // Send email to Alex's notifying them of a customer's signup
+    // let confHTML = (`<p>This is the confirmation email for your Electrum Performance
+    //  account for: ${user.username} `
+    // + 'Please click the link below to activate your account:<br><br>'
+    // + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
+    // + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
+    // + realconfURL
+    // + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
+    // + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>"
+    // + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>");
+
+    // let confEmail = {
+    //     from: '"Electrum Performance" <electrumperformance@gmail.com>',
+    //     // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+    //     to: user.username,
+    //     subject: 'Account Confirmation [Electrum Performance]',
+    //     // text: `Your new password for AlloyStrength Training is: ${newPassword}`
+    //     html: confHTML
+    // };
+    // sendMail(confEmail);
+
     res.json('individualized programming route hit!!!');
+})
+
+router.post('/individualized-program/info', async function(req, res) {
+    let input = req.body;
+    //
+    res.json('individualized programming info route!!');
 })
 
 
@@ -819,7 +850,7 @@ router.post('/:id/renew-subscription', async function(req, res) {
                     plan:planID,
                 },
             ],
-            trial_from_plan:true, //for testing only - to avoid an immediate charge
+            // trial_from_plan:true, //for testing only - to avoid an immediate charge
         })
         console.log("line 426");
         let response = await accessInfo(user, req.session.timezoneOffset);

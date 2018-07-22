@@ -13,6 +13,7 @@
     "seed-workouts": "npm run build && npm run babel-node -- ./script/seed-workouts.js",
     "seed-videos": "npm run build && npm run babel-node -- ./script/seed-videos.js",
     "seed-users": "npm run build && npm run babel-node -- ./script/seed-users.js",
+    "modify-users": "npm run build && npm run babel-node -- ./script/modify-users.js",
     "destroy-all-users": "npm run build && npm run babel-node -- ./script/destroy-all-users.js"
   },
   "author": "",
