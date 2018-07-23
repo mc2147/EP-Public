@@ -241,6 +241,37 @@ router.get('/names/not-subscribed', async function(req, res) {
     })
 })
 
+router.get('/names/active-not-subscribed', async function(req, res) {
+    User.findAll({
+        where: {
+            username:{
+                [Op.notIn]:testUsernames,
+            },
+            active:true,
+            stripeId:"",
+        }
+    }).then((users) => {
+        let output = {};
+        let namesArray = [];
+        let emailAllString = "";
+        users.forEach(user => {
+            namesArray.push([
+                user.username, 
+                user.name, 
+                {stripeId:user.stripeId, active:user.active}]);
+            emailAllString += user.username + ', ';
+        })
+        let count = namesArray.length;
+        output = {
+            count,
+            namesArray,
+            emailAllString,
+        };
+        res.json(output);
+    })
+})
+
+
 router.get("/test", function (req, res) {
     User.findAll({
         where: {
