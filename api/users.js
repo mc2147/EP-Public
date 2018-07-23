@@ -105,13 +105,13 @@ router.post('/individualized-program', async function (req, res) {
             subject: `[Individualized Programming] Payment from ${input.email}`,
             html:emailHTML
         };
-        sendMail(email);
+        // sendMail(email);
         res.json('individualized program payment');
         return
     }
     else if (input.IPinformation) {
-        let emailHTML = (`<p>This is the individualized programming information for: name (email)</p><br>`);
         let formInfo = input.FormInfo;
+        let emailHTML = (`<p>This is the individualized programming information for: ${formInfo.Name} (${input.email})</p><br>`);
         for (var key in IPForm) {
             let question = IPForm[key];
             let answer = formInfo[key];
@@ -121,10 +121,10 @@ router.post('/individualized-program', async function (req, res) {
         let email = {
             from: '"Electrum Performance" <electrumperformance@gmail.com>',
             to: 'electrumperformance@gmail.com',
-            subject: '[Individualized Programming] Information for X',
+            subject: `[Individualized Programming] Information for ${input.email}`,
             html:emailHTML
         };
-        sendMail(email);
+        // sendMail(email);
         res.json('individualized program information');
         return
     }
@@ -140,7 +140,6 @@ router.post('/individualized-program', async function (req, res) {
     // + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
     // + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>"
     // + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>");
-
     // let confEmail = {
     //     from: '"Electrum Performance" <electrumperformance@gmail.com>',
     //     // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
