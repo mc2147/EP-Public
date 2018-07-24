@@ -141,6 +141,14 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                     patternInstance.name = EName + deloadIndicator;
 
                     var findVideo = await Video.search(EName, false); 
+                    if (!findVideo) {
+                        findVideo = await Video.findOne({
+                            where: {
+                                levelAccess:effectiveLevel,
+                                exerciseType:EType,
+                            }
+                        })
+                    }
                     if (findVideo) {
                         patternInstance.hasVideo = true;
                         patternInstance.videoURL = findVideo.url;                        

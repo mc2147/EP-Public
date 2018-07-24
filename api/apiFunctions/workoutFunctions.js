@@ -266,6 +266,7 @@ export async function assignWorkouts(_User, input, newUser=false) {
                     patternInstance.name = EName;
                     // console.log("   97");
                     var findVideo = await Video.search(EName, false); 
+                    // if (!findVideo)
                     // // console.log("   99");
                     if (findVideo) {
                         patternInstance.hasVideo = true;
