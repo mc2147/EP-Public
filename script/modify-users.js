@@ -12,7 +12,9 @@ async function modifyUsers() {
     let wDates = craigUser.workoutDates;
     let newDates = wDates.slice(0, -1);
     let newFirstDateNum = wDates[0].getDate() - 3;
-    let newFirstDateObj = Object.assign({}, new Date(wDates[0]));
+    let newFirstDateObj = new Date(wDates[0]);
+    console.log('newFirstDateObj: ', newFirstDateObj);
+    
     newFirstDateObj.setDate(newFirstDateNum);
     newDates.unshift(newFirstDateObj);
     console.log('calculating new dates: ', newDates);
