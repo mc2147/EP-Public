@@ -18,11 +18,12 @@ async function modifyUsers() {
     newFirstDateObj.setDate(newFirstDateNum);
     newDates.unshift(newFirstDateObj);
     console.log('calculating new dates: ', newDates);
+    craigUser.workoutDates = newDates;
     for (let i = 0; i < newDates.length; i ++) {
         let workoutIndex = i + 1;
-        console.log('   workoutIndex: ', workoutIndex);
+        console.log('   workoutIndex: ', workoutIndex, ' completed: ', craigUser.workouts[workoutIndex].Completed);
         console.log('   new date: ', newDates[i]);
-        // craigUser.workouts[workoutIndex].Date = newDates[i];
+        craigUser.workouts[workoutIndex].Date = newDates[i];
     }
     // for (var W in craigUser.workouts) {
 
