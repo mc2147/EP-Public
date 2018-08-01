@@ -170,14 +170,27 @@ export async function accessInfo(user, timezoneOffset=0) {
         console.log('wDate: ', wDate);
         if (//If there's an incomplete workout before the current date
             !W.Completed 
-            && wDate 
-            && wDate.getDate() < Now.getDate() 
-            && wDate.getMonth() <= Now.getMonth()
-            && wDate.getYear() <= Now.getYear()) {
+            && wDate) {
+            // Smaller year
+            if (wDate.getYear() < Now.getYear()) {
                 missedWorkouts = true;
-                break
-        }
-    }	
+                break    
+            }
+            // Same year, smaller month
+            else if (wDate.getYear() == Now.getYear()
+            && wDate.getMonth() < Now.getMonth()) {
+                missedWorkouts = true;
+                break    
+            }
+            // Same year, same month, smaller date
+            else if (wDate.getYear() == Now.getYear()
+            && wDate.getMonth() == Now.getMonth()
+            && wDate.getDate() < Now.getDate()) {
+                missedWorkouts = true;
+                break    
+            }                
+        } 
+    }
     let output = {
         // Stripe & Subcriptions
         hasStripe,
