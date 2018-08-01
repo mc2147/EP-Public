@@ -7,6 +7,13 @@ async function modifyUsers() {
             username:'c_lloy@hotmail.com'
         }
     });
+    craigUser.workouts[1].Completed = true;
+    craigUser.workouts[2].Completed = true;
+    craigUser.changed('workouts', true);
+    await craigUser.save();
+    // for (var W in craigUser.workouts) {
+
+    // }
 
     // let benjamin = await User.findOne({
     //     where:{
