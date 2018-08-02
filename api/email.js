@@ -59,9 +59,19 @@ let sendMail = function(input) {
         console.log('line 44');
         if(error) {
             console.log(error);
+            return {
+                success:false,
+                error:true,
+                errorBody:error,
+            };
         }
         console.log('The message was sent!');
         console.log(info);
+        return {
+            success:true,
+            error:false,
+            errorBody:null,
+        };
     }); 
 }
 
