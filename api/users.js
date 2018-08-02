@@ -80,6 +80,24 @@ router.get("/", function (req, res) {
     })
 });
 
+router.post('/contact-form', async function(req, res) {
+    let {name, email, messageBody, messageType} = req.body;
+    let emailHTML = (
+        `<b>Name: </b> ${name}<br><br>` +
+        `<b>Email: </b> ${email}<br><br>` + 
+        `<b>Message Type: </b> ${messageType}<br><br>` +
+        `<b>Message Body: </b> ${messageBody}<br><br>`);
+
+    let emailJSON = {
+        from: '"Electrum Performance" <electrumperformance@gmail.com>',
+        to: 'electrumperformance@gmail.com',
+        subject: `[Electrum Performance] Contact Form Submission - ${email}`,
+        html:emailHTML
+    };
+    sendMail(emailJSON);
+});
+
+
 let IPForm = {
     Name:'Please write out your name',
     PastInjuries:'Do you have any past injuries that we should keep in mind while designing your program? (please include the type of injury, date it occurred, and current state)',
@@ -105,7 +123,7 @@ router.post('/individualized-program', async function (req, res) {
             subject: `[Individualized Programming] Payment from ${input.email}`,
             html:emailHTML
         };
-        // sendMail(email);
+        sendMail(email);
         res.json('individualized program payment');
         return
     }
@@ -124,7 +142,7 @@ router.post('/individualized-program', async function (req, res) {
             subject: `[Individualized Programming] Information for ${input.email}`,
             html:emailHTML
         };
-        // sendMail(email);
+        sendMail(email);
         res.json('individualized program information');
         return
     }
