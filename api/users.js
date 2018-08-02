@@ -99,7 +99,7 @@ router.post('/contact-form', async function(req, res) {
         html:emailHTML
     };
     let mailResponse = {};
-    let mailResponse = sendMail(emailJSON);
+    mailResponse = sendMail(emailJSON);
     res.json(mailResponse);
     // if (mailResponse.success) {
     //     res.json({
