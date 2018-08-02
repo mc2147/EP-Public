@@ -117,6 +117,7 @@ router.post('/contact-form', async function(req, res) {
 router.post('/purchase/galvao-pdf', async function(req, res) {
     console.log('purchase route hit!! req.body: ', req.body);
     console.log('ABSPATH: ', ABSPATH);
+    let itemPath = ABSPATH + '/products/Demo.pdf';
     let {buyerEmail} = req.body;
     let itemName = 'Galvao PDF';
     let emailHTML = (
@@ -129,7 +130,7 @@ router.post('/purchase/galvao-pdf', async function(req, res) {
         html:emailHTML,
         attachments: [
             {   // filename and content type is derived from path
-                path: './Demo.pdf'
+                path: itemPath
             },            
         ]
     };
