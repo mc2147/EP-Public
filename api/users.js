@@ -26,7 +26,8 @@ console.log('secret key: ', process.env.STRIPE_SECRET_KEY)
 // 	var SubWorkoutTemplate = models.SubWorkoutTemplate;
 // 	var Workout = models.Workout;
 // 	var User = models.User;
-
+const path = require('path');
+const ABSPATH = path.dirname(process.mainModule.filename); // Absolute path to our app directory
 // let data = require('../data');
 import axios from 'axios';
 import data from '../data';
