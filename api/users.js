@@ -114,6 +114,7 @@ router.post('/contact-form', async function(req, res) {
 });
 
 router.post('/purchase/galvao-pdf', async function(req, res) {
+    console.log('purchase route hit!! req.body: ', req.body);
     let {buyerEmail} = req.body;
     let itemName = 'Galvao PDF';
     let emailHTML = (
