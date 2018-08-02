@@ -83,11 +83,14 @@ router.get("/", function (req, res) {
 router.post('/contact-form', async function(req, res) {
     let {name, email, messageBody, messageType} = req.body;
     console.log('req.body: ', req.body);
+     
+    // messageBody = messageBody.replace(/\n/g, "<br />");
+
     let emailHTML = (
         `<b>Name: </b> ${name}<br><br>` +
         `<b>Email: </b> ${email}<br><br>` + 
         `<b>Message Type: </b> ${messageType}<br><br>` +
-        `<b>Message Body: </b> ${messageBody}<br><br>`);
+        `<b>Message Body: </b> <pre>${messageBody}</pre><br><br>`);
 
     let emailJSON = {
         from: '"Electrum Performance" <electrumperformance@gmail.com>',
@@ -96,7 +99,7 @@ router.post('/contact-form', async function(req, res) {
         html:emailHTML
     };
     let mailResponse = {};
-    // let mailResponse = sendMail(emailJSON);
+    let mailResponse = sendMail(emailJSON);
     res.json(mailResponse);
     // if (mailResponse.success) {
     //     res.json({
