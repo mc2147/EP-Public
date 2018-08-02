@@ -113,6 +113,28 @@ router.post('/contact-form', async function(req, res) {
     // }
 });
 
+router.post('/purchase/galvao-pdf', async function(req, res) {
+    let {buyerEmail} = req.body;
+    let itemName = 'Galvao PDF';
+    let emailHTML = (
+        `<p>Thank you for your purchase! Your copy of ${itemName} is attached to this email. </p>`);
+
+    let emailJSON = {
+        from: '"Electrum Performance" <electrumperformance@gmail.com>',
+        to: buyerEmail,
+        subject: `[Electrum Performance] Your Downloadable Purchase`,
+        html:emailHTML,
+        attachments: [
+            {   // filename and content type is derived from path
+                path: '../products/Demo.pdf'
+            },            
+        ]
+    };
+    let mailResponse = {};
+    mailResponse = sendMail(emailJSON);
+    res.json(mailResponse);
+
+});
 
 let IPForm = {
     Name:'Please write out your name',
