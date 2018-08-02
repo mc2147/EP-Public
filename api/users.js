@@ -127,7 +127,7 @@ router.post('/purchase/galvao-pdf', async function(req, res) {
         html:emailHTML,
         attachments: [
             {   // filename and content type is derived from path
-                path: '../products/Demo.pdf'
+                path: './Demo.pdf'
             },            
         ]
     };
