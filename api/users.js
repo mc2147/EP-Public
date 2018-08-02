@@ -95,6 +95,7 @@ router.post('/contact-form', async function(req, res) {
         subject: `[Electrum Performance] Contact Form Submission - ${email}`,
         html:emailHTML
     };
+    let mailResponse = {};
     // let mailResponse = sendMail(emailJSON);
     res.json(mailResponse);
     // if (mailResponse.success) {
