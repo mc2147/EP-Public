@@ -63,6 +63,10 @@ const Video = db.define('Video', {
     description: {
         type: Sequelize.TEXT,
         defaultValue: "",
+    },
+    testing: {
+        type: Sequelize.STRING,
+        defaultValue: 'test',
     }
 })
 
