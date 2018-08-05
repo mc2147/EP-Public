@@ -24,7 +24,7 @@ module.exports = {
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.removeColumn(
-      'Videos ',
+      'Videos',
       'exerciseCategory'
     )
     /*
