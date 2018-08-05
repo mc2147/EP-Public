@@ -76,7 +76,7 @@ const Video = db.define('Video', {
             let output = [];
             if (this.exerciseType in ExerciseDict.Exercises) {
                 let checkExercises = ExerciseDict.Exercises[this.exerciseType];
-                this.exerciselevels.forEach(level => {
+                this.exerciseLevels.forEach(level => {
                     output.push(checkExercises[level]);
                 });
             }
