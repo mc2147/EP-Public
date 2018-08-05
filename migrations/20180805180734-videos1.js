@@ -17,7 +17,7 @@ module.exports = {
       'exerciseCategory',
       Sequelize.STRING,
       {
-        defaultValue:''
+        defaultValue:'testing'
       }
     )
   },
