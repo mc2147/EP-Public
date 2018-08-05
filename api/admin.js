@@ -34,7 +34,9 @@ router.put('/videos/:id', async function(req, res) {
         }
     }).then(video => {
         video.update(inputs);
+        console.log('line 37');
         video.save().then(savedVideo => {
+            console.log('line 39');
             res.json(savedVideo);
         })
     });

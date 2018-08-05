@@ -81,6 +81,17 @@ const Video = db.define('Video', {
                 });
             }
             return output;
+        },
+        relatedExercisesString() {
+            let output = '';
+            if (this.exerciseType in ExerciseDict.Exercises) {
+                let checkExercises = ExerciseDict.Exercises[this.exerciseType];
+                this.exerciseLevels.forEach(level => {
+                    output += checkExercises[level].name + ', ';
+                });
+            }
+            return output;
+
         }
     }
 }
