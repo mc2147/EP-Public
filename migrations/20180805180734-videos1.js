@@ -13,7 +13,7 @@ module.exports = {
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
     return queryInterface.addColumn(
-      'Video',
+      'Videos',
       'exerciseCategory',
       Sequelize.STRING,
       {
@@ -24,7 +24,7 @@ module.exports = {
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.removeColumn(
-      'Video',
+      'Videos',
       'exerciseCategory'
     )
     /*
