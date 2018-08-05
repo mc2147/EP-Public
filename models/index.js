@@ -49,10 +49,10 @@ const Video = db.define('Video', {
         type: Sequelize.STRING,
         defaultValue: "",
     },    
-    // exerciseType: {
-    //     type: Sequelize.STRING,
-    //     defaultValue: "",
-    // },    
+    exerciseLevels: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        defaultValue: []
+    },
     exerciseNames: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         defaultValue: [],
