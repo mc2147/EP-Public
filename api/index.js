@@ -182,6 +182,9 @@ router.get('/json/videos', function (req, res) {
 
 router.get('/videos', function (req, res) {
     _models.Video.findAll({
+        order: [
+            ['title', 'ASC'],
+        ],
         where: {},
         include: [{ all: true }],
     }).then(function (videos) {
