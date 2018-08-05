@@ -14,6 +14,10 @@ module.exports = {
     "Iso 2",
     "Iso 3",
     "Iso 4",
+    "RFD Load",
+    "RFD Unload 1",
+    "RFD Unload 2",
+    "Medicine Ball"    
     ],
     Exercises: {
     "UB Hor Push": {

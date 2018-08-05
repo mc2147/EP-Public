@@ -3,6 +3,7 @@ const bcrypt    = require('bcryptjs');
 var globalTemplates = require('../globals/templates');
     var userStatTemplate = globalTemplates.userStatTemplate;
 const {Alloy} = require('../globals/enums');
+const { ExerciseDict } = require('../data');
 
 // import {Alloy} from '../globals/enums';
 
@@ -68,7 +69,36 @@ const Video = db.define('Video', {
         type: Sequelize.TEXT,
         defaultValue: "",
     },
-})
+},
+{
+    getterMethods: {
+        relatedExercises() {
+            let output = [];
+            if (this.exerciseType in ExerciseDict.Exercises) {
+                let checkExercises = ExerciseDict.Exercises[this.exerciseType];
+                this.exerciselevels.forEach(level => {
+                    output.push(checkExercises[level]);
+                });
+            }
+            return output;
+        }
+    }
+}
+)
+
+Video.matchExercise = function(category, level) {
+    let integerType = parseInt(level);
+    let stringType = level.toString();
+    return Video.findOne({
+        where: {
+            exerciseType:category,
+            exerciseLevels: {
+                $contains:[level, integerType, stringType]
+            }
+        }
+    })
+}
+
 
 Video.search = function(name, exhaustive) {
     // console.log("searching for video: ", name);
