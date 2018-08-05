@@ -180,7 +180,8 @@ router.get('/json/videos', function (req, res) {
 
 router.get('/videos', function (req, res) {
     _models.Video.findAll({
-        where: {}
+        where: {},
+        include: [{ all: true }],
     }).then(function (videos) {
         res.json(videos);
     });
