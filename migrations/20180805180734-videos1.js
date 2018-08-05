@@ -15,9 +15,9 @@ module.exports = {
     return queryInterface.addColumn(
       'Videos',
       'exerciseCategory',
-      Sequelize.STRING,
       {
-        defaultValue:'testing'
+        type: Sequelize.STRING,
+        defaultValue: ''
       }
     )
   },
