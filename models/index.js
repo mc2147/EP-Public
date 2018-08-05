@@ -49,6 +49,10 @@ const Video = db.define('Video', {
         type: Sequelize.STRING,
         defaultValue: "",
     },    
+    // exerciseType: {
+    //     type: Sequelize.STRING,
+    //     defaultValue: "",
+    // },    
     exerciseNames: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         defaultValue: [],
@@ -64,10 +68,6 @@ const Video = db.define('Video', {
         type: Sequelize.TEXT,
         defaultValue: "",
     },
-    testing: {
-        type: Sequelize.STRING,
-        defaultValue: 'test',
-    }
 })
 
 Video.search = function(name, exhaustive) {
