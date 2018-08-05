@@ -266,6 +266,9 @@ export async function assignWorkouts(_User, input, newUser=false) {
                     patternInstance.name = EName;
                     // console.log("   97");
                     var findVideo = await Video.search(EName, false); 
+                    if (!findVideo) {
+                        findVideo = await Video.matchExercise(EType, effectiveLevel);
+                    } 
                     // var findVideo = await Video.matchExercise(EType, effectiveLevel);
                     // if (!findVideo)
                     // // console.log("   99");

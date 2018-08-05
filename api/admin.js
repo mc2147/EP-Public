@@ -25,6 +25,12 @@ router.get('/testing', async function(req, res) {
     res.json('testing admin route');
 })
 
+router.get('/videos/match-exercise/:category/:level', async function(req, res) {
+    Video.matchExercise(req.params.category, req.params.level).then(response => {
+        res.json(response);
+    })
+})
+
 router.put('/videos/:id', async function(req, res) {
     let inputs = req.body;
     console.log('inputs: ', inputs);

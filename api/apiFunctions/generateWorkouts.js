@@ -140,8 +140,10 @@ export async function generateWorkouts(user, startDate, dayList, stringDate = fa
                     }
                     patternInstance.name = EName + deloadIndicator;
 
-                    var findVideo = await Video.search(EName, false); 
-                    // var findVideo = await Video.matchExercise(EType, effectiveLevel);
+                    var findVideo = await Video.search(EName, false);
+                    if (!findVideo) {
+                        findVideo = await Video.matchExercise(EType, effectiveLevel);
+                    } 
                     if (!findVideo) {
                         findVideo = await Video.findOne({
                             where: {
