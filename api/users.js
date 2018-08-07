@@ -58,6 +58,39 @@ var workoutHandlers = require('../routes/workoutHandlers');
 var vueAPI = require('../routes/vueAPI');
     var getVueInfo = vueAPI.getVueInfo;
 
+var cron = require('node-cron');
+
+async function checkMissedWorkouts() {
+    let liveUsers = await User.findAll({
+        where: {
+            username:{
+                [Op.notIn]:testUsernames,
+            }
+        }
+    });
+    for (var i = 0; i < liveUsers.length; i ++) {
+        let thisUser = liveUsers[i];
+        let thisaccessInfo = await accessInfo(thisUser);
+        if (thisaccessInfo.missedWorkouts) {
+            //Send email, check if user has been notified
+            //If not notified, send email, set notified = true
+            //Upon rescheduling, set notified to false
+        }
+    }
+
+}
+
+cron.schedule('8 00 * * *', function() {
+    console.log('Executing every day? ', Date.now());
+    // For all users, check if they have missed workouts
+    // If missed workout and not notified, send an email
+});
+
+cron.schedule('* * * * *', function() {
+    console.log('Executing every minute? ', Date.now());
+});
+
+
 let testUsernames = [
     'UserName1', 'UserName2', "UserName3", "UserName4", 'UserName5', 'UserName6',
     'AdminUser',
