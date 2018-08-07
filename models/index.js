@@ -402,6 +402,10 @@ const User = db.define('User', {
     //     primaryKey: true,
     //     autoIncrement: true,
     // },  
+    notifiedMissedWorkouts: {
+        type: Sequelize.BOOLEAN,
+        defaultValue:"",
+    },
     confString: {
         type: Sequelize.STRING,
         defaultValue:"",
