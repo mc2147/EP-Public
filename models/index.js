@@ -521,6 +521,32 @@ const User = db.define('User', {
     }
     // thisPatterns: [],
 }, {
+    getterMethods: {
+        workoutsCompleted() {
+            let workouts = this.workouts;
+            let output = 0;
+            for (var ID in workouts) {
+                if (workouts[ID].Completed) {
+                    output ++;
+                }
+            }
+            return output;
+        },
+        lastWorkoutDate() {
+            var monthNames = [
+                "January", "February", "March",
+                "April", "May", "June", "July",
+                "August", "September", "October",
+                "November", "December"
+            ];
+        },
+        lastWeekWorkouts() {
+
+        },
+        coreStats() {
+
+        },
+    },
     setterMethods: {
         resetStats() {
             this.setDataValue('stats', userStatTemplate);
