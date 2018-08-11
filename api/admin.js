@@ -48,5 +48,23 @@ router.put('/videos/:id', async function(req, res) {
     });
 })
 
+router.delete('/videos/:id', async function(req, res) {
+    console.log('deleting video: ', req.params.id);
+    Video.findOne({
+        where:{
+            id:req.params.id,
+        }
+    }).then(video => {
+        // video.destroy().then(() => {
+        //     res.json({
+        //         videoDestroyed: true,
+        //     })
+        // });
+        res.json({
+            testing: true,
+        })
+    });
+})
+
 
 module.exports = router;
