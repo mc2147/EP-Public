@@ -68,9 +68,9 @@ router.delete('/videos/:id', async function(req, res) {
                 videoDestroyed: true,
             })
         });
-        res.json({
-            testing: true,
-        })
+        // res.json({
+        //     testing: true,
+        // })
     });
 })
 
