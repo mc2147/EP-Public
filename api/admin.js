@@ -31,6 +31,14 @@ router.get('/videos/match-exercise/:category/:level', async function(req, res) {
     })
 })
 
+router.post('/videos', async function (req, res) {
+    let inputs = req.body;
+    console.log('Creating video: ', inputs);
+    Video.create(inputs).then(video => {
+        res.json(video);
+    })
+})
+
 router.put('/videos/:id', async function(req, res) {
     let inputs = req.body;
     console.log('inputs: ', inputs);
