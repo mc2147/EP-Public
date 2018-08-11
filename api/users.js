@@ -72,6 +72,29 @@ async function checkMissedWorkouts() {
         let thisUser = liveUsers[i];
         let thisaccessInfo = await accessInfo(thisUser);
         if (thisaccessInfo.missedWorkouts) {
+            if (!thisUser.notifiedMissedWorkouts) {
+                // sendEmail
+                let emailHTML = (`<p></p>`);
+               // [Electrum Performance] Incomplete Workouts
+                // This is an email to notify you that you have incomplete workouts on your Electrum Performance account.
+                // What this means is you have passed the completion date of a workout without clicking "Submit" on the workout page.
+                // Next time you log in, you will be prompted to reschedule your workouts for a future date. 
+                // Once you do that, you wil be able to access your workouts again!
+                // To prevent incomplete workouts in the future, make sure you click "Submit" after filling in the information for each workout
+                     
+            
+                let emailJSON = {
+                    from: '"Electrum Performance" <electrumperformance@gmail.com>',
+                    to: thisUser.username,
+                    subject: `[Electrum Performance] Incomplete Workouts`,
+                    html:emailHTML
+                };
+                let mailResponse = {};
+                mailResponse = sendMail(emailJSON);
+                thisUser.notifiedMissedWorkouts = true;
+                await thisUser.save();
+                return
+            }
             //Send email, check if user has been notified
             //If not notified, send email, set notified = true
             //Upon rescheduling, set notified to false
@@ -80,15 +103,15 @@ async function checkMissedWorkouts() {
 
 }
 
-cron.schedule('8 00 * * *', function() {
-    console.log('Executing every day? ', Date.now());
-    // For all users, check if they have missed workouts
-    // If missed workout and not notified, send an email
-});
+// cron.schedule('8 00 * * *', function() {
+//     console.log('Executing every day? ', Date.now());
+//     // For all users, check if they have missed workouts
+//     // If missed workout and not notified, send an email
+// });
 
-cron.schedule('* * * * *', function() {
-    console.log('Executing every minute? ', Date.now());
-});
+// cron.schedule('* * * * *', function() {
+//     // console.log('Executing every minute? ', Date.now());
+// });
 
 
 let testUsernames = [
@@ -417,6 +440,7 @@ router.post("/", async function(req, res) {
         return
     }
     if (newUser == false) {
+        console.log('bad user signup submission!')
         res.json({
             error:true,
             status: "passwords no match",
@@ -1107,6 +1131,8 @@ router.post('/:id/reschedule-workouts', async function(req, res) {
 		})
 		// console.log('old workout dates: ', user.workoutDates);
         let newDates = await rescheduleWorkouts(user, newStartDate, DoWArray);
+        user.notifiedMissedWorkouts = false;
+        await user.save();
         // let dateIndex = 0;
         // for (var K in user.workouts) {
         //     let W = user.workouts[K];

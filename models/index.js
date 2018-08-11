@@ -404,7 +404,7 @@ const User = db.define('User', {
     // },  
     notifiedMissedWorkouts: {
         type: Sequelize.BOOLEAN,
-        defaultValue:"",
+        defaultValue:false,
     },
     confString: {
         type: Sequelize.STRING,
