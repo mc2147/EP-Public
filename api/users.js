@@ -1742,7 +1742,7 @@ async function correctStatNames(user, useLevel) {
     for (var K in user.stats) {
         let EType = K;
         if (EType != "Level Up") {
-            user.stats[EType].name = ExercisesJSON.Exercises[EType][useLevel].name;
+            user.stats[EType].Name = ExercisesJSON.Exercises[EType][useLevel].name;
         }
     }
     await user.changed('stats', true);
