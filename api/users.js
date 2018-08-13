@@ -18,6 +18,7 @@ import {sendMail, testEmail} from './email';
 var router = express.Router();
 import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 import moment from 'moment';
+import { ExercisesJSON } from '../data';
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 console.log('secret key: ', process.env.STRIPE_SECRET_KEY)
 // var models = require('../models');
@@ -1696,6 +1697,7 @@ router.get('/:userId/stats/vue/get', function(req, res) {
         for (var statKey in JSONStats) {
             console.log(statKey);
         }
+        await correctStatNames(user, user.level);
         console.log(JSONStats);
         // res.json(user.workouts);
         var nWorkoutsComplete = 0;
@@ -1736,14 +1738,26 @@ router.get('/:userId/stats/vue/get', function(req, res) {
     })
 })
 
+async function correctStatNames(user, useLevel) {
+    for (var K in user.stats) {
+        let EType = K;
+        if (EType != "Level Up") {
+            user[EType].name = ExercisesJSON.Exercises[EType][useLevel].name;
+        }
+    }
+    await user.changed('stats', true);
+    await user.save();
+    return true;
+}
 
-router.get('/:userId/progress/vue/get', function(req, res) {
+router.get('/:userId/progress/vue/get', async function(req, res) {
     var userId = req.params.userId;
     User.findById(userId).then(async user => {
         var JSONStats = user.stats;
         var vueData = vueProgress(JSONStats);
         vueData.newLevel = user.level;
         vueData.oldLevel = (vueData.levelUpVal == 1) ? user.level - 1 : user.level;
+        await correctStatNames(user, vueData.oldLevel);
         vueData.nPassed = 0;
         vueData.nFailed = 0;
         vueData.nTesting = 0;
