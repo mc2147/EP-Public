@@ -1757,7 +1757,7 @@ router.get('/:userId/progress/vue/get', async function(req, res) {
         var vueData = vueProgress(JSONStats);
         vueData.newLevel = user.level;
         vueData.oldLevel = (vueData.levelUpVal == 1) ? user.level - 1 : user.level;
-        await correctStatNames(user, vueData.oldLevel);
+        await correctStatNames(user, user.level);
         vueData.nPassed = 0;
         vueData.nFailed = 0;
         vueData.nTesting = 0;
