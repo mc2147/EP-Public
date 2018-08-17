@@ -4,7 +4,7 @@ const { WorkoutTemplate, SubWorkoutTemplate, User, Video } = require('../models/
 async function modifyUsers() {
     let kevinUser = await User.findOne({
         where: {
-            username: 'kholowac@mymts.net'
+            username: 'kholowac@mts.net'
         }
     });
     for (var W in kevinUser.workouts) {
