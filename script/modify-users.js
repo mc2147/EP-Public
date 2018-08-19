@@ -8,7 +8,7 @@ async function modifyUsers() {
         }
     });
     for (var W in kevinUser.workouts) {
-        if (W <= 3) {
+        if (W <= 4) {
             kevinUser.workouts[W].Completed = true;
         }
     }
