@@ -15,6 +15,19 @@ async function modifyUsers() {
     kevinUser.changed('workouts', true);
     await kevinUser.save();
 
+    let sabirUser = await User.findOne({
+        where: {
+            username: 'sabirg13@gmail.com'
+        }
+    });
+    for (var W in sabirUser.workouts) {
+        if (W <= 12) {
+            sabirUser.workouts[W].Completed = true;
+        }
+    }
+    sabirUser.changed('workouts', true);
+    await sabirUser.save();
+
 
     // craigUser.workouts[1].Completed = true;
     // craigUser.workouts[2].Completed = true;
