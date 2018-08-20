@@ -148,8 +148,7 @@ router.get('/test/missed-workout-email', async function (req, res) {
     };
     let mailResponse = {};
     mailResponse = sendMail(emailJSON);
-
-
+    res.json('Email Sent!');
 })
 
 router.post('/contact-form', async function (req, res) {
