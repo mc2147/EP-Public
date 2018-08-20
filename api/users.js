@@ -63,8 +63,8 @@ var cron = require('node-cron');
 
 let missedWorkoutsEmailHTML = (
     `<p>This is an email to notify you that you have incomplete workouts on your <a href="https://www.electrumperformance.com/">Electrum Performance account</a>.`
-    + ` What this means is you have passed the completion date of a workout without clicking the "Submit" button from the workout page.</p>`
-    + `<p>Next time you log in, you will be prompted to reschedule your workouts for a future date before being able to enter inputs for upcoming workouts.`
+    + ` This usually occurs when the completion date of a workout passes before you have clicked the "Submit" button from the workout page.</p>`
+    + `<p>Next time you log in, you will be prompted to reschedule your workouts for a future date before being allowed to enter inputs for upcoming workouts.`
     + ` By using the link provided to reschedule your incomplete workouts, you will be able to continue with the program!</p>`);
 
 async function checkMissedWorkouts() {
