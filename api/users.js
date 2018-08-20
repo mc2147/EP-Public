@@ -62,10 +62,10 @@ var getVueInfo = vueAPI.getVueInfo;
 var cron = require('node-cron');
 
 let missedWorkoutsEmailHTML = (
-    `<p>This is an email to notify you that you have incomplete workouts on your Electrum Performance account.</p>`
-    + `<p>What this means is you have passed the completion date of a workout without clicking the "Submit" button from the workout page.`
-    + `Next time you log in, you will be prompted to reschedule your workouts for a future date before being able to enter inputs for upcoming workouts.`
-    + `Simply follow the prompt to reschedule your incomplete workouts and you will be able to continue with the program!</p>`);
+    `<p>This is an email to notify you that you have incomplete workouts on your <a href="https://www.electrumperformance.com/">Electrum Performance account</a>.`
+    + ` What this means is you have passed the completion date of a workout without clicking the "Submit" button from the workout page.</p>`
+    + `<p>Next time you log in, you will be prompted to reschedule your workouts for a future date before being able to enter inputs for upcoming workouts.`
+    + ` By using the link provided to reschedule your incomplete workouts, you will be able to continue with the program!</p>`);
 
 async function checkMissedWorkouts() {
     let liveUsers = await User.findAll({
