@@ -1,17 +1,17 @@
-import {getWorkoutDays} from '../../globals/functions';
-import {AllWorkouts, ExerciseDict} from '../../data';
-import {DaysofWeekDict} from '../../globals/enums';
-import {User, Video} from '../../models';
+import { getWorkoutDays } from '../../globals/functions';
+import { AllWorkouts, ExerciseDict } from '../../data';
+import { DaysofWeekDict } from '../../globals/enums';
+import { User, Video } from '../../models';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const saltRounds = 10;
 
-function generateSalt(){
+function generateSalt() {
     return bcrypt.genSaltSync(saltRounds);
 }
 
-export function generateHash (password, salt){
+export function generateHash(password, salt) {
     return bcrypt.hashSync(password, salt, null);
 }
 
@@ -21,7 +21,7 @@ export async function signupUser(input) {
     var username = input.username;
     let name = input.name;
     let existingUser = await User.find({
-        where:{        
+        where: {
             username
         }
     });
@@ -44,19 +44,19 @@ export async function signupUser(input) {
                 password: hashedPassword,
             });
             if (newUser) {
-                return({
+                return ({
                     userExists,
                     newUser,
                     session: {
                         userId: newUser.id,
                         username: username,
-                        User: newUser,        
+                        User: newUser,
                     }
                 });
             }
         }
         else {
-            return({
+            return ({
                 userExists,
                 error: true,
                 status: "error"
@@ -70,14 +70,14 @@ export async function signupUser(input) {
 
 export async function assignLevel(_User, input) {
     console.log('assigning level!!!');
-    let {squatWeight, benchWeight, RPEExp, bodyWeight} = input; 
+    let { squatWeight, benchWeight, RPEExp, bodyWeight } = input;
     if (squatWeight < benchWeight) {
         _User.level = 1;
     }
     else if (
-        squatWeight > bodyWeight*1.5 
-    && benchWeight > bodyWeight 
-    && RPEExp) {
+        squatWeight > bodyWeight * 1.5
+        && benchWeight > bodyWeight
+        && RPEExp) {
         _User.level = 11;
         _User.blockNum = 1;
         console.log("level 11! blockNum: ", _User.blockNum);
@@ -88,11 +88,11 @@ export async function assignLevel(_User, input) {
     await _User.save();
 }
 
-export async function accessInfo(user, timezoneOffset=0) {
+export async function accessInfo(user, timezoneOffset = 0) {
     let TZOffset = parseInt(user.TZOffset);
     console.log('TZOffset: ', TZOffset);
     let response = Object.assign({}, user);
-    let Now = new Date(Date.now() - TZOffset*1000*60*60);
+    let Now = new Date(Date.now() - TZOffset * 1000 * 60 * 60);
     // Workouts
     let hasLevel = true; //send to enter stats page
     let initialized = user.initialized;
@@ -104,7 +104,7 @@ export async function accessInfo(user, timezoneOffset=0) {
     let subscriptionValid = false;
     let subscriptionExpired = false;
     // let initialized = false;
-    let subscriptionStatus = null;    
+    let subscriptionStatus = null;
     let accessLevel = 0;
     let planID = '';
     let subscriptionsList = [];
@@ -144,12 +144,12 @@ export async function accessInfo(user, timezoneOffset=0) {
             }
             hasStripe = true;
         }
-        catch(error) {
+        catch (error) {
             console.log('access info error (line 145): ', error);
             hasStripe = false;
         }
     }
-    
+
     if (!user.level || user.level == 0 || user.level == null) {
         hasLevel = false;
     }
@@ -160,36 +160,37 @@ export async function accessInfo(user, timezoneOffset=0) {
     //     hasWorkouts = true;
     // }
     // if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
-        // initialized = true;
+    // initialized = true;
     // }
     // Checking for missed workouts
     console.log("Now: ", Now);
     for (var K in user.workouts) {
         let W = user.workouts[K];
-        let wDate = new Date(W.Date);        
+        let wDate = new Date(W.Date);
         console.log('wDate: ', wDate);
+        //Get date to string here
         if (//If there's an incomplete workout before the current date
-            !W.Completed 
+            !W.Completed
             && wDate) {
             // Smaller year
             if (wDate.getYear() < Now.getYear()) {
                 missedWorkouts = true;
-                break    
+                break
             }
             // Same year, smaller month
             else if (wDate.getYear() == Now.getYear()
-            && wDate.getMonth() < Now.getMonth()) {
+                && wDate.getMonth() < Now.getMonth()) {
                 missedWorkouts = true;
-                break    
+                break
             }
             // Same year, same month, smaller date
             else if (wDate.getYear() == Now.getYear()
-            && wDate.getMonth() == Now.getMonth()
-            && wDate.getDate() < Now.getDate()) {
+                && wDate.getMonth() == Now.getMonth()
+                && wDate.getDate() < Now.getDate()) {
                 missedWorkouts = true;
-                break    
-            }                
-        } 
+                break
+            }
+        }
     }
     let output = {
         // Stripe & Subcriptions
@@ -201,7 +202,7 @@ export async function accessInfo(user, timezoneOffset=0) {
         // Workouts
         hasLevel,
         hasWorkouts,
-        missedWorkouts,        
+        missedWorkouts,
         initialized,
     }
     // console.log
@@ -209,19 +210,19 @@ export async function accessInfo(user, timezoneOffset=0) {
         accessLevel = 1;
     }
     if (hadSubscription && hasLevel) {
-        accessLevel = 2;       
+        accessLevel = 2;
     }
     if (hadSubscription && hasLevel && initialized) {
-        accessLevel = 3;       
+        accessLevel = 3;
     }
     if (hadSubscription && hasLevel && initialized && subscriptionValid) {
-        accessLevel = 4;       
+        accessLevel = 4;
     }
     if (hadSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts) {
-        accessLevel = 5;       
+        accessLevel = 5;
     }
     if (hadSubscription && hasLevel && initialized && subscriptionValid && hasWorkouts && !missedWorkouts) {
-        accessLevel = 6;       
+        accessLevel = 6;
     }
     let nonAdminAccess = accessLevel;
     if (user.isAdmin) {
@@ -244,5 +245,5 @@ export async function accessInfo(user, timezoneOffset=0) {
         // Access Level
         accessLevel,
         nonAdminAccess
-    }                        
+    }
 }
