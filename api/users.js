@@ -103,9 +103,10 @@ async function checkMissedWorkouts() {
 
 }
 
-cron.schedule('8 00 * * *', function () {
+cron.schedule('8 00 * * *', async function () {
     console.log('Executing every day: ', Date.now());
     await checkMissedWorkouts();
+    console.log('Checked missed workouts!!');
     // For all users, check if they have missed workouts
     // If missed workout and not notified, send an email
 });
