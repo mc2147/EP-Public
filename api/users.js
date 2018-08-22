@@ -26,7 +26,8 @@ import {
   WorkoutTemplate,
   SubWorkoutTemplate,
   Workout,
-  User
+  User,
+  Video
 } from "../models";
 import moment from "moment";
 import { ExercisesJSON } from "../data";
