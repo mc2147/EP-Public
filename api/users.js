@@ -2135,39 +2135,38 @@ router.post(":/userId/set-level", async function(req, res) {
 
 router.post("/:userId/old-stats/clear", async function(req, res) {});
 
-
 function vueConvert(JSON, levelFilter) {
-    var output = {
-      videoList: [],
-      selectedVideo: {}
-    };
-    for (var Key in JSON) {
-      // console.log(Key);
-      var VideosCategory = JSON[Key];
-      for (var K in VideosCategory) {
-        if (VideosCategory[K].LevelAccess <= levelFilter) {
-          //If user's level is > minimum access level for video
-          var elem = Object.assign({}, VideosCategory[K]);
-          if (!VideosCategory[K].URL) {
-            elem.URL =
-              "https://drive.google.com/file/d/" +
-              VideosCategory[K].DriveID +
-              "/preview";
-          }
-          elem.label = K;
-          console.log("pushing video: ", elem.label);
-          elem.image = "../../static/video_placeholder.png";
-          elem.levels = LevelList.slice(elem.LevelAccess - 1);
-          if (Object.keys(output.selectedVideo).length === 0) {
-            output.selectedVideo = elem;
-          }
-          output.videoList.push(elem);
-          // console.log(elem);
+  var output = {
+    videoList: [],
+    selectedVideo: {}
+  };
+  for (var Key in JSON) {
+    // console.log(Key);
+    var VideosCategory = JSON[Key];
+    for (var K in VideosCategory) {
+      if (VideosCategory[K].LevelAccess <= levelFilter) {
+        //If user's level is > minimum access level for video
+        var elem = Object.assign({}, VideosCategory[K]);
+        if (!VideosCategory[K].URL) {
+          elem.URL =
+            "https://drive.google.com/file/d/" +
+            VideosCategory[K].DriveID +
+            "/preview";
         }
+        elem.label = K;
+        console.log("pushing video: ", elem.label);
+        elem.image = "../../static/video_placeholder.png";
+        elem.levels = LevelList.slice(elem.LevelAccess - 1);
+        if (Object.keys(output.selectedVideo).length === 0) {
+          output.selectedVideo = elem;
+        }
+        output.videoList.push(elem);
+        // console.log(elem);
       }
     }
-    // console.log(output);
-    return output;
+  }
+  // console.log(output);
+  return output;
 }
 
 var LevelList = [];
@@ -2177,41 +2176,41 @@ for (var i = 1; i <= 25; i++) {
 }
 
 let vueVideos = async function(userLevel) {
-    var output = {
-        videoList: [],
-        selectedVideo: {}
-    };  
-    let accessibleVideos = await Video.findAll({
-        where: {
-            levelAccess: {
-                [Op.lte]: userLevel,
-            }
-        }
-    });
-    for (var i = 0; i < accessibleVideos.length) {
-        let video = accessibleVideos[i];
-        let elem = {
-            URL: video.url,
-            LevelAccess: video.levelAccess,
-            LinkedLevels: video.exerciseLevels,
-            Tags: video.title,
-            label: video.title,
-            image: "../../static/video_placeholder.png",
-        };
-        elem.levels = LevelList.slice(elem.LevelAccess - 1);
-        if (Object.keys(output.selectedVideo).length === 0) {
-            output.selectedVideo = elem;
-        }
-        output.videoList.push(elem);
-      }   
-    return output;
+  var output = {
+    videoList: [],
+    selectedVideo: {}
+  };
+  let accessibleVideos = await Video.findAll({
+    where: {
+      levelAccess: {
+        [Op.lte]: userLevel
+      }
+    }
+  });
+  for (var i = 0; i < accessibleVideos.length; i++) {
+    let video = accessibleVideos[i];
+    let elem = {
+      URL: video.url,
+      LevelAccess: video.levelAccess,
+      LinkedLevels: video.exerciseLevels,
+      Tags: video.title,
+      label: video.title,
+      image: "../../static/video_placeholder.png"
+    };
+    elem.levels = LevelList.slice(elem.LevelAccess - 1);
+    if (Object.keys(output.selectedVideo).length === 0) {
+      output.selectedVideo = elem;
+    }
+    output.videoList.push(elem);
+  }
+  return output;
 };
 
 router.get("/:userId/videos", async function(req, res) {
   var videosUser = await User.findById(req.params.userId);
   let userAccess = await accessInfo(videosUser, req.session.timezoneOffset);
   console.log("videosVue 1: ");
-//   var videos = VideosVue(VideosJSON, videosUser.level);
+  //   var videos = VideosVue(VideosJSON, videosUser.level);
   var videos = await vueVideos(videosUser.level);
   // console.log('videosVue 2: ');
   // let _videos = VideosVue(LevelVideos, videosUser.level);
