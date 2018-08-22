@@ -2199,6 +2199,9 @@ let vueVideos = async function(userLevel) {
       image: "../../static/video_placeholder.png"
     };
     elem.levels = LevelList.slice(elem.LevelAccess - 1);
+    if (video.description != "") {
+      elem.Description = video.description;
+    }
     if (Object.keys(output.selectedVideo).length === 0) {
       output.selectedVideo = elem;
     }
