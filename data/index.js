@@ -1,18 +1,18 @@
-var RPETable = require('./RPETable');
+var RPETable = require("./RPETable");
 // var Exercises = require('./Exercises');
-var Workouts1 = require('./Workouts1');
-var Workouts2 = require('./Workouts2');
-var Workouts3a = require('./Workouts3a');
-var Workouts3b = require('./Workouts3b');
-var Workouts4a = require('./Workouts4a');
-var Workouts4b = require('./Workouts4b');
+var Workouts1 = require("./Workouts1");
+var Workouts2 = require("./Workouts2");
+var Workouts3a = require("./Workouts3a");
+var Workouts3b = require("./Workouts3b");
+var Workouts4a = require("./Workouts4a");
+var Workouts4b = require("./Workouts4b");
 
-var DescriptionsJSON = require('./JSON/Descriptions');
-var ExercisesJSON = require('./ExercisesJSON');
+var DescriptionsJSON = require("./JSON/Descriptions");
+var ExercisesJSON = require("./ExercisesJSON");
 
-var VideosJSON = require('./JSON/Videos').VideosJSON;
-var LevelVideos = require('./JSON/Videos').LevelVideos;
-var VideosVue = require('./JSON/Videos').vueConvert;
+var VideosJSON = require("./JSON/Videos").VideosJSON;
+var LevelVideos = require("./JSON/Videos").LevelVideos;
+var VideosVue = require("./JSON/Videos").vueConvert;
 
 // export default VideosJSON;
 
@@ -21,7 +21,7 @@ var VideosVue = require('./JSON/Videos').vueConvert;
 var AllWorkouts = {};
 AllWorkouts[1] = Workouts1;
 AllWorkouts[2] = Workouts2;
-AllWorkouts[3] = {}
+AllWorkouts[3] = {};
 AllWorkouts[3]["a"] = Workouts3a;
 AllWorkouts[3][1] = Workouts3a;
 AllWorkouts[3]["b"] = Workouts3b;
@@ -48,18 +48,18 @@ AllWorkouts[4][2] = Workouts4b;
 // console.log(VideosJSON);
 
 module.exports = {
-    ExercisesJSON,
-    ExerciseDict:ExercisesJSON,
-    VideosVue,
-    VideosJSON,
-    LevelVideos,
-    AllWorkouts,
-    Workouts1,
-    Workouts2,
-    Workouts3a,
-    Workouts3b,
-    Workouts4a,
-    Workouts4b,
-    RPETable,
-    DescriptionsJSON,
-}
+  ExercisesJSON,
+  ExerciseDict: ExercisesJSON,
+  VideosVue,
+  VideosJSON,
+  LevelVideos,
+  AllWorkouts,
+  Workouts1,
+  Workouts2,
+  Workouts3a,
+  Workouts3b,
+  Workouts4a,
+  Workouts4b,
+  RPETable,
+  DescriptionsJSON
+};
