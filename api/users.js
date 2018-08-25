@@ -1567,16 +1567,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
   let userAccess = await accessInfo(thisUser, req.session.timezoneOffset);
   console.log("userAccess: ", userAccess);
   let accessLevel = userAccess.accessLevel;
-  let pasthiddenResponse = {
-    hidden: true,
-    hiddenText: "This workout is no longer accessible!",
-    accessLevel
-  };
-  let futureHiddenResponse = {
-    hidden: true,
-    hiddenText: "This workout is not accessible yet!",
-    accessLevel
-  };
+
   User.findById(req.params.userId).then(async user => {
     await suggestWeights(user, req.params.workoutId);
     // console.log("user: ", user);
@@ -1638,6 +1629,19 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
       // console.log("date", date, _W, _D, K);
       workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
     }
+
+    let pasthiddenResponse = {
+      hidden: true,
+      hiddenText: "This workout is no longer accessible!",
+      accessLevel,
+      workoutDatelist
+    };
+    let futureHiddenResponse = {
+      hidden: true,
+      hiddenText: "This workout is not accessible yet!",
+      accessLevel,
+      workoutDatelist
+    };
 
     if (ahead && daysDiff > 30 && !user.isAdmin) {
       res.json(futureHiddenResponse);
