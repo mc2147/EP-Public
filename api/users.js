@@ -1634,13 +1634,13 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
       hidden: true,
       hiddenText: "This workout is no longer accessible!",
       accessLevel,
-      workoutDatelist
+      workoutDates: workoutDatelist
     };
     let futureHiddenResponse = {
       hidden: true,
       hiddenText: "This workout is not accessible yet!",
       accessLevel,
-      workoutDatelist
+      workoutDates: workoutDatelist
     };
 
     if (ahead && daysDiff > 30 && !user.isAdmin) {
