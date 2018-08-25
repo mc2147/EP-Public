@@ -1623,6 +1623,22 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     }
     // console.log("time difference: ", timeDiff);
     // console.log("N Days: ", new Date(timeDiff).getDate());
+    let workoutDatelist = [];
+    var userWorkouts = user.workouts;
+    for (var K in userWorkouts) {
+      var Workout = userWorkouts[K];
+      if (!Workout.ID) {
+        continue;
+      }
+      var _W = Workout.Week;
+      var _D = Workout.Day;
+      var wID = Workout.ID;
+      // var date = G_UserInfo["User"].workoutDates[wID - 1];
+      var date = dateString(user.workoutDates[wID - 1]);
+      // console.log("date", date, _W, _D, K);
+      workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
+    }
+
     if (ahead && daysDiff > 30 && !user.isAdmin) {
       res.json(futureHiddenResponse);
       return;
@@ -1658,8 +1674,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     // if ()
     JSON.editable = editable;
     JSON.noedits = noedits;
-    let workoutDatelist = [];
-    var userWorkouts = user.workouts;
 
     let Now = new Date(Date.now() - user.TZOffset * 1000 * 60 * 60);
     console.log("_WorkoutDate: ", _WorkoutDate);
@@ -1682,20 +1696,6 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     console.log("getVueInfo just got called (line 1092)");
     vueJSON.accessible = accessible;
     vueJSON.noedits = noedits;
-
-    for (var K in userWorkouts) {
-      var Workout = userWorkouts[K];
-      if (!Workout.ID) {
-        continue;
-      }
-      var _W = Workout.Week;
-      var _D = Workout.Day;
-      var wID = Workout.ID;
-      // var date = G_UserInfo["User"].workoutDates[wID - 1];
-      var date = dateString(user.workoutDates[wID - 1]);
-      // console.log("date", date, _W, _D, K);
-      workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
-    }
     // vueJSON.accessLevel =
     vueJSON.workoutDates = workoutDatelist;
     vueJSON.accessLevel = accessLevel;
