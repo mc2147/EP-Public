@@ -16,7 +16,7 @@ async function modifyUsers() {
     // Matt.level = null;
     // Matt.initialized = false;
     // Matt.blockNum = 0;
-    // Matt.resetStats = true;
+    Matt.resetStats = true;
     // Matt.workouts = {};
     // Matt.workoutDates = [];
   await Matt.save();
