@@ -342,7 +342,7 @@ function getVueInfo(refDict) {
 		if (Pattern.alloy) {
 			subDict.alloyReps = Pattern.alloyreps;
 		}
-		if (Pattern.suggestedWeightString) {
+		if (Pattern.suggestedWeightString && Pattern.workoutType != 'bodyweight'  && Pattern.workoutType != 'deload') {
 			subDict.suggestedWeightString = Pattern.suggestedWeightString;
 			subDict.simpleWeightString = Pattern.simpleWeightString;
 		}
