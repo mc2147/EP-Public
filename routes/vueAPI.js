@@ -77,7 +77,7 @@ function getVueInfo(refDict) {
 				status: 'Empty',
 				code: Pattern.number + "|W|" + (L + 1)
 			};
-			if (set.suggestedWeight) {
+			if (set.suggestedWeight && Pattern.workoutType != 'bodyweight' && Pattern.workoutType != 'deload') {
 				weightDict.suggestedWeight = set.suggestedWeight;
 			} else {
 				weightDict.suggestedWeight = "--";
