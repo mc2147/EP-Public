@@ -12,7 +12,7 @@ async function modifyUsers() {
       username: "matthewchan2147@gmail.com"
     }
   });
-    // Matt.isAdmin = !Matt.isAdmin;
+    Matt.isAdmin = !Matt.isAdmin;
     Matt.level = null;
     Matt.initialized = false;
     Matt.blockNum = 0;
