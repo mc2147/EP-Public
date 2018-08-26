@@ -69,7 +69,7 @@ export async function signupUser(input) {
 export async function assignLevel(_User, input) {
   console.log("assigning level!!!");
   let { squatWeight, benchWeight, RPEExp, bodyWeight } = input;
-  if (squatWeight < benchWeight) {
+  if (squatWeight < bodyWeight) {
     _User.level = 1;
   } else if (
     squatWeight > bodyWeight * 1.5 &&
