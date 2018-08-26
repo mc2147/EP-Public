@@ -13,12 +13,12 @@ async function modifyUsers() {
     }
   });
     // Matt.isAdmin = !Matt.isAdmin;
-    // Matt.level = null;
-    // Matt.initialized = false;
-    // Matt.blockNum = 0;
+    Matt.level = null;
+    Matt.initialized = false;
+    Matt.blockNum = 0;
     Matt.resetStats = true;
-    // Matt.workouts = {};
-    // Matt.workoutDates = [];
+    Matt.workouts = {};
+    Matt.workoutDates = [];
   await Matt.save();
 
   // let sabirUser = await User.findOne({
