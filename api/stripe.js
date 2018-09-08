@@ -22,11 +22,14 @@ router.get("/customers", async function (req, res) {
 });
 
 router.get("/customers-custom", async function (req, res) {
-    let stripeCustomers = await stripe.customers.list();
-    stripeCustomers.data.forEach(customer => {
-        let charges = await stripe.charges.list({customer:customer.id})
-        customer.charges = charges
-    })
+    let stripeCustomers = await stripe.customers.list({limit: 100});
+
+    for (var i = 0; i < stripeCustomers.data.length; i ++) {
+        let customer = stripeCustomers.data[i];
+        let charges = await stripe.charges.list({customer:customer.id});
+        stripeCustomers.data[i].charges = charges.data;
+        console.log('adding charges: ', i);
+    }
     //Get all subscribers
     //List their current subscription, payments, sign up date, current subscription status
     res.json(stripeCustomers);

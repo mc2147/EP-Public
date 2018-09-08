@@ -44,6 +44,8 @@ router.use('/workout-templates', require('./workoutTemplates'));
 
 router.use('/users', require('./users'));
 
+router.use('/admin', require('./admin'));
+
 router.use('/email', require('./email').router);
 
 router.use('/stripe', require('./stripe'));
@@ -180,7 +182,9 @@ router.get('/json/videos', function (req, res) {
 
 router.get('/videos', function (req, res) {
     _models.Video.findAll({
-        where: {}
+        order: [['title', 'ASC']],
+        where: {},
+        include: [{ all: true }]
     }).then(function (videos) {
         res.json(videos);
     });

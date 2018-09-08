@@ -152,6 +152,9 @@ async function generateWorkouts(user, startDate, dayList) {
 
                 var findVideo = await _models.Video.search(EName, false);
                 if (!findVideo) {
+                    findVideo = await _models.Video.matchExercise(EType, effectiveLevel);
+                }
+                if (!findVideo) {
                     findVideo = await _models.Video.findOne({
                         where: {
                             levelAccess: effectiveLevel,

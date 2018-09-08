@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = {
-        Types: ["UB Hor Push", "UB Vert Push", "UB Hor Pull", "UB Vert Pull", "Hinge", "Squat", "LB Uni Push", "Ant Chain", "Post Chain", "Carry", "Iso 1", "Iso 2", "Iso 3", "Iso 4"],
+        Types: ["UB Hor Push", "UB Vert Push", "UB Hor Pull", "UB Vert Pull", "Hinge", "Squat", "LB Uni Push", "Ant Chain", "Post Chain", "Carry", "Iso 1", "Iso 2", "Iso 3", "Iso 4", "RFD Load", "RFD Unload 1", "RFD Unload 2", "Medicine Ball"],
         Exercises: {
                 "UB Hor Push": {
                         1: {

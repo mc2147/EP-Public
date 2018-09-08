@@ -279,6 +279,10 @@ async function assignWorkouts(_User, input) {
                 patternInstance.name = EName;
                 // console.log("   97");
                 var findVideo = await _models.Video.search(EName, false);
+                if (!findVideo) {
+                    findVideo = await _models.Video.matchExercise(EType, effectiveLevel);
+                }
+                // var findVideo = await Video.matchExercise(EType, effectiveLevel);
                 // if (!findVideo)
                 // // console.log("   99");
                 if (findVideo) {
@@ -341,16 +345,16 @@ async function getblankPatterns(lGroup, block, W, D, level) {
         }
         patternInstance.type = EType;
 
-        var effectiveLevel = level;
+        var _effectiveLevel = level;
         var deloadIndicator = "";
         if (patternInstance.deload && patternInstance.deload != 0) {
             if (level + patternInstance.deload > 0) {
-                effectiveLevel = level + patternInstance.deload;
+                _effectiveLevel = level + patternInstance.deload;
                 // deloadIndicator = " (" + patternInstance.deload +")";
                 // deloadIndicator = " (" + "Level " + effectiveLevel +")";
             }
         }
-        var EObj = _data.ExerciseDict.Exercises[patternInstance.type][effectiveLevel];
+        var EObj = _data.ExerciseDict.Exercises[patternInstance.type][_effectiveLevel];
         var EName = EObj.name;
         if (EName.includes('Tempo') || EName.includes('tempo')) {
             patternInstance.hasTempo = true;

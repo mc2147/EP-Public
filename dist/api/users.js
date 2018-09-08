@@ -1,67 +1,67 @@
-'use strict';
+"use strict";
 
-var _expressSession = require('express-session');
+var _expressSession = require("express-session");
 
 var _expressSession2 = _interopRequireDefault(_expressSession);
 
-var _bluebird = require('bluebird');
+var _bluebird = require("bluebird");
 
 var _bluebird2 = _interopRequireDefault(_bluebird);
 
-var _stripeFunctions = require('./apiFunctions/stripeFunctions');
+var _stripeFunctions = require("./apiFunctions/stripeFunctions");
 
-var _userFunctions = require('./apiFunctions/userFunctions');
+var _userFunctions = require("./apiFunctions/userFunctions");
 
-var _workoutFunctions = require('./apiFunctions/workoutFunctions');
+var _workoutFunctions = require("./apiFunctions/workoutFunctions");
 
-var _workoutUpdate = require('./apiFunctions/workoutUpdate');
+var _workoutUpdate = require("./apiFunctions/workoutUpdate");
 
-var _generateWorkouts = require('./apiFunctions/generateWorkouts');
+var _generateWorkouts = require("./apiFunctions/generateWorkouts");
 
-var _vueFormat = require('./vueFormat');
+var _vueFormat = require("./vueFormat");
 
-var _levelupMessages = require('../content/levelupMessages');
+var _levelupMessages = require("../content/levelupMessages");
 
-var _email2 = require('./email');
+var _email2 = require("./email");
 
-var _models = require('../models');
+var _models = require("../models");
 
-var _moment = require('moment');
+var _moment = require("moment");
 
 var _moment2 = _interopRequireDefault(_moment);
 
-var _axios = require('axios');
-
-var _axios2 = _interopRequireDefault(_axios);
-
-var _data = require('../data');
+var _data = require("../data");
 
 var _data2 = _interopRequireDefault(_data);
 
-var _enums = require('../globals/enums');
+var _axios = require("axios");
+
+var _axios2 = _interopRequireDefault(_axios);
+
+var _enums = require("../globals/enums");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } // const session = require('express-session');
 
 
-var bodyParser = require('body-parser');
-var express = require('express');
-var bcrypt = require('bcryptjs');
-var Sequelize = require('sequelize');
+var bodyParser = require("body-parser");
+var express = require("express");
+var bcrypt = require("bcryptjs");
+var Sequelize = require("sequelize");
 var Op = Sequelize.Op;
 
 var router = express.Router();
 
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-console.log('secret key: ', process.env.STRIPE_SECRET_KEY);
+console.log("secret key: ", process.env.STRIPE_SECRET_KEY);
 // var models = require('../models');
 // 	var Exercise = models.Exercise;
 // 	var WorkoutTemplate = models.WorkoutTemplate;
 // 	var SubWorkoutTemplate = models.SubWorkoutTemplate;
 // 	var Workout = models.Workout;
 // 	var User = models.User;
-var path = require('path');
+var path = require("path");
 var ABSPATH = path.dirname(process.mainModule.filename); // Absolute path to our app directory
 // let data = require('../data');
 
@@ -74,7 +74,7 @@ var VideosVue = _data2.default.VideosVue;
 var DescriptionsJSON = _data2.default.DescriptionsJSON;
 var allWorkoutJSONs = _data2.default.AllWorkouts;
 
-var globalFuncs = require('../globals/functions');
+var globalFuncs = require("../globals/functions");
 var getMax = globalFuncs.getMax;
 var getWeight = globalFuncs.getWeight;
 var getWorkoutDates = globalFuncs.getWorkoutDays;
@@ -84,1735 +84,1832 @@ var dateString = globalFuncs.dateString;
 // var globalEnums = require('../globals/enums');
 // var DaysofWeekDict = globalEnums.DaysofWeekDict;
 // var Alloy = globalEnums.Alloy;
-// Move below to apiFunctions later under workoutFunctions 
-var workoutHandlers = require('../routes/workoutHandlers');
+// Move below to apiFunctions later under workoutFunctions
+var workoutHandlers = require("../routes/workoutHandlers");
 var saveWorkout = workoutHandlers.saveWorkout;
 
-var vueAPI = require('../routes/vueAPI');
+var vueAPI = require("../routes/vueAPI");
 var getVueInfo = vueAPI.getVueInfo;
 
-var testUsernames = ['UserName1', 'UserName2', "UserName3", "UserName4", 'UserName5', 'UserName6', 'AdminUser', 'AdminBryce', 'AdminSterner', 'AdminChan', 'AdminSitwala', 'mc2147', 'BetaSitwala', 'ABradley', 'ASterczala', 'ACalderone', 'DemoBeta'];
+var cron = require("node-cron");
+
+var missedWorkoutsEmailHTML = "<p>This is an email to notify you that you have incomplete workouts on your <a href=\"https://www.electrumperformance.com/\">Electrum Performance</a> account." + " This usually occurs when the completion date of a workout passes before you have clicked the \"Submit\" button from the workout page.</p>" + "<p>Next time you log in, you will be prompted to reschedule your workouts for a future date before being allowed to enter inputs for upcoming workouts." + " By using the link provided to reschedule your incomplete workouts, you'll be able to continue with the program!</p>";
+
+async function checkMissedWorkouts() {
+  var liveUsers = await _models.User.findAll({
+    where: {
+      username: _defineProperty({}, Op.notIn, testUsernames)
+    }
+  });
+  for (var i = 0; i < liveUsers.length; i++) {
+    var thisUser = liveUsers[i];
+    var thisaccessInfo = await (0, _userFunctions.accessInfo)(thisUser);
+    if (thisaccessInfo.missedWorkouts) {
+      if (!thisUser.notifiedMissedWorkouts) {
+        // [Electrum Performance] Incomplete Workouts
+        // <p>This is an email to notify you that you have incomplete workouts on your Electrum Performance account.
+        // What this means is you have passed the completion date of a workout without clicking "Submit" on the workout page.
+        // Next time you log in, you will be prompted to reschedule your workouts for a future date.
+        // Once you do that, you wil be able to access your workouts again!
+        // To prevent incomplete workouts in the future, make sure you click "Submit" after filling in the information for each workout
+        var emailJSON = {
+          from: '"Electrum Performance" <electrumperformance@gmail.com>',
+          to: thisUser.username,
+          subject: "[Electrum Performance] Incomplete Workouts",
+          html: missedWorkoutsEmailHTML
+        };
+        var mailResponse = {};
+        mailResponse = (0, _email2.sendMail)(emailJSON);
+        thisUser.notifiedMissedWorkouts = true;
+        await thisUser.save();
+        return;
+      }
+    }
+  }
+}
+
+cron.schedule("8 00 * * *", async function () {
+  console.log("Executing every day: ", Date.now());
+  await checkMissedWorkouts();
+  console.log("Checked missed workouts!!");
+  // For all users, check if they have missed workouts
+  // If missed workout and not notified, send an email
+});
+
+// cron.schedule('* * * * *', function() {
+//     // console.log('Executing every minute? ', Date.now());
+// });
+
+var testUsernames = ["UserName1", "UserName2", "UserName3", "UserName4", "UserName5", "UserName6", "AdminUser", "AdminBryce", "AdminSterner", "AdminChan", "AdminSitwala", "mc2147", "BetaSitwala", "ABradley", "ASterczala", "ACalderone", "DemoBeta"];
 
 router.get("/", function (req, res) {
-    req.session.set = true;
-    _models.User.findAll({
-        where: {
-            username: _defineProperty({}, Op.notIn, testUsernames)
-        },
-        order: [['createdAt', 'DESC']]
-    }).then(function (users) {
-        res.json(users);
-    });
+  req.session.set = true;
+  _models.User.findAll({
+    where: {
+      username: _defineProperty({}, Op.notIn, testUsernames)
+    },
+    order: [["createdAt", "DESC"]]
+  }).then(function (users) {
+    res.json(users);
+  });
 });
 
-router.post('/contact-form', async function (req, res) {
-    var _req$body = req.body,
-        name = _req$body.name,
-        email = _req$body.email,
-        messageBody = _req$body.messageBody,
-        messageType = _req$body.messageType;
-
-    console.log('req.body: ', req.body);
-
-    // messageBody = messageBody.replace(/\n/g, "<br />");
-
-    var emailHTML = '<b>Name: </b> ' + name + '<br><br>' + ('<b>Email: </b> ' + email + '<br><br>') + ('<b>Message Type: </b> ' + messageType + '<br><br>') + ('<b>Message Body: </b> <pre>' + messageBody + '</pre><br><br>');
-
-    var emailJSON = {
-        from: '"Electrum Performance" <electrumperformance@gmail.com>',
-        to: 'electrumperformance@gmail.com',
-        subject: '[Electrum Performance] Contact Form Submission - ' + email,
-        html: emailHTML
-    };
-    var mailResponse = {};
-    mailResponse = (0, _email2.sendMail)(emailJSON);
-    res.json(mailResponse);
-    // if (mailResponse.success) {
-    //     res.json({
-    //         success:true,
-    //     });    
-    // }
-    // else if (mailResponse.error) {
-    //     res.json({
-    //         error:true,
-    //     });    
-    // }
+router.get("/test/missed-workout-email", async function (req, res) {
+  var emailJSON = {
+    from: '"Electrum Performance" <electrumperformance@gmail.com>',
+    to: "matthewchan2147@gmail.com",
+    subject: "[Electrum Performance] Incomplete Workouts Test",
+    html: missedWorkoutsEmailHTML
+  };
+  var mailResponse = {};
+  mailResponse = (0, _email2.sendMail)(emailJSON);
+  res.json("Email Sent!");
 });
 
-router.post('/purchase/galvao-pdf', async function (req, res) {
-    console.log('purchase route hit!! req.body: ', req.body);
-    var buyerEmail = req.body.buyerEmail;
+router.post("/contact-form", async function (req, res) {
+  var _req$body = req.body,
+      name = _req$body.name,
+      email = _req$body.email,
+      messageBody = _req$body.messageBody,
+      messageType = _req$body.messageType;
 
-    var itemName = 'Galvao PDF';
-    var emailHTML = '<p>Thank you for your purchase! Your copy of ' + itemName + ' is attached to this email. </p>';
+  console.log("req.body: ", req.body);
 
-    var emailJSON = {
-        from: '"Electrum Performance" <electrumperformance@gmail.com>',
-        to: buyerEmail,
-        subject: '[Electrum Performance] Your Downloadable Purchase',
-        html: emailHTML,
-        attachments: [{ // filename and content type is derived from path
-            path: './Demo.pdf'
-        }]
-    };
-    var mailResponse = {};
-    mailResponse = (0, _email2.sendMail)(emailJSON);
-    res.json(mailResponse);
+  // messageBody = messageBody.replace(/\n/g, "<br />");
+
+  var emailHTML = "<b>Name: </b> " + name + "<br><br>" + ("<b>Email: </b> " + email + "<br><br>") + ("<b>Message Type: </b> " + messageType + "<br><br>") + ("<b>Message Body: </b> <pre>" + messageBody + "</pre><br><br>");
+
+  var emailJSON = {
+    from: '"Electrum Performance" <electrumperformance@gmail.com>',
+    to: "electrumperformance@gmail.com",
+    subject: "[Electrum Performance] Contact Form Submission - " + email,
+    html: emailHTML
+  };
+  var mailResponse = {};
+  mailResponse = (0, _email2.sendMail)(emailJSON);
+  res.json(mailResponse);
+  // if (mailResponse.success) {
+  //     res.json({
+  //         success:true,
+  //     });
+  // }
+  // else if (mailResponse.error) {
+  //     res.json({
+  //         error:true,
+  //     });
+  // }
+});
+
+router.post("/purchase/galvao-pdf", async function (req, res) {
+  console.log("purchase route hit!! req.body: ", req.body);
+  console.log("ABSPATH: ", ABSPATH);
+  var itemPath = ABSPATH + "/products/Demo.pdf";
+  var buyerEmail = req.body.buyerEmail;
+
+  var itemName = "Galvao PDF";
+  var emailHTML = "<p>Thank you for your purchase! Your copy of " + itemName + " is attached to this email. </p>";
+
+  var emailJSON = {
+    from: '"Electrum Performance" <electrumperformance@gmail.com>',
+    to: buyerEmail,
+    subject: "[Electrum Performance] Your Downloadable Purchase",
+    html: emailHTML,
+    attachments: [{
+      // filename and content type is derived from path
+      path: itemPath
+    }]
+  };
+  var mailResponse = {};
+  mailResponse = (0, _email2.sendMail)(emailJSON);
+  res.json(mailResponse);
 });
 
 var IPForm = {
-    Name: 'Please write out your name',
-    PastInjuries: 'Do you have any past injuries that we should keep in mind while designing your program? (please include the type of injury, date it occurred, and current state)',
-    Experience: 'What is your strength training experience?',
-    Equipment: 'What equipment do you have at your disposal? (commercial fitness facility, home gym, etc.)',
-    Goals: 'What are your short and long term goals as they pertain to strength training? Goals regarding your respective sport? (change in weight class, strength in specific positions, etc.)',
-    IncludeExercises: 'Are there any specific exercises you would like us to include?',
-    AvoidExercises: 'Are there any specific exercises you would like to avoid? Why?',
-    TrainingDays: 'How many days per week would you like to train? (if unsure we will program 3)'
+  Name: "Please write out your name",
+  PastInjuries: "Do you have any past injuries that we should keep in mind while designing your program? (please include the type of injury, date it occurred, and current state)",
+  Experience: "What is your strength training experience?",
+  Equipment: "What equipment do you have at your disposal? (commercial fitness facility, home gym, etc.)",
+  Goals: "What are your short and long term goals as they pertain to strength training? Goals regarding your respective sport? (change in weight class, strength in specific positions, etc.)",
+  IncludeExercises: "Are there any specific exercises you would like us to include?",
+  AvoidExercises: "Are there any specific exercises you would like to avoid? Why?",
+  TrainingDays: "How many days per week would you like to train? (if unsure we will program 3)"
 };
 
-router.post('/individualized-program', async function (req, res) {
-    var input = req.body;
-    console.log('input for individualized programming route: ', input);
-    if (input.payment) {
-        // Create stripe customer here with card and email
-        // Link later information to stripe customer email
-        // Send email to Alex's notifying them of a customer's signup
-        var emailHTML = '<p>A new user has paid for individualized programming! You can reach them at ' + input.email + '</p><br>';
-        var email = {
-            from: '"Electrum Performance" <electrumperformance@gmail.com>',
-            to: 'electrumperformance@gmail.com',
-            subject: '[Individualized Programming] Payment from ' + input.email,
-            html: emailHTML
-        };
-        (0, _email2.sendMail)(email);
-        res.json('individualized program payment');
-        return;
-    } else if (input.IPinformation) {
-        var formInfo = input.FormInfo;
-        var _emailHTML = '<p>This is the individualized programming information for: ' + formInfo.Name + ' (' + input.email + ')</p><br>';
-        for (var key in IPForm) {
-            var question = IPForm[key];
-            var answer = formInfo[key];
-            _emailHTML += '<b>' + question + '</b><br>';
-            _emailHTML += '<p>' + answer + '</p><br>';
-        }
-        var _email = {
-            from: '"Electrum Performance" <electrumperformance@gmail.com>',
-            to: 'electrumperformance@gmail.com',
-            subject: '[Individualized Programming] Information for ' + input.email,
-            html: _emailHTML
-        };
-        (0, _email2.sendMail)(_email);
-        res.json('individualized program information');
-        return;
-    }
+router.post("/individualized-program", async function (req, res) {
+  var input = req.body;
+  console.log("input for individualized programming route: ", input);
+  if (input.payment) {
     // Create stripe customer here with card and email
     // Link later information to stripe customer email
     // Send email to Alex's notifying them of a customer's signup
-    // let confHTML = (`<p>This is the confirmation email for your Electrum Performance
-    //  account for: ${user.username} `
-    // + 'Please click the link below to activate your account:<br><br>'
-    // + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
-    // + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
-    // + realconfURL
-    // + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
-    // + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>"
-    // + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>");
-    // let confEmail = {
-    //     from: '"Electrum Performance" <electrumperformance@gmail.com>',
-    //     // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-    //     to: user.username,
-    //     subject: 'Account Confirmation [Electrum Performance]',
-    //     // text: `Your new password for AlloyStrength Training is: ${newPassword}`
-    //     html: confHTML
-    // };
-    // sendMail(confEmail);
+    var emailHTML = "<p>A new user has paid for individualized programming! You can reach them at " + input.email + "</p><br>";
+    var email = {
+      from: '"Electrum Performance" <electrumperformance@gmail.com>',
+      to: "electrumperformance@gmail.com",
+      subject: "[Individualized Programming] Payment from " + input.email,
+      html: emailHTML
+    };
+    (0, _email2.sendMail)(email);
+    res.json("individualized program payment");
+    return;
+  } else if (input.IPinformation) {
+    var formInfo = input.FormInfo;
+    var _emailHTML = "<p>This is the individualized programming information for: " + formInfo.Name + " (" + input.email + ")</p><br>";
+    for (var key in IPForm) {
+      var question = IPForm[key];
+      var answer = formInfo[key];
+      _emailHTML += "<b>" + question + "</b><br>";
+      _emailHTML += "<p>" + answer + "</p><br>";
+    }
+    var _email = {
+      from: '"Electrum Performance" <electrumperformance@gmail.com>',
+      to: "electrumperformance@gmail.com",
+      subject: "[Individualized Programming] Information for " + input.email,
+      html: _emailHTML
+    };
+    (0, _email2.sendMail)(_email);
+    res.json("individualized program information");
+    return;
+  }
+  // Create stripe customer here with card and email
+  // Link later information to stripe customer email
+  // Send email to Alex's notifying them of a customer's signup
+  // let confHTML = (`<p>This is the confirmation email for your Electrum Performance
+  //  account for: ${user.username} `
+  // + 'Please click the link below to activate your account:<br><br>'
+  // + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
+  // + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
+  // + realconfURL
+  // + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
+  // + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>"
+  // + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>");
+  // let confEmail = {
+  //     from: '"Electrum Performance" <electrumperformance@gmail.com>',
+  //     // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+  //     to: user.username,
+  //     subject: 'Account Confirmation [Electrum Performance]',
+  //     // text: `Your new password for AlloyStrength Training is: ${newPassword}`
+  //     html: confHTML
+  // };
+  // sendMail(confEmail);
 });
 
-router.post('/individualized-program/info', async function (req, res) {
-    var input = req.body;
-    //
-    res.json('individualized programming info route!!');
+router.post("/individualized-program/info", async function (req, res) {
+  var input = req.body;
+  //
+  res.json("individualized programming info route!!");
 });
 
 router.get("/names", async function (req, res) {
-    req.session.set = true;
-    _models.User.findAll({
-        where: {
-            username: _defineProperty({}, Op.notIn, testUsernames)
-        }
-    }).then(function (users) {
-        var output = {};
-        var namesArray = [];
-        var emailAllString = "";
-        users.forEach(function (user) {
-            namesArray.push([user.username, user.name]);
-            emailAllString += user.username + ', ';
-        });
-        output = {
-            namesArray: namesArray,
-            emailAllString: emailAllString
-        };
-        res.json(output);
+  req.session.set = true;
+  _models.User.findAll({
+    where: {
+      username: _defineProperty({}, Op.notIn, testUsernames)
+    }
+  }).then(function (users) {
+    var output = {};
+    var namesArray = [];
+    var emailAllString = "";
+    users.forEach(function (user) {
+      namesArray.push([user.username, user.name]);
+      emailAllString += user.username + ", ";
     });
+    output = {
+      namesArray: namesArray,
+      emailAllString: emailAllString
+    };
+    res.json(output);
+  });
 });
 
-router.get('/names/not-confirmed', async function (req, res) {
-    _models.User.findAll({
-        where: {
-            username: _defineProperty({}, Op.notIn, testUsernames),
-            active: false
-        }
-    }).then(function (users) {
-        var output = {};
-        var namesArray = [];
-        var emailAllString = "";
-        users.forEach(function (user) {
-            namesArray.push([user.username, user.name, { active: user.active }]);
-            emailAllString += user.username + ', ';
-        });
-        var count = namesArray.length;
-        output = {
-            count: count,
-            namesArray: namesArray,
-            emailAllString: emailAllString
-        };
-        res.json(output);
+router.get("/names/not-confirmed", async function (req, res) {
+  _models.User.findAll({
+    where: {
+      username: _defineProperty({}, Op.notIn, testUsernames),
+      active: false
+    }
+  }).then(function (users) {
+    var output = {};
+    var namesArray = [];
+    var emailAllString = "";
+    users.forEach(function (user) {
+      namesArray.push([user.username, user.name, { active: user.active }]);
+      emailAllString += user.username + ", ";
     });
+    var count = namesArray.length;
+    output = {
+      count: count,
+      namesArray: namesArray,
+      emailAllString: emailAllString
+    };
+    res.json(output);
+  });
 });
 
-router.get('/names/not-subscribed', async function (req, res) {
-    _models.User.findAll({
-        where: {
-            username: _defineProperty({}, Op.notIn, testUsernames),
-            stripeId: ""
-        }
-    }).then(function (users) {
-        var output = {};
-        var namesArray = [];
-        var emailAllString = "";
-        users.forEach(function (user) {
-            namesArray.push([user.username, user.name, { stripeId: user.stripeId, active: user.active }]);
-            emailAllString += user.username + ', ';
-        });
-        var count = namesArray.length;
-        output = {
-            count: count,
-            namesArray: namesArray,
-            emailAllString: emailAllString
-        };
-        res.json(output);
+router.get("/names/not-subscribed", async function (req, res) {
+  _models.User.findAll({
+    where: {
+      username: _defineProperty({}, Op.notIn, testUsernames),
+      stripeId: ""
+    }
+  }).then(function (users) {
+    var output = {};
+    var namesArray = [];
+    var emailAllString = "";
+    users.forEach(function (user) {
+      namesArray.push([user.username, user.name, { stripeId: user.stripeId, active: user.active }]);
+      emailAllString += user.username + ", ";
     });
+    var count = namesArray.length;
+    output = {
+      count: count,
+      namesArray: namesArray,
+      emailAllString: emailAllString
+    };
+    res.json(output);
+  });
 });
 
-router.get('/names/active-not-subscribed', async function (req, res) {
-    _models.User.findAll({
-        where: {
-            username: _defineProperty({}, Op.notIn, testUsernames),
-            active: true,
-            stripeId: ""
-        }
-    }).then(function (users) {
-        var output = {};
-        var namesArray = [];
-        var emailAllString = "";
-        users.forEach(function (user) {
-            namesArray.push([user.username, user.name, { stripeId: user.stripeId, active: user.active }]);
-            emailAllString += user.username + ', ';
-        });
-        var count = namesArray.length;
-        output = {
-            count: count,
-            namesArray: namesArray,
-            emailAllString: emailAllString
-        };
-        res.json(output);
+router.get("/names/active-not-subscribed", async function (req, res) {
+  _models.User.findAll({
+    where: {
+      username: _defineProperty({}, Op.notIn, testUsernames),
+      active: true,
+      stripeId: ""
+    }
+  }).then(function (users) {
+    var output = {};
+    var namesArray = [];
+    var emailAllString = "";
+    users.forEach(function (user) {
+      namesArray.push([user.username, user.name, { stripeId: user.stripeId, active: user.active }]);
+      emailAllString += user.username + ", ";
     });
+    var count = namesArray.length;
+    output = {
+      count: count,
+      namesArray: namesArray,
+      emailAllString: emailAllString
+    };
+    res.json(output);
+  });
 });
 
 router.get("/test", function (req, res) {
-    _models.User.findAll({
-        where: {
-            username: _defineProperty({}, Op.in, testUsernames)
-        }
-    }).then(function (users) {
-        res.json(users);
+  _models.User.findAll({
+    where: {
+      username: _defineProperty({}, Op.in, testUsernames)
+    }
+  }).then(function (users) {
+    res.json(users);
+  });
+});
+
+router.get("/test-stripe", async function (req, res) {
+  try {
+    var stripeUser = await stripe.customers.create({
+      // source:stripeToken,
+      email: "test@test.com"
     });
+    var testSubscription = await stripe.subscriptions.create({
+      customer: stripeUser.id,
+      items: [{
+        // plan:"AS_Silver",
+        plan: "AS_Trial"
+      }],
+      trial_from_plan: true
+    });
+    var updatedStripeUser = await stripe.customers.retrieve(stripeUser.id);
+    res.json({
+      customer: updatedStripeUser,
+      subscription: testSubscription
+    });
+  } catch (err) {
+    res.json(err);
+  }
 });
 
-router.get('/test-stripe', async function (req, res) {
-    try {
-        var stripeUser = await stripe.customers.create({
-            // source:stripeToken,
-            email: 'test@test.com'
-        });
-        var testSubscription = await stripe.subscriptions.create({
-            customer: stripeUser.id,
-            items: [{
-                // plan:"AS_Silver",
-                plan: "AS_Trial"
-            }],
-            trial_from_plan: true
-        });
-        var updatedStripeUser = await stripe.customers.retrieve(stripeUser.id);
-        res.json({
-            customer: updatedStripeUser,
-            subscription: testSubscription
-        });
-    } catch (err) {
-        res.json(err);
-    }
-});
-
-// Inputs: email, name, 
+// Inputs: email, name,
 router.post("/", async function (req, res) {
-    console.log('Signing up user');
-    var newUser = await (0, _userFunctions.signupUser)(req.body);
-    if (newUser.userExists) {
-        console.log('user already exists!!!');
-        res.json({
-            userExists: true
-        });
-        return;
-    }
-    if (newUser == false) {
-        res.json({
-            error: true,
-            status: "passwords no match"
-        });
-        return;
-    } else {
-        // req.session
-        req.session.userId = newUser.session.userId;
-        req.session.username = newUser.session.username;
-        req.session.User = newUser.session.User;
-        req.session.test = "test";
-        req.session.save();
-        console.log("user post req.session: ", req.session);
-        // await req.session.save();
-        res.json(newUser);
-    }
-    // res.json(req.session);
+  console.log("Signing up user");
+  var newUser = await (0, _userFunctions.signupUser)(req.body);
+  if (newUser.userExists) {
+    console.log("user already exists!!!");
+    res.json({
+      userExists: true
+    });
+    return;
+  }
+  if (newUser == false) {
+    console.log("bad user signup submission!");
+    res.json({
+      error: true,
+      status: "passwords no match"
+    });
+    return;
+  } else {
+    // req.session
+    req.session.userId = newUser.session.userId;
+    req.session.username = newUser.session.username;
+    req.session.User = newUser.session.User;
+    req.session.test = "test";
+    req.session.save();
+    console.log("user post req.session: ", req.session);
+    // await req.session.save();
+    res.json(newUser);
+  }
+  // res.json(req.session);
 });
 
 router.post("/:username/login", async function (req, res) {
-    console.log("username/login route hit", req.body);
-    var TZOffset = req.body.timezoneOffset;
-    req.session.timezoneOffset = req.body.timezoneOffset;
-    console.log('TZOffset: ', TZOffset);
-    var username = req.params.username;
-    var passwordInput = req.body.password;
-    var Now = new Date(Date.now());
-    var loginUser = await _models.User.findOne({
-        where: {
-            username: username
-        }
-    });
-    loginUser.TZOffset = TZOffset;
-    await loginUser.save();
-    var viewingWID = 1;
-    var nextWorkoutFound = false;
-    if (!loginUser) {
-        res.json({
-            Success: false,
-            Found: false,
-            Status: "No user found"
-        });
-    } else {
-        var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
-        if (hashed == loginUser.password) {
-            var hasWorkouts = Object.keys(loginUser.workouts).length > 0;
-            loginUser.missedWorkouts = false;
-            for (var K in loginUser.workouts) {
-                var W = loginUser.workouts[K];
-                var wDate = new Date(W.Date);
-                if (
-                //If there's an incomplete workout before the current date
-                wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
-                    if (!W.Completed) {
-                        loginUser.missedWorkouts = true;
-                    }
-                } else {
-                    if (!nextWorkoutFound) {
-                        viewingWID = K;
-                    }
-                    nextWorkoutFound = true;
-                }
-            }
-            // loginuser.workoutDates.forEach((elem, ))
-            var paid = false;
-            var hasSubscription = false;
-            var subscriptionValid = false;
-            var subscriptionStatus = false;
-            if (loginUser.stripeId != "") {
-                try {
-                    var stripeUser = await stripe.customers.retrieve(loginUser.stripeId);
-                    paid = true;
-                    if (stripeUser.subscriptions.data.length > 0) {
-                        hasSubscription = true;
-                        subscriptionStatus = stripeUser.subscriptions.data[0].status;
-                        if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-                            subscriptionValid = true;
-                        }
-                    }
-                } catch (error) {
-                    paid = false;
-                    hasSubscription = false;
-                    subscriptionValid = false;
-                }
-            }
-            var userAccess = await (0, _userFunctions.accessInfo)(loginUser);
-            res.json({
-                Success: true,
-                Found: true,
-                Status: "Success",
-                User: loginUser,
-                viewingWID: viewingWID,
-                hasWorkouts: hasWorkouts,
-                subscriptionValid: subscriptionValid,
-                hasSubscription: hasSubscription,
-                subscriptionStatus: subscriptionStatus,
-                accessInfo: userAccess
-            });
-        } else {
-            res.json({
-                Success: false,
-                Found: true,
-                Status: "Incorrect Password!"
-            });
-        }
+  console.log("username/login route hit", req.body);
+  var TZOffset = req.body.timezoneOffset;
+  req.session.timezoneOffset = req.body.timezoneOffset;
+  console.log("TZOffset: ", TZOffset);
+  var username = req.params.username;
+  var passwordInput = req.body.password;
+  var Now = new Date(Date.now());
+  var loginUser = await _models.User.findOne({
+    where: {
+      username: username
     }
+  });
+  loginUser.TZOffset = TZOffset;
+  await loginUser.save();
+  var viewingWID = 1;
+  var nextWorkoutFound = false;
+  if (!loginUser) {
+    res.json({
+      Success: false,
+      Found: false,
+      Status: "No user found"
+    });
+  } else {
+    var hashed = _models.User.generateHash(passwordInput, loginUser.salt);
+    if (hashed == loginUser.password) {
+      var hasWorkouts = Object.keys(loginUser.workouts).length > 0;
+      loginUser.missedWorkouts = false;
+      for (var K in loginUser.workouts) {
+        var W = loginUser.workouts[K];
+        var wDate = new Date(W.Date);
+        if (
+        //If there's an incomplete workout before the current date
+        wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+          if (!W.Completed) {
+            loginUser.missedWorkouts = true;
+          }
+        } else {
+          if (!nextWorkoutFound) {
+            viewingWID = K;
+          }
+          nextWorkoutFound = true;
+        }
+      }
+      // loginuser.workoutDates.forEach((elem, ))
+      var paid = false;
+      var hasSubscription = false;
+      var subscriptionValid = false;
+      var subscriptionStatus = false;
+      if (loginUser.stripeId != "") {
+        try {
+          var stripeUser = await stripe.customers.retrieve(loginUser.stripeId);
+          paid = true;
+          if (stripeUser.subscriptions.data.length > 0) {
+            hasSubscription = true;
+            subscriptionStatus = stripeUser.subscriptions.data[0].status;
+            if (subscriptionStatus == "trialing" || subscriptionStatus == "active") {
+              subscriptionValid = true;
+            }
+          }
+        } catch (error) {
+          paid = false;
+          hasSubscription = false;
+          subscriptionValid = false;
+        }
+      }
+      var userAccess = await (0, _userFunctions.accessInfo)(loginUser);
+      res.json({
+        Success: true,
+        Found: true,
+        Status: "Success",
+        User: loginUser,
+        viewingWID: viewingWID,
+        hasWorkouts: hasWorkouts,
+        subscriptionValid: subscriptionValid,
+        hasSubscription: hasSubscription,
+        subscriptionStatus: subscriptionStatus,
+        accessInfo: userAccess
+      });
+    } else {
+      res.json({
+        Success: false,
+        Found: true,
+        Status: "Incorrect Password!"
+      });
+    }
+  }
 });
 
 // router.get('/:id/forgot-password', async function(req, res) {
-router.post('/forgot-password', async function (req, res) {
-    var username = req.body.email;
-    // testEmail:
-    console.log("forgot password route hit");
-    // let user = await User.findById(req.params.id);
-    var user = await _models.User.findOne({
-        where: {
-            username: username
-        }
-    });
-    console.log('changing password for user: ', user.username);
-    var newPassword = Math.random().toString(36).slice(-8);
-    var newHash = (0, _userFunctions.generateHash)(newPassword, user.salt);
-    user.password = newHash;
-    await user.save();
-    var passwordEmail = {
-        from: '"Electrum Performance" <electrumperformance@gmail.com>',
-        // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-        to: user.username,
-        subject: 'Password Reset [Electrum Performance]',
-        text: 'Your new password for Electrum Performance is: ' + newPassword
-    };
-    (0, _email2.sendMail)(passwordEmail);
-    res.json({
-        newPassword: newPassword,
-        newHash: newHash,
-        passwordEmail: passwordEmail
-    });
+router.post("/forgot-password", async function (req, res) {
+  var username = req.body.email;
+  // testEmail:
+  console.log("forgot password route hit");
+  // let user = await User.findById(req.params.id);
+  var user = await _models.User.findOne({
+    where: {
+      username: username
+    }
+  });
+  console.log("changing password for user: ", user.username);
+  var newPassword = Math.random().toString(36).slice(-8);
+  var newHash = (0, _userFunctions.generateHash)(newPassword, user.salt);
+  user.password = newHash;
+  await user.save();
+  var passwordEmail = {
+    from: '"Electrum Performance" <electrumperformance@gmail.com>',
+    // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+    to: user.username,
+    subject: "Password Reset [Electrum Performance]",
+    text: "Your new password for Electrum Performance is: " + newPassword
+  };
+  (0, _email2.sendMail)(passwordEmail);
+  res.json({
+    newPassword: newPassword,
+    newHash: newHash,
+    passwordEmail: passwordEmail
+  });
 });
 
 // router.get('/:id/confirmation-email', async function(req, res) {
-router.post('/:id/confirmation-email', async function (req, res) {
-    console.log("posting to confirmation email");
-    var user = await _models.User.findById(req.params.id);
-    var confString = Math.random().toString(36).slice(-8);
-    // Assign confString to the user
-    user.confString = confString;
+router.post("/:id/confirmation-email", async function (req, res) {
+  console.log("posting to confirmation email");
+  var user = await _models.User.findById(req.params.id);
+  var confString = Math.random().toString(36).slice(-8);
+  // Assign confString to the user
+  user.confString = confString;
+  await user.save();
+  var productionconfURL = process.env.BASE_URL + "/api/users/" + req.params.id + "/confirm/" + confString;
+  var realconfURL = "https://www.electrumperformance.com/confirm/" + req.params.id + "/" + confString;
+  // console.log('confURL: ', confURL);
+  var confHTML = "<p>This is the confirmation email for your Electrum Performance\n     account for: " + user.username + " " + "Please click the link below to activate your account:<br><br>" + ("<a href=\"" + realconfURL + "\"><b>Activate Your Account</b></a></p>") + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>" + realconfURL + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. " + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>" + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>";
+
+  var confEmail = {
+    from: '"Electrum Performance" <electrumperformance@gmail.com>',
+    // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+    to: user.username,
+    subject: "Account Confirmation [Electrum Performance]",
+    // text: `Your new password for AlloyStrength Training is: ${newPassword}`
+    html: confHTML
+  };
+  (0, _email2.sendMail)(confEmail);
+  res.json(confEmail);
+});
+
+router.get("/:id/confirm/:confString", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  var confString = req.params.confString;
+  console.log("activating account: ", req.params.confString);
+  if (user.active) {
+    return res.json({
+      alreadyConfirmed: true
+    });
+  }
+  if (confString == user.confString) {
+    user.active = true;
     await user.save();
-    var productionconfURL = process.env.BASE_URL + '/api/users/' + req.params.id + '/confirm/' + confString;
-    var realconfURL = 'https://www.electrumperformance.com/confirm/' + req.params.id + '/' + confString;
-    // console.log('confURL: ', confURL);
-    var confHTML = '<p>This is the confirmation email for your Electrum Performance\n     account for: ' + user.username + ' ' + 'Please click the link below to activate your account:<br><br>' + ('<a href="' + realconfURL + '"><b>Activate Your Account</b></a></p>') + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>" + realconfURL + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. " + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>" + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>";
-
-    var confEmail = {
-        from: '"Electrum Performance" <electrumperformance@gmail.com>',
-        // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-        to: user.username,
-        subject: 'Account Confirmation [Electrum Performance]',
-        // text: `Your new password for AlloyStrength Training is: ${newPassword}`
-        html: confHTML
-    };
-    (0, _email2.sendMail)(confEmail);
-    res.json(confEmail);
+    return res.json({
+      match: true,
+      confString: req.params.confString
+    });
+  } else {
+    return res.json({
+      match: false,
+      confString: req.params.confString
+    });
+  }
 });
 
-router.get('/:id/confirm/:confString', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    var confString = req.params.confString;
-    console.log("activating account: ", req.params.confString);
-    if (user.active) {
-        return res.json({
-            alreadyConfirmed: true
-        });
-    }
-    if (confString == user.confString) {
-        user.active = true;
-        await user.save();
-        return res.json({
-            match: true,
-            confString: req.params.confString
-        });
-    } else {
-        return res.json({
-            match: false,
-            confString: req.params.confString
-        });
-    }
-});
-
-// On change subscription: 
+// On change subscription:
 //cancel_at_period_end = true;
 //create new subscription with billing_cycle_anchor at period_end
 // Plan IDs: AS_Bronze, AS_Silver, AS_Gold
 // req.body: newPlanID, cancel (bool)
-router.put('/:id/change-subscription', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    console.log("changing subscription for user: ", user.username);
-    console.log("   req.body: ", req.body);
-    var newPlanID = req.body.newPlanID;
-    var stripeUser = await stripe.customers.retrieve(user.stripeId);
-    var subscriptions = stripeUser.subscriptions;
-    var subscriptionId = ""; //Gets assigned to be user's latest subscription
-    var currentSubscription = {};
-    if (subscriptions.data.length > 0) {
-        var nSubs = subscriptions.data.length;
-        subscriptionId = subscriptions.data[0].id;
-        currentSubscription = subscriptions.data[0];
-    }
+router.put("/:id/change-subscription", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  console.log("changing subscription for user: ", user.username);
+  console.log("   req.body: ", req.body);
+  var newPlanID = req.body.newPlanID;
+  var stripeUser = await stripe.customers.retrieve(user.stripeId);
+  var subscriptions = stripeUser.subscriptions;
+  var subscriptionId = ""; //Gets assigned to be user's latest subscription
+  var currentSubscription = {};
+  if (subscriptions.data.length > 0) {
+    var nSubs = subscriptions.data.length;
+    subscriptionId = subscriptions.data[0].id;
+    currentSubscription = subscriptions.data[0];
+  }
 
-    if (req.body.cancel) {
-        var cancelSubscription = await stripe.subscriptions.del(subscriptionId, {
-            at_period_end: true
-        });
-        if (currentSubscription.status == 'trialing') {
-            await stripe.subscriptions.del(subscriptionId, {});
-        }
-        // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
-        console.log("cancelling... ", cancelSubscription);
-        res.json(cancelSubscription);
-        return;
-    } else {
-        await stripe.subscriptions.update(subscriptionId, {
-            cancel_at_period_end: true
-        });
-        if (currentSubscription.status == 'trialing') {
-            await stripe.subscriptions.del(subscriptionId);
-        }
-        //Trialing is used to not start a different subscription until the current one ends
-        var newSubscription = await stripe.subscriptions.create({
-            customer: user.stripeId,
-            billing_cycle_anchor: currentSubscription.current_period_end,
-            trial_end: currentSubscription.current_period_end,
-            items: [{
-                plan: req.body.newPlanID
-            }]
-        });
-        console.log("changing... ", newSubscription);
-        res.json(newSubscription);
-        return;
-    }
-    // let 
-});
-
-router.get('/:id/stripe-customer', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    try {
-        var stripeUser = await stripe.customers.retrieve(user.stripeId);
-        res.json(stripeUser);
-    } catch (err) {
-        res.json(err);
-    }
-});
-
-router.get('/:id/active-subscription', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    var stripeUser = await stripe.customers.retrieve(user.stripeId);
-    var subscriptionsList = stripeUser.subscriptions.data;
-    subscriptionsList.forEach(function (sub) {
-        if (sub.status == 'active') {
-            res.json(sub);
-            return;
-        }
+  if (req.body.cancel) {
+    var cancelSubscription = await stripe.subscriptions.del(subscriptionId, {
+      at_period_end: true
     });
+    if (currentSubscription.status == "trialing") {
+      await stripe.subscriptions.del(subscriptionId, {});
+    }
+    // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
+    console.log("cancelling... ", cancelSubscription);
+    res.json(cancelSubscription);
+    return;
+  } else {
+    await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true
+    });
+    if (currentSubscription.status == "trialing") {
+      await stripe.subscriptions.del(subscriptionId);
+    }
+    //Trialing is used to not start a different subscription until the current one ends
+    var newSubscription = await stripe.subscriptions.create({
+      customer: user.stripeId,
+      billing_cycle_anchor: currentSubscription.current_period_end,
+      trial_end: currentSubscription.current_period_end,
+      items: [{
+        plan: req.body.newPlanID
+      }]
+    });
+    console.log("changing... ", newSubscription);
+    res.json(newSubscription);
+    return;
+  }
+  // let
+});
+
+router.get("/:id/stripe-customer", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  try {
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    res.json(stripeUser);
+  } catch (err) {
+    res.json(err);
+  }
+});
+
+router.get("/:id/active-subscription", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  var stripeUser = await stripe.customers.retrieve(user.stripeId);
+  var subscriptionsList = stripeUser.subscriptions.data;
+  subscriptionsList.forEach(function (sub) {
+    if (sub.status == "active") {
+      res.json(sub);
+      return;
+    }
+  });
+  res.json({
+    noActiveSubscriptions: true
+  });
+});
+
+router.get("/:id/active-subscription-info", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  var stripeUser = await stripe.customers.retrieve(user.stripeId);
+  var subscriptionsList = stripeUser.subscriptions.data;
+  subscriptionsList.forEach(function (sub) {
+    if (sub.status == "active") {
+      res.json((0, _stripeFunctions.getSubscriptionInfo)(sub));
+      return;
+    }
+  });
+  res.json({
+    noActiveSubscriptions: true
+  });
+});
+
+router.get("/:id/first-subscription", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  var stripeUser = await stripe.customers.retrieve(user.stripeId);
+  var subscriptions = stripeUser.subscriptions;
+  if (subscriptions.data.length > 0) {
+    res.json(subscriptions.data[0]);
+    return;
+  } else {
     res.json({
-        noActiveSubscriptions: true
+      noSubscriptions: true
     });
+    return;
+  }
 });
 
-router.get('/:id/active-subscription-info', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    var stripeUser = await stripe.customers.retrieve(user.stripeId);
-    var subscriptionsList = stripeUser.subscriptions.data;
-    subscriptionsList.forEach(function (sub) {
-        if (sub.status == 'active') {
-            res.json((0, _stripeFunctions.getSubscriptionInfo)(sub));
-            return;
-        }
-    });
+router.get("/:id/first-subscription-info", async function (req, res) {
+  console.log("line 154 users.js");
+  var user = await _models.User.findById(req.params.id);
+  var stripeUser = await stripe.customers.retrieve(user.stripeId);
+  var subscriptions = stripeUser.subscriptions;
+  if (subscriptions.data.length > 0) {
+    var current = subscriptions.data[0];
+    var information = (0, _stripeFunctions.getSubscriptionInfo)(current);
+    res.json(information);
+    return;
+  } else {
     res.json({
-        noActiveSubscriptions: true
+      noSubscriptions: true
     });
-});
-
-router.get('/:id/first-subscription', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    var stripeUser = await stripe.customers.retrieve(user.stripeId);
-    var subscriptions = stripeUser.subscriptions;
-    if (subscriptions.data.length > 0) {
-        res.json(subscriptions.data[0]);
-        return;
-    } else {
-        res.json({
-            noSubscriptions: true
-        });
-        return;
-    }
-});
-
-router.get('/:id/first-subscription-info', async function (req, res) {
-    console.log("line 154 users.js");
-    var user = await _models.User.findById(req.params.id);
-    var stripeUser = await stripe.customers.retrieve(user.stripeId);
-    var subscriptions = stripeUser.subscriptions;
-    if (subscriptions.data.length > 0) {
-        var current = subscriptions.data[0];
-        var information = (0, _stripeFunctions.getSubscriptionInfo)(current);
-        res.json(information);
-        return;
-    } else {
-        res.json({
-            noSubscriptions: true
-        });
-        return;
-    }
+    return;
+  }
 });
 
 //0 index is most recent
-router.get('/:id/subscription-info', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    var stripeUser = await stripe.customers.retrieve(user.stripeId);
-    var subscriptionList = stripeUser.subscriptions.data;
-    var firstSubscription = subscriptionList[0];
-    var firstActiveSubscription = {};
-    var subscriptionDescriber = "";
-    var currentPlan = "";
-    var endDateString = "";
-    var trialendDateString = "";
-    var nextPlan = false;
-    var cancelled = false;
-    // let new
-    var secondLine = "";
-    // if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
-    //     subscriptionValid = true;
-    // }
-    for (var i = 0; i < subscriptionList.length; i++) {
-        var thisSub = subscriptionList[i];
-        if (thisSub.status == 'active') {
-            firstActiveSubscription = thisSub;
-            currentPlan = firstActiveSubscription.plan.nickname;
-            var endDate = new Date(firstActiveSubscription.current_period_end * 1000);
-            endDateString = dateString(endDate);
-            subscriptionDescriber = 'Your current subscription is ' + currentPlan + ' ' + ('and lasts until ' + endDateString + '.');
-            break;
-        }
+router.get("/:id/subscription-info", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  var stripeUser = await stripe.customers.retrieve(user.stripeId);
+  var subscriptionList = stripeUser.subscriptions.data;
+  var firstSubscription = subscriptionList[0];
+  var firstActiveSubscription = {};
+  var subscriptionDescriber = "";
+  var currentPlan = "";
+  var endDateString = "";
+  var trialendDateString = "";
+  var nextPlan = false;
+  var cancelled = false;
+  // let new
+  var secondLine = "";
+  // if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
+  //     subscriptionValid = true;
+  // }
+  for (var _i = 0; _i < subscriptionList.length; _i++) {
+    var thisSub = subscriptionList[_i];
+    if (thisSub.status == "active") {
+      firstActiveSubscription = thisSub;
+      currentPlan = firstActiveSubscription.plan.nickname;
+      var endDate = new Date(firstActiveSubscription.current_period_end * 1000);
+      endDateString = dateString(endDate);
+      subscriptionDescriber = "Your current subscription is " + currentPlan + " " + ("and lasts until " + endDateString + ".");
+      break;
     }
-    if (firstSubscription.cancel_at_period_end) {
-        subscriptionDescriber += ' It has been cancelled and will expire after this date.';
-        secondLine = ' It has been <b style="color:#f44336;">cancelled</b> and will expire after this date.';
-        cancelled = true;
-    } else if (firstSubscription.status == 'trialing') {
-        if (subscriptionList.length == 1) {
-            var trialEndDate = new Date(firstSubscription.trial_end * 1000);
-            trialendDateString = dateString(trialEndDate);
-            subscriptionDescriber = 'Your trial period will end on ' + trialendDateString + ',' + ' after which you will be billed automatically.';
-            secondLine = subscriptionDescriber;
-            // subscriptionDescriber += ` It will change to ${nextPlanString} on this date.`
-            // secondLine = ` It will change to ${nextPlanString} on this date.`;
-        } else {
-            nextPlan = firstSubscription.plan.nickname;
-            var nextPlanString = nextPlan;
-            if (nextPlan == 'Silver') {
-                nextPlanString = '<b style="color:#bdbdbd;">' + nextPlan + '</b>';
-            } else if (nextPlan == 'Gold') {
-                nextPlanString = '<b style="color:#ffca28;">' + nextPlan + '</b>';
-            }
-            subscriptionDescriber += ' It will change to ' + nextPlanString + ' on this date.';
-            secondLine = ' It will change to ' + nextPlanString + ' on this date.';
-        }
-    } else if (firstSubscription.status == 'active') {
-        subscriptionDescriber += ' It will renew automatically.';
-        secondLine = ' It will renew automatically.';
+  }
+  if (firstSubscription.cancel_at_period_end) {
+    subscriptionDescriber += " It has been cancelled and will expire after this date.";
+    secondLine = " It has been <b style=\"color:#f44336;\">cancelled</b> and will expire after this date.";
+    cancelled = true;
+  } else if (firstSubscription.status == "trialing") {
+    if (subscriptionList.length == 1) {
+      var trialEndDate = new Date(firstSubscription.trial_end * 1000);
+      trialendDateString = dateString(trialEndDate);
+      subscriptionDescriber = "Your trial period will end on " + trialendDateString + "," + " after which you will be billed automatically.";
+      secondLine = subscriptionDescriber;
+      // subscriptionDescriber += ` It will change to ${nextPlanString} on this date.`
+      // secondLine = ` It will change to ${nextPlanString} on this date.`;
+    } else {
+      nextPlan = firstSubscription.plan.nickname;
+      var nextPlanString = nextPlan;
+      if (nextPlan == "Silver") {
+        nextPlanString = "<b style=\"color:#bdbdbd;\">" + nextPlan + "</b>";
+      } else if (nextPlan == "Gold") {
+        nextPlanString = "<b style=\"color:#ffca28;\">" + nextPlan + "</b>";
+      }
+      subscriptionDescriber += " It will change to " + nextPlanString + " on this date.";
+      secondLine = " It will change to " + nextPlanString + " on this date.";
     }
+  } else if (firstSubscription.status == "active") {
+    subscriptionDescriber += " It will renew automatically.";
+    secondLine = " It will renew automatically.";
+  }
 
-    res.json({
-        cancelled: cancelled,
-        describer: subscriptionDescriber,
-        currentPlan: currentPlan,
-        endDateString: endDateString,
-        nextPlan: nextPlan,
-        secondLine: secondLine
-    });
+  res.json({
+    cancelled: cancelled,
+    describer: subscriptionDescriber,
+    currentPlan: currentPlan,
+    endDateString: endDateString,
+    nextPlan: nextPlan,
+    secondLine: secondLine
+  });
 });
 
 //0 index is most recent
-router.get('/:id/all-subscriptions', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    try {
-        var stripeUser = await stripe.customers.retrieve(user.stripeId);
-        var subscriptionsList = stripeUser.subscriptions.data;
-        var nSubscriptions = stripeUser.subscriptions.data.length;
-        var morethan0 = stripeUser.subscriptions.data.length > 0;
-        res.json({
-            subscriptionsList: subscriptionsList,
-            nSubscriptions: nSubscriptions,
-            morethan0: morethan0
-        });
-    } catch (error) {
-        error.Error = true;
-        res.json(error);
-    }
+router.get("/:id/all-subscriptions", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  try {
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptionsList = stripeUser.subscriptions.data;
+    var nSubscriptions = stripeUser.subscriptions.data.length;
+    var morethan0 = stripeUser.subscriptions.data.length > 0;
+    res.json({
+      subscriptionsList: subscriptionsList,
+      nSubscriptions: nSubscriptions,
+      morethan0: morethan0
+    });
+  } catch (error) {
+    error.Error = true;
+    res.json(error);
+  }
 });
 
-router.get('/:id/all-subscriptions-info', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    try {
-        var stripeUser = await stripe.customers.retrieve(user.stripeId);
-        var subscriptions = stripeUser.subscriptions.data;
-        var subscriptionInfo = [];
-        subscriptions.forEach(function (sub) {
-            var information = (0, _stripeFunctions.getSubscriptionInfo)(sub);
-            subscriptionInfo.push(information);
-            // console.log("customer subscription information: ", information);
-        });
-        res.json(subscriptionInfo);
-    } catch (error) {
-        error.Error = true;
-        res.json(error);
-    }
+router.get("/:id/all-subscriptions-info", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  try {
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    var subscriptions = stripeUser.subscriptions.data;
+    var subscriptionInfo = [];
+    subscriptions.forEach(function (sub) {
+      var information = (0, _stripeFunctions.getSubscriptionInfo)(sub);
+      subscriptionInfo.push(information);
+      // console.log("customer subscription information: ", information);
+    });
+    res.json(subscriptionInfo);
+  } catch (error) {
+    error.Error = true;
+    res.json(error);
+  }
 });
 
-router.post('/:id/start-trial', async function (req, res) {
-    var stripeToken = req.body.stripeToken;
-    var user = await _models.User.findById(req.params.id);
-    console.log('starting trial only');
-    // res.json('starting trial');
-    if (user.stripeId != "") {
-        var userAccessLevel = (0, _userFunctions.accessInfo)(user);
-        var stripeUser = await stripe.customers.retrieve(user.stripeId);
-        console.log('already subscribed!!!');
-        console.log('existing stripe user: ', stripeUser);
+router.post("/:id/start-trial", async function (req, res) {
+  var stripeToken = req.body.stripeToken;
+  var user = await _models.User.findById(req.params.id);
+  console.log("starting trial only");
+  // res.json('starting trial');
+  if (user.stripeId != "") {
+    var userAccessLevel = (0, _userFunctions.accessInfo)(user);
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    console.log("already subscribed!!!");
+    console.log("existing stripe user: ", stripeUser);
 
-        if (!stripeUser.deleted && stripeUser.subscriptions.data.length > 0) {
-            res.json({
-                alreadySubscribed: true
-            });
-            return;
-        }
-        if (userAccessLevel >= 1) {}
+    if (!stripeUser.deleted && stripeUser.subscriptions.data.length > 0) {
+      res.json({
+        alreadySubscribed: true
+      });
+      return;
     }
-    try {
-        var _stripeUser = await stripe.customers.create({
-            source: stripeToken,
-            email: user.username
-        });
-        var newStripeId = _stripeUser.id;
-        console.log("newStripeId: ", newStripeId);
-        user.stripeId = newStripeId;
-        await user.save();
-        console.log('line 719');
-        var newSubscription = await stripe.subscriptions.create({
-            customer: _stripeUser.id,
-            items: [{
-                // plan:"AS_Silver",
-                plan: 'AS_Trial'
-            }],
-            trial_from_plan: true
-        });
-        await stripe.customers.update(_stripeUser.id, {
-            description: 'Subscribed Once'
-        });
-        var findCustomer = await stripe.customers.retrieve(_stripeUser.id);
-        console.log("customer found: ", findCustomer);
-        res.json(findCustomer);
-        return;
-    } catch (error) {
-        console.log('PAYMENT ERROR: ', error);
-        error.paymentError = true;
-        res.json(error);
-    }
+    if (userAccessLevel >= 1) {}
+  }
+  try {
+    var _stripeUser = await stripe.customers.create({
+      source: stripeToken,
+      email: user.username
+    });
+    var newStripeId = _stripeUser.id;
+    console.log("newStripeId: ", newStripeId);
+    user.stripeId = newStripeId;
+    await user.save();
+    console.log("line 719");
+    var newSubscription = await stripe.subscriptions.create({
+      customer: _stripeUser.id,
+      items: [{
+        // plan:"AS_Silver",
+        plan: "AS_Trial"
+      }],
+      trial_from_plan: true
+    });
+    await stripe.customers.update(_stripeUser.id, {
+      description: "Subscribed Once"
+    });
+    var findCustomer = await stripe.customers.retrieve(_stripeUser.id);
+    console.log("customer found: ", findCustomer);
+    res.json(findCustomer);
+    return;
+  } catch (error) {
+    console.log("PAYMENT ERROR: ", error);
+    error.paymentError = true;
+    res.json(error);
+  }
 });
 
 // Plan ID: AS_Bronze, AS_Silver, AS_Gold
-router.post('/:id/subscribe', async function (req, res) {
-    console.log('SUBSCRIBING...');
-    var stripeToken = req.body.stripeToken;
-    var planID = req.body.planID;
-    console.log("   req.body (api/users): ", req.body);
-    var user = await _models.User.findById(req.params.id);
-    if (user.stripeId != "") {
-        var userAccessLevel = (0, _userFunctions.accessInfo)(user);
-        var stripeUser = await stripe.customers.retrieve(user.stripeId);
-        if (stripeUser.subscriptions.data.length > 0) {
-            res.json({
-                alreadySubscribed: true
-            });
-            return;
-        }
-        if (userAccessLevel >= 1) {}
+router.post("/:id/subscribe", async function (req, res) {
+  console.log("SUBSCRIBING...");
+  var stripeToken = req.body.stripeToken;
+  var planID = req.body.planID;
+  console.log("   req.body (api/users): ", req.body);
+  var user = await _models.User.findById(req.params.id);
+  if (user.stripeId != "") {
+    var userAccessLevel = (0, _userFunctions.accessInfo)(user);
+    var stripeUser = await stripe.customers.retrieve(user.stripeId);
+    if (stripeUser.subscriptions.data.length > 0) {
+      res.json({
+        alreadySubscribed: true
+      });
+      return;
     }
-    try {
-        var _stripeUser2 = await stripe.customers.create({
-            source: stripeToken,
-            email: user.username
-        });
-        var newStripeId = _stripeUser2.id;
-        console.log("newStripeId: ", newStripeId);
-        user.stripeId = newStripeId;
-        await user.save();
-        // if (process.env.TEST_LIVE_STRIPE) {
-        //     let newSubscription = await stripe.subscriptions.create({
-        //         customer:stripeUser.id,
-        //         items: [
-        //             {
-        //                 // plan:"AS_Silver",
-        //                 plan:"AS_Test",
-        //             },
-        //         ],        
-        //     });
-        // }
-        // else {
-        console.log('line 719');
-        var newSubscription = await stripe.subscriptions.create({
-            customer: _stripeUser2.id,
-            items: [{
-                // plan:"AS_Silver",
-                plan: req.body.planID
-            }],
-            trial_from_plan: true
-        });
-        await stripe.customers.update(_stripeUser2.id, {
-            description: 'Subscribed Once'
-        });
-        console.log('line 730');
-        // }
-        var findCustomer = await stripe.customers.retrieve(_stripeUser2.id);
-        console.log("customer found: ", findCustomer);
-        res.json(findCustomer);
-        return;
-    } catch (error) {
-        console.log('PAYMENT ERROR: ', error);
-        error.paymentError = true;
-        res.json(error);
-    }
+    if (userAccessLevel >= 1) {}
+  }
+  try {
+    var _stripeUser2 = await stripe.customers.create({
+      source: stripeToken,
+      email: user.username
+    });
+    var newStripeId = _stripeUser2.id;
+    console.log("newStripeId: ", newStripeId);
+    user.stripeId = newStripeId;
+    await user.save();
+    // if (process.env.TEST_LIVE_STRIPE) {
+    //     let newSubscription = await stripe.subscriptions.create({
+    //         customer:stripeUser.id,
+    //         items: [
+    //             {
+    //                 // plan:"AS_Silver",
+    //                 plan:"AS_Test",
+    //             },
+    //         ],
+    //     });
+    // }
+    // else {
+    console.log("line 719");
+    var newSubscription = await stripe.subscriptions.create({
+      customer: _stripeUser2.id,
+      items: [{
+        // plan:"AS_Silver",
+        plan: req.body.planID
+      }],
+      trial_from_plan: true
+    });
+    await stripe.customers.update(_stripeUser2.id, {
+      description: "Subscribed Once"
+    });
+    console.log("line 730");
+    // }
+    var findCustomer = await stripe.customers.retrieve(_stripeUser2.id);
+    console.log("customer found: ", findCustomer);
+    res.json(findCustomer);
+    return;
+  } catch (error) {
+    console.log("PAYMENT ERROR: ", error);
+    error.paymentError = true;
+    res.json(error);
+  }
 });
 
-router.post('/:id/renew-subscription', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    var stripeID = user.stripeId;
-    var stripeToken = req.body.stripeToken;
-    var planID = req.body.planID;
-    console.log("stripeID: ", stripeID, "stripeToken: ", stripeToken, 'planID: ', planID);
-    try {
-        var stripeCustomer = await stripe.customers.retrieve(stripeID);
-        stripeCustomer.subscriptions.data.forEach(async function (sub) {
-            await stripe.subscriptions.update(sub.id, {
-                cancel_at_period_end: true
-            });
-        });
+router.post("/:id/renew-subscription", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  var stripeID = user.stripeId;
+  var stripeToken = req.body.stripeToken;
+  var planID = req.body.planID;
+  console.log("stripeID: ", stripeID, "stripeToken: ", stripeToken, "planID: ", planID);
+  try {
+    var stripeCustomer = await stripe.customers.retrieve(stripeID);
+    stripeCustomer.subscriptions.data.forEach(async function (sub) {
+      await stripe.subscriptions.update(sub.id, {
+        cancel_at_period_end: true
+      });
+    });
 
-        console.log("417");
-        var stripeCustomerID = stripeCustomer.id;
-        var newSubscription = await stripe.subscriptions.create({
-            customer: stripeCustomerID,
-            items: [{
-                plan: planID
-            }]
-            // trial_from_plan:true, //for testing only - to avoid an immediate charge
-        });
-        console.log("line 426");
-        var response = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
-        res.json(response);
-        console.log("line 427");
-        // // res.json(newSubscription);
-        // res.json({
-        //     success:true,
-        // })
-    } catch (error) {
-        error.Error = true;
-        error.paymentError;
-        res.json(error);
-    }
-    // let user = await User.findById(req.params.id);
-    // let stripeUser = await stripe.customers.create({
-    //     source:stripeToken,
-    //     email:user.username,
-    // });    
-    // let newStripeId = stripeUser.id;
-    // console.log("newStripeId: ", newStripeId);
-    // user.stripeId = newStripeId;
-    // await user.save();
-    // let newSubscription = await stripe.subscriptions.create({
-    //     customer:stripeUser.id,
-    //     items: [
-    //         {
-    //             plan:"AS_Silver",
-    //         },
-    //     ],        
-    // });
-    // let findCustomer = await stripe.customers.retrieve(stripeUser.id);    
-    // console.log("customer found: ", findCustomer);
-    // res.json(findCustomer); 
-    // return        
-});
-
-router.get('/:id/reschedule-workouts', async function (req, res) {
-    var user = await _models.User.findById(req.params.id);
-    var Now = new Date(Date.now());
-    var workouts = [];
-    for (var K in user.workouts) {
-        var W = user.workouts[K];
-        var wDate = new Date(W.Date);
-        var workoutObj = {
-            Week: W.Week,
-            Day: W.Day,
-            Date: wDate,
-            Missed: false,
-            Completed: false
-        };
-        if (W.Completed) {
-            workoutObj.Completed = true;
-        } else {
-            //If incomplete and less than now
-            if ( //Check if date is less than Now
-            wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
-                workoutObj.Missed = true;
-            }
-        }
-        workouts.push(workoutObj);
-    }
-    var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
-    var accessLevel = userAccess.accessLevel;
-    var response = {
-        accessLevel: accessLevel,
-        workouts: workouts
-    };
+    console.log("417");
+    var stripeCustomerID = stripeCustomer.id;
+    var newSubscription = await stripe.subscriptions.create({
+      customer: stripeCustomerID,
+      items: [{
+        plan: planID
+      }]
+      // trial_from_plan:true, //for testing only - to avoid an immediate charge
+    });
+    console.log("line 426");
+    var response = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
     res.json(response);
+    console.log("line 427");
+    // // res.json(newSubscription);
+    // res.json({
+    //     success:true,
+    // })
+  } catch (error) {
+    error.Error = true;
+    error.paymentError;
+    res.json(error);
+  }
+  // let user = await User.findById(req.params.id);
+  // let stripeUser = await stripe.customers.create({
+  //     source:stripeToken,
+  //     email:user.username,
+  // });
+  // let newStripeId = stripeUser.id;
+  // console.log("newStripeId: ", newStripeId);
+  // user.stripeId = newStripeId;
+  // await user.save();
+  // let newSubscription = await stripe.subscriptions.create({
+  //     customer:stripeUser.id,
+  //     items: [
+  //         {
+  //             plan:"AS_Silver",
+  //         },
+  //     ],
+  // });
+  // let findCustomer = await stripe.customers.retrieve(stripeUser.id);
+  // console.log("customer found: ", findCustomer);
+  // res.json(findCustomer);
+  // return
 });
 
-router.post('/:id/reschedule-workouts', async function (req, res) {
-    console.log("posting to reschedule... from users api");
-    console.log("req.body: ", req.body);
-    // console.log("new start date: ", new Date(req.body.restartDate));
-    var newStartDate = new Date(req.body.restartDate);
-    var Now = new Date(Date.now());
-    console.log("/:id/reschedule-workouts route ");
-    console.log("   Now: ", Now);
-    console.log("   newStartDate ", newStartDate);
-    var user = await _models.User.findById(req.params.id);
-    if ('DoW' in req.body) {
-        var DoWArray = [];
-        req.body.DoW.forEach(function (day) {
-            DoWArray.push(parseInt(day));
-        });
-        // console.log('old workout dates: ', user.workoutDates);
-        var newDates = await (0, _workoutFunctions.rescheduleWorkouts)(user, newStartDate, DoWArray);
-        // let dateIndex = 0;
-        // for (var K in user.workouts) {
-        //     let W = user.workouts[K];
-        //     if (!W.Completed) {
-        //         W.Date = newDates[dateIndex];
-        //     }
-        //     dateIndex ++;
-        // }
-        // await user.changed('workouts', true);
-        // await user.save();
-        // return newDates;            
+router.get("/:id/reschedule-workouts", async function (req, res) {
+  var user = await _models.User.findById(req.params.id);
+  var Now = new Date(Date.now());
+  var workouts = [];
+  for (var K in user.workouts) {
+    var W = user.workouts[K];
+    var wDate = new Date(W.Date);
+    var workoutObj = {
+      Week: W.Week,
+      Day: W.Day,
+      Date: wDate,
+      Missed: false,
+      Completed: false
+    };
+    if (W.Completed) {
+      workoutObj.Completed = true;
+    } else {
+      //If incomplete and less than now
+      if (
+      //Check if date is less than Now
+      wDate && wDate.getDate() < Now.getDate() && wDate.getMonth() <= Now.getMonth()) {
+        workoutObj.Missed = true;
+      }
     }
-    res.json(user);
-    // res.redirect('/reschedule');
+    workouts.push(workoutObj);
+  }
+  var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
+  var accessLevel = userAccess.accessLevel;
+  var response = {
+    accessLevel: accessLevel,
+    workouts: workouts
+  };
+  res.json(response);
 });
 
-router.post('/:id/payment', async function (req, res) {});
+router.post("/:id/reschedule-workouts", async function (req, res) {
+  console.log("posting to reschedule... from users api");
+  console.log("req.body: ", req.body);
+  // console.log("new start date: ", new Date(req.body.restartDate));
+  var newStartDate = new Date(req.body.restartDate);
+  var Now = new Date(Date.now());
+  console.log("/:id/reschedule-workouts route ");
+  console.log("   Now: ", Now);
+  console.log("   newStartDate ", newStartDate);
+  var user = await _models.User.findById(req.params.id);
+  if ("DoW" in req.body) {
+    var DoWArray = [];
+    req.body.DoW.forEach(function (day) {
+      DoWArray.push(parseInt(day));
+    });
+    // console.log('old workout dates: ', user.workoutDates);
+    var newDates = await (0, _workoutFunctions.rescheduleWorkouts)(user, newStartDate, DoWArray);
+    user.notifiedMissedWorkouts = false;
+    await user.save();
+    // let dateIndex = 0;
+    // for (var K in user.workouts) {
+    //     let W = user.workouts[K];
+    //     if (!W.Completed) {
+    //         W.Date = newDates[dateIndex];
+    //     }
+    //     dateIndex ++;
+    // }
+    // await user.changed('workouts', true);
+    // await user.save();
+    // return newDates;
+  }
+  res.json(user);
+  // res.redirect('/reschedule');
+});
+
+router.post("/:id/payment", async function (req, res) {});
 
 router.get("/:userId", async function (req, res) {
-    var user = await _models.User.findById(req.params.userId);
-    res.json(user);
+  var user = await _models.User.findById(req.params.userId);
+  res.json(user);
 });
 
-router.delete('/:userId/stripe', async function (req, res) {
-    var user = await _models.User.findById(req.params.userId);
-    try {
-        var deletion = await stripe.customers.del(user.stripeId);
-        res.json(deletion);
-    } catch (error) {
-        res.json(error);
-    }
+router.delete("/:userId/stripe", async function (req, res) {
+  var user = await _models.User.findById(req.params.userId);
+  try {
+    var deletion = await stripe.customers.del(user.stripeId);
+    res.json(deletion);
+  } catch (error) {
+    res.json(error);
+  }
 });
 
 router.get("/:userId/access-info", async function (req, res) {
-    var TZOffset = req.body.timezoneOffset;
-    req.session.timezoneOffset = req.body.timezoneOffset;
-    console.log('TZOffset access-info: ', TZOffset);
-    var user = await _models.User.findById(req.params.userId);
-    var response = Object.assign({}, user);
-    var Now = new Date(Date.now());
-    var returnObj = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
-    res.json(returnObj);
+  var TZOffset = req.body.timezoneOffset;
+  req.session.timezoneOffset = req.body.timezoneOffset;
+  console.log("TZOffset access-info: ", TZOffset);
+  var user = await _models.User.findById(req.params.userId);
+  var response = Object.assign({}, user);
+  var Now = new Date(Date.now());
+  var returnObj = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
+  res.json(returnObj);
 });
 
 router.get("/:userId/workouts", function (req, res) {
-    _models.User.findById(req.params.userId).then(function (user) {
-        res.json(user.workouts);
-    });
+  _models.User.findById(req.params.userId).then(function (user) {
+    res.json(user.workouts);
+  });
 });
 
 router.get("/:userId/last-workout", async function (req, res) {
-    console.log("last-workout route hit!");
-    var _User = await _models.User.findById(req.params.userId);
-    var response = {
-        notFound: true,
-        text: "You have no completed workouts!"
-    };
-    var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
-    console.log("thisDate 1: ", thisDate);
-    // thisDate.setDate(thisDate.getDate() + 7);
-    console.log("thisDate: ", thisDate);
-    _User.workoutDates.forEach(function (date, index) {
-        if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
-            console.log(date.getDate(), thisDate.getDate());
-            var wID = index + 1;
-            var relatedWorkout = _User.workouts[wID];
-            response = relatedWorkout;
-        }
-    });
-    res.json(response);
-    return;
+  console.log("last-workout route hit!");
+  var _User = await _models.User.findById(req.params.userId);
+  var response = {
+    notFound: true,
+    text: "You have no completed workouts!"
+  };
+  var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
+  console.log("thisDate 1: ", thisDate);
+  // thisDate.setDate(thisDate.getDate() + 7);
+  console.log("thisDate: ", thisDate);
+  _User.workoutDates.forEach(function (date, index) {
+    if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
+      console.log(date.getDate(), thisDate.getDate());
+      var wID = index + 1;
+      var relatedWorkout = _User.workouts[wID];
+      response = relatedWorkout;
+    }
+  });
+  res.json(response);
+  return;
 });
 
 router.get("/:userId/last-workout/vue", async function (req, res) {
-    console.log("last-workout route hit!");
-    var _User = await _models.User.findById(req.params.userId);
-    var response = {
-        notFound: true,
-        text: "You have no completed workouts!"
-    };
-    var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
-    var lastworkoutDate = {};
-    console.log("thisDate 1: ", thisDate);
-    // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
-    console.log("thisDate: ", thisDate);
-    _User.workoutDates.forEach(function (date, index) {
-        if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
-            console.log(date.getDate(), new Date(Date.now()).getDate());
-            var wID = index + 1;
-            var relatedWorkout = _User.workouts[wID];
-            response = relatedWorkout;
-            lastworkoutDate = date;
-        }
-    });
-    if (!response.notFound) {
-        response.thisWorkoutDate = lastworkoutDate;
-        response.noedits = true;
-        response = getVueInfo(response);
-        response.noedits = true;
+  console.log("last-workout route hit!");
+  var _User = await _models.User.findById(req.params.userId);
+  var response = {
+    notFound: true,
+    text: "You have no completed workouts!"
+  };
+  var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
+  var lastworkoutDate = {};
+  console.log("thisDate 1: ", thisDate);
+  // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
+  console.log("thisDate: ", thisDate);
+  _User.workoutDates.forEach(function (date, index) {
+    if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
+      console.log(date.getDate(), new Date(Date.now()).getDate());
+      var wID = index + 1;
+      var relatedWorkout = _User.workouts[wID];
+      response = relatedWorkout;
+      lastworkoutDate = date;
     }
-    res.json(response);
-    return;
+  });
+  if (!response.notFound) {
+    response.thisWorkoutDate = lastworkoutDate;
+    response.noedits = true;
+    response = getVueInfo(response);
+    response.noedits = true;
+  }
+  res.json(response);
+  return;
 });
 
 router.get("/:userId/workouts/last", async function (req, res) {
-    console.log("last workout route hit!");
-    var _User = await _models.User.findById(req.params.userId);
-    var response = {
-        notFound: true,
-        text: "You have no completed workouts!"
-    };
-    var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
-    console.log("thisDate 1: ", thisDate);
-    // thisDate.setDate(thisDate.getDate() + 7);
-    console.log("thisDate: ", thisDate);
-    _User.workoutDates.forEach(function (date, index) {
-        if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
-            console.log(date.getDate(), new Date(Date.now()).getDate());
-            var wID = index + 1;
-            var relatedWorkout = _User.workouts[wID];
-            response = relatedWorkout;
-        }
-    });
-    res.json(response);
-    return;
+  console.log("last workout route hit!");
+  var _User = await _models.User.findById(req.params.userId);
+  var response = {
+    notFound: true,
+    text: "You have no completed workouts!"
+  };
+  var thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
+  console.log("thisDate 1: ", thisDate);
+  // thisDate.setDate(thisDate.getDate() + 7);
+  console.log("thisDate: ", thisDate);
+  _User.workoutDates.forEach(function (date, index) {
+    if (date.getTime() < thisDate.getTime() && date.getDate() <= thisDate.getDate() && date.getMonth() <= thisDate.getMonth() && date.getYear() <= thisDate.getYear()) {
+      console.log(date.getDate(), new Date(Date.now()).getDate());
+      var wID = index + 1;
+      var relatedWorkout = _User.workouts[wID];
+      response = relatedWorkout;
+    }
+  });
+  res.json(response);
+  return;
 });
 
 router.get("/:userId/workouts/:workoutId", async function (req, res) {
-    var user = await _models.User.findById(req.params.userId);
-    await suggestWeights(user, req.params.workoutId);
-    var _Workout = user.workouts[req.params.workoutId];
-    res.json(_Workout);
+  var user = await _models.User.findById(req.params.userId);
+  await suggestWeights(user, req.params.workoutId);
+  var _Workout = user.workouts[req.params.workoutId];
+  res.json(_Workout);
 });
 
 router.put("/:userId/workouts/:workoutId/save", async function (req, res) {
-    console.log("108 save workout by Id: ", req.body);
-    var _User = await _models.User.findById(req.params.userId);
-    var body = req.body;
-    await saveWorkout(body, _User, req.params.workoutId);
-    res.json(req.body);
+  console.log("108 save workout by Id: ", req.body);
+  var _User = await _models.User.findById(req.params.userId);
+  var body = req.body;
+  await saveWorkout(body, _User, req.params.workoutId);
+  res.json(req.body);
 });
 
 router.put("/:userId/workouts/:workoutId/pattern/:patternId/update", async function (req, res) {
-    console.log("UPDATE route hit for set #: ", req.params.patternId);
-    console.log("req.body: ", req.body);
-    var relatedInputs = {};
-    var _User = await _models.User.findById(req.params.userId);
-    var _vWID = req.params.workoutId;
-    var PNum = req.params.patternId;
-    var type = req.body.specialType;
-    for (var K in req.body) {
-        var kSplit = K.split("|");
-        if (kSplit.length > 0 && kSplit[0] == req.params.patternId) {
-            relatedInputs[K] = req.body[K];
-        }
+  console.log("UPDATE route hit for set #: ", req.params.patternId);
+  console.log("req.body: ", req.body);
+  var relatedInputs = {};
+  var _User = await _models.User.findById(req.params.userId);
+  var _vWID = req.params.workoutId;
+  var PNum = req.params.patternId;
+  var type = req.body.specialType;
+  for (var K in req.body) {
+    var kSplit = K.split("|");
+    if (kSplit.length > 0 && kSplit[0] == req.params.patternId) {
+      relatedInputs[K] = req.body[K];
     }
-    console.log("relatedInputs:", relatedInputs);
-    if (req.body.saveAlso) {
-        await saveWorkout(req.body, _User, req.params.workoutId);
-    } else {
-        await (0, _workoutUpdate.updateSpecial)(relatedInputs, _User, _vWID, PNum, type);
-    }
-    // var axiosPutResponse = await axios.put(`${WorkoutURL}/set/${setNum}/update`, putBody);
-    res.json(req.body);
+  }
+  console.log("relatedInputs:", relatedInputs);
+  if (req.body.saveAlso) {
+    await saveWorkout(req.body, _User, req.params.workoutId);
+  } else {
+    await (0, _workoutUpdate.updateSpecial)(relatedInputs, _User, _vWID, PNum, type);
+  }
+  // var axiosPutResponse = await axios.put(`${WorkoutURL}/set/${setNum}/update`, putBody);
+  res.json(req.body);
 });
 
 // put to "api/user/:userId/change-password"
 // in req.body: {oldPassword: "oldPassword", newPassword: "newPassword"}
 router.put("/:userId/change-password", async function (req, res) {
-    var _User = await _models.User.findById(req.params.userId);
-    var oldPassword = req.body.oldPassword;
-    var oldPasswordHashed = (0, _userFunctions.generateHash)(oldPassword, _User.salt);
-    if (oldPasswordHashed == _User.password) {
-        var newPassword = (0, _userFunctions.generateHash)(req.body.newPassword, _User.salt);
-        _User.password = newPassword;
-        await _User.save();
-        res.json(_User);
-    } else {
-        res.json({
-            error: true,
-            status: "Wrong Password"
-        });
-    }
+  var _User = await _models.User.findById(req.params.userId);
+  var oldPassword = req.body.oldPassword;
+  var oldPasswordHashed = (0, _userFunctions.generateHash)(oldPassword, _User.salt);
+  if (oldPasswordHashed == _User.password) {
+    var newPassword = (0, _userFunctions.generateHash)(req.body.newPassword, _User.salt);
+    _User.password = newPassword;
+    await _User.save();
+    res.json(_User);
+  } else {
+    res.json({
+      error: true,
+      status: "Wrong Password"
+    });
+  }
 });
 
 router.post("/:userId/workouts/:workoutId/save", async function (req, res) {
-    console.log("128 save workout by Id!!!!");
-    var _User = await _models.User.findById(req.params.userId);
-    //    console.log("found User?: ", _User);
-    var body = req.body;
-    await saveWorkout(body, _User, req.params.workoutId);
-    res.json(req.body);
+  console.log("128 save workout by Id!!!!");
+  var _User = await _models.User.findById(req.params.userId);
+  //    console.log("found User?: ", _User);
+  var body = req.body;
+  await saveWorkout(body, _User, req.params.workoutId);
+  res.json(req.body);
 });
 
 router.put("/:userId/workouts/:workoutId/submit", async function (req, res) {
-    // console.log("108 save workout by Id");
-    var _User = await _models.User.findById(req.params.userId);
-    var workoutId = req.params.workoutId;
-    var body = req.body;
-    body.lastWorkout = false;
-    // Update user's level-up status every time we 'saveWorkout'   
-    await saveWorkout(body, _User, req.params.workoutId, true);
-    // Level Up check here -> if last workout
-    if (parseInt(workoutId) == _User.workoutDates.length) {
-        console.log("SUBMITTING FINAL WORKOUT! \n\n\n");
-        console.log("LEVEL CHECK! ", workoutId);
-        var levelUpStats = _User.stats["Level Up"];
-        // Pre-Level-Up Stats...
-        console.log("User level and block num: ", _User.level, _User.blockNum);
-        if (_User.level >= 11) {
-            // This switches no matter what
-            if (_User.blockNum == 1) {
-                _User.blockNum = 2;
-            } else if (_User.blockNum == 2) {
-                _User.blockNum = 1;
-            }
-        }
-        if (!levelUpStats.Status.Checked && !levelUpStats.Checked && levelUpStats.Status.value == 1) {
-            _User.level++; //LEVEL-UP HAPPENS HERE
-            if (_User.level >= 11) {
-                _User.blockNum = 1;
-                if (_User.level >= 16) {
-                    _User.levelGroup = 4;
-                } else {
-                    _User.levelGroup = 3;
-                }
-            } else {
-                if (_User.level >= 6) {
-                    _User.levelGroup = 2;
-                } else {
-                    _User.levelGroup = 1;
-                }
-                _User.blockNum = 0;
-            }
-        }
-        if (levelUpStats.Status.value != 1) {
-            _User.stats["Level Up"].Status = _enums.Alloy.Failed;
-        }
-        console.log('_User.stats["Level Up"]: ', _User.stats["Level Up"]);
-        _User.stats["Level Up"].Status.Checked = true;
-        _User.stats["Level Up"].Checked = true;
-        _User.changed('stats', true);
-        console.log("POST User level and block num: ", _User.level, _User.blockNum);
-        // _User.workoutDates = []; //Added 6/15/2018
-        // _User.workouts = {};
-        await _User.save();
-        body.lastWorkout = true;
+  // console.log("108 save workout by Id");
+  var _User = await _models.User.findById(req.params.userId);
+  var workoutId = req.params.workoutId;
+  var body = req.body;
+  body.lastWorkout = false;
+  // Update user's level-up status every time we 'saveWorkout'
+  await saveWorkout(body, _User, req.params.workoutId, true);
+  // Level Up check here -> if last workout
+  if (parseInt(workoutId) == _User.workoutDates.length) {
+    console.log("SUBMITTING FINAL WORKOUT! \n\n\n");
+    console.log("LEVEL CHECK! ", workoutId);
+    var levelUpStats = _User.stats["Level Up"];
+    // Pre-Level-Up Stats...
+    console.log("User level and block num: ", _User.level, _User.blockNum);
+    if (_User.level >= 11) {
+      // This switches no matter what
+      if (_User.blockNum == 1) {
+        _User.blockNum = 2;
+      } else if (_User.blockNum == 2) {
+        _User.blockNum = 1;
+      }
     }
-    res.json(body);
+    if (!levelUpStats.Status.Checked && !levelUpStats.Checked && levelUpStats.Status.value == 1) {
+      _User.level++; //LEVEL-UP HAPPENS HERE
+      if (_User.level >= 11) {
+        _User.blockNum = 1;
+        if (_User.level >= 16) {
+          _User.levelGroup = 4;
+        } else {
+          _User.levelGroup = 3;
+        }
+      } else {
+        if (_User.level >= 6) {
+          _User.levelGroup = 2;
+        } else {
+          _User.levelGroup = 1;
+        }
+        _User.blockNum = 0;
+      }
+    }
+    if (levelUpStats.Status.value != 1) {
+      _User.stats["Level Up"].Status = _enums.Alloy.Failed;
+    }
+    console.log('_User.stats["Level Up"]: ', _User.stats["Level Up"]);
+    _User.stats["Level Up"].Status.Checked = true;
+    _User.stats["Level Up"].Checked = true;
+    _User.changed("stats", true);
+    console.log("POST User level and block num: ", _User.level, _User.blockNum);
+    // _User.workoutDates = []; //Added 6/15/2018
+    // _User.workouts = {};
+    await _User.save();
+    body.lastWorkout = true;
+  }
+  res.json(body);
 });
 
 router.put("/:userId/workouts/:workoutId/clear", async function (req, res) {
-    console.log("CLEAR ROUTE HIT: ", req.params.userId, req.params.workoutId);
-    var _User = await _models.User.findById(req.params.userId);
-    var workoutId = req.params.workoutId;
-    var thisWorkout = _User.workouts[req.params.workoutId];
-    var W = parseInt(thisWorkout.Week);
-    var D = parseInt(thisWorkout.Day);
-    var level = _User.level;
-    var newPatterns = await (0, _workoutFunctions.getblankPatterns)(_User.levelGroup, _User.blockNum, W, D, level);
-    _User.workouts[req.params.workoutId].Patterns = newPatterns;
-    _User.workouts[req.params.workoutId].Completed = false;
-    _User.changed('workouts', true);
-    await _User.save();
-    console.log("newPatterns for: ", req.params.workoutId);
-    // let newPatterns = {};
-    res.json(newPatterns);
+  console.log("CLEAR ROUTE HIT: ", req.params.userId, req.params.workoutId);
+  var _User = await _models.User.findById(req.params.userId);
+  var workoutId = req.params.workoutId;
+  var thisWorkout = _User.workouts[req.params.workoutId];
+  var W = parseInt(thisWorkout.Week);
+  var D = parseInt(thisWorkout.Day);
+  var level = _User.level;
+  var newPatterns = await (0, _workoutFunctions.getblankPatterns)(_User.levelGroup, _User.blockNum, W, D, level);
+  _User.workouts[req.params.workoutId].Patterns = newPatterns;
+  _User.workouts[req.params.workoutId].Completed = false;
+  _User.changed("workouts", true);
+  await _User.save();
+  console.log("newPatterns for: ", req.params.workoutId);
+  // let newPatterns = {};
+  res.json(newPatterns);
 });
 
 var suggestWeights = async function suggestWeights(user, workoutId) {
-    var _Workout = user.workouts[workoutId];
-    var Patterns = _Workout.Patterns;
-    // let newPatterns = {}
-    //Add Same-Reps bool check later
-    console.log("suggestWeights function: ");
+  var _Workout = user.workouts[workoutId];
+  var Patterns = _Workout.Patterns;
+  // let newPatterns = {}
+  //Add Same-Reps bool check later
+  console.log("suggestWeights function: ");
 
-    var _loop = function _loop(i) {
-        var Pattern = Patterns[i];
-        var EType = Pattern.type;
-        var relatedStat = user.stats[EType];
-        var relatedMax = relatedStat.Max;
-        // console.log("relatedStat: ", relatedStat);
-        if (Number.isNaN(relatedMax)) {
-            return 'continue';
-        }
-        var minSuggestedWeight = 0;
-        var maxSuggestedWeight = 0;
-        // gwParams
-        Pattern.setList.forEach(function (set) {
-            // console.log("set: ", set);
-            var gwParams = set.gwParams;
-            var Reps = gwParams.Reps;
-            var RPE = gwParams.RPE; //string "decimal", range, or null
-            if (Number.isInteger(Reps) && RPE) {
-                //if reps is number and RPE exits (string decimal or null)
-                if (set.SuggestedRPE.includes('-')) {
-                    var RPERange = set.SuggestedRPE.split('-');
-                    var RPE1 = RPERange[0];
-                    var RPE2 = RPERange[1];
-                    var weight1 = getWeight(relatedMax, set.Reps, RPE1);
-                    var weight2 = getWeight(relatedMax, set.Reps, RPE2);
-                    minSuggestedWeight = weight1;
-                    maxSuggestedWeight = weight2;
-                    set.suggestedWeight = weight1 + "-" + weight2;
-                    if (weight1 == 0 || weight2 == 0) {
-                        set.suggestedWeight = "--";
-                    }
-                } else {
-                    set.suggestedWeight = getWeight(relatedMax, set.Reps, set.SuggestedRPE);
-                    if (minSuggestedWeight == 0
-                    // || set.suggestedWeight < minSuggestedWeight
-                    ) {
-                            minSuggestedWeight = set.suggestedWeight;
-                        }
-                    if (maxSuggestedWeight == 0
-                    // || set.suggestedWeight > maxSuggestedWeight
-                    ) {
-                            maxSuggestedWeight = set.suggestedWeight;
-                        }
-                    if (set.suggestedWeight == 0) {
-                        set.suggestedWeight = "--";
-                    }
-                }
-                // console.log("suggestedWeight: ", set.suggestedWeight);
-                set.relatedMax = relatedMax;
-            }
-        });
-        if (minSuggestedWeight == 0 || maxSuggestedWeight == 0) {} else if (minSuggestedWeight == maxSuggestedWeight) {
-            Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + " lbs";
-            Pattern.simpleWeightString = minSuggestedWeight + " lbs";
-        } else {
-            Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
-            Pattern.simpleWeightString = minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
-        }
-    };
-
-    for (var i = 0; i < Patterns.length; i++) {
-        var _ret = _loop(i);
-
-        if (_ret === 'continue') continue;
+  var _loop = function _loop(_i2) {
+    var Pattern = Patterns[_i2];
+    var EType = Pattern.type;
+    var relatedStat = user.stats[EType];
+    var relatedMax = relatedStat.Max;
+    // console.log("relatedStat: ", relatedStat);
+    if (Number.isNaN(relatedMax)) {
+      return "continue";
     }
-    user.workouts[workoutId].Patterns = Patterns;
-    user.changed('workouts', true);
-    await user.save();
-    // console.log("new Patterns: ", Patterns);
-    return;
+    var minSuggestedWeight = 0;
+    var maxSuggestedWeight = 0;
+    // gwParams
+    Pattern.setList.forEach(function (set) {
+      // console.log("set: ", set);
+      var gwParams = set.gwParams;
+      var Reps = gwParams.Reps;
+      var RPE = gwParams.RPE; //string "decimal", range, or null
+      if (Number.isInteger(Reps) && RPE) {
+        //if reps is number and RPE exits (string decimal or null)
+        if (set.SuggestedRPE.includes("-")) {
+          var RPERange = set.SuggestedRPE.split("-");
+          var RPE1 = RPERange[0];
+          var RPE2 = RPERange[1];
+          var weight1 = getWeight(relatedMax, set.Reps, RPE1);
+          var weight2 = getWeight(relatedMax, set.Reps, RPE2);
+          minSuggestedWeight = weight1;
+          maxSuggestedWeight = weight2;
+          set.suggestedWeight = weight1 + "-" + weight2;
+          if (weight1 == 0 || weight2 == 0) {
+            set.suggestedWeight = "--";
+          }
+        } else {
+          set.suggestedWeight = getWeight(relatedMax, set.Reps, set.SuggestedRPE);
+          if (minSuggestedWeight == 0
+          // || set.suggestedWeight < minSuggestedWeight
+          ) {
+              minSuggestedWeight = set.suggestedWeight;
+            }
+          if (maxSuggestedWeight == 0
+          // || set.suggestedWeight > maxSuggestedWeight
+          ) {
+              maxSuggestedWeight = set.suggestedWeight;
+            }
+          if (set.suggestedWeight == 0) {
+            set.suggestedWeight = "--";
+          }
+        }
+        // console.log("suggestedWeight: ", set.suggestedWeight);
+        set.relatedMax = relatedMax;
+      }
+    });
+    if (minSuggestedWeight == 0 || maxSuggestedWeight == 0) {} else if (minSuggestedWeight == maxSuggestedWeight) {
+      Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + " lbs";
+      Pattern.simpleWeightString = minSuggestedWeight + " lbs";
+    } else {
+      Pattern.suggestedWeightString = "Suggested weight: " + minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
+      Pattern.simpleWeightString = minSuggestedWeight + "-" + maxSuggestedWeight + " lbs";
+    }
+  };
+
+  for (var _i2 = 0; _i2 < Patterns.length; _i2++) {
+    var _ret = _loop(_i2);
+
+    if (_ret === "continue") continue;
+  }
+  user.workouts[workoutId].Patterns = Patterns;
+  user.changed("workouts", true);
+  await user.save();
+  // console.log("new Patterns: ", Patterns);
+  return;
 };
 
 router.get("/:userId/workouts/:workoutId/vue", async function (req, res) {
-    console.log("req.params.userId:", req.params.userId);
-    console.log("req.params.workoutId", req.params.workoutId);
-    var thisID = req.params.workoutId;
-    if (req.params.workoutId == "0") {
-        thisID = '2'; //Test code
+  console.log("req.params.userId:", req.params.userId);
+  console.log("req.params.workoutId", req.params.workoutId);
+  var thisID = req.params.workoutId;
+  if (req.params.workoutId == "0") {
+    thisID = "2"; //Test code
+  }
+  console.log("thisID: ", thisID);
+  var thisUser = await _models.User.findById(req.params.userId);
+  var userAccess = await (0, _userFunctions.accessInfo)(thisUser, req.session.timezoneOffset);
+  console.log("userAccess: ", userAccess);
+  var accessLevel = userAccess.accessLevel;
+
+  _models.User.findById(req.params.userId).then(async function (user) {
+    await suggestWeights(user, req.params.workoutId);
+    // console.log("user: ", user);
+    // console.log("user.workouts", user.workouts, "thisID", thisID);
+    var _Workout = user.workouts[thisID];
+    console.log("_Workout: ", _Workout, "thisID", thisID);
+    var _WorkoutDate = user.workoutDates[thisID - 1];
+    var JSON = _Workout;
+    JSON.thisWorkoutDate = _WorkoutDate;
+    // console.log("this Workout Date get time: ", _WorkoutDate.getTime());
+    // console.log("Date.now: ", Date.now());
+    // console.log("> Comparison: ", _WorkoutDate.getTime() > Date.now());
+    var ahead = _WorkoutDate.getTime() > Date.now();
+    var timeDiff = Math.abs(_WorkoutDate.getTime() - Date.now());
+    var daysDiff = new Date(timeDiff).getDate();
+    daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+    var monthDiff = new Date(timeDiff).getMonth();
+    console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff, "current time: ", new Date(Date.now()));
+    console.log("timezone1: ", _WorkoutDate.getTimezoneOffset(), "timezone2: ", new Date(Date.now()).getTimezoneOffset());
+
+    var todayDate = (0, _moment2.default)().local();
+    todayDate = todayDate.format("YYYY-MM-DD");
+
+    var checkDate = (0, _moment2.default)(_WorkoutDate).format("YYYY-MM-DD");
+    console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
+    if (accessLevel < 4) {}
+    // res.json({
+    // noAccess: true,
+    // accessLevel,
+    // })
+    // return
+
+    // console.log("time difference: ", timeDiff);
+    // console.log("N Days: ", new Date(timeDiff).getDate());
+    var workoutDatelist = [];
+    var userWorkouts = user.workouts;
+    for (var K in userWorkouts) {
+      var Workout = userWorkouts[K];
+      if (!Workout.ID) {
+        continue;
+      }
+      var _W = Workout.Week;
+      var _D = Workout.Day;
+      var wID = Workout.ID;
+      // var date = G_UserInfo["User"].workoutDates[wID - 1];
+      var date = dateString(user.workoutDates[wID - 1]);
+      // console.log("date", date, _W, _D, K);
+      workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
     }
-    console.log("thisID: ", thisID);
-    var thisUser = await _models.User.findById(req.params.userId);
-    var userAccess = await (0, _userFunctions.accessInfo)(thisUser, req.session.timezoneOffset);
-    console.log("userAccess: ", userAccess);
-    var accessLevel = userAccess.accessLevel;
+
     var pasthiddenResponse = {
-        hidden: true,
-        hiddenText: "This workout is no longer accessible!",
-        accessLevel: accessLevel
+      hidden: true,
+      hiddenText: "This workout is no longer accessible!",
+      accessLevel: accessLevel,
+      workoutDates: workoutDatelist
     };
     var futureHiddenResponse = {
-        hidden: true,
-        hiddenText: "This workout is not accessible yet!",
-        accessLevel: accessLevel
+      hidden: true,
+      hiddenText: "This workout is not accessible yet!",
+      accessLevel: accessLevel,
+      workoutDates: workoutDatelist
     };
-    _models.User.findById(req.params.userId).then(async function (user) {
-        await suggestWeights(user, req.params.workoutId);
-        // console.log("user: ", user);
-        // console.log("user.workouts", user.workouts, "thisID", thisID);
-        var _Workout = user.workouts[thisID];
-        console.log("_Workout: ", _Workout, "thisID", thisID);
-        var _WorkoutDate = user.workoutDates[thisID - 1];
-        var JSON = _Workout;
-        JSON.thisWorkoutDate = _WorkoutDate;
-        // console.log("this Workout Date get time: ", _WorkoutDate.getTime());
-        // console.log("Date.now: ", Date.now());
-        // console.log("> Comparison: ", _WorkoutDate.getTime() > Date.now());
-        var ahead = _WorkoutDate.getTime() > Date.now();
-        var timeDiff = Math.abs(_WorkoutDate.getTime() - Date.now());
-        var daysDiff = new Date(timeDiff).getDate();
-        daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-        var monthDiff = new Date(timeDiff).getMonth();
-        console.log("monthDiff: ", monthDiff, "daysDiff: ", daysDiff, "current time: ", new Date(Date.now()));
-        console.log("timezone1: ", _WorkoutDate.getTimezoneOffset(), "timezone2: ", new Date(Date.now()).getTimezoneOffset());
 
-        var todayDate = (0, _moment2.default)().local();
-        todayDate = todayDate.format('YYYY-MM-DD');
+    if (ahead && daysDiff > 30 && !user.isAdmin) {
+      res.json(futureHiddenResponse);
+      return;
+    } else if (!ahead && daysDiff > 30 && !user.isAdmin) {
+      res.json(pasthiddenResponse);
+      return;
+    }
+    var accessible = false;
+    // if (monthDiff == 0 && daysDiff == 0) {
+    //     accessible = true;
+    // }
+    // else {
+    //     accessible = false;
+    // }
+    var editable = false;
+    var noedits = false;
 
-        var checkDate = (0, _moment2.default)(_WorkoutDate).format('YYYY-MM-DD');
-        console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
-        if (accessLevel < 4) {}
-        // res.json({
-        // noAccess: true,
-        // accessLevel,
-        // })
-        // return
+    if (todayDate == checkDate) {
+      accessible = true;
+    } else {
+      accessible = false;
+    }
+    JSON.accessible = accessible;
 
-        // console.log("time difference: ", timeDiff);
-        // console.log("N Days: ", new Date(timeDiff).getDate());
-        if (ahead && daysDiff > 30 && !user.isAdmin) {
-            res.json(futureHiddenResponse);
-            return;
-        } else if (!ahead && daysDiff > 30 && !user.isAdmin) {
-            res.json(pasthiddenResponse);
-            return;
-        }
-        var accessible = false;
-        // if (monthDiff == 0 && daysDiff == 0) {
-        //     accessible = true;
-        // }
-        // else {
-        //     accessible = false;            
-        // }
-        var editable = false;
-        var noedits = false;
+    editable = !JSON.Completed && JSON.accessible;
+    // noedits = JSON.completed || !(JSON.accessible);
+    noedits = JSON.Completed;
+    var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
+    if (userAccess.accessLevel < 6) {
+      editable = false;
+      noedits = true;
+    }
+    // if ()
+    JSON.editable = editable;
+    JSON.noedits = noedits;
 
-        if (todayDate == checkDate) {
-            accessible = true;
-        } else {
-            accessible = false;
-        }
-        JSON.accessible = accessible;
-
-        editable = !JSON.Completed && JSON.accessible;
-        // noedits = JSON.completed || !(JSON.accessible);
-        noedits = JSON.Completed;
-        var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
-        if (userAccess.accessLevel < 6) {
-            editable = false;
-            noedits = true;
-        }
-        // if ()
-        JSON.editable = editable;
-        JSON.noedits = noedits;
-        var workoutDatelist = [];
-        var userWorkouts = user.workouts;
-
-        var Now = new Date(Date.now() - user.TZOffset * 1000 * 60 * 60);
-        console.log('_WorkoutDate: ', _WorkoutDate);
-        console.log('Now: ', Now);
-        if (user.isAdmin) {
-            editable = true;
-            noedits = false;
-        } else if (_WorkoutDate.getDate() != Now.getDate() || _WorkoutDate.getMonth() != Now.getMonth() || _WorkoutDate.getYear() != Now.getYear() || JSON.Completed) {
-            noedits = true;
-            editable = false;
-        }
-        JSON.noedits = noedits;
-        console.log('\n\n noedits & editable: ', noedits, editable);
-        var vueJSON = getVueInfo(JSON);
-        console.log('getVueInfo just got called (line 1092)');
-        vueJSON.accessible = accessible;
-        vueJSON.noedits = noedits;
-
-        for (var K in userWorkouts) {
-            var Workout = userWorkouts[K];
-            if (!Workout.ID) {
-                continue;
-            }
-            var _W = Workout.Week;
-            var _D = Workout.Day;
-            var wID = Workout.ID;
-            // var date = G_UserInfo["User"].workoutDates[wID - 1];
-            var date = dateString(user.workoutDates[wID - 1]);
-            // console.log("date", date, _W, _D, K);
-            workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
-        }
-        // vueJSON.accessLevel = 
-        vueJSON.workoutDates = workoutDatelist;
-        vueJSON.accessLevel = accessLevel;
-        console.log("vueJSON.accessLevel: ", vueJSON.accessLevel);
-        res.json(vueJSON);
-    });
+    var Now = new Date(Date.now() - user.TZOffset * 1000 * 60 * 60);
+    console.log("_WorkoutDate: ", _WorkoutDate);
+    console.log("Now: ", Now);
+    if (user.isAdmin) {
+      editable = true;
+      noedits = false;
+    } else if (_WorkoutDate.getDate() != Now.getDate() || _WorkoutDate.getMonth() != Now.getMonth() || _WorkoutDate.getYear() != Now.getYear() || JSON.Completed) {
+      noedits = true;
+      editable = false;
+    }
+    JSON.noedits = noedits;
+    console.log("\n\n noedits & editable: ", noedits, editable);
+    var vueJSON = getVueInfo(JSON);
+    console.log("getVueInfo just got called (line 1092)");
+    vueJSON.accessible = accessible;
+    vueJSON.noedits = noedits;
+    // vueJSON.accessLevel =
+    vueJSON.workoutDates = workoutDatelist;
+    vueJSON.accessLevel = accessLevel;
+    console.log("vueJSON.accessLevel: ", vueJSON.accessLevel);
+    res.json(vueJSON);
+  });
 });
 
 router.put("/:userId", function (req, res) {
-    _models.User.findById(req.params.userId).then(function (user) {
-        user.update(req.body).then(function (user) {
-            return res.json(user);
-        });
+  _models.User.findById(req.params.userId).then(function (user) {
+    user.update(req.body).then(function (user) {
+      return res.json(user);
     });
+  });
 });
 
 router.get("/:userId/stats", function (req, res) {
-    _models.User.findById(req.params.userId).then(function (user) {
-        res.json(user.stats);
-    });
+  _models.User.findById(req.params.userId).then(function (user) {
+    res.json(user.stats);
+  });
 });
 
 router.put("/:userId/stats", function (req, res) {
-    _models.User.findById(req.params.userId).then(function (user) {
-        user.update({
-            stats: req.body
-        }).then(function (user) {
-            return res.json(user);
-        });
+  _models.User.findById(req.params.userId).then(function (user) {
+    user.update({
+      stats: req.body
+    }).then(function (user) {
+      return res.json(user);
     });
+  });
 });
 
-router.get('/:userId/profile-info/', async function (req, res) {
-    var _User = await _models.User.findById(req.params.userId);
-    var userAccess = await (0, _userFunctions.accessInfo)(_User, req.session.timezoneOffset);
+router.get("/:userId/profile-info/", async function (req, res) {
+  var _User = await _models.User.findById(req.params.userId);
+  var userAccess = await (0, _userFunctions.accessInfo)(_User, req.session.timezoneOffset);
 
-    var profileBody = {
-        username: _User.username,
-        level: _User.level,
-        blockNum: _User.blockNum,
-        accessLevel: userAccess.accessLevel
-    };
+  var profileBody = {
+    username: _User.username,
+    level: _User.level,
+    blockNum: _User.blockNum,
+    accessLevel: userAccess.accessLevel
+  };
+  var nWorkoutsComplete = 0;
+  var nWorkouts = 0;
+  for (var K in _User.workouts) {
+    if (_User.workouts[K].Completed) {
+      nWorkoutsComplete++;
+    }
+    nWorkouts++;
+  }
+  var percentComplete = Math.round(nWorkoutsComplete * 100 / nWorkouts);
+  if (nWorkouts == 0) {
+    percentComplete = 0;
+  }
+  profileBody.percentComplete = percentComplete;
+  profileBody.progressText = percentComplete + " % (" + nWorkoutsComplete + "/" + nWorkouts + " complete)";
+  res.json(profileBody);
+});
+
+router.get("/:userId/stats/vue/get", function (req, res) {
+  var userId = req.params.userId;
+  _models.User.findById(userId).then(async function (user) {
+    var JSONStats = user.stats;
+    for (var statKey in JSONStats) {
+      console.log(statKey);
+    }
+    await correctStatNames(user, user.level);
+    console.log(JSONStats);
+    // res.json(user.workouts);
     var nWorkoutsComplete = 0;
     var nWorkouts = 0;
-    for (var K in _User.workouts) {
-        if (_User.workouts[K].Completed) {
-            nWorkoutsComplete++;
-        }
-        nWorkouts++;
+    for (var K in user.workouts) {
+      if (user.workouts[K].Completed) {
+        nWorkoutsComplete++;
+      }
+      nWorkouts++;
     }
+    // user.
     var percentComplete = Math.round(nWorkoutsComplete * 100 / nWorkouts);
-    if (nWorkouts == 0) {
-        percentComplete = 0;
+    var vueData = {
+      level: user.level,
+      blockNum: user.blockNum,
+      exerciseTableItems: (0, _vueFormat.vueStats)(JSONStats),
+      nPassed: 0,
+      nFailed: 0,
+      nTesting: 0,
+      nWorkoutsComplete: nWorkoutsComplete,
+      nWorkouts: nWorkouts,
+      percentComplete: percentComplete
+    };
+    vueData.exerciseTableItems.forEach(function (stat) {
+      if (stat.alloyVal == 1) {
+        vueData.nPassed++;
+      } else if (stat.alloyVal == -1) {
+        vueData.nFailed++;
+      } else {
+        vueData.nTesting++;
+      }
+    });
+    var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
+    vueData.accessLevel = userAccess.accessLevel;
+    res.json(vueData);
+  });
+});
+
+async function correctStatNames(user, useLevel) {
+  for (var K in user.stats) {
+    var EType = K;
+    if (EType != "Level Up") {
+      user.stats[EType].Name = _data.ExercisesJSON.Exercises[EType][useLevel].name;
     }
-    profileBody.percentComplete = percentComplete;
-    profileBody.progressText = percentComplete + " % (" + nWorkoutsComplete + "/" + nWorkouts + " complete)";
-    res.json(profileBody);
-});
+  }
+  await user.changed("stats", true);
+  await user.save();
+  return true;
+}
 
-router.get('/:userId/stats/vue/get', function (req, res) {
-    var userId = req.params.userId;
-    _models.User.findById(userId).then(async function (user) {
-        var JSONStats = user.stats;
-        for (var statKey in JSONStats) {
-            console.log(statKey);
-        }
-        console.log(JSONStats);
-        // res.json(user.workouts);
-        var nWorkoutsComplete = 0;
-        var nWorkouts = 0;
-        for (var K in user.workouts) {
-            if (user.workouts[K].Completed) {
-                nWorkoutsComplete++;
-            }
-            nWorkouts++;
-        }
-        // user.
-        var percentComplete = Math.round(nWorkoutsComplete * 100 / nWorkouts);
-        var vueData = {
-            level: user.level,
-            blockNum: user.blockNum,
-            exerciseTableItems: (0, _vueFormat.vueStats)(JSONStats),
-            nPassed: 0,
-            nFailed: 0,
-            nTesting: 0,
-            nWorkoutsComplete: nWorkoutsComplete,
-            nWorkouts: nWorkouts,
-            percentComplete: percentComplete
-        };
-        vueData.exerciseTableItems.forEach(function (stat) {
-            if (stat.alloyVal == 1) {
-                vueData.nPassed++;
-            } else if (stat.alloyVal == -1) {
-                vueData.nFailed++;
-            } else {
-                vueData.nTesting++;
-            }
-        });
-        var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
-        vueData.accessLevel = userAccess.accessLevel;
-        res.json(vueData);
+router.get("/:userId/progress/vue/get", async function (req, res) {
+  var userId = req.params.userId;
+  _models.User.findById(userId).then(async function (user) {
+    var JSONStats = user.stats;
+    var vueData = (0, _vueFormat.vueProgress)(JSONStats);
+    vueData.newLevel = user.level;
+    vueData.oldLevel = vueData.levelUpVal == 1 ? user.level - 1 : user.level;
+    if (vueData.oldLevel <= 0) {
+      vueData.oldLevel = 1;
+    }
+    await correctStatNames(user, vueData.oldLevel);
+    vueData.nPassed = 0;
+    vueData.nFailed = 0;
+    vueData.nTesting = 0;
+    vueData.levelUpMessage = "";
+    vueData.levelUpImage = "";
+    vueData.blockNum = user.blockNum;
+    if (user.level == 6) {
+      vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[6];
+    } else if (user.level == 11) {
+      vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[11];
+    } else if (user.level == 16) {
+      vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[16];
+    }
+
+    if (vueData.levelUpVal == 1) {
+      vueData.statusText = "You have PASSED Level " + vueData.oldLevel;
+    } else if (vueData.levelUpVal == -1) {
+      vueData.statusText = "You have FAILED Level " + vueData.oldLevel;
+    } else {
+      vueData.statusText = "Still In Progress";
+    }
+    if (vueData.oldLevel >= 11 && user.blockNum == 2) {
+      vueData.statusText = "You have COMPLETED Level " + vueData.oldLevel + " - Block 1";
+    }
+    vueData.coreExerciseTableItems.forEach(function (stat) {
+      if (stat.alloyVal == 1) {
+        vueData.nPassed++;
+      } else if (stat.alloyVal == -1) {
+        vueData.nFailed++;
+      } else {
+        vueData.nTesting++;
+      }
     });
-});
-
-router.get('/:userId/progress/vue/get', function (req, res) {
-    var userId = req.params.userId;
-    _models.User.findById(userId).then(async function (user) {
-        var JSONStats = user.stats;
-        var vueData = (0, _vueFormat.vueProgress)(JSONStats);
-        vueData.newLevel = user.level;
-        vueData.oldLevel = vueData.levelUpVal == 1 ? user.level - 1 : user.level;
-        vueData.nPassed = 0;
-        vueData.nFailed = 0;
-        vueData.nTesting = 0;
-        vueData.levelUpMessage = "";
-        vueData.levelUpImage = "";
-        vueData.blockNum = user.blockNum;
-        if (user.level == 6) {
-            vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[6];
-        } else if (user.level == 11) {
-            vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[11];
-        } else if (user.level == 16) {
-            vueData.levelUpMessage = _levelupMessages.LevelUpMesssages[16];
-        }
-
-        if (vueData.levelUpVal == 1) {
-            vueData.statusText = "You have PASSED Level " + vueData.oldLevel;
-        } else if (vueData.levelUpVal == -1) {
-            vueData.statusText = "You have FAILED Level " + vueData.oldLevel;
-        } else {
-            vueData.statusText = "Still In Progress";
-        }
-        if (vueData.oldLevel >= 11 && user.blockNum == 2) {
-            vueData.statusText = 'You have COMPLETED Level ' + vueData.oldLevel + ' - Block 1';
-        }
-        vueData.coreExerciseTableItems.forEach(function (stat) {
-            if (stat.alloyVal == 1) {
-                vueData.nPassed++;
-            } else if (stat.alloyVal == -1) {
-                vueData.nFailed++;
-            } else {
-                vueData.nTesting++;
-            }
-        });
-        vueData.secondaryExerciseTableItems.forEach(function (stat) {
-            if (stat.alloyVal == 1) {
-                vueData.nPassed++;
-            } else if (stat.alloyVal == -1) {
-                vueData.nFailed++;
-            } else {
-                vueData.nTesting++;
-            }
-        });
-        var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
-        vueData.accessLevel = userAccess.accessLevel;
-        res.json(vueData);
+    vueData.secondaryExerciseTableItems.forEach(function (stat) {
+      if (stat.alloyVal == 1) {
+        vueData.nPassed++;
+      } else if (stat.alloyVal == -1) {
+        vueData.nFailed++;
+      } else {
+        vueData.nTesting++;
+      }
     });
+    var userAccess = await (0, _userFunctions.accessInfo)(user, req.session.timezoneOffset);
+    vueData.accessLevel = userAccess.accessLevel;
+    res.json(vueData);
+  });
 });
 
 router.put("/:userId/workouts", function (req, res) {
-    _models.User.findById(req.params.userId).then(function (user) {
-        user.update({
-            workouts: req.body
-        }).then(function (user) {
-            return res.json(user);
-        });
+  _models.User.findById(req.params.userId).then(function (user) {
+    user.update({
+      workouts: req.body
+    }).then(function (user) {
+      return res.json(user);
     });
+  });
 });
 
 router.post("/:userId/oldstats", function (req, res) {
-    _models.User.findById(req.params.userId).then(function (user) {
-        user.oldstats.push(req.body);
-        user.changed('oldstats', true);
-        user.save().then(function (user) {
-            return res.json(user);
-        });
+  _models.User.findById(req.params.userId).then(function (user) {
+    user.oldstats.push(req.body);
+    user.changed("oldstats", true);
+    user.save().then(function (user) {
+      return res.json(user);
     });
+  });
 });
 
-// let {squatWeight, benchWeight, RPEExp, bodyWeight} = input; 
+// let {squatWeight, benchWeight, RPEExp, bodyWeight} = input;
 router.put("/:userId/get-level", async function (req, res) {
-    console.log('get-level-route: ', req.body);
-    var _User = await _models.User.findById(req.params.userId);
-    var input = req.body;
-    await (0, _workoutFunctions.assignLevel)(_User, input);
-    if (_User.level == 11) {
-        _User.blockNum = 1;
-    }
-    await _User.save();
-    console.log('assigned level + blockNum: ', _User.level, _User.blockNum);
-    res.json({
-        user: _User,
-        viewingWID: 1
-    });
-    return;
+  console.log("get-level-route: ", req.body);
+  var _User = await _models.User.findById(req.params.userId);
+  var input = req.body;
+  await (0, _workoutFunctions.assignLevel)(_User, input);
+  if (_User.level == 11) {
+    _User.blockNum = 1;
+  }
+  await _User.save();
+  console.log("assigned level + blockNum: ", _User.level, _User.blockNum);
+  res.json({
+    user: _User,
+    viewingWID: 1
+  });
+  return;
 });
 
 router.put("/:userId/generate-workouts", async function (req, res) {
-    console.log("put to generate-workouts (line 408): ");
-    var input = req.body;
-    var _User = await _models.User.findById(req.params.userId);
-    if (_User.workoutDates.length > 0) {
-        var _oldStat = {
-            finishDate: _User.workoutDates[-1],
-            level: _User.level
-        };
-        _oldStat.statDict = _User.stats;
-        _User.oldstats.push(_oldStat);
-        _User.changed('oldstats', true);
-        await _User.save();
-    }
-    if (_User.level >= 11) {
-        _User.blockNum = parseInt(req.body.blockNum);
-        if (_User.level >= 16) {
-            _User.levelGroup = 4;
-        } else {
-            _User.levelGroup = 3;
-        }
-    } else {
-        if (_User.level >= 6) {
-            _User.levelGroup = 2;
-        } else {
-            _User.levelGroup = 1;
-        }
-        _User.blockNum = 0;
-    }
+  console.log("put to generate-workouts (line 408): ");
+  var input = req.body;
+  var _User = await _models.User.findById(req.params.userId);
+  if (_User.workoutDates.length > 0) {
+    var _oldStat = {
+      finishDate: _User.workoutDates[-1],
+      level: _User.level
+    };
+    _oldStat.statDict = _User.stats;
+    _User.oldstats.push(_oldStat);
+    _User.changed("oldstats", true);
     await _User.save();
-    var stringDate = false;
-    var startDate = "";
-    if (input.startDate) {
-        //will autoconvert startdate
-        startDate = input.startDate;
-        stringDate = true;
+  }
+  if (_User.level >= 11) {
+    _User.blockNum = parseInt(req.body.blockNum);
+    if (_User.level >= 16) {
+      _User.levelGroup = 4;
     } else {
-        startDate = input.formattedDate;
-        stringDate = false;
+      _User.levelGroup = 3;
     }
-    var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
-    await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
-    //Formerly used assignWorkouts(_User, input)
-    await _User.save();
-    res.json({ input: input, updatedUser: _User, session: {
-            viewingWID: 1,
-            User: _User,
-            username: _User.username,
-            userId: _User.id
-        } });
-    return;
+  } else {
+    if (_User.level >= 6) {
+      _User.levelGroup = 2;
+    } else {
+      _User.levelGroup = 1;
+    }
+    _User.blockNum = 0;
+  }
+  await _User.save();
+  var stringDate = false;
+  var startDate = "";
+  if (input.startDate) {
+    //will autoconvert startdate
+    startDate = input.startDate;
+    stringDate = true;
+  } else {
+    startDate = input.formattedDate;
+    stringDate = false;
+  }
+  var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
+  await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
+  //Formerly used assignWorkouts(_User, input)
+  await _User.save();
+  res.json({
+    input: input,
+    updatedUser: _User,
+    session: {
+      viewingWID: 1,
+      User: _User,
+      username: _User.username,
+      userId: _User.id
+    }
+  });
+  return;
 });
 
 router.post("/:userId/get-next-workouts", async function (req, res) {
-    console.log("posting to get-next-workouts (line 432): ");
-    // console.log("userId: ", req.params.userId);
-    var _User = await _models.User.findById(req.params.userId);
-    var input = req.body;
-    console.log("input.workoutLevel: ", input.workoutLevel);
-    input.userId = req.params.userId;
-    // console.log("91", input);
-    _User.oldstats = [];
-    _User.oldworkouts = [];
+  console.log("posting to get-next-workouts (line 432): ");
+  // console.log("userId: ", req.params.userId);
+  var _User = await _models.User.findById(req.params.userId);
+  var input = req.body;
+  console.log("input.workoutLevel: ", input.workoutLevel);
+  input.userId = req.params.userId;
+  // console.log("91", input);
+  _User.oldstats = [];
+  _User.oldworkouts = [];
+  await _User.save();
+  if (_User.workoutDates.length > 0) {
+    var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
+    console.log("last workout date in list: ", _User.workoutDates[_User.workoutDates.length - 1]);
+    var _oldStat = {
+      finishDate: lastWDate,
+      level: _User.level
+    };
+    var _oldWorkouts = _User.workouts;
+    _oldStat.statDict = _User.stats;
+    _User.oldstats.push(_oldStat);
+    _User.oldworkouts.push(_oldWorkouts);
+    _User.changed("oldstats", true);
+    _User.changed("oldworkouts", true);
     await _User.save();
-    if (_User.workoutDates.length > 0) {
-        var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
-        console.log("last workout date in list: ", _User.workoutDates[_User.workoutDates.length - 1]);
-        var _oldStat = {
-            finishDate: lastWDate,
-            level: _User.level
-        };
-        var _oldWorkouts = _User.workouts;
-        _oldStat.statDict = _User.stats;
-        _User.oldstats.push(_oldStat);
-        _User.oldworkouts.push(_oldWorkouts);
-        _User.changed('oldstats', true);
-        _User.changed('oldworkouts', true);
-        await _User.save();
-    }
-    if (input.workoutLevel != '') {
-        _User.level = parseInt(input.workoutLevel);
-        console.log("line 481, user.level: ", _User.level);
-        if (_User.level >= 11) {
-            _User.blockNum = parseInt(req.body.workoutBlock);
-            if (_User.level >= 16) {
-                _User.levelGroup = 4;
-            } else {
-                _User.levelGroup = 3;
-            }
-        } else {
-            if (_User.level >= 6) {
-                _User.levelGroup = 2;
-            } else {
-                _User.levelGroup = 1;
-            }
-            _User.blockNum = 0;
-        }
-        await _User.save();
-    }
-    console.log("line 501");
-    var stringDate = false;
-    var startDate = "";
-    if (input.startDate) {
-        //will autoconvert startdate
-        startDate = input.startDate;
-        stringDate = true;
+  }
+  if (input.workoutLevel != "") {
+    _User.level = parseInt(input.workoutLevel);
+    console.log("line 481, user.level: ", _User.level);
+    if (_User.level >= 11) {
+      _User.blockNum = parseInt(req.body.workoutBlock);
+      if (_User.level >= 16) {
+        _User.levelGroup = 4;
+      } else {
+        _User.levelGroup = 3;
+      }
     } else {
-        startDate = input.formattedDate;
-        stringDate = false;
+      if (_User.level >= 6) {
+        _User.levelGroup = 2;
+      } else {
+        _User.levelGroup = 1;
+      }
+      _User.blockNum = 0;
     }
-    var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
-    await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
-    // Formerly used await assignWorkouts(_User, input);        
     await _User.save();
+  }
+  console.log("line 501");
+  var stringDate = false;
+  var startDate = "";
+  if (input.startDate) {
+    //will autoconvert startdate
+    startDate = input.startDate;
+    stringDate = true;
+  } else {
+    startDate = input.formattedDate;
+    stringDate = false;
+  }
+  var daysList = [parseInt(input["Day-1"]), parseInt(input["Day-2"]), parseInt(input["Day-3"])];
+  await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, stringDate);
+  // Formerly used await assignWorkouts(_User, input);
+  await _User.save();
 
-    res.json({ input: input, updatedUser: _User, session: {
-            viewingWID: 1,
-            User: _User,
-            username: _User.username,
-            userId: _User.id
-        } });
-    // res.send("test");
-    return;
+  res.json({
+    input: input,
+    updatedUser: _User,
+    session: {
+      viewingWID: 1,
+      User: _User,
+      username: _User.username,
+      userId: _User.id
+    }
+  });
+  // res.send("test");
+  return;
 });
 
 // admin set-level post info:
@@ -1823,84 +1920,154 @@ router.post("/:userId/get-next-workouts", async function (req, res) {
 // }
 // Admins can set their level
 router.post("/:userId/admin/generate-workouts", async function (req, res) {
-    console.log("ADMIN GENERATE WORKOUTS: (LINE 457)");
-    // console.log("req.body: ", req.body);
-    console.log("startDate: ", req.body.startDate);
-    var _User = await _models.User.findById(req.params.userId);
-    if (_User.workoutDates.length > 0) {
-        var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
-        console.log("last workout date in list: ", _User.workoutDates[_User.workoutDates.length - 1]);
-        var _oldStat = {
-            finishDate: lastWDate,
-            level: _User.level
-        };
-        var _oldWorkouts = _User.workouts;
-        _oldStat.statDict = _User.stats;
-        _User.oldstats.push(_oldStat);
-        _User.oldworkouts.push(_oldWorkouts);
-        _User.changed('oldstats', true);
-        _User.changed('oldworkouts', true);
-        await _User.save();
-    }
-    if (req.body.newLevel) {
-        _User.level = parseInt(req.body.newLevel);
-        await _User.save();
-    }
-
-    if (_User.level >= 11) {
-        if (_User.blockNum == 0) {
-            _User.blockNum = 1;
-        }
-        if (req.body.blockNum) {
-            _User.blockNum = parseInt(req.body.blockNum);
-        }
-        if (_User.level >= 16) {
-            _User.levelGroup = 4;
-        } else {
-            _User.levelGroup = 3;
-        }
-    } else {
-        if (_User.level >= 6) {
-            _User.levelGroup = 2;
-        } else {
-            _User.levelGroup = 1;
-        }
-        _User.blockNum = 0;
-    }
-    console.log('USER.LEVEL, BLOCKNUM: ', _User.level, _User.blockNum);
+  console.log("ADMIN GENERATE WORKOUTS: (LINE 457)");
+  // console.log("req.body: ", req.body);
+  console.log("startDate: ", req.body.startDate);
+  var _User = await _models.User.findById(req.params.userId);
+  if (_User.workoutDates.length > 0) {
+    var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
+    console.log("last workout date in list: ", _User.workoutDates[_User.workoutDates.length - 1]);
+    var _oldStat = {
+      finishDate: lastWDate,
+      level: _User.level
+    };
+    var _oldWorkouts = _User.workouts;
+    _oldStat.statDict = _User.stats;
+    _User.oldstats.push(_oldStat);
+    _User.oldworkouts.push(_oldWorkouts);
+    _User.changed("oldstats", true);
+    _User.changed("oldworkouts", true);
     await _User.save();
-    var stringDate = false;
-    if (req.body.stringDate) {
-        stringDate = true;
+  }
+  if (req.body.newLevel) {
+    _User.level = parseInt(req.body.newLevel);
+    await _User.save();
+  }
+
+  if (_User.level >= 11) {
+    if (_User.blockNum == 0) {
+      _User.blockNum = 1;
     }
-    var startDate = req.body.startDate;
-    var daysList = req.body.daysList;
-    var output = await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, true);
-    // res.json(output);
-    res.json(_User);
+    if (req.body.blockNum) {
+      _User.blockNum = parseInt(req.body.blockNum);
+    }
+    if (_User.level >= 16) {
+      _User.levelGroup = 4;
+    } else {
+      _User.levelGroup = 3;
+    }
+  } else {
+    if (_User.level >= 6) {
+      _User.levelGroup = 2;
+    } else {
+      _User.levelGroup = 1;
+    }
+    _User.blockNum = 0;
+  }
+  console.log("USER.LEVEL, BLOCKNUM: ", _User.level, _User.blockNum);
+  await _User.save();
+  var stringDate = false;
+  if (req.body.stringDate) {
+    stringDate = true;
+  }
+  var startDate = req.body.startDate;
+  var daysList = req.body.daysList;
+  var output = await (0, _generateWorkouts.generateWorkouts)(_User, startDate, daysList, true);
+  // res.json(output);
+  res.json(_User);
 });
 
 router.post(":/userId/set-level", async function (req, res) {
-    var newLevel = parseInt(req.body.level);
-    var user = await _models.User.findById(req.params.userId);
-    user.level = newLevel;
-    await user.save();
-    res.json(user);
+  var newLevel = parseInt(req.body.level);
+  var user = await _models.User.findById(req.params.userId);
+  user.level = newLevel;
+  await user.save();
+  res.json(user);
 });
 
 router.post("/:userId/old-stats/clear", async function (req, res) {});
 
-router.get("/:userId/videos", async function (req, res) {
-    var videosUser = await _models.User.findById(req.params.userId);
-    var userAccess = await (0, _userFunctions.accessInfo)(videosUser, req.session.timezoneOffset);
-    console.log('videosVue 1: ');
-    var videos = VideosVue(VideosJSON, videosUser.level);
-    // console.log('videosVue 2: ');
-    // let _videos = VideosVue(LevelVideos, videosUser.level);
-    // videos.videoList = videos.videoList.concat(_videos.videoList);
+function vueConvert(JSON, levelFilter) {
+  var output = {
+    videoList: [],
+    selectedVideo: {}
+  };
+  for (var Key in JSON) {
+    // console.log(Key);
+    var VideosCategory = JSON[Key];
+    for (var K in VideosCategory) {
+      if (VideosCategory[K].LevelAccess <= levelFilter) {
+        //If user's level is > minimum access level for video
+        var elem = Object.assign({}, VideosCategory[K]);
+        if (!VideosCategory[K].URL) {
+          elem.URL = "https://drive.google.com/file/d/" + VideosCategory[K].DriveID + "/preview";
+        }
+        elem.label = K;
+        console.log("pushing video: ", elem.label);
+        elem.image = "../../static/video_placeholder.png";
+        elem.levels = LevelList.slice(elem.LevelAccess - 1);
+        if (Object.keys(output.selectedVideo).length === 0) {
+          output.selectedVideo = elem;
+        }
+        output.videoList.push(elem);
+        // console.log(elem);
+      }
+    }
+  }
+  // console.log(output);
+  return output;
+}
 
-    videos.accessLevel = userAccess.accessLevel;
-    res.json(videos);
+var LevelList = [];
+
+for (var i = 1; i <= 25; i++) {
+  LevelList.push(i);
+}
+
+var vueVideos = async function vueVideos(userLevel) {
+  var output = {
+    videoList: [],
+    selectedVideo: {}
+  };
+  var accessibleVideos = await _models.Video.findAll({
+    where: {
+      levelAccess: _defineProperty({}, Op.lte, userLevel)
+    }
+  });
+  for (var i = 0; i < accessibleVideos.length; i++) {
+    var video = accessibleVideos[i];
+    var elem = {
+      URL: video.url,
+      LevelAccess: video.levelAccess,
+      LinkedLevels: video.exerciseLevels,
+      Tags: video.title,
+      label: video.title,
+      image: "../../static/video_placeholder.png"
+    };
+    elem.levels = LevelList.slice(elem.LevelAccess - 1);
+    if (video.description != "") {
+      elem.Description = video.description;
+    }
+    if (Object.keys(output.selectedVideo).length === 0) {
+      output.selectedVideo = elem;
+    }
+    output.videoList.push(elem);
+  }
+  return output;
+};
+
+router.get("/:userId/videos", async function (req, res) {
+  var videosUser = await _models.User.findById(req.params.userId);
+  var userAccess = await (0, _userFunctions.accessInfo)(videosUser, req.session.timezoneOffset);
+  console.log("videosVue 1: ");
+  //   var videos = VideosVue(VideosJSON, videosUser.level);
+  var videos = await vueVideos(videosUser.level);
+  // console.log('videosVue 2: ');
+  // let _videos = VideosVue(LevelVideos, videosUser.level);
+  // videos.videoList = videos.videoList.concat(_videos.videoList);
+
+  videos.accessLevel = userAccess.accessLevel;
+  res.json(videos);
 });
 
 module.exports = router;
