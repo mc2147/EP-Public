@@ -33,7 +33,7 @@ router.get("/customers-custom", async function (req, res) {
         if (subscriptions.length > 0) {
             let currentSubscription = subscriptions[0];
             customer.subscriptionStatus = currentSubscription.status;
-            customer.MRR = currentSubscription.amount / currentSubscription.interval_count;
+            customer.MRR = currentSubscription.plan.amount / currentSubscription.plan.interval_count;
             customer.subscriptionPlan = currentSubscription.plan.nickname;
         }
         let totalBilled = 0;
@@ -42,7 +42,7 @@ router.get("/customers-custom", async function (req, res) {
         })
         customer.totalBilled = totalBilled;
         customer.charges = charges.data;
-        // console.log('adding charges: ', i);
+        console.log('adding charges: ', i);
     }
     //Get all subscribers
     //List their current subscription, payments, sign up date, current subscription status
