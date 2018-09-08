@@ -22,13 +22,27 @@ router.get("/customers", async function (req, res) {
 });
 
 router.get("/customers-custom", async function (req, res) {
-    let stripeCustomers = await stripe.customers.list({limit: 100});
+    let stripeCustomers = await stripe.customers.list({limit: 50});
 
     for (var i = 0; i < stripeCustomers.data.length; i ++) {
         let customer = stripeCustomers.data[i];
         let charges = await stripe.charges.list({customer:customer.id});
-        stripeCustomers.data[i].charges = charges.data;
-        console.log('adding charges: ', i);
+        let subscriptions = customer.subscriptions.data;
+        customer.subscriptionStatus = 'None';
+        customer.MRR = 0;
+        if (subscriptions.length > 0) {
+            let currentSubscription = subscriptions[0];
+            customer.subscriptionStatus = currentSubscription.status;
+            customer.MRR = currentSubscription.amount / currentSubscription.interval_count;
+            customer.subscriptionPlan = currentSubscription.plan.nickname;
+        }
+        let totalBilled = 0;
+        charges.data.forEach(charge => {
+            totalBilled += charge.amount - charge.amount_refunded;
+        })
+        customer.totalBilled = totalBilled;
+        customer.charges = charges.data;
+        // console.log('adding charges: ', i);
     }
     //Get all subscribers
     //List their current subscription, payments, sign up date, current subscription status
