@@ -16,10 +16,36 @@ var router = express.Router();
 // import {Exercise, WorkoutTemplate, SubWorkoutTemplate, Workout, User} from '../models';
 // import moment from 'moment';
 
+let allErrors = [];
+
 router.get("/customers", async function (req, res) {
     let stripeCustomers = await stripe.customers.list({limit: 100});
     res.json(stripeCustomers);
 });
+
+router.post('/update-card', async function(req, res) {
+    try {
+        let stripeId = req.body.stripeId;
+        let stripeUser = await stripe.customers.retrieve(stripeId);
+        let stripeToken = req.body.stripeToken;
+        await stripe.customers.update(stripeId, {
+            source: stripeToken,
+        });
+        res.json({
+            success: true,
+        })
+        return
+    } 
+    catch (error) {
+        allErrors.push(error);
+        res.json(error)
+        return        
+    }
+})
+
+router.get('errors', async function(req, res) {
+    res.json(errors);
+})
 
 router.get("/customers-custom", async function (req, res) {
     let stripeCustomers = await stripe.customers.list({limit: 50});
