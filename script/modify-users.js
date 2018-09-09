@@ -7,6 +7,7 @@ const {
 } = require("../models/index");
 
 async function modifyUsers() {
+  //MODULARIZE THIS STUFF LATER
   let Matt = await User.findOne({
     where: {
       username: "matthewchan2147@gmail.com"
