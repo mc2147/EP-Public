@@ -8,19 +8,33 @@ const {
 
 async function modifyUsers() {
   //MODULARIZE THIS STUFF LATER
-  let Matt = await User.findOne({
+  
+  let Marko = await User.findOne({
     where: {
-      username: "matthewchan2147@gmail.com"
+      username: "marko.slipy@icloud.com"
     }
   });
-    Matt.isAdmin = true;
+  Marko.stripeId = 'cus_DZiXV4EURXbxlM';
     // Matt.level = null;
     // Matt.initialized = false;
     // Matt.blockNum = 0;
     // Matt.resetStats = true;
     // Matt.workouts = {};
     // Matt.workoutDates = [];
-  await Matt.save();
+  await Marko.save();
+  // let Matt = await User.findOne({
+  //   where: {
+  //     username: "matthewchan2147@gmail.com"
+  //   }
+  // });
+  //   Matt.isAdmin = true;
+  //   // Matt.level = null;
+  //   // Matt.initialized = false;
+  //   // Matt.blockNum = 0;
+  //   // Matt.resetStats = true;
+  //   // Matt.workouts = {};
+  //   // Matt.workoutDates = [];
+  // await Matt.save();
 
   // let sabirUser = await User.findOne({
   //     where: {

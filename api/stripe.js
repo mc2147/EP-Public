@@ -24,14 +24,24 @@ router.get("/customers", async function (req, res) {
 });
 
 router.post('/update-card', async function(req, res) {
+    // cus_DGVyX6LdlpTwoA <- Marko's current stripeId and failed payments account
+    // cus_DZiXV4EURXbxlM <- Marko's new "version 2" stripe customer ID
     console.log('update-card hit. req.body: ', req.body);
     try {
-        let stripeId = req.body.stripeId;
+        // let stripeId = req.body.stripeId;
+        // let stripeToken = req.body.stripeToken;
+        let { stripeId, stripeToken, userEmail} = req.body;
         let stripeUser = await stripe.customers.retrieve(stripeId);
-        let stripeToken = req.body.stripeToken;
-        await stripe.customers.update(stripeId, {
-            source: stripeToken,
-        });
+        if (userEmail == 'marko.slipy@icloud.com' || stripeId == 'cus_DGVyX6LdlpTwoA') {
+            await stripe.customers.update('cus_DZiXV4EURXbxlM', {
+                source: stripeToken,
+            });
+        }
+        else {
+            await stripe.customers.update(stripeId, {
+                source: stripeToken,
+            });
+        }
         res.json({
             success: true,
         })

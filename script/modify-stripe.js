@@ -12,6 +12,7 @@ console.log('process.env.STRIPE_SECRET_KEY: ', process.env.STRIPE_SECRET_KEY);
 
 async function modifyStripe() {
  // Modularize this shit later
+ // Get stripe connect set up
  try {
   let oldMarkoStripeId = 'cus_DGVyX6LdlpTwoA';
   let markoStripeId = 'cus_DZiXV4EURXbxlM';
