@@ -5,9 +5,10 @@ const {
   User,
   Video
 } = require("../models/index");
-var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+var stripe = require("stripe")('sk_live_OXwkp7SjAleSx9u6QLlUns0U');
 
 console.log('modify-stripe.js running...');
+console.log('process.env.STRIPE_SECRET_KEY: ', process.env.STRIPE_SECRET_KEY);
 
 async function modifyStripe() {
  // Modularize this shit later
