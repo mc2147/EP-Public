@@ -38,6 +38,7 @@ router.post('/update-card', async function(req, res) {
     } 
     catch (error) {
         allErrors.push(error);
+        console.log('update card error: ', error);
         res.json(error)
         return        
     }
