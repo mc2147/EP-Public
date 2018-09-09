@@ -24,6 +24,7 @@ router.get("/customers", async function (req, res) {
 });
 
 router.post('/update-card', async function(req, res) {
+    console.log('update-card hit. req.body: ', req.body);
     try {
         let stripeId = req.body.stripeId;
         let stripeUser = await stripe.customers.retrieve(stripeId);
@@ -39,7 +40,7 @@ router.post('/update-card', async function(req, res) {
     catch (error) {
         allErrors.push(error);
         console.log('update card error: ', error);
-        res.json(error)
+        res.json({error, fail: true})
         return        
     }
 })
