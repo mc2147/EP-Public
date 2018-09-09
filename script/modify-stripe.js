@@ -13,10 +13,18 @@ console.log('process.env.STRIPE_SECRET_KEY: ', process.env.STRIPE_SECRET_KEY);
 async function modifyStripe() {
  // Modularize this shit later
  try {
+  let oldMarkoStripeId = 'cus_DGVyX6LdlpTwoA';
   let markoStripeId = 'cus_DZiXV4EURXbxlM';
-  let markoStripeToken = 'card_1CpyweJ14t7rQNsf2mxyR3QY';
+  let markoCardid = 'card_1CpyweJ14t7rQNsf2mxyR3QY';
+
+  let markoStripeToken = await stripe.tokens.create({
+   customer: oldMarkoStripeId,
+   card: markoCardid
+  });
+  console.log('markoStripeToken: ', markoStripeToken);
+
   await stripe.customers.update(markoStripeId, {
-      source: markoStripeToken,
+      source: markoStripeToken.id,
   });
  } 
  catch (error) {
