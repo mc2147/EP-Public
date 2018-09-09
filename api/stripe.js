@@ -4,7 +4,7 @@ import Promise from "bluebird";
 var bodyParser = require('body-parser');
 var express = require('express');
 const bcrypt    = require('bcryptjs');
-var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+var stripe = require("stripe")('sk_live_OXwkp7SjAleSx9u6QLlUns0U');
 var router = express.Router();
 // import {signupUser} from './apiFunctions/userFunctions';
 // import {assignWorkouts, assignLevel, getblankPatterns, rescheduleWorkouts} from './apiFunctions/workoutFunctions';
