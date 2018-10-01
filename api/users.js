@@ -9,7 +9,6 @@ const Op = Sequelize.Op;
 import { getSubscriptionInfo } from "./apiFunctions/stripeFunctions";
 import { signupUser, accessInfo } from "./apiFunctions/userFunctions";
 import {
-  assignWorkouts,
   assignLevel,
   getblankPatterns,
   rescheduleWorkouts
@@ -32,16 +31,8 @@ import {
 import moment from "moment";
 import { ExercisesJSON } from "../data";
 var stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-console.log("secret key: ", process.env.STRIPE_SECRET_KEY);
-// var models = require('../models');
-// 	var Exercise = models.Exercise;
-// 	var WorkoutTemplate = models.WorkoutTemplate;
-// 	var SubWorkoutTemplate = models.SubWorkoutTemplate;
-// 	var Workout = models.Workout;
-// 	var User = models.User;
 const path = require("path");
-const ABSPATH = path.dirname(process.mainModule.filename); // Absolute path to our app directory
-// let data = require('../data');
+const ABSPATH = path.dirname(process.mainModule.filename);
 import axios from "axios";
 import data from "../data";
 var W3a = data.AllWorkouts[3]["a"];
@@ -61,10 +52,7 @@ var G_getPattern = globalFuncs.getPattern;
 var dateString = globalFuncs.dateString;
 
 import { Alloy, DaysofWeekDict } from "../globals/enums";
-// var globalEnums = require('../globals/enums');
-// var DaysofWeekDict = globalEnums.DaysofWeekDict;
-// var Alloy = globalEnums.Alloy;
-// Move below to apiFunctions later under workoutFunctions
+
 var workoutHandlers = require("../routes/workoutHandlers");
 var saveWorkout = workoutHandlers.saveWorkout;
 
@@ -92,12 +80,6 @@ async function checkMissedWorkouts() {
     let thisaccessInfo = await accessInfo(thisUser);
     if (thisaccessInfo.missedWorkouts) {
       if (!thisUser.notifiedMissedWorkouts) {
-        // [Electrum Performance] Incomplete Workouts
-        // <p>This is an email to notify you that you have incomplete workouts on your Electrum Performance account.
-        // What this means is you have passed the completion date of a workout without clicking "Submit" on the workout page.
-        // Next time you log in, you will be prompted to reschedule your workouts for a future date.
-        // Once you do that, you wil be able to access your workouts again!
-        // To prevent incomplete workouts in the future, make sure you click "Submit" after filling in the information for each workout
         let emailJSON = {
           from: '"Electrum Performance" <electrumperformance@gmail.com>',
           to: thisUser.username,
@@ -118,13 +100,7 @@ cron.schedule("8 00 * * *", async function() {
   console.log("Executing every day: ", Date.now());
   await checkMissedWorkouts();
   console.log("Checked missed workouts!!");
-  // For all users, check if they have missed workouts
-  // If missed workout and not notified, send an email
 });
-
-// cron.schedule('* * * * *', function() {
-//     // console.log('Executing every minute? ', Date.now());
-// });
 
 let testUsernames = [
   "UserName1",
@@ -176,8 +152,6 @@ router.post("/contact-form", async function(req, res) {
   let { name, email, messageBody, messageType } = req.body;
   console.log("req.body: ", req.body);
 
-  // messageBody = messageBody.replace(/\n/g, "<br />");
-
   let emailHTML =
     `<b>Name: </b> ${name}<br><br>` +
     `<b>Email: </b> ${email}<br><br>` +
@@ -193,16 +167,6 @@ router.post("/contact-form", async function(req, res) {
   let mailResponse = {};
   mailResponse = sendMail(emailJSON);
   res.json(mailResponse);
-  // if (mailResponse.success) {
-  //     res.json({
-  //         success:true,
-  //     });
-  // }
-  // else if (mailResponse.error) {
-  //     res.json({
-  //         error:true,
-  //     });
-  // }
 });
 
 router.post("/purchase/galvao-pdf", async function(req, res) {
@@ -220,7 +184,6 @@ router.post("/purchase/galvao-pdf", async function(req, res) {
     html: emailHTML,
     attachments: [
       {
-        // filename and content type is derived from path
         path: itemPath
       }
     ]
@@ -251,9 +214,6 @@ router.post("/individualized-program", async function(req, res) {
   let input = req.body;
   console.log("input for individualized programming route: ", input);
   if (input.payment) {
-    // Create stripe customer here with card and email
-    // Link later information to stripe customer email
-    // Send email to Alex's notifying them of a customer's signup
     let emailHTML = `<p>A new user has paid for individualized programming! You can reach them at ${
       input.email
     }</p><br>`;
@@ -287,27 +247,6 @@ router.post("/individualized-program", async function(req, res) {
     res.json("individualized program information");
     return;
   }
-  // Create stripe customer here with card and email
-  // Link later information to stripe customer email
-  // Send email to Alex's notifying them of a customer's signup
-  // let confHTML = (`<p>This is the confirmation email for your Electrum Performance
-  //  account for: ${user.username} `
-  // + 'Please click the link below to activate your account:<br><br>'
-  // + `<a href="${realconfURL}"><b>Activate Your Account</b></a></p>`
-  // + "<br>If the above link doesn't work, navigate to this URL in your browser:<br>"
-  // + realconfURL
-  // + "<br><br><b>Note: we have a known issue with confirmation links malfunctioning on Apple's Safari browser. "
-  // + "If the above link doesn't work for you, please try copying it into a non-Safari browser such as Google Chrome or Internet Explorer. </b>"
-  // + "<b> If you continue to experience difficulty with confirming your account, please reply to this email and we will confirm your account manually.</b>");
-  // let confEmail = {
-  //     from: '"Electrum Performance" <electrumperformance@gmail.com>',
-  //     // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
-  //     to: user.username,
-  //     subject: 'Account Confirmation [Electrum Performance]',
-  //     // text: `Your new password for AlloyStrength Training is: ${newPassword}`
-  //     html: confHTML
-  // };
-  // sendMail(confEmail);
 });
 
 router.post("/individualized-program/info", async function(req, res) {
@@ -442,14 +381,12 @@ router.get("/test", function(req, res) {
 router.get("/test-stripe", async function(req, res) {
   try {
     let stripeUser = await stripe.customers.create({
-      // source:stripeToken,
       email: "test@test.com"
     });
     let testSubscription = await stripe.subscriptions.create({
       customer: stripeUser.id,
       items: [
         {
-          // plan:"AS_Silver",
           plan: "AS_Trial"
         }
       ],
@@ -465,7 +402,6 @@ router.get("/test-stripe", async function(req, res) {
   }
 });
 
-// Inputs: email, name,
 router.post("/", async function(req, res) {
   console.log("Signing up user");
   var newUser = await signupUser(req.body);
@@ -484,17 +420,14 @@ router.post("/", async function(req, res) {
     });
     return;
   } else {
-    // req.session
     req.session.userId = newUser.session.userId;
     req.session.username = newUser.session.username;
     req.session.User = newUser.session.User;
     req.session.test = "test";
     req.session.save();
     console.log("user post req.session: ", req.session);
-    // await req.session.save();
     res.json(newUser);
   }
-  // res.json(req.session);
 });
 
 router.post("/:username/login", async function(req, res) {
@@ -544,7 +477,7 @@ router.post("/:username/login", async function(req, res) {
           nextWorkoutFound = true;
         }
       }
-      // loginuser.workoutDates.forEach((elem, ))
+
       let paid = false;
       let hasSubscription = false;
       let subscriptionValid = false;
@@ -592,12 +525,9 @@ router.post("/:username/login", async function(req, res) {
   }
 });
 
-// router.get('/:id/forgot-password', async function(req, res) {
 router.post("/forgot-password", async function(req, res) {
   let username = req.body.email;
-  // testEmail:
-  console.log("forgot password route hit");
-  // let user = await User.findById(req.params.id);
+
   let user = await User.findOne({
     where: {
       username
@@ -625,14 +555,13 @@ router.post("/forgot-password", async function(req, res) {
   });
 });
 
-// router.get('/:id/confirmation-email', async function(req, res) {
 router.post("/:id/confirmation-email", async function(req, res) {
   console.log("posting to confirmation email");
   let user = await User.findById(req.params.id);
   let confString = Math.random()
     .toString(36)
     .slice(-8);
-  // Assign confString to the user
+
   user.confString = confString;
   await user.save();
   let productionconfURL = `${process.env.BASE_URL}/api/users/${
@@ -641,7 +570,7 @@ router.post("/:id/confirmation-email", async function(req, res) {
   let realconfURL = `https://www.electrumperformance.com/confirm/${
     req.params.id
   }/${confString}`;
-  // console.log('confURL: ', confURL);
+
   let confHTML =
     `<p>This is the confirmation email for your Electrum Performance
      account for: ${user.username} ` +
@@ -655,10 +584,9 @@ router.post("/:id/confirmation-email", async function(req, res) {
 
   let confEmail = {
     from: '"Electrum Performance" <electrumperformance@gmail.com>',
-    // to: ['matthewchan2147@gmail.com', 'asitwala17@gmail.com'], //later: user.username,
+
     to: user.username,
     subject: "Account Confirmation [Electrum Performance]",
-    // text: `Your new password for AlloyStrength Training is: ${newPassword}`
     html: confHTML
   };
   sendMail(confEmail);
@@ -689,11 +617,6 @@ router.get("/:id/confirm/:confString", async function(req, res) {
   }
 });
 
-// On change subscription:
-//cancel_at_period_end = true;
-//create new subscription with billing_cycle_anchor at period_end
-// Plan IDs: AS_Bronze, AS_Silver, AS_Gold
-// req.body: newPlanID, cancel (bool)
 router.put("/:id/change-subscription", async function(req, res) {
   let user = await User.findById(req.params.id);
   console.log("changing subscription for user: ", user.username);
@@ -716,7 +639,7 @@ router.put("/:id/change-subscription", async function(req, res) {
     if (currentSubscription.status == "trialing") {
       await stripe.subscriptions.del(subscriptionId, {});
     }
-    // let updatedSubscription = await stripe.subscriptions.retrieve(user.stripeId);
+
     console.log("cancelling... ", cancelSubscription);
     res.json(cancelSubscription);
     return;
@@ -727,7 +650,7 @@ router.put("/:id/change-subscription", async function(req, res) {
     if (currentSubscription.status == "trialing") {
       await stripe.subscriptions.del(subscriptionId);
     }
-    //Trialing is used to not start a different subscription until the current one ends
+
     let newSubscription = await stripe.subscriptions.create({
       customer: user.stripeId,
       billing_cycle_anchor: currentSubscription.current_period_end,
@@ -742,7 +665,6 @@ router.put("/:id/change-subscription", async function(req, res) {
     res.json(newSubscription);
     return;
   }
-  // let
 });
 
 router.get("/:id/stripe-customer", async function(req, res) {
@@ -831,7 +753,7 @@ router.get("/:id/subscription-info", async function(req, res) {
   let trialendDateString = "";
   let nextPlan = false;
   let cancelled = false;
-  // let new
+
   let secondLine = "";
   // if (subscriptionStatus == 'trialing' || subscriptionStatus == 'active') {
   //     subscriptionValid = true;
@@ -861,8 +783,6 @@ router.get("/:id/subscription-info", async function(req, res) {
         `Your trial period will end on ${trialendDateString},` +
         ` after which you will be billed automatically.`;
       secondLine = subscriptionDescriber;
-      // subscriptionDescriber += ` It will change to ${nextPlanString} on this date.`
-      // secondLine = ` It will change to ${nextPlanString} on this date.`;
     } else {
       nextPlan = firstSubscription.plan.nickname;
       let nextPlanString = nextPlan;
@@ -889,7 +809,6 @@ router.get("/:id/subscription-info", async function(req, res) {
   });
 });
 
-//0 index is most recent
 router.get("/:id/all-subscriptions", async function(req, res) {
   let user = await User.findById(req.params.id);
   try {
@@ -917,7 +836,6 @@ router.get("/:id/all-subscriptions-info", async function(req, res) {
     subscriptions.forEach(sub => {
       let information = getSubscriptionInfo(sub);
       subscriptionInfo.push(information);
-      // console.log("customer subscription information: ", information);
     });
     res.json(subscriptionInfo);
   } catch (error) {
@@ -930,7 +848,6 @@ router.post("/:id/start-trial", async function(req, res) {
   let stripeToken = req.body.stripeToken;
   let user = await User.findById(req.params.id);
   console.log("starting trial only");
-  // res.json('starting trial');
   if (user.stripeId != "") {
     let userAccessLevel = accessInfo(user);
     let stripeUser = await stripe.customers.retrieve(user.stripeId);
@@ -960,7 +877,6 @@ router.post("/:id/start-trial", async function(req, res) {
       customer: stripeUser.id,
       items: [
         {
-          // plan:"AS_Silver",
           plan: "AS_Trial"
         }
       ],
@@ -980,7 +896,6 @@ router.post("/:id/start-trial", async function(req, res) {
   }
 });
 
-// Plan ID: AS_Bronze, AS_Silver, AS_Gold
 router.post("/:id/subscribe", async function(req, res) {
   console.log("SUBSCRIBING...");
   let stripeToken = req.body.stripeToken;
@@ -1008,24 +923,11 @@ router.post("/:id/subscribe", async function(req, res) {
     console.log("newStripeId: ", newStripeId);
     user.stripeId = newStripeId;
     await user.save();
-    // if (process.env.TEST_LIVE_STRIPE) {
-    //     let newSubscription = await stripe.subscriptions.create({
-    //         customer:stripeUser.id,
-    //         items: [
-    //             {
-    //                 // plan:"AS_Silver",
-    //                 plan:"AS_Test",
-    //             },
-    //         ],
-    //     });
-    // }
-    // else {
     console.log("line 719");
     let newSubscription = await stripe.subscriptions.create({
       customer: stripeUser.id,
       items: [
         {
-          // plan:"AS_Silver",
           plan: req.body.planID
         }
       ],
@@ -1034,14 +936,12 @@ router.post("/:id/subscribe", async function(req, res) {
     await stripe.customers.update(stripeUser.id, {
       description: "Subscribed Once"
     });
-    console.log("line 730");
-    // }
+
     let findCustomer = await stripe.customers.retrieve(stripeUser.id);
-    console.log("customer found: ", findCustomer);
+
     res.json(findCustomer);
     return;
   } catch (error) {
-    console.log("PAYMENT ERROR: ", error);
     error.paymentError = true;
     res.json(error);
   }
@@ -1077,42 +977,14 @@ router.post("/:id/renew-subscription", async function(req, res) {
           plan: planID
         }
       ]
-      // trial_from_plan:true, //for testing only - to avoid an immediate charge
     });
-    console.log("line 426");
     let response = await accessInfo(user, req.session.timezoneOffset);
     res.json(response);
-    console.log("line 427");
-    // // res.json(newSubscription);
-    // res.json({
-    //     success:true,
-    // })
   } catch (error) {
     error.Error = true;
     error.paymentError;
     res.json(error);
   }
-  // let user = await User.findById(req.params.id);
-  // let stripeUser = await stripe.customers.create({
-  //     source:stripeToken,
-  //     email:user.username,
-  // });
-  // let newStripeId = stripeUser.id;
-  // console.log("newStripeId: ", newStripeId);
-  // user.stripeId = newStripeId;
-  // await user.save();
-  // let newSubscription = await stripe.subscriptions.create({
-  //     customer:stripeUser.id,
-  //     items: [
-  //         {
-  //             plan:"AS_Silver",
-  //         },
-  //     ],
-  // });
-  // let findCustomer = await stripe.customers.retrieve(stripeUser.id);
-  // console.log("customer found: ", findCustomer);
-  // res.json(findCustomer);
-  // return
 });
 
 router.get("/:id/reschedule-workouts", async function(req, res) {
@@ -1156,7 +1028,6 @@ router.get("/:id/reschedule-workouts", async function(req, res) {
 router.post("/:id/reschedule-workouts", async function(req, res) {
   console.log("posting to reschedule... from users api");
   console.log("req.body: ", req.body);
-  // console.log("new start date: ", new Date(req.body.restartDate));
   let newStartDate = new Date(req.body.restartDate);
   let Now = new Date(Date.now());
   console.log("/:id/reschedule-workouts route ");
@@ -1168,24 +1039,11 @@ router.post("/:id/reschedule-workouts", async function(req, res) {
     req.body.DoW.forEach(day => {
       DoWArray.push(parseInt(day));
     });
-    // console.log('old workout dates: ', user.workoutDates);
     let newDates = await rescheduleWorkouts(user, newStartDate, DoWArray);
     user.notifiedMissedWorkouts = false;
     await user.save();
-    // let dateIndex = 0;
-    // for (var K in user.workouts) {
-    //     let W = user.workouts[K];
-    //     if (!W.Completed) {
-    //         W.Date = newDates[dateIndex];
-    //     }
-    //     dateIndex ++;
-    // }
-    // await user.changed('workouts', true);
-    // await user.save();
-    // return newDates;
   }
   res.json(user);
-  // res.redirect('/reschedule');
 });
 
 router.post("/:id/payment", async function(req, res) {});
@@ -1230,9 +1088,6 @@ router.get("/:userId/last-workout", async function(req, res) {
     text: "You have no completed workouts!"
   };
   let thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
-  console.log("thisDate 1: ", thisDate);
-  // thisDate.setDate(thisDate.getDate() + 7);
-  console.log("thisDate: ", thisDate);
   _User.workoutDates.forEach(function(date, index) {
     if (
       date.getTime() < thisDate.getTime() &&
@@ -1251,7 +1106,6 @@ router.get("/:userId/last-workout", async function(req, res) {
 });
 
 router.get("/:userId/last-workout/vue", async function(req, res) {
-  console.log("last-workout route hit!");
   let _User = await User.findById(req.params.userId);
   let response = {
     notFound: true,
@@ -1259,9 +1113,6 @@ router.get("/:userId/last-workout/vue", async function(req, res) {
   };
   let thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
   let lastworkoutDate = {};
-  console.log("thisDate 1: ", thisDate);
-  // thisDate.setDate(thisDate.getDate() + 7); //<- for testing
-  console.log("thisDate: ", thisDate);
   _User.workoutDates.forEach(function(date, index) {
     if (
       date.getTime() < thisDate.getTime() &&
@@ -1294,9 +1145,6 @@ router.get("/:userId/workouts/last", async function(req, res) {
     text: "You have no completed workouts!"
   };
   let thisDate = new Date(Date.now() - _User.TZOffset * 1000 * 60 * 60);
-  console.log("thisDate 1: ", thisDate);
-  // thisDate.setDate(thisDate.getDate() + 7);
-  console.log("thisDate: ", thisDate);
   _User.workoutDates.forEach(function(date, index) {
     if (
       date.getTime() < thisDate.getTime() &&
@@ -1332,8 +1180,6 @@ router.put("/:userId/workouts/:workoutId/save", async function(req, res) {
 router.put(
   "/:userId/workouts/:workoutId/pattern/:patternId/update",
   async function(req, res) {
-    console.log("UPDATE route hit for set #: ", req.params.patternId);
-    console.log("req.body: ", req.body);
     let relatedInputs = {};
     let _User = await User.findById(req.params.userId);
     let _vWID = req.params.workoutId;
@@ -1345,19 +1191,16 @@ router.put(
         relatedInputs[K] = req.body[K];
       }
     }
-    console.log("relatedInputs:", relatedInputs);
+
     if (req.body.saveAlso) {
       await saveWorkout(req.body, _User, req.params.workoutId);
     } else {
       await updateSpecial(relatedInputs, _User, _vWID, PNum, type);
     }
-    // var axiosPutResponse = await axios.put(`${WorkoutURL}/set/${setNum}/update`, putBody);
     res.json(req.body);
   }
 );
 
-// put to "api/user/:userId/change-password"
-// in req.body: {oldPassword: "oldPassword", newPassword: "newPassword"}
 router.put("/:userId/change-password", async function(req, res) {
   var _User = await User.findById(req.params.userId);
   var oldPassword = req.body.oldPassword;
@@ -1376,29 +1219,23 @@ router.put("/:userId/change-password", async function(req, res) {
 });
 
 router.post("/:userId/workouts/:workoutId/save", async function(req, res) {
-  console.log("128 save workout by Id!!!!");
   var _User = await User.findById(req.params.userId);
-  //    console.log("found User?: ", _User);
   var body = req.body;
   await saveWorkout(body, _User, req.params.workoutId);
   res.json(req.body);
 });
 
 router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
-  // console.log("108 save workout by Id");
   var _User = await User.findById(req.params.userId);
   var workoutId = req.params.workoutId;
   var body = req.body;
   body.lastWorkout = false;
-  // Update user's level-up status every time we 'saveWorkout'
+
   await saveWorkout(body, _User, req.params.workoutId, true);
   // Level Up check here -> if last workout
   if (parseInt(workoutId) == _User.workoutDates.length) {
-    console.log("SUBMITTING FINAL WORKOUT! \n\n\n");
-    console.log("LEVEL CHECK! ", workoutId);
     var levelUpStats = _User.stats["Level Up"];
-    // Pre-Level-Up Stats...
-    console.log("User level and block num: ", _User.level, _User.blockNum);
+    // Pre-Level-Up Stats
     if (_User.level >= 11) {
       // This switches no matter what
       if (_User.blockNum == 1) {
@@ -1432,13 +1269,10 @@ router.put("/:userId/workouts/:workoutId/submit", async function(req, res) {
     if (levelUpStats.Status.value != 1) {
       _User.stats["Level Up"].Status = Alloy.Failed;
     }
-    console.log('_User.stats["Level Up"]: ', _User.stats["Level Up"]);
+
     _User.stats["Level Up"].Status.Checked = true;
     _User.stats["Level Up"].Checked = true;
     _User.changed("stats", true);
-    console.log("POST User level and block num: ", _User.level, _User.blockNum);
-    // _User.workoutDates = []; //Added 6/15/2018
-    // _User.workouts = {};
     await _User.save();
     body.lastWorkout = true;
   }
@@ -1464,36 +1298,27 @@ router.put("/:userId/workouts/:workoutId/clear", async function(req, res) {
   _User.workouts[req.params.workoutId].Completed = false;
   _User.changed("workouts", true);
   await _User.save();
-  console.log("newPatterns for: ", req.params.workoutId);
-  // let newPatterns = {};
   res.json(newPatterns);
 });
 
 let suggestWeights = async function(user, workoutId) {
   let _Workout = user.workouts[workoutId];
   let Patterns = _Workout.Patterns;
-  // let newPatterns = {}
-  //Add Same-Reps bool check later
-  console.log("suggestWeights function: ");
   for (let i = 0; i < Patterns.length; i++) {
     let Pattern = Patterns[i];
     let EType = Pattern.type;
     let relatedStat = user.stats[EType];
     let relatedMax = relatedStat.Max;
-    // console.log("relatedStat: ", relatedStat);
     if (Number.isNaN(relatedMax)) {
       continue;
     }
     let minSuggestedWeight = 0;
     let maxSuggestedWeight = 0;
-    // gwParams
     Pattern.setList.forEach(set => {
-      // console.log("set: ", set);
       let gwParams = set.gwParams;
       let Reps = gwParams.Reps;
       let RPE = gwParams.RPE; //string "decimal", range, or null
       if (Number.isInteger(Reps) && RPE) {
-        //if reps is number and RPE exits (string decimal or null)
         if (set.SuggestedRPE.includes("-")) {
           let RPERange = set.SuggestedRPE.split("-");
           let RPE1 = RPERange[0];
@@ -1512,23 +1337,16 @@ let suggestWeights = async function(user, workoutId) {
             set.Reps,
             set.SuggestedRPE
           );
-          if (
-            minSuggestedWeight == 0
-            // || set.suggestedWeight < minSuggestedWeight
-          ) {
+          if (minSuggestedWeight == 0) {
             minSuggestedWeight = set.suggestedWeight;
           }
-          if (
-            maxSuggestedWeight == 0
-            // || set.suggestedWeight > maxSuggestedWeight
-          ) {
+          if (maxSuggestedWeight == 0) {
             maxSuggestedWeight = set.suggestedWeight;
           }
           if (set.suggestedWeight == 0) {
             set.suggestedWeight = "--";
           }
         }
-        // console.log("suggestedWeight: ", set.suggestedWeight);
         set.relatedMax = relatedMax;
       }
     });
@@ -1551,16 +1369,13 @@ let suggestWeights = async function(user, workoutId) {
   user.workouts[workoutId].Patterns = Patterns;
   user.changed("workouts", true);
   await user.save();
-  // console.log("new Patterns: ", Patterns);
   return;
 };
 
 router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
-  console.log("req.params.userId:", req.params.userId);
-  console.log("req.params.workoutId", req.params.workoutId);
   var thisID = req.params.workoutId;
   if (req.params.workoutId == "0") {
-    thisID = "2"; //Test code
+    thisID = "2";
   }
   console.log("thisID: ", thisID);
   let thisUser = await User.findById(req.params.userId);
@@ -1570,50 +1385,24 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
 
   User.findById(req.params.userId).then(async user => {
     await suggestWeights(user, req.params.workoutId);
-    // console.log("user: ", user);
-    // console.log("user.workouts", user.workouts, "thisID", thisID);
+
     var _Workout = user.workouts[thisID];
-    console.log("_Workout: ", _Workout, "thisID", thisID);
+
     var _WorkoutDate = user.workoutDates[thisID - 1];
     let JSON = _Workout;
+
     JSON.thisWorkoutDate = _WorkoutDate;
-    // console.log("this Workout Date get time: ", _WorkoutDate.getTime());
-    // console.log("Date.now: ", Date.now());
-    // console.log("> Comparison: ", _WorkoutDate.getTime() > Date.now());
     let ahead = _WorkoutDate.getTime() > Date.now();
     let timeDiff = Math.abs(_WorkoutDate.getTime() - Date.now());
     let daysDiff = new Date(timeDiff).getDate();
+
     daysDiff = timeDiff / (1000 * 60 * 60 * 24);
     let monthDiff = new Date(timeDiff).getMonth();
-    console.log(
-      "monthDiff: ",
-      monthDiff,
-      "daysDiff: ",
-      daysDiff,
-      "current time: ",
-      new Date(Date.now())
-    );
-    console.log(
-      "timezone1: ",
-      _WorkoutDate.getTimezoneOffset(),
-      "timezone2: ",
-      new Date(Date.now()).getTimezoneOffset()
-    );
-
     let todayDate = moment().local();
     todayDate = todayDate.format("YYYY-MM-DD");
 
     let checkDate = moment(_WorkoutDate).format("YYYY-MM-DD");
-    console.log("todayDate: ", todayDate, " checkDate: ", checkDate);
-    if (accessLevel < 4) {
-      // res.json({
-      // noAccess: true,
-      // accessLevel,
-      // })
-      // return
-    }
-    // console.log("time difference: ", timeDiff);
-    // console.log("N Days: ", new Date(timeDiff).getDate());
+
     let workoutDatelist = [];
     var userWorkouts = user.workouts;
     for (var K in userWorkouts) {
@@ -1624,9 +1413,9 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
       var _W = Workout.Week;
       var _D = Workout.Day;
       var wID = Workout.ID;
-      // var date = G_UserInfo["User"].workoutDates[wID - 1];
+
       var date = dateString(user.workoutDates[wID - 1]);
-      // console.log("date", date, _W, _D, K);
+
       workoutDatelist.push({ Week: _W, Day: _D, Date: date, ID: wID });
     }
 
@@ -1651,12 +1440,7 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
       return;
     }
     let accessible = false;
-    // if (monthDiff == 0 && daysDiff == 0) {
-    //     accessible = true;
-    // }
-    // else {
-    //     accessible = false;
-    // }
+
     let editable = false;
     let noedits = false;
 
@@ -1668,20 +1452,19 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
     JSON.accessible = accessible;
 
     editable = !JSON.Completed && JSON.accessible;
-    // noedits = JSON.completed || !(JSON.accessible);
+
     noedits = JSON.Completed;
     let userAccess = await accessInfo(user, req.session.timezoneOffset);
     if (userAccess.accessLevel < 6) {
       editable = false;
       noedits = true;
     }
-    // if ()
+
     JSON.editable = editable;
     JSON.noedits = noedits;
 
     let Now = new Date(Date.now() - user.TZOffset * 1000 * 60 * 60);
-    console.log("_WorkoutDate: ", _WorkoutDate);
-    console.log("Now: ", Now);
+
     if (user.isAdmin) {
       editable = true;
       noedits = false;
@@ -1695,15 +1478,15 @@ router.get("/:userId/workouts/:workoutId/vue", async function(req, res) {
       editable = false;
     }
     JSON.noedits = noedits;
-    console.log("\n\n noedits & editable: ", noedits, editable);
+
     var vueJSON = getVueInfo(JSON);
-    console.log("getVueInfo just got called (line 1092)");
+
     vueJSON.accessible = accessible;
     vueJSON.noedits = noedits;
-    // vueJSON.accessLevel =
+
     vueJSON.workoutDates = workoutDatelist;
     vueJSON.accessLevel = accessLevel;
-    console.log("vueJSON.accessLevel: ", vueJSON.accessLevel);
+
     res.json(vueJSON);
   });
 });
@@ -1772,7 +1555,7 @@ router.get("/:userId/stats/vue/get", function(req, res) {
     }
     await correctStatNames(user, user.level);
     console.log(JSONStats);
-    // res.json(user.workouts);
+
     var nWorkoutsComplete = 0;
     var nWorkouts = 0;
     for (var K in user.workouts) {
@@ -1781,7 +1564,7 @@ router.get("/:userId/stats/vue/get", function(req, res) {
       }
       nWorkouts++;
     }
-    // user.
+
     var percentComplete = Math.round((nWorkoutsComplete * 100) / nWorkouts);
     var vueData = {
       level: user.level,
@@ -1964,7 +1747,6 @@ router.put("/:userId/generate-workouts", async function(req, res) {
     parseInt(input["Day-3"])
   ];
   await generateWorkouts(_User, startDate, daysList, stringDate);
-  //Formerly used assignWorkouts(_User, input)
   await _User.save();
   res.json({
     input,
@@ -1980,22 +1762,17 @@ router.put("/:userId/generate-workouts", async function(req, res) {
 });
 
 router.post("/:userId/get-next-workouts", async function(req, res) {
-  console.log("posting to get-next-workouts (line 432): ");
-  // console.log("userId: ", req.params.userId);
   var _User = await User.findById(req.params.userId);
   var input = req.body;
-  console.log("input.workoutLevel: ", input.workoutLevel);
+
   input.userId = req.params.userId;
-  // console.log("91", input);
+
   _User.oldstats = [];
   _User.oldworkouts = [];
   await _User.save();
   if (_User.workoutDates.length > 0) {
     var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
-    console.log(
-      "last workout date in list: ",
-      _User.workoutDates[_User.workoutDates.length - 1]
-    );
+
     var _oldStat = {
       finishDate: lastWDate,
       level: _User.level
@@ -2010,7 +1787,6 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
   }
   if (input.workoutLevel != "") {
     _User.level = parseInt(input.workoutLevel);
-    console.log("line 481, user.level: ", _User.level);
     if (_User.level >= 11) {
       _User.blockNum = parseInt(req.body.workoutBlock);
       if (_User.level >= 16) {
@@ -2028,7 +1804,7 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
     }
     await _User.save();
   }
-  console.log("line 501");
+
   let stringDate = false;
   let startDate = "";
   if (input.startDate) {
@@ -2045,7 +1821,6 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
     parseInt(input["Day-3"])
   ];
   await generateWorkouts(_User, startDate, daysList, stringDate);
-  // Formerly used await assignWorkouts(_User, input);
   await _User.save();
 
   res.json({
@@ -2058,28 +1833,15 @@ router.post("/:userId/get-next-workouts", async function(req, res) {
       userId: _User.id
     }
   });
-  // res.send("test");
+
   return;
 });
 
-// admin set-level post info:
-// {
-// startDate: "YYYY-MM-DD",
-// daysList: [1, 3, 5],
-// newLevel: 18,
-// }
 // Admins can set their level
 router.post("/:userId/admin/generate-workouts", async function(req, res) {
-  console.log("ADMIN GENERATE WORKOUTS: (LINE 457)");
-  // console.log("req.body: ", req.body);
-  console.log("startDate: ", req.body.startDate);
   var _User = await User.findById(req.params.userId);
   if (_User.workoutDates.length > 0) {
     var lastWDate = _User.workoutDates[_User.workoutDates.length - 1];
-    console.log(
-      "last workout date in list: ",
-      _User.workoutDates[_User.workoutDates.length - 1]
-    );
     var _oldStat = {
       finishDate: lastWDate,
       level: _User.level
@@ -2117,7 +1879,7 @@ router.post("/:userId/admin/generate-workouts", async function(req, res) {
     }
     _User.blockNum = 0;
   }
-  console.log("USER.LEVEL, BLOCKNUM: ", _User.level, _User.blockNum);
+
   await _User.save();
   var stringDate = false;
   if (req.body.stringDate) {
@@ -2146,7 +1908,6 @@ function vueConvert(JSON, levelFilter) {
     selectedVideo: {}
   };
   for (var Key in JSON) {
-    // console.log(Key);
     var VideosCategory = JSON[Key];
     for (var K in VideosCategory) {
       if (VideosCategory[K].LevelAccess <= levelFilter) {
@@ -2159,18 +1920,16 @@ function vueConvert(JSON, levelFilter) {
             "/preview";
         }
         elem.label = K;
-        console.log("pushing video: ", elem.label);
+
         elem.image = "../../static/video_placeholder.png";
         elem.levels = LevelList.slice(elem.LevelAccess - 1);
         if (Object.keys(output.selectedVideo).length === 0) {
           output.selectedVideo = elem;
         }
         output.videoList.push(elem);
-        // console.log(elem);
       }
     }
   }
-  // console.log(output);
   return output;
 }
 
@@ -2217,12 +1976,8 @@ let vueVideos = async function(userLevel) {
 router.get("/:userId/videos", async function(req, res) {
   var videosUser = await User.findById(req.params.userId);
   let userAccess = await accessInfo(videosUser, req.session.timezoneOffset);
-  console.log("videosVue 1: ");
-  //   var videos = VideosVue(VideosJSON, videosUser.level);
+
   var videos = await vueVideos(videosUser.level);
-  // console.log('videosVue 2: ');
-  // let _videos = VideosVue(LevelVideos, videosUser.level);
-  // videos.videoList = videos.videoList.concat(_videos.videoList);
 
   videos.accessLevel = userAccess.accessLevel;
   res.json(videos);

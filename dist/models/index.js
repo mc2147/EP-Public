@@ -11,12 +11,6 @@ var _require = require("../globals/enums"),
 var _require2 = require("../data"),
     ExerciseDict = _require2.ExerciseDict;
 
-// import {Alloy} from '../globals/enums';
-
-// var globalFuncs = require('../globals/functions');
-// var data = require('../data');
-// var ExerciseDict = data.ExerciseDict.Exercises;
-
 var db = new Sequelize(process.env.DATABASE_URL || "postgres://localhost:5432/AS_db", {
   logging: false,
   dialectOptions: { decimalNumbers: true }
@@ -376,21 +370,13 @@ var SubWorkoutTemplate = db.define("SubWorkoutTemplate", {
       if (this.deload && this.deload != 0) {
         pattern.describer += ", Deload: " + this.deload;
       }
-      // else {
-      //     pattern.describer = setString + " x " + repString + " @ " + RPEString;
-      // }
+
       return pattern;
     }
   }
 });
 
 var User = db.define("User", {
-  // id: {
-  //     type: Sequelize.INTEGER,
-  //     // allowNull: true,
-  //     primaryKey: true,
-  //     autoIncrement: true,
-  // },
   notifiedMissedWorkouts: {
     type: Sequelize.BOOLEAN,
     defaultValue: false
@@ -469,11 +455,6 @@ var User = db.define("User", {
     type: Sequelize.JSON,
     allowNull: true,
     defaultValue: {}
-    //ID'd by workout # (per L Group, Block)
-    //Can have a "current" value to quickly get current workout
-    //Missing workout case:
-    //Shift workoutDates by 1 after current(?)
-    //Reassign (completed) to all
   },
   oldworkouts: {
     type: Sequelize.ARRAY(Sequelize.JSON),
@@ -494,14 +475,8 @@ var User = db.define("User", {
   workoutDates: {
     allowNull: true,
     type: Sequelize.ARRAY(Sequelize.DATE),
-    //Same dates as with workouts, ID'd by workout # (per L Group, Block)
-    //For easy indexing with workouts, finding closest date, etc.
     defaultValue: []
   },
-  // currentWorkoutID: {
-  //     type: Sequelize.INTEGER,
-  //     //To easily find current/next workout
-  // },
   startDate: {
     type: Sequelize.DATE,
     allowNull: true
@@ -509,8 +484,8 @@ var User = db.define("User", {
   signUpDate: {
     type: Sequelize.DATE,
     allowNull: true
-    // thisPatterns: [],
-  } }, {
+  }
+}, {
   getterMethods: {
     workoutsCompleted: function workoutsCompleted() {
       var workouts = this.workouts;
@@ -547,9 +522,6 @@ WorkoutTemplate.hasMany(SubWorkoutTemplate, {
   foreignKey: "fk_workout",
   as: "subWorkouts"
 });
-
-// db.sync({force: true});
-// db.sync();
 
 module.exports = {
   db: db,

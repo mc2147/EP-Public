@@ -8,13 +8,10 @@
     "start": "npm run build && nodemon --exec npm run babel-node -- ./app.js",
     "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules",
     "postinstall": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "npm run build && npm run babel-node -- ./script/seed.js",
     "seed-workouts": "npm run build && npm run babel-node -- ./script/seed-workouts.js",
     "seed-videos": "npm run build && npm run babel-node -- ./script/seed-videos.js",
     "seed-users": "npm run build && npm run babel-node -- ./script/seed-users.js",
     "modify-users": "npm run build && npm run babel-node -- ./script/modify-users.js",
-    "modify-stripe": "npm run build && npm run babel-node -- ./script/modify-stripe.js",
     "destroy-all-users": "npm run build && npm run babel-node -- ./script/destroy-all-users.js"
   },
   "author": "",

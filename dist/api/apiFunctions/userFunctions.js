@@ -50,16 +50,12 @@ async function signupUser(input) {
   var userExists = false;
   if (existingUser) {
     userExists = true;
-    // return {
-    //     userExists,
-    // }
   }
   var salt = generateSalt();
   if (P1 == P2) {
     var hashedPassword = generateHash(P1, salt);
     if (!userExists) {
       var newUser = await _models.User.create({
-        // id: 29,
         username: username,
         name: name,
         salt: salt,
@@ -89,7 +85,6 @@ async function signupUser(input) {
 }
 
 async function assignLevel(_User, input) {
-  console.log("assigning level!!!");
   var squatWeight = input.squatWeight,
       benchWeight = input.benchWeight,
       RPEExp = input.RPEExp,
@@ -100,7 +95,6 @@ async function assignLevel(_User, input) {
   } else if (squatWeight > bodyWeight * 1.5 && benchWeight > bodyWeight && RPEExp) {
     _User.level = 11;
     _User.blockNum = 1;
-    console.log("level 11! blockNum: ", _User.blockNum);
   } else {
     _User.level = 6;
   }
@@ -111,7 +105,7 @@ async function accessInfo(user) {
   var timezoneOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
   var TZOffset = parseInt(user.TZOffset);
-  console.log("TZOffset: ", TZOffset);
+
   var response = Object.assign({}, user);
   var Now = new Date(Date.now() - TZOffset * 1000 * 60 * 60);
   // Workouts
@@ -131,7 +125,7 @@ async function accessInfo(user) {
   var subscriptionsList = [];
   //
   console.log("user access info for: ", user.username);
-  // console.log("user (accessInfo): ", user);
+
   if (user.stripeId != "") {
     try {
       var stripeUser = await stripe.customers.retrieve(user.stripeId);
@@ -175,14 +169,7 @@ async function accessInfo(user) {
   if (user.stats["Level Up"] && !user.stats["Level Up"].Checked) {
     hasWorkouts = true;
   }
-  // if (user.workoutDates.length > 0) {
-  //     hasWorkouts = true;
-  // }
-  // if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
-  // initialized = true;
-  // }
-  // Checking for missed workouts
-  console.log("Now: ", Now);
+
   for (var K in user.workouts) {
     var W = user.workouts[K];
     var wDate = new Date(W.Date);
@@ -221,7 +208,7 @@ async function accessInfo(user) {
     missedWorkouts: missedWorkouts,
     initialized: initialized
   };
-  // console.log
+
   if (hadSubscription) {
     accessLevel = 1;
   }

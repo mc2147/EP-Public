@@ -28,16 +28,12 @@ export async function signupUser(input) {
   let userExists = false;
   if (existingUser) {
     userExists = true;
-    // return {
-    //     userExists,
-    // }
   }
   var salt = generateSalt();
   if (P1 == P2) {
     var hashedPassword = generateHash(P1, salt);
     if (!userExists) {
       var newUser = await User.create({
-        // id: 29,
         username: username,
         name,
         salt: salt,
@@ -67,7 +63,6 @@ export async function signupUser(input) {
 }
 
 export async function assignLevel(_User, input) {
-  console.log("assigning level!!!");
   let { squatWeight, benchWeight, RPEExp, bodyWeight } = input;
   if (squatWeight < bodyWeight) {
     _User.level = 1;
@@ -78,7 +73,6 @@ export async function assignLevel(_User, input) {
   ) {
     _User.level = 11;
     _User.blockNum = 1;
-    console.log("level 11! blockNum: ", _User.blockNum);
   } else {
     _User.level = 6;
   }
@@ -87,7 +81,7 @@ export async function assignLevel(_User, input) {
 
 export async function accessInfo(user, timezoneOffset = 0) {
   let TZOffset = parseInt(user.TZOffset);
-  console.log("TZOffset: ", TZOffset);
+
   let response = Object.assign({}, user);
   let Now = new Date(Date.now() - TZOffset * 1000 * 60 * 60);
   // Workouts
@@ -107,7 +101,7 @@ export async function accessInfo(user, timezoneOffset = 0) {
   let subscriptionsList = [];
   //
   console.log("user access info for: ", user.username);
-  // console.log("user (accessInfo): ", user);
+
   if (user.stripeId != "") {
     try {
       let stripeUser = await stripe.customers.retrieve(user.stripeId);
@@ -154,14 +148,7 @@ export async function accessInfo(user, timezoneOffset = 0) {
   if (user.stats["Level Up"] && !user.stats["Level Up"].Checked) {
     hasWorkouts = true;
   }
-  // if (user.workoutDates.length > 0) {
-  //     hasWorkouts = true;
-  // }
-  // if (user.workoutDates.length > 0 || user.oldworkouts.length > 0) {
-  // initialized = true;
-  // }
-  // Checking for missed workouts
-  console.log("Now: ", Now);
+
   for (var K in user.workouts) {
     let W = user.workouts[K];
     let wDate = new Date(W.Date);
@@ -209,7 +196,7 @@ export async function accessInfo(user, timezoneOffset = 0) {
     missedWorkouts,
     initialized
   };
-  // console.log
+
   if (hadSubscription) {
     accessLevel = 1;
   }

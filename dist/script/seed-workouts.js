@@ -1,16 +1,12 @@
-'use strict';
+"use strict";
 
-// const models = require('../models');
-console.log("seeding workouts");
-var testJS = require('./test');
+var testJS = require("./test");
 
-var _require = require('../models/generateTemplates'),
+var _require = require("../models/generateTemplates"),
     MakeTemplates = _require.MakeTemplates,
     CreateWorkoutTemplate = _require.CreateWorkoutTemplate;
-// const generateTemplates = require('../models/generateTemplates');
 
-
-var data = require('../data');
+var data = require("../data");
 
 async function generateTemplates() {
   await MakeTemplates(1, 0);
@@ -26,5 +22,5 @@ generateTemplates().catch(function (err) {
   console.error(err.stack);
   process.exitCode = 1;
 }).then(function () {
-  console.log('finished seeding workouts');
+  console.log("finished seeding workouts");
 });
